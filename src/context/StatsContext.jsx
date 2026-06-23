@@ -129,7 +129,10 @@ export function StatsProvider({ children }) {
       if (score >= 70) {
         newGroupProgress[groupId] = 'completed';
         const next = LETTER_GROUPS.find(g => g.unlocksAfter===groupId);
-        if (next) newGroupProgress[next.id] = 'available';
+        // Only unlock next group if it's still locked — don't downgrade completed/available
+        if (next && newGroupProgress[next.id] === 'locked') {
+          newGroupProgress[next.id] = 'available';
+        }
       }
       const updated = {
         ...prev,

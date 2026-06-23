@@ -1,12 +1,16 @@
 {
   "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "crons": [
+    { "path": "/api/cron?type=daily",  "schedule": "0 9 * * *"  },
+    { "path": "/api/cron?type=smart",  "schedule": "0 18 * * *" }
+  ],
+  "headers": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    },
-    {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "source": "/api/cron",
+      "headers": [{ "key": "x-cron-secret", "value": "from-vercel-cron" }]
     }
   ]
 }

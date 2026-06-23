@@ -1,5 +1,6 @@
 import { createContext, useContext, useCallback, useState, useEffect, useRef } from "react";
 import { INITIAL_STATS, computeLevel } from "../data/constants";
+import { saveStatsToServer, loadStatsFromServer } from "../helpers/serverSync";
 import { LETTER_GROUPS } from "../data/alphabet";
 
 const STORAGE_KEY = "hebrew-app-stats";
@@ -68,11 +69,28 @@ export function StatsProvider({ children }) {
   const [ready, setReady] = useState(false);
   const saveRef = useRef(null);
 
-  useEffect(() => { loadFromStorage().then(s => { setStats(s); setReady(true); }); }, []);
+  useEffect(() => {
+    (async () => {
+      // 1. Load from local storage first (instant)
+      const local = await loadFromStorage();
+      setStats(local);
+      setReady(true);
 
+      // 2. Try to load from server (may have fresher data from another device)
+      const server = await loadStatsFromServer();
+      if (server && (server.updatedAt || 0) > (local.updatedAt || 0)) {
+        setStats({ ...INITIAL_STATS, ...server });
+      }
+    })();
+  }, []);
+
+  const serverSaveRef = useRef(null);
   const scheduleSave = useCallback((data) => {
     clearTimeout(saveRef.current);
     saveRef.current = setTimeout(() => saveToStorage(data), 300);
+    // Save to server with longer debounce (3s)
+    clearTimeout(serverSaveRef.current);
+    serverSaveRef.current = setTimeout(() => saveStatsToServer(data), 3000);
   }, []);
 
   const updateStats = useCallback((updater) => {

@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Remove tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent iOS bounce scroll */
+html, body {
+  overscroll-behavior: none;
+  height: 100%;
+}
+
+/* Respect Telegram safe areas (notch, home bar) */
+#root {
+  padding-bottom: env(safe-area-inset-bottom);
+}

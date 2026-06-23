@@ -136,13 +136,13 @@ export default function CardsScreen() {
       <div onClick={()=>setFlipped(f=>!f)} style={{perspective:1000}} className="cursor-pointer mb-5" role="button">
         <div style={{transformStyle:'preserve-3d',transform:flipped?'rotateY(180deg)':'rotateY(0deg)',transition:'transform 0.45s',position:'relative',height:260}}>
           <div style={{backfaceVisibility:'hidden'}}
-            className={`absolute inset-0 rounded-3xl flex flex-col items-center justify-center shadow-lg border ${dark?'bg-gray-800 border-gray-700':'bg-white border-gray-100'}`}>
+            className={`absolute inset-0 rounded-3xl flex flex-col items-center justify-center shadow-lg border ${dark?'bg-gray-700 border-gray-600':'bg-white border-gray-100'}`}>
             <span style={{fontSize:110,lineHeight:1,fontFamily:'serif'}}>{card.symbol}</span>
             {card.isFinalForm&&<span className={`text-xs mt-2 px-2 py-0.5 rounded-full ${dark?'bg-indigo-900 text-indigo-300':'bg-indigo-100 text-indigo-600'}`}>финальная форма</span>}
             <p className={`text-xs mt-4 ${dark?'text-gray-600':'text-gray-300'}`}>нажмите чтобы открыть</p>
           </div>
           <div style={{backfaceVisibility:'hidden',transform:'rotateY(180deg)'}}
-            className={`absolute inset-0 rounded-3xl flex flex-col items-center justify-center p-6 shadow-lg ${dark?'bg-indigo-900':'bg-indigo-600'} text-white`}>
+            className={`absolute inset-0 rounded-3xl flex flex-col items-center justify-center p-6 shadow-lg ${dark?'bg-indigo-800':'bg-indigo-500'} text-white`}>
             <span style={{fontSize:56,fontFamily:'serif'}}>{card.symbol}</span>
             <h3 className="text-2xl font-bold mt-1">{card.name}</h3>
             <p className="text-indigo-200 text-sm mt-0.5">«{card.sound}» · {card.trans}</p>

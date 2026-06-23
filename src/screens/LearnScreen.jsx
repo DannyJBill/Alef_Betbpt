@@ -96,7 +96,7 @@ export default function LearnScreen() {
               </div>
               {unlocked && (
                 <span className={`text-xs px-2 py-0.5 rounded-full border ${c.border} ${c.bg} ${c.text}`}>
-                  {progress==='completed' ? `${score}%` : progress==='available' ? 'Начать →' : 'В процессе'}
+                  {progress==='completed' ? `✓ ${score}% · Повторить` : progress==='available' ? 'Начать →' : 'В процессе'}
                 </span>
               )}
             </div>
@@ -229,10 +229,24 @@ export default function LearnScreen() {
           </div>
         )}
         {isPassed ? (
-          <button onClick={()=>setPhase('groups')}
-            className={`w-full py-4 rounded-2xl font-bold text-white text-lg ${colors.fill}`}>
-            {nextGrp ? `Перейти к «${nextGrp.name}» →` : 'Все группы пройдены! 🏆'}
-          </button>
+          <div className="w-full flex flex-col gap-3">
+            {nextGrp && (
+              <button onClick={()=>setPhase('groups')}
+                className={`w-full py-4 rounded-2xl font-bold text-white text-lg ${colors.fill}`}>
+                Перейти к «{nextGrp.name}» →
+              </button>
+            )}
+            {!nextGrp && (
+              <button onClick={()=>setPhase('groups')}
+                className={`w-full py-4 rounded-2xl font-bold text-white text-lg ${colors.fill}`}>
+                Все группы пройдены! 🏆
+              </button>
+            )}
+            <button onClick={()=>setPhase('groups')}
+              className={`w-full py-3 rounded-2xl border font-medium ${dark?'border-gray-700 text-gray-400':'border-gray-200 text-gray-500'}`}>
+              К списку групп
+            </button>
+          </div>
         ) : (
           <div className="w-full flex flex-col gap-3">
             <button onClick={()=>{ setLetterIdx(0); setPhase('studying'); }}

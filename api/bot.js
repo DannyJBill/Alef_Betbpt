@@ -51,15 +51,18 @@ async function getStats(telegramId) {
     .from("user_stats")
     .select("stats")
     .eq("telegram_id", telegramId)
-    .single();
+    .maybeSingle();
   return data?.stats || null;
 }
 
 // ── Commands ──────────────────────────────────────────────────────────────────
 
 async function cmdStart(chatId, user) {
+  // Strip invisible unicode chars, fallback to username or "друг"
+  const name = (user.first_name || "").replace(/[\u1160-\u11FF\uFFA0-\uFFDC\u3164]/g, "").trim()
+    || user.username || "друг";
   await send(chatId,
-    `👋 Шалом, <b>${user.first_name || "друг"}</b>!\n\n` +
+    `👋 Шалом, <b>${name}</b>!\n\n` +
     `Учи ивритский алфавит — 22 буквы, игры, SM-2 повторения и AI-помощник 🇮🇱\n\n` +
     `Нажми кнопку ниже 👇`,
     { reply_markup: { inline_keyboard: [[

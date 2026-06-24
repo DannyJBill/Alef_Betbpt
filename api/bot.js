@@ -33,10 +33,10 @@ async function getStats(telegramId) {
 async function cmdStart(chatId, user) {
   await send(chatId,
     `👋 Шалом, <b>${user.first_name || "друг"}</b>!\n\n` +
-    `Учи ивритский алфавит — 22 буквы, игры, SM-2 повторения и AI-помощник 🇮🇱\n\n` +
-    `Нажми кнопку ниже 👇`,
+    `Учи алфавит — карточки, игры и AI-помощник 🇮🇱\n\n` +
+    `Нажми ниже 👇`,
     { reply_markup: { inline_keyboard: [[
-      { text: "📖 Открыть Alef Bet", web_app: { url: APP_URL } }
+      { text: "📖 Открыть AlefBet", web_app: { url: APP_URL } }
     ]]}}
   );
 }
@@ -107,7 +107,7 @@ export async function sendDailyReminders() {
       : `📖 <b>Учись каждый день!</b>\n\n🔥 Серия: ${s?.streak || 0} дней\nЗайди и пройди новую группу!`;
 
     await send(telegram_id, text, { reply_markup: { inline_keyboard: [[
-      { text: "📖 Открыть Alef Bet", web_app: { url: APP_URL } }
+      { text: "📖 Открыть AlefBet", web_app: { url: APP_URL } }
     ]]}});
     sent++;
     await new Promise(r => setTimeout(r, 50));

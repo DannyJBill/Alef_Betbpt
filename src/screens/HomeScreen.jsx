@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { ALPHABET, ALL_LETTERS, LETTER_GROUPS } from "../data/alphabet";
@@ -5,8 +6,50 @@ import { levelProgress } from "../data/constants";
 import { getGroupLetters, GROUP_COLORS } from "../helpers/groupHelpers";
 import ProgressBar from "../components/ui/ProgressBar";
 
+const GROUP_INFO = [
+  {
+    id: 1, emoji: "🌱", color: "emerald",
+    title: "Первые шаги",
+    letters: "א ב ג ד ה ו",
+    desc: "Шесть самых частых букв иврита. Алеф молчит, Бет говорит «б» или «в», Вав может быть гласной. С этих букв написана половина любого текста.",
+  },
+  {
+    id: 2, emoji: "🔊", color: "blue",
+    title: "Звуки и формы",
+    letters: "ז ח ט י כ ל",
+    desc: "Здесь появляются звуки без аналогов в русском: Хэт — глубокий «х», Айин — почти беззвучный. Йод — самая маленькая буква, Ламед — самая высокая.",
+  },
+  {
+    id: 3, emoji: "👯", color: "amber",
+    title: "Похожие буквы",
+    letters: "מ נ ס ע פ",
+    desc: "Самая каверзная группа — буквы легко перепутать между собой. Мем и Нун, Самех и Тэт похожи визуально. Айин беззвучен, как Алеф.",
+  },
+  {
+    id: 4, emoji: "💎", color: "rose",
+    title: "Редкие буквы",
+    letters: "צ ק ר ש ת",
+    desc: "Завершение алфавита. Шин с тремя зубцами, Тав — последняя буква. Рэйш произносится картаво. Цади даёт звук «ц».",
+  },
+  {
+    id: 5, emoji: "✨", color: "purple",
+    title: "Финальные формы",
+    letters: "ך ם ן ף ץ",
+    desc: "Пять букв меняют облик в конце слова. Каф становится Каф-Софит, Мем закрывается в квадрат. Та же буква — другое написание.",
+  },
+];
+
+const GROUP_COLORS_INFO = {
+  emerald: { bg: "bg-emerald-50 dark:bg-emerald-950", text: "text-emerald-700 dark:text-emerald-300", border: "border-emerald-200 dark:border-emerald-800", dot: "bg-emerald-500" },
+  blue:    { bg: "bg-blue-50 dark:bg-blue-950",       text: "text-blue-700 dark:text-blue-300",       border: "border-blue-200 dark:border-blue-800",       dot: "bg-blue-500" },
+  amber:   { bg: "bg-amber-50 dark:bg-amber-950",     text: "text-amber-700 dark:text-amber-300",     border: "border-amber-200 dark:border-amber-800",     dot: "bg-amber-500" },
+  rose:    { bg: "bg-rose-50 dark:bg-rose-950",       text: "text-rose-700 dark:text-rose-300",       border: "border-rose-200 dark:border-rose-800",       dot: "bg-rose-500" },
+  purple:  { bg: "bg-purple-50 dark:bg-purple-950",   text: "text-purple-700 dark:text-purple-300",   border: "border-purple-200 dark:border-purple-800",   dot: "bg-purple-500" },
+};
+
 export default function HomeScreen({ onStart, onCards }) {
   const { dark } = useTheme();
+  const [groupsOpen, setGroupsOpen] = useState(false);
   const { stats, getDueCards } = useStats();
 
   const todayPct   = Math.min(100, (stats.dailyDone / stats.dailyGoal) * 100);
@@ -118,6 +161,37 @@ export default function HomeScreen({ onStart, onCards }) {
             );
           })}
         </div>
+      </div>
+
+      {/* Groups info accordion */}
+      <div className={`rounded-2xl border mb-4 overflow-hidden ${dark?"bg-gray-800 border-gray-700":"bg-white border-gray-100"}`}>
+        <button
+          onClick={() => setGroupsOpen(o => !o)}
+          className={`w-full flex items-center justify-between px-4 py-3 transition-all ${dark?"hover:bg-gray-750":"hover:bg-gray-50"}`}>
+          <div className="flex items-center gap-2">
+            <span className="text-base">📖</span>
+            <span className={`font-bold text-sm ${dark?"text-white":"text-gray-800"}`}>Про группы букв</span>
+          </div>
+          <span className={`text-xs transition-transform duration-200 ${groupsOpen?"rotate-180":""} ${dark?"text-gray-400":"text-gray-400"}`}>▼</span>
+        </button>
+        {groupsOpen && (
+          <div className={`border-t ${dark?"border-gray-700":"border-gray-100"}`}>
+            {GROUP_INFO.map((g, i) => {
+              const c = GROUP_COLORS_INFO[g.color];
+              return (
+                <div key={g.id} className={`px-4 py-3 ${i < GROUP_INFO.length-1 ? (dark?"border-b border-gray-700":"border-b border-gray-50") : ""}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`w-2 h-2 rounded-full ${c.dot}`}/>
+                    <span className="text-base">{g.emoji}</span>
+                    <span className={`font-semibold text-sm ${c.text}`}>{g.title}</span>
+                    <span className={`ml-auto font-bold text-base tracking-wider ${c.text}`} style={{fontFamily:"serif",direction:"rtl"}}>{g.letters}</span>
+                  </div>
+                  <p className={`text-xs leading-relaxed ${dark?"text-gray-400":"text-gray-500"}`}>{g.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Alphabet grid — show unlocked letters */}

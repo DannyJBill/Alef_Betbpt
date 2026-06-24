@@ -88,12 +88,50 @@ async function cmdReset(chatId, telegramId) {
   );
 }
 
+// ── Stars: обработка успешного платежа ────────────────────────────────────────
+
+async function handleSuccessfulPayment(telegramId, payment) {
+  const payload = payment.invoice_payload || "";
+  console.log(`[payments] successful_payment: telegramId=${telegramId}, payload=${payload}`);
+
+  const [productId] = payload.split(":");
+
+  if (productId === "nikud_lifetime") {
+    const { data: row } = await supabase
+      .from("user_stats")
+      .select("stats")
+      .eq("telegram_id", telegramId)
+      .maybeSingle();
+
+    const existing = row?.stats || {};
+    const updated  = {
+      ...existing,
+      isPremium:          true,
+      premiumPurchasedAt: Date.now(),
+      premiumType:        "lifetime",
+      xp:                 (existing.xp || 0) + 200,
+    };
+
+    await supabase
+      .from("user_stats")
+      .upsert({
+        telegram_id: telegramId,
+        stats:       updated,
+        updated_at:  new Date().toISOString(),
+      }, { onConflict: "telegram_id" });
+
+    console.log(`[payments] isPremium set for user ${telegramId}`);
+    return true;
+  }
+
+  return false;
+}
+
 // ── Push senders (called by cron) ─────────────────────────────────────────────
 
-// Send in batches to avoid Vercel function timeout (10s on free plan)
 async function sendBatch(rows, textFn, filterFn) {
-  const BATCH_SIZE = 30;
-  const BATCH_DELAY = 1000; // 1s between batches
+  const BATCH_SIZE  = 30;
+  const BATCH_DELAY = 1000;
   let sent = 0;
 
   const eligible = rows.filter(filterFn);
@@ -120,7 +158,7 @@ export async function sendDailyReminders() {
   if (!rows) return 0;
 
   const today = new Date().toDateString();
-  const now = Date.now();
+  const now   = Date.now();
 
   return sendBatch(
     rows,
@@ -160,7 +198,7 @@ export default async function handler(req, res) {
 
   // Inline button press
   if (body.callback_query) {
-    const { id, data, from, message } = body.callback_query;
+    const { id, data, message } = body.callback_query;
     await fetch(`${API}/answerCallbackQuery`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -172,6 +210,38 @@ export default async function handler(req, res) {
       await send(message.chat.id, "✅ Прогресс сброшен. Начинаем с чистого листа! 🌱");
     } else if (data === "cancel") {
       await send(message.chat.id, "❌ Отменено. Прогресс сохранён.");
+    }
+    return res.status(200).end();
+  }
+
+  // Stars: подтверждение pre_checkout (обязательно в течение 10 секунд)
+  if (body.pre_checkout_query) {
+    await fetch(`${API}/answerPreCheckoutQuery`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pre_checkout_query_id: body.pre_checkout_query.id,
+        ok: true,
+      }),
+    });
+    return res.status(200).end();
+  }
+
+  // Stars: успешный платёж
+  if (body.message?.successful_payment) {
+    const telegramId = body.message.from?.id;
+    const payment    = body.message.successful_payment;
+
+    if (telegramId) {
+      const ok = await handleSuccessfulPayment(telegramId, payment);
+      if (ok) {
+        await send(telegramId,
+          "🎉 <b>Предзаказ оформлен!</b>\n\n" +
+          "Ты в числе первых — раздел огласовок откроется автоматически как только выйдет.\n\n" +
+          "🎁 Бонус: +200 XP начислено\n\n" +
+          "Следи за обновлениями здесь в боте."
+        );
+      }
     }
     return res.status(200).end();
   }

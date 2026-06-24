@@ -5,13 +5,14 @@ import { LETTER_GROUPS } from "../data/alphabet";
 import { Analytics } from "../helpers/analytics";
 
 const STORAGE_KEY = "hebrew-app-stats";
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 const TGCloud = window.Telegram?.WebApp?.CloudStorage;
 function tgGet(k) { return new Promise((res,rej) => TGCloud.getItem(k,(e,v)=>e?rej(e):res(v))); }
 function tgSet(k,v) { return new Promise((res,rej) => TGCloud.setItem(k,v,e=>e?rej(e):res())); }
 
 function migrate(p) {
+  // v1 → v2
   if (p.version === 1) {
     p.groupProgress   = { 1:'available', 2:'locked', 3:'locked', 4:'locked', 5:'locked' };
     p.groupTestScores = {};
@@ -22,7 +23,7 @@ function migrate(p) {
     p.lastStudiedDate = null;
     p.version = 2;
   }
-  // Referral fields migration
+  // Referral fields (v2 patch)
   if (!p.referralCode) {
     const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
     p.referralCode      = tgId ? `ref_${tgId}` : `ref_${Date.now()}`;
@@ -30,6 +31,14 @@ function migrate(p) {
     p.referralRewarded  = false;
     p.referralsCount    = 0;
     p.referralsXpEarned = 0;
+  }
+  // v2 → v3: premium + AI usage
+  if (!p.version || p.version < 3) {
+    if (p.isPremium === undefined)          p.isPremium          = false;
+    if (p.premiumPurchasedAt === undefined) p.premiumPurchasedAt = null;
+    if (p.premiumType === undefined)        p.premiumType        = null;
+    if (!p.aiUsageToday)                    p.aiUsageToday       = { date: null, count: 0 };
+    p.version = 3;
   }
   return p;
 }
@@ -77,7 +86,6 @@ function applyStreak(stats) {
   return { ...stats, streak: stats.lastStudiedDate===yesterday ? stats.streak+1 : 1, lastStudiedDate: today };
 }
 
-// Register referral link on first open
 async function registerReferral(newUserId, startParam) {
   if (!startParam?.startsWith("ref_")) return;
   try {
@@ -89,7 +97,6 @@ async function registerReferral(newUserId, startParam) {
   } catch { /* silent */ }
 }
 
-// Notify server to reward referrer
 async function rewardReferrer(referrerId, refereeName) {
   try {
     await fetch("/api/referral/reward", {
@@ -105,8 +112,8 @@ const StatsContext = createContext(null);
 export function StatsProvider({ children }) {
   const [stats, setStats] = useState(INITIAL_STATS);
   const [ready, setReady] = useState(false);
-  const saveRef       = useRef(null);
-  const serverSaveRef = useRef(null);
+  const saveRef         = useRef(null);
+  const serverSaveRef   = useRef(null);
   const referralDoneRef = useRef(false);
 
   useEffect(() => {
@@ -115,20 +122,19 @@ export function StatsProvider({ children }) {
       setStats(local);
       setReady(true);
 
-      // Load from server (fresher data from another device)
+      // Загрузить с сервера (данные с другого устройства могут быть свежее)
       const server = await loadStatsFromServer();
       if (server && (server.updatedAt || 0) > (local.updatedAt || 0)) {
         setStats({ ...INITIAL_STATS, ...migrate(server) });
       }
 
-      // Register referral on first open (only once)
+      // Referral — только один раз
       if (!referralDoneRef.current) {
         referralDoneRef.current = true;
         const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
         const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
         if (tgUser?.id && startParam && !local.referredBy) {
           await registerReferral(tgUser.id, startParam);
-          // Save referredBy to local stats
           const referrerId = Number(startParam.replace("ref_", ""));
           if (referrerId && referrerId !== tgUser.id) {
             setStats(prev => {
@@ -143,10 +149,8 @@ export function StatsProvider({ children }) {
   }, []);
 
   const scheduleSave = useCallback((data) => {
-    // Local storage — fast (300ms debounce)
     clearTimeout(saveRef.current);
     saveRef.current = setTimeout(() => saveToStorage(data), 300);
-    // Server save — slow debounce (30s) to avoid hammering Supabase
     clearTimeout(serverSaveRef.current);
     serverSaveRef.current = setTimeout(() => saveStatsToServer(data), 30000);
   }, []);
@@ -196,9 +200,8 @@ export function StatsProvider({ children }) {
           newGroupProgress[nextGroup.id] = 'available';
         }
 
-        // Referral reward — trigger on first pass of group 1
         if (groupId === 1 && !prev.referralRewarded && prev.referredBy) {
-          xpBonus += 100; // +100 XP для себя
+          xpBonus += 100;
           const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
           rewardReferrer(prev.referredBy, tgUser?.first_name || "Твой друг");
         }
@@ -213,7 +216,6 @@ export function StatsProvider({ children }) {
           ? { referralRewarded: true }
           : {}),
       };
-      // Analytics
       Analytics.lessonComplete(groupId, score);
       if (score >= 70) Analytics.groupComplete(groupId, score);
 
@@ -230,13 +232,59 @@ export function StatsProvider({ children }) {
     });
   }, [stats.cardReviews]);
 
+  // ─── AI usage: проверить и инкрементировать лимит ─────────────────────────
+  const AI_FREE_LIMIT = 3;
+
+  const canUseAI = useCallback(() => {
+    if (stats.isPremium) return true;
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const usage = stats.aiUsageToday;
+    if (usage.date !== today) return true; // новый день — сбросился
+    return usage.count < AI_FREE_LIMIT;
+  }, [stats.isPremium, stats.aiUsageToday]);
+
+  const incrementAIUsage = useCallback(() => {
+    if (stats.isPremium) return; // premium — не считаем
+    setStats(prev => {
+      const today = new Date().toISOString().slice(0, 10);
+      const prevUsage = prev.aiUsageToday || { date: null, count: 0 };
+      const newCount = prevUsage.date === today ? prevUsage.count + 1 : 1;
+      const next = {
+        ...prev,
+        aiUsageToday: { date: today, count: newCount },
+      };
+      scheduleSave(next);
+      return next;
+    });
+  }, [stats.isPremium, scheduleSave]);
+
+  const getAIUsageLeft = useCallback(() => {
+    if (stats.isPremium) return Infinity;
+    const today = new Date().toISOString().slice(0, 10);
+    const usage = stats.aiUsageToday;
+    if (usage.date !== today) return AI_FREE_LIMIT;
+    return Math.max(0, AI_FREE_LIMIT - usage.count);
+  }, [stats.isPremium, stats.aiUsageToday]);
+
   useEffect(() => () => {
     clearTimeout(saveRef.current);
     clearTimeout(serverSaveRef.current);
   }, []);
 
   return (
-    <StatsContext.Provider value={{ stats, updateStats, updateCardReview, completeGroupTest, getDueCards, ready }}>
+    <StatsContext.Provider value={{
+      stats,
+      updateStats,
+      updateCardReview,
+      completeGroupTest,
+      getDueCards,
+      ready,
+      // Premium / AI helpers
+      canUseAI,
+      incrementAIUsage,
+      getAIUsageLeft,
+      AI_FREE_LIMIT,
+    }}>
       {children}
     </StatsContext.Provider>
   );

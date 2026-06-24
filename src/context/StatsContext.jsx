@@ -122,10 +122,19 @@ export function StatsProvider({ children }) {
       setStats(local);
       setReady(true);
 
-      // Загрузить с сервера (данные с другого устройства могут быть свежее)
+      // Загрузить с сервера — брать только если данные богаче локальных
       const server = await loadStatsFromServer();
-      if (server && (server.updatedAt || 0) > (local.updatedAt || 0)) {
-        setStats({ ...INITIAL_STATS, ...migrate(server) });
+      if (server) {
+        const score = (s) => (s.xp || 0) * 10
+          + Object.values(s.groupProgress || {}).filter(v => v === "completed").length * 1000
+          + (s.isPremium ? 10000 : 0);
+
+        const serverRicher  = score(server) > score(local);
+        const serverFresher = (server.updatedAt || 0) > (local.updatedAt || 0) && (server.xp || 0) > 0;
+
+        if (serverRicher || serverFresher) {
+          setStats({ ...INITIAL_STATS, ...migrate(server) });
+        }
       }
 
       // Referral — только один раз

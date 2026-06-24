@@ -32,6 +32,19 @@ function AppShell() {
   const { dark, toggle } = useTheme();
   const { ready } = useStats();
   const [tab, setTab] = useState("home");
+  // active режим внутри AlphabetScreen — поднят сюда чтобы сбрасываться при смене таба
+  const [activeMode, setActiveMode] = useState(null); // null | 'learn' | 'cards' | 'game'
+
+  function navigateTo(mode) {
+    setActiveMode(mode);
+    setTab("alphabet");
+  }
+
+  function handleSetTab(t) {
+    setTab(t);
+    // При уходе с alphabet — сбросить режим
+    if (t !== "alphabet") setActiveMode(null);
+  }
 
   if (!ready) return <LoadingScreen dark={dark} />;
 
@@ -42,16 +55,16 @@ function AppShell() {
       <main style={{ minHeight: "calc(100vh - 56px)" }}>
         {TABS.map(t => (
           <div key={t} style={{ display: tab === t ? "block" : "none" }}>
-            {t === "home"     && <HomeScreen    onGoAlphabet={() => setTab("alphabet")} />}
-            {t === "alphabet" && <AlphabetScreen />}
+            {t === "home"     && <HomeScreen onNavigate={navigateTo} />}
+            {t === "alphabet" && <AlphabetScreen activeMode={activeMode} setActiveMode={setActiveMode} />}
             {t === "nikud"    && <NikudScreen />}
             {t === "profile"  && <ProfileScreen />}
           </div>
         ))}
       </main>
 
-      <BottomNav tab={tab} setTab={setTab} />
-      <AIAssistant />  {/* плавающая кнопка 🤖 */}
+      <BottomNav tab={tab} setTab={handleSetTab} />
+      <AIAssistant />
     </div>
   );
 }

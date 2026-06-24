@@ -23,7 +23,7 @@ const GROUP_COLORS_INFO = {
   purple: { bg:"bg-purple-50 dark:bg-purple-950",   text:"text-purple-700 dark:text-purple-300",   border:"border-purple-200 dark:border-purple-800",   dot:"bg-purple-500" },
 };
 
-export default function HomeScreen({ onGoAlphabet }) {
+export default function HomeScreen({ onNavigate }) {
   const { dark } = useTheme();
   const { stats, getDueCards } = useStats();
   const [groupsOpen, setGroupsOpen] = useState(false);
@@ -55,7 +55,7 @@ export default function HomeScreen({ onGoAlphabet }) {
 
       {/* ── Рекомендация дня ──────────────────────────────────────────────── */}
       {dueCount > 0 && (
-        <div onClick={onGoAlphabet}
+        <div onClick={() => onNavigate('cards')}
           className={`rounded-2xl p-4 border cursor-pointer active:scale-[0.98] transition-all
             ${dark ? "bg-blue-900/30 border-blue-700/40" : "bg-blue-50 border-blue-200"}`}>
           <div className="flex items-center justify-between">
@@ -85,7 +85,7 @@ export default function HomeScreen({ onGoAlphabet }) {
             <p className={`font-bold ${dark ? "text-white" : "text-gray-900"}`}>🔤 Алфавит</p>
             <p className={`text-xs mt-0.5 ${dark ? "text-gray-400" : "text-gray-500"}`}>{completedGroups}/5 групп · {unlockedLetters.length} букв открыто</p>
           </div>
-          <button onClick={onGoAlphabet}
+          <button onClick={() => onNavigate('learn')}
             className="text-sm font-semibold px-3 py-1.5 rounded-xl bg-indigo-500 text-white active:scale-95 transition-all">
             Открыть →
           </button>
@@ -94,11 +94,11 @@ export default function HomeScreen({ onGoAlphabet }) {
         {/* Активности */}
         <div className="px-4 pb-3 grid grid-cols-3 gap-2">
           {[
-            { icon:"📚", label:"Учиться",  sub: activeGroup ? activeGroup.name : "Всё пройдено",  color:"from-indigo-500 to-purple-600" },
-            { icon:"🃏", label:"Карточки", sub: dueCount > 0 ? `${dueCount} сегодня` : "Повторено ✓", color:"from-emerald-500 to-teal-600" },
-            { icon:"⚡", label:"Игра",     sub:"60 секунд",                                          color:"from-orange-500 to-red-500" },
+            { icon:"📚", label:"Учиться",  mode:"learn", sub: activeGroup ? activeGroup.name : "Всё пройдено",  color:"from-indigo-500 to-purple-600" },
+            { icon:"🃏", label:"Карточки", mode:"cards", sub: dueCount > 0 ? `${dueCount} сегодня` : "Повторено ✓", color:"from-emerald-500 to-teal-600" },
+            { icon:"⚡", label:"Игра",     mode:"game",  sub:"60 секунд",                                          color:"from-orange-500 to-red-500" },
           ].map(a => (
-            <button key={a.label} onClick={onGoAlphabet}
+            <button key={a.label} onClick={() => onNavigate(a.mode)}
               className={`bg-gradient-to-br ${a.color} text-white rounded-xl p-3 text-left active:scale-95 transition-all`}>
               <div className="text-xl mb-1">{a.icon}</div>
               <div className="font-bold text-xs">{a.label}</div>

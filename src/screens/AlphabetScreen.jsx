@@ -3,7 +3,6 @@
  * Хаб для: Учиться / Карточки / Игра
  * Показывает список активностей, при выборе рендерит экран поверх
  */
-import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { ALL_LETTERS } from "../data/alphabet";
@@ -11,10 +10,11 @@ import LearnScreen  from "./LearnScreen";
 import CardsScreen  from "./CardsScreen";
 import GameScreen   from "./GameScreen";
 
-export default function AlphabetScreen() {
+export default function AlphabetScreen({ activeMode, setActiveMode }) {
   const { dark } = useTheme();
   const { stats, getDueCards } = useStats();
-  const [active, setActive] = useState(null); // null | 'learn' | 'cards' | 'game'
+  const active = activeMode;
+  const setActive = setActiveMode;
 
   // Если выбрана активность — показать её с кнопкой «Назад»
   if (active) return (

@@ -216,7 +216,7 @@ function renderHTML(d, secret) {
         <th>Язык</th>
         <th>Premium</th>
         <th>Последний вход</th>
-        <th>Написать</th>
+        <th>Действия</th>
       </tr>
     </thead>
     <tbody id="usersBody">
@@ -231,7 +231,7 @@ function renderHTML(d, secret) {
         <td>${u.lang}</td>
         <td style="text-align:center">${u.premium}</td>
         <td style="color:#94a3b8;font-size:11px">${u.last_seen}</td>
-        <td><button class="btn btn-sm" onclick="openMsg('${u.telegram_id}','${u.name.replace(/'/g,"\\'")}')">✉️ Написать</button></td>
+        <td style="white-space:nowrap"><button class="btn btn-sm" onclick="openMsg('${u.telegram_id}','${u.name.replace(/\'\'/g,\"\\'\")}')">✉️</button> <button class="btn btn-sm" style="background:${u.premium?'#10b981':'#f59e0b'}" onclick="openPremium('${u.telegram_id}','${u.name.replace(/\'/g,\"\\'\")}',${u.premium?'true':'false'})">⭐</button></td>
       </tr>`).join("")}
     </tbody>
   </table>
@@ -251,6 +251,31 @@ function renderHTML(d, secret) {
   </div>
 </div>
 
+
+<!-- Premium modal -->
+<div class="modal" id="premiumModal">
+  <div class="modal-box">
+    <h3>⭐ Управление Premium</h3>
+    <div class="uid" id="premiumTarget">—</div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Тип доступа:</label>
+      <div style="display:flex;gap:8px">
+        <button id="btnLifetime" class="btn" onclick="setPremiumType('lifetime')" style="flex:1">Навсегда ♾️</button>
+        <button id="btnDays" class="btn btn-cancel" onclick="setPremiumType('days')" style="flex:1;color:#1e293b">На дни 📅</button>
+      </div>
+    </div>
+    <div id="daysInput" style="display:none;margin-bottom:10px">
+      <input type="number" id="premiumDays" min="1" max="3650" value="30" placeholder="Кол-во дней" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:13px;outline:none">
+    </div>
+    <div id="revokeSection" style="display:none;margin-bottom:10px">
+      <button class="btn" style="width:100%;background:#ef4444" onclick="grantPremium('revoke')">🚫 Отозвать Premium</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closePremium()">Отмена</button>
+      <button class="btn" id="premiumGrantBtn" onclick="grantPremium()">Выдать ⭐</button>
+    </div>
+  </div>
+</div>
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -313,6 +338,64 @@ function renderHTML(d, secret) {
       'Показано: ' + visible + ' из ' + rows.length;
   }
 
+
+  let currentPremiumId = null;
+  let premiumType = 'lifetime';
+
+  function openPremium(id, name, hasPremium) {
+    currentPremiumId = id;
+    document.getElementById('premiumTarget').textContent = name + ' · ID: ' + id;
+    document.getElementById('revokeSection').style.display = hasPremium === 'true' ? 'block' : 'none';
+    setPremiumType('lifetime');
+    document.getElementById('premiumModal').classList.add('show');
+  }
+
+  function closePremium() {
+    document.getElementById('premiumModal').classList.remove('show');
+    currentPremiumId = null;
+  }
+
+  function setPremiumType(type) {
+    premiumType = type;
+    document.getElementById('daysInput').style.display = type === 'days' ? 'block' : 'none';
+    document.getElementById('btnLifetime').className = 'btn' + (type === 'lifetime' ? '' : ' btn-cancel');
+    document.getElementById('btnDays').className = 'btn' + (type === 'days' ? '' : ' btn-cancel');
+    document.getElementById('btnLifetime').style.color = type === 'lifetime' ? '' : '#1e293b';
+    document.getElementById('btnDays').style.color = type === 'days' ? '' : '#1e293b';
+  }
+
+  async function grantPremium(action) {
+    if (!currentPremiumId) return;
+    const days = premiumType === 'days' ? parseInt(document.getElementById('premiumDays').value) : null;
+    if (premiumType === 'days' && (!days || days < 1)) { showToast('Укажи кол-во дней', false); return; }
+
+    try {
+      const r = await fetch('/api/admin?secret=' + SECRET, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'grant_premium',
+          telegram_id: currentPremiumId,
+          premium_type: action === 'revoke' ? 'revoke' : premiumType,
+          days: days
+        })
+      });
+      const data = await r.json();
+      if (data.ok) {
+        showToast(action === 'revoke' ? '🚫 Premium отозван' : '⭐ Premium выдан!');
+        closePremium();
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        showToast('❌ Ошибка: ' + (data.error || 'неизвестно'), false);
+      }
+    } catch(e) {
+      showToast('❌ Ошибка соединения', false);
+    }
+  }
+
+  document.getElementById('premiumModal').addEventListener('click', function(e) {
+    if (e.target === this) closePremium();
+  });
   // Закрыть модал по клику на фон
   document.getElementById('msgModal').addEventListener('click', function(e) {
     if (e.target === this) closeMsg();
@@ -335,24 +418,57 @@ export default async function handler(req, res) {
 
   const supabase = getSupabase();
 
-  // ── POST — отправить сообщение ──────────────────────────────────────────────
+  // ── POST ───────────────────────────────────────────────────────────────────
   if (req.method === "POST") {
-    const { telegram_id, message } = req.body || {};
-    if (!telegram_id || !message) return res.status(400).json({ error: "telegram_id and message required" });
+    const { action, telegram_id, message, premium_type, days } = req.body || {};
 
-    const result = await sendMessage(telegram_id, message);
-    if (!result.ok) {
-      console.error("TG send error:", result);
-      return res.status(500).json({ error: result.description || "Telegram error" });
+    // Grant / revoke premium
+    if (action === "grant_premium") {
+      if (!telegram_id) return res.status(400).json({ error: "telegram_id required" });
+
+      const { data: row } = await supabase
+        .from("user_stats").select("stats")
+        .eq("telegram_id", telegram_id).maybeSingle();
+      const existing = row?.stats || {};
+
+      let updatedStats;
+      if (premium_type === "revoke") {
+        updatedStats = { ...existing, isPremium: false, premiumPurchasedAt: null, premiumType: null, premiumExpiresAt: null };
+      } else if (premium_type === "lifetime") {
+        updatedStats = { ...existing, isPremium: true, premiumPurchasedAt: Date.now(), premiumType: "lifetime", premiumExpiresAt: null };
+      } else if (premium_type === "days") {
+        const expiresAt = Date.now() + (days * 86400000);
+        updatedStats = { ...existing, isPremium: true, premiumPurchasedAt: Date.now(), premiumType: "days", premiumExpiresAt: expiresAt };
+      } else {
+        return res.status(400).json({ error: "Invalid premium_type" });
+      }
+
+      const { error } = await supabase.from("user_stats")
+        .upsert({ telegram_id, stats: updatedStats }, { onConflict: "telegram_id" });
+      if (error) return res.status(500).json({ error: error.message });
+
+      const notifyText = premium_type === "revoke"
+        ? "\u2139\uFE0F Ваш Premium-доступ был отозван администратором."
+        : premium_type === "lifetime"
+          ? "\uD83C\uDF89 Вам выдан <b>Premium-доступ навсегда</b>!\n\n\u2B50 Безлимитный AI и ранний доступ к огласовкам."
+          : "\uD83C\uDF89 Вам выдан <b>Premium на " + days + " дней</b>!\n\n\u2B50 Безлимитный AI и ранний доступ к огласовкам.";
+
+      await sendMessage(telegram_id, notifyText);
+      await supabase.from("events").insert({
+        telegram_id: null, event_type: "admin_grant_premium",
+        payload: { to: telegram_id, premium_type, days: days || null },
+      });
+      return res.status(200).json({ ok: true });
     }
 
-    // Логировать в events
+    // Send message
+    if (!telegram_id || !message) return res.status(400).json({ error: "telegram_id and message required" });
+    const result = await sendMessage(telegram_id, message);
+    if (!result.ok) return res.status(500).json({ error: result.description || "Telegram error" });
     await supabase.from("events").insert({
-      telegram_id: null,
-      event_type: "admin_message",
+      telegram_id: null, event_type: "admin_message",
       payload: { to: telegram_id, preview: message.slice(0, 50) },
     });
-
     return res.status(200).json({ ok: true });
   }
 

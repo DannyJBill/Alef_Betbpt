@@ -154,15 +154,22 @@ export default function LearnScreen() {
           {letter.isFinalForm && <span className={`text-xs px-2 py-0.5 rounded-full ${colors.bg} ${colors.text} border ${colors.border}`}>финальная форма</span>}
           <h2 className={`text-3xl font-bold ${dark ? 'text-white' : 'text-gray-900'}`}>{letter.name}</h2>
           <p className={`text-sm ${dark ? 'text-gray-400' : 'text-gray-500'}`}>«{letter.sound}» · {letter.trans}</p>
-          <div className={`text-xs px-3 py-1 rounded-full ${dark ? 'bg-black/20 text-white' : 'bg-white/60 text-gray-700'}`}>
-            🧠 {letter.mnemonic}
-          </div>
+          <button
+            onClick={() => { if (window.speechSynthesis) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(letter.symbol); u.lang='he-IL'; u.rate=0.8; window.speechSynthesis.speak(u); } }}
+            className={`mt-1 px-5 py-2 rounded-full text-sm border transition-all active:scale-95 ${dark ? 'border-gray-600 text-gray-300 hover:bg-black/20' : 'border-gray-300 text-gray-600 hover:bg-white/60'}`}>
+            🔊 Послушать
+          </button>
         </div>
-        {letter.exampleWord && (
-          <div className={`rounded-2xl p-4 border ${colors.border} ${colors.bg}`}>
-            <p className={`text-xs mb-1 ${dark ? 'text-gray-500' : 'text-gray-400'}`}>Пример слова:</p>
-            <p className="text-3xl font-bold text-right" style={{ direction: 'rtl', fontFamily: 'serif' }}>{letter.exampleWord}</p>
-            <p className={`text-sm mt-1 ${dark ? 'text-gray-300' : 'text-gray-600'}`}>{letter.exampleTrans} — {letter.exampleMeaning}</p>
+        {letter.words && letter.words.length > 0 && (
+          <div className={`rounded-2xl border ${colors.border} ${colors.bg} overflow-hidden`}>
+            <p className={`text-xs px-4 pt-3 pb-1 ${dark ? 'text-gray-500' : 'text-gray-400'}`}>Примеры слов:</p>
+            {letter.words.map((w, i) => (
+              <div key={i} className={`flex items-baseline gap-2 px-4 py-1.5 ${i < letter.words.length - 1 ? `border-b ${dark ? 'border-black/20' : 'border-white/40'}` : 'pb-3'}`}>
+                <span style={{ fontFamily: 'serif', direction: 'rtl' }} className={`text-xl font-bold w-20 flex-shrink-0 ${dark ? 'text-white' : 'text-gray-900'}`}>{w.he}</span>
+                <span className={`text-xs flex-1 ${dark ? 'text-gray-400' : 'text-gray-400'}`}>{w.tr}</span>
+                <span className={`text-sm font-medium ${dark ? 'text-gray-200' : 'text-gray-700'}`}>{w.ru}</span>
+              </div>
+            ))}
           </div>
         )}
         <button onClick={nextLetter}

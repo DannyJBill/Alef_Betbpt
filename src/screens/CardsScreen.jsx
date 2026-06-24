@@ -4,6 +4,15 @@ import { useStats } from "../context/StatsContext";
 import { LETTER_GROUPS, ALL_LETTERS } from "../data/alphabet";
 import { getGroupLetters, isGroupUnlocked, GROUP_COLORS } from "../helpers/groupHelpers";
 
+function speakLetter(symbol) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(symbol);
+  u.lang = 'he-IL';
+  u.rate = 0.8;
+  window.speechSynthesis.speak(u);
+}
+
 export default function CardsScreen() {
   const { dark } = useTheme();
   const { stats, updateCardReview, getDueCards } = useStats();
@@ -150,15 +159,36 @@ export default function CardsScreen() {
             className={`absolute inset-0 rounded-3xl flex flex-col items-center justify-center shadow-lg border ${dark?'bg-gray-700 border-gray-600':'bg-white border-gray-100'}`}>
             <span style={{fontSize:110,lineHeight:1,fontFamily:'serif'}}>{card.symbol}</span>
             {card.isFinalForm&&<span className={`text-xs mt-2 px-2 py-0.5 rounded-full ${dark?'bg-indigo-900 text-indigo-300':'bg-indigo-100 text-indigo-600'}`}>финальная форма</span>}
-            <p className={`text-xs mt-4 ${dark?'text-gray-600':'text-gray-300'}`}>нажмите чтобы открыть</p>
+            <button
+              onClick={e=>{e.stopPropagation();speakLetter(card.symbol);}}
+              className={`mt-4 px-4 py-1.5 rounded-full text-xs border transition-all active:scale-95 ${dark?'border-gray-600 text-gray-400 hover:bg-gray-700':'border-gray-200 text-gray-400 hover:bg-gray-50'}`}>
+              🔊 Произношение
+            </button>
           </div>
           <div style={{backfaceVisibility:'hidden',transform:'rotateY(180deg)'}}
-            className={`absolute inset-0 rounded-3xl flex flex-col items-center justify-center p-6 shadow-lg ${dark?'bg-indigo-800':'bg-indigo-500'} text-white`}>
-            <span style={{fontSize:56,fontFamily:'serif'}}>{card.symbol}</span>
-            <h3 className="text-2xl font-bold mt-1">{card.name}</h3>
-            <p className="text-indigo-200 text-sm mt-0.5">«{card.sound}» · {card.trans}</p>
-            <p className="mt-2 text-sm text-indigo-200">🧠 {card.mnemonic}</p>
-            {card.exampleWord&&<p className="mt-2 text-xs text-indigo-300">{card.exampleWord} — {card.exampleMeaning}</p>}
+            className={`absolute inset-0 rounded-3xl flex flex-col items-center justify-center p-5 shadow-lg border ${dark?'bg-gray-800 border-gray-600':'bg-white border-gray-100'}`}>
+            <span style={{fontSize:52,fontFamily:'serif'}} className={dark?'text-white':'text-gray-900'}>{card.symbol}</span>
+            <div className="flex items-center gap-2 mt-1">
+              <h3 className={`text-xl font-bold ${dark?'text-white':'text-gray-900'}`}>{card.name}</h3>
+              <button
+                onClick={e=>{e.stopPropagation();speakLetter(card.symbol);}}
+                className={`px-2.5 py-1 rounded-full text-xs border active:scale-95 transition-all ${dark?'border-gray-600 text-gray-400':'border-gray-200 text-gray-500'}`}>
+                🔊
+              </button>
+            </div>
+            <p className={`text-sm mt-0.5 ${dark?'text-gray-300':'text-gray-500'}`}>«{card.sound}» · {card.trans}</p>
+            {card.pronunciation&&<p className={`mt-1.5 text-xs text-center px-2 ${dark?'text-gray-400':'text-gray-500'}`}>{card.pronunciation}</p>}
+            {card.words&&card.words.length>0&&(
+              <div className={`mt-3 w-full rounded-xl overflow-hidden border ${dark?'bg-gray-700 border-gray-600':'bg-gray-50 border-gray-100'}`}>
+                {card.words.map((w,i)=>(
+                  <div key={i} className={`flex items-baseline gap-2 px-3 py-1.5 ${i<card.words.length-1?`border-b ${dark?'border-gray-600':'border-gray-200'}`:''}`}>
+                    <span style={{fontFamily:'serif',direction:'rtl'}} className={`text-base font-bold w-16 flex-shrink-0 ${dark?'text-white':'text-gray-900'}`}>{w.he}</span>
+                    <span className={`text-xs flex-1 ${dark?'text-gray-400':'text-gray-400'}`}>{w.tr}</span>
+                    <span className={`text-xs font-medium ${dark?'text-gray-200':'text-gray-700'}`}>{w.ru}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

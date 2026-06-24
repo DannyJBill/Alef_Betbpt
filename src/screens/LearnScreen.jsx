@@ -149,22 +149,22 @@ export default function LearnScreen() {
             <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i <= letterIdx ? colors.fill : dark ? 'bg-gray-700' : 'bg-gray-200'}`} />
           ))}
         </div>
-        <div className={`rounded-3xl p-8 flex flex-col items-center gap-3 border-2 ${colors.border} ${colors.bg}`}>
-          <span style={{ fontSize: 120, lineHeight: 1, fontFamily: 'serif' }}>{letter.symbol}</span>
-          {letter.isFinalForm && <span className={`text-xs px-2 py-0.5 rounded-full ${colors.bg} ${colors.text} border ${colors.border}`}>финальная форма</span>}
+        <div className={`rounded-3xl p-8 flex flex-col items-center gap-3 border-2 ${colors.border} ${dark ? 'bg-gray-800' : 'bg-white'}`}>
+          <span style={{ fontSize: 120, lineHeight: 1, fontFamily: 'serif' }} className={dark ? 'text-white' : 'text-gray-900'}>{letter.symbol}</span>
+          {letter.isFinalForm && <span className={`text-xs px-2 py-0.5 rounded-full ${colors.text} border ${colors.border} ${dark ? 'bg-gray-700' : 'bg-gray-100'}`}>финальная форма</span>}
           <h2 className={`text-3xl font-bold ${dark ? 'text-white' : 'text-gray-900'}`}>{letter.name}</h2>
           <p className={`text-sm ${dark ? 'text-gray-400' : 'text-gray-500'}`}>«{letter.sound}» · {letter.trans}</p>
           <button
             onClick={() => { if (window.speechSynthesis) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(letter.symbol); u.lang='he-IL'; u.rate=0.8; window.speechSynthesis.speak(u); } }}
-            className={`mt-1 px-5 py-2 rounded-full text-sm border transition-all active:scale-95 ${dark ? 'border-gray-600 text-gray-300 hover:bg-black/20' : 'border-gray-300 text-gray-600 hover:bg-white/60'}`}>
+            className={`mt-1 px-5 py-2 rounded-full text-sm border transition-all active:scale-95 ${dark ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}>
             🔊 Послушать
           </button>
         </div>
         {letter.words && letter.words.length > 0 && (
-          <div className={`rounded-2xl border ${colors.border} ${colors.bg} overflow-hidden`}>
-            <p className={`text-xs px-4 pt-3 pb-1 ${dark ? 'text-gray-500' : 'text-gray-400'}`}>Примеры слов:</p>
+          <div className={`rounded-2xl border ${colors.border} overflow-hidden ${dark ? 'bg-gray-800' : 'bg-white'}`}>
+            <p className={`text-xs px-4 pt-3 pb-1 ${dark ? 'text-gray-400' : 'text-gray-400'}`}>Примеры слов:</p>
             {letter.words.map((w, i) => (
-              <div key={i} className={`flex items-baseline gap-2 px-4 py-1.5 ${i < letter.words.length - 1 ? `border-b ${dark ? 'border-black/20' : 'border-white/40'}` : 'pb-3'}`}>
+              <div key={i} className={`flex items-baseline gap-2 px-4 py-2 ${i < letter.words.length - 1 ? `border-b ${dark ? 'border-gray-700' : 'border-gray-100'}` : 'pb-3'}`}>
                 <span style={{ fontFamily: 'serif', direction: 'rtl' }} className={`text-xl font-bold w-20 flex-shrink-0 ${dark ? 'text-white' : 'text-gray-900'}`}>{w.he}</span>
                 <span className={`text-xs flex-1 ${dark ? 'text-gray-400' : 'text-gray-400'}`}>{w.tr}</span>
                 <span className={`text-sm font-medium ${dark ? 'text-gray-200' : 'text-gray-700'}`}>{w.ru}</span>

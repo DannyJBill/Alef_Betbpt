@@ -6,12 +6,18 @@ const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const [dark, setDark] = useState(() => {
-    // Read persisted preference on first render
+    // Сначала проверяем сохранённую тему
     try {
-      return localStorage.getItem(THEME_KEY) === "dark";
-    } catch {
-      return false;
-    }
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === "dark") return true;
+      if (saved === "light") return false;
+    } catch { /* ignore */ }
+    // Если нет сохранённой — берём тему из Telegram WebApp
+    try {
+      const tg = window.Telegram?.WebApp;
+      if (tg?.colorScheme === "dark") return true;
+    } catch { /* ignore */ }
+    return false;
   });
 
   // Persist whenever theme changes
@@ -20,6 +26,15 @@ export function ThemeProvider({ children }) {
       localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
     } catch { /* ignore */ }
   }, [dark]);
+
+  // Следим за сменой темы в Telegram
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (!tg) return;
+    const handler = () => setDark(tg.colorScheme === "dark");
+    tg.onEvent?.("themeChanged", handler);
+    return () => tg.offEvent?.("themeChanged", handler);
+  }, []);
 
   const toggle = () => setDark(d => !d);
 

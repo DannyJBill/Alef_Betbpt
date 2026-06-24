@@ -2,6 +2,7 @@ import { createContext, useContext, useCallback, useState, useEffect, useRef } f
 import { INITIAL_STATS, computeLevel } from "../data/constants";
 import { saveStatsToServer, loadStatsFromServer } from "../helpers/serverSync";
 import { LETTER_GROUPS } from "../data/alphabet";
+import { Analytics } from "../helpers/analytics";
 
 const STORAGE_KEY = "hebrew-app-stats";
 const SCHEMA_VERSION = 2;
@@ -21,6 +22,15 @@ function migrate(p) {
     p.lastStudiedDate = null;
     p.version = 2;
   }
+  // Referral fields migration
+  if (!p.referralCode) {
+    const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    p.referralCode      = tgId ? `ref_${tgId}` : `ref_${Date.now()}`;
+    p.referredBy        = null;
+    p.referralRewarded  = false;
+    p.referralsCount    = 0;
+    p.referralsXpEarned = 0;
+  }
   return p;
 }
 
@@ -32,7 +42,12 @@ async function loadFromStorage() {
   ]) {
     try { const p = await read(); if (p) return { ...INITIAL_STATS, ...migrate(p) }; } catch {}
   }
-  return INITIAL_STATS;
+  // Fresh user — generate referral code
+  const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+  return {
+    ...INITIAL_STATS,
+    referralCode: tgId ? `ref_${tgId}` : `ref_${Date.now()}`,
+  };
 }
 
 async function saveToStorage(stats) {
@@ -62,40 +77,82 @@ function applyStreak(stats) {
   return { ...stats, streak: stats.lastStudiedDate===yesterday ? stats.streak+1 : 1, lastStudiedDate: today };
 }
 
+// Register referral link on first open
+async function registerReferral(newUserId, startParam) {
+  if (!startParam?.startsWith("ref_")) return;
+  try {
+    await fetch("/api/referral", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ newUserId, referralCode: startParam }),
+    });
+  } catch { /* silent */ }
+}
+
+// Notify server to reward referrer
+async function rewardReferrer(referrerId, refereeName) {
+  try {
+    await fetch("/api/referral/reward", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ referrerId, refereeName }),
+    });
+  } catch { /* silent */ }
+}
+
 const StatsContext = createContext(null);
 
 export function StatsProvider({ children }) {
   const [stats, setStats] = useState(INITIAL_STATS);
   const [ready, setReady] = useState(false);
-  const saveRef = useRef(null);
+  const saveRef       = useRef(null);
+  const serverSaveRef = useRef(null);
+  const referralDoneRef = useRef(false);
 
   useEffect(() => {
     (async () => {
-      // 1. Load from local storage first (instant)
       const local = await loadFromStorage();
       setStats(local);
       setReady(true);
 
-      // 2. Try to load from server (may have fresher data from another device)
+      // Load from server (fresher data from another device)
       const server = await loadStatsFromServer();
       if (server && (server.updatedAt || 0) > (local.updatedAt || 0)) {
-        setStats({ ...INITIAL_STATS, ...server });
+        setStats({ ...INITIAL_STATS, ...migrate(server) });
+      }
+
+      // Register referral on first open (only once)
+      if (!referralDoneRef.current) {
+        referralDoneRef.current = true;
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+        if (tgUser?.id && startParam && !local.referredBy) {
+          await registerReferral(tgUser.id, startParam);
+          // Save referredBy to local stats
+          const referrerId = Number(startParam.replace("ref_", ""));
+          if (referrerId && referrerId !== tgUser.id) {
+            setStats(prev => {
+              const next = { ...prev, referredBy: referrerId };
+              saveToStorage(next);
+              return next;
+            });
+          }
+        }
       }
     })();
   }, []);
 
-  const serverSaveRef = useRef(null);
   const scheduleSave = useCallback((data) => {
     clearTimeout(saveRef.current);
     saveRef.current = setTimeout(() => saveToStorage(data), 300);
-    // Save to server with longer debounce (3s)
     clearTimeout(serverSaveRef.current);
     serverSaveRef.current = setTimeout(() => saveStatsToServer(data), 3000);
   }, []);
 
   const updateStats = useCallback((updater) => {
     setStats(prev => {
-      const next = { ...updater(prev), level: computeLevel(updater(prev).xp ?? prev.xp) };
+      const updated = updater(prev);
+      const next = { ...updated, level: computeLevel(updated.xp ?? prev.xp) };
       scheduleSave(next);
       return next;
     });
@@ -103,6 +160,7 @@ export function StatsProvider({ children }) {
 
   const updateCardReview = useCallback((letterId, quality) => {
     setStats(prev => {
+      Analytics.cardReview(letterId, quality);
       const updated = sm2(prev.cardReviews?.[letterId], quality);
       const weakLetters = { ...prev.weakLetters };
       if (quality===0) weakLetters[letterId] = (weakLetters[letterId]||0)+1;
@@ -126,20 +184,37 @@ export function StatsProvider({ children }) {
         score, passedAt: Date.now(),
         attempts: (prev.groupTestScores?.[groupId]?.attempts||0)+1,
       };
+
+      let xpBonus = score >= 70 ? 50 : 10;
+
       if (score >= 70) {
         newGroupProgress[groupId] = 'completed';
-        const next = LETTER_GROUPS.find(g => g.unlocksAfter===groupId);
-        // Only unlock next group if it's still locked — don't downgrade completed/available
-        if (next && newGroupProgress[next.id] === 'locked') {
-          newGroupProgress[next.id] = 'available';
+        const nextGroup = LETTER_GROUPS.find(g => g.unlocksAfter===groupId);
+        if (nextGroup && newGroupProgress[nextGroup.id] === 'locked') {
+          newGroupProgress[nextGroup.id] = 'available';
+        }
+
+        // Referral reward — trigger on first pass of group 1
+        if (groupId === 1 && !prev.referralRewarded && prev.referredBy) {
+          xpBonus += 100; // +100 XP для себя
+          const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+          rewardReferrer(prev.referredBy, tgUser?.first_name || "Твой друг");
         }
       }
+
       const updated = {
         ...prev,
         groupProgress:   newGroupProgress,
         groupTestScores: newGroupTestScores,
-        xp: prev.xp + (score>=70 ? 50 : 10),
+        xp: prev.xp + xpBonus,
+        ...(groupId === 1 && score >= 70 && !prev.referralRewarded && prev.referredBy
+          ? { referralRewarded: true }
+          : {}),
       };
+      // Analytics
+      Analytics.lessonComplete(groupId, score);
+      if (score >= 70) Analytics.groupComplete(groupId, score);
+
       scheduleSave(updated);
       return updated;
     });
@@ -153,7 +228,10 @@ export function StatsProvider({ children }) {
     });
   }, [stats.cardReviews]);
 
-  useEffect(() => () => clearTimeout(saveRef.current), []);
+  useEffect(() => () => {
+    clearTimeout(saveRef.current);
+    clearTimeout(serverSaveRef.current);
+  }, []);
 
   return (
     <StatsContext.Provider value={{ stats, updateStats, updateCardReview, completeGroupTest, getDueCards, ready }}>

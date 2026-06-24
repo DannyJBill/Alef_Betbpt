@@ -20,15 +20,15 @@ export default function CardsScreen() {
 
   function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-  function startSession(scope) {
-    const letters = scope==='all-due' ? getDueCards(UNLOCKED_LETTERS)
-      : scope==='weak'
-        ? UNLOCKED_LETTERS.filter(l=>(stats.weakLetters?.[l.id]||0)>0)
-        : getDueCards(getGroupLetters(scope));
-    const q = shuffle(letters).slice(0,15);
+  function startSession(scope, forceAll = false) {
+    let letters;
+    if (scope === 'all-due')  letters = forceAll ? UNLOCKED_LETTERS : getDueCards(UNLOCKED_LETTERS);
+    else if (scope === 'weak') letters = UNLOCKED_LETTERS.filter(l=>(stats.weakLetters?.[l.id]||0)>0);
+    else letters = forceAll ? getGroupLetters(scope) : getDueCards(getGroupLetters(scope));
+    const q = shuffle(letters).slice(0, 15);
     setQueue(q); setCurrent(0); setFlipped(false);
     setSessionStats({easy:0,hard:0,again:0});
-    setPhase(q.length>0 ? 'session' : 'done');
+    setPhase(q.length > 0 ? 'session' : 'done');
   }
 
   const handleAnswer = useCallback((quality) => {
@@ -45,11 +45,17 @@ export default function CardsScreen() {
     return (
       <div className="pb-20 px-4 pt-4 max-w-md mx-auto flex flex-col gap-3">
         <h2 className={`text-xl font-bold ${dark?'text-white':'text-gray-900'}`}>Карточки</h2>
-        {allDue>0 && (
+        {allDue>0 ? (
           <button onClick={()=>startSession('all-due')}
             className="w-full py-4 px-5 rounded-2xl bg-indigo-500 text-white font-semibold flex items-center justify-between">
             <span>⏰ Все на сегодня</span>
             <span className="bg-white/20 px-3 py-1 rounded-full text-sm">{allDue} букв</span>
+          </button>
+        ) : (
+          <button onClick={()=>startSession('all-due', true)}
+            className={`w-full py-4 px-5 rounded-2xl font-semibold flex items-center justify-between border ${dark?'border-indigo-700 bg-indigo-900/30 text-indigo-300':'border-indigo-200 bg-indigo-50 text-indigo-700'}`}>
+            <span>🔄 Повторить все буквы заново</span>
+            <span className={`text-xs px-2 py-1 rounded-full ${dark?'bg-indigo-800':'bg-indigo-100'}`}>{UNLOCKED_LETTERS.length} букв</span>
           </button>
         )}
         {weakCount>0 && (
@@ -96,6 +102,7 @@ export default function CardsScreen() {
   // ── done ───────────────────────────────────────────────────────────────────
   if (phase==='done' || current>=queue.length) {
     const total = sessionStats.easy+sessionStats.hard+sessionStats.again;
+    const lastScope = queue[0] ? 'all-due' : 'all-due'; // сохраняем scope для повтора
     return (
       <div className={`pb-20 px-4 pt-12 max-w-md mx-auto text-center ${dark?'text-white':'text-gray-900'}`}>
         <div className="text-5xl mb-3">✨</div>
@@ -109,8 +116,12 @@ export default function CardsScreen() {
                 .map(s=><div key={s.l} className={`rounded-2xl p-3 ${s.bg}`}><div className={`font-bold text-xl ${s.c}`}>{s.v}</div><div className={`text-xs ${dark?'text-gray-500':'text-gray-400'}`}>{s.l}</div></div>)}
             </div>
         }
-        <button onClick={()=>setPhase('groupSelect')}
+        <button onClick={()=>startSession('all-due', true)}
           className="w-full mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-4 rounded-2xl font-bold">
+          🔄 Повторить ещё раз
+        </button>
+        <button onClick={()=>setPhase('groupSelect')}
+          className={`w-full mt-2 py-3 rounded-2xl border font-medium ${dark?'border-gray-700 text-gray-400':'border-gray-200 text-gray-500'}`}>
           К группам
         </button>
       </div>

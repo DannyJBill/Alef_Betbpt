@@ -1,11 +1,11 @@
 import { createContext, useContext, useCallback, useState, useEffect, useRef } from "react";
 import { INITIAL_STATS, computeLevel } from "../data/constants";
 import { saveStatsToServer, loadStatsFromServer } from "../helpers/serverSync";
-import { LETTER_GROUPS } from "../data/alphabet";
+import { LETTER_GROUPS, NIKUD_GROUPS } from "../data/alphabet";
 import { Analytics } from "../helpers/analytics";
 
-const STORAGE_KEY = "hebrew-app-stats";
-const SCHEMA_VERSION = 3;
+const STORAGE_KEY    = "hebrew-app-stats";
+const SCHEMA_VERSION = 4;
 
 const TGCloud = window.Telegram?.WebApp?.CloudStorage;
 function tgGet(k) { return new Promise((res,rej) => TGCloud.getItem(k,(e,v)=>e?rej(e):res(v))); }
@@ -39,6 +39,19 @@ function migrate(p) {
     if (p.premiumType === undefined)        p.premiumType        = null;
     if (!p.aiUsageToday)                    p.aiUsageToday       = { date: null, count: 0 };
     p.version = 3;
+  }
+  // v3 → v4: nikud progress
+  if (p.version < 4) {
+    if (!p.nikudProgress) {
+      p.nikudProgress = {
+        groupProgress:   { 1: 'available', 2: 'locked', 3: 'locked', 4: 'locked', 5: 'locked' },
+        groupTestScores: {},
+        vowelReviews:    {},  // "vowel_id:letter_symbol" → SM-2 данные
+        wordsStudied:    [],  // массив id пройденных слов
+        wordsCorrect:    {},  // word_id → счётчик правильных ответов
+      };
+    }
+    p.version = 4;
   }
   return p;
 }
@@ -110,11 +123,11 @@ async function rewardReferrer(referrerId, refereeName) {
 const StatsContext = createContext(null);
 
 export function StatsProvider({ children }) {
-  const [stats, setStats] = useState(INITIAL_STATS);
-  const [ready, setReady] = useState(false);
-  const saveRef         = useRef(null);
-  const serverSaveRef   = useRef(null);
-  const referralDoneRef = useRef(false);
+  const [stats, setStats]     = useState(INITIAL_STATS);
+  const [ready, setReady]     = useState(false);
+  const saveRef               = useRef(null);
+  const serverSaveRef         = useRef(null);
+  const referralDoneRef       = useRef(false);
 
   useEffect(() => {
     (async () => {
@@ -122,25 +135,21 @@ export function StatsProvider({ children }) {
       setStats(local);
       setReady(true);
 
-      // Загрузить с сервера — брать только если данные богаче локальных
       const server = await loadStatsFromServer();
       if (server) {
         const score = (s) => (s.xp || 0) * 10
           + Object.values(s.groupProgress || {}).filter(v => v === "completed").length * 1000
           + (s.isPremium ? 10000 : 0);
-
         const serverRicher  = score(server) > score(local);
         const serverFresher = (server.updatedAt || 0) > (local.updatedAt || 0) && (server.xp || 0) > 0;
-
         if (serverRicher || serverFresher) {
           setStats({ ...INITIAL_STATS, ...migrate(server) });
         }
       }
 
-      // Referral — только один раз
       if (!referralDoneRef.current) {
         referralDoneRef.current = true;
-        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        const tgUser     = window.Telegram?.WebApp?.initDataUnsafe?.user;
         const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
         if (tgUser?.id && startParam && !local.referredBy) {
           await registerReferral(tgUser.id, startParam);
@@ -167,16 +176,17 @@ export function StatsProvider({ children }) {
   const updateStats = useCallback((updater) => {
     setStats(prev => {
       const updated = updater(prev);
-      const next = { ...updated, level: computeLevel(updated.xp ?? prev.xp) };
+      const next    = { ...updated, level: computeLevel(updated.xp ?? prev.xp) };
       scheduleSave(next);
       return next;
     });
   }, [scheduleSave]);
 
+  // ── SM-2 для букв алфавита ─────────────────────────────────────────────────
   const updateCardReview = useCallback((letterId, quality) => {
     setStats(prev => {
       Analytics.cardReview(letterId, quality);
-      const updated = sm2(prev.cardReviews?.[letterId], quality);
+      const updated     = sm2(prev.cardReviews?.[letterId], quality);
       const weakLetters = { ...prev.weakLetters };
       if (quality===0) weakLetters[letterId] = (weakLetters[letterId]||0)+1;
       const next = applyStreak({
@@ -191,6 +201,7 @@ export function StatsProvider({ children }) {
     });
   }, [scheduleSave]);
 
+  // ── Тест группы букв ───────────────────────────────────────────────────────
   const completeGroupTest = useCallback((groupId, score) => {
     setStats(prev => {
       const newGroupProgress   = { ...prev.groupProgress };
@@ -208,7 +219,6 @@ export function StatsProvider({ children }) {
         if (nextGroup && newGroupProgress[nextGroup.id] === 'locked') {
           newGroupProgress[nextGroup.id] = 'available';
         }
-
         if (groupId === 1 && !prev.referralRewarded && prev.referredBy) {
           xpBonus += 100;
           const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
@@ -222,46 +232,117 @@ export function StatsProvider({ children }) {
         groupTestScores: newGroupTestScores,
         xp: prev.xp + xpBonus,
         ...(groupId === 1 && score >= 70 && !prev.referralRewarded && prev.referredBy
-          ? { referralRewarded: true }
-          : {}),
+          ? { referralRewarded: true } : {}),
       };
       Analytics.lessonComplete(groupId, score);
       if (score >= 70) Analytics.groupComplete(groupId, score);
-
       scheduleSave(updated);
       return updated;
     });
   }, [scheduleSave]);
 
+  // ── Тест группы огласовок ──────────────────────────────────────────────────
+  const completeNikudGroupTest = useCallback((groupId, score) => {
+    setStats(prev => {
+      const np = { ...(prev.nikudProgress || {}) };
+      const gp = { ...(np.groupProgress || { 1:'available',2:'locked',3:'locked',4:'locked',5:'locked' }) };
+      const gs = { ...(np.groupTestScores || {}) };
+
+      gs[groupId] = {
+        score, passedAt: Date.now(),
+        attempts: (gs[groupId]?.attempts || 0) + 1,
+      };
+
+      let xpBonus = score >= 70 ? 30 : 5;
+
+      if (score >= 70) {
+        gp[groupId] = 'completed';
+        const nextGroup = NIKUD_GROUPS.find(g => g.unlocksAfter === groupId);
+        if (nextGroup && gp[nextGroup.id] === 'locked') {
+          gp[nextGroup.id] = 'available';
+        }
+      }
+
+      const next = {
+        ...prev,
+        xp: (prev.xp || 0) + xpBonus,
+        nikudProgress: { ...np, groupProgress: gp, groupTestScores: gs },
+      };
+      scheduleSave(next);
+      return next;
+    });
+  }, [scheduleSave]);
+
+  // ── SM-2 для огласовок ─────────────────────────────────────────────────────
+  // key = "vowel_id:letter_symbol", например "patah:מ"
+  const updateVowelReview = useCallback((key, quality) => {
+    setStats(prev => {
+      const np      = { ...(prev.nikudProgress || {}) };
+      const reviews = { ...(np.vowelReviews || {}) };
+      reviews[key]  = sm2(reviews[key], quality);
+      const next    = {
+        ...prev,
+        nikudProgress: { ...np, vowelReviews: reviews },
+      };
+      scheduleSave(next);
+      return next;
+    });
+  }, [scheduleSave]);
+
+  // ── Прогресс слов ──────────────────────────────────────────────────────────
+  const recordWordResult = useCallback((wordId, isCorrect) => {
+    setStats(prev => {
+      const np      = { ...(prev.nikudProgress || {}) };
+      const studied = np.wordsStudied?.includes(wordId)
+        ? np.wordsStudied
+        : [...(np.wordsStudied || []), wordId];
+      const correct = { ...(np.wordsCorrect || {}) };
+      if (isCorrect) correct[wordId] = (correct[wordId] || 0) + 1;
+      const next    = {
+        ...prev,
+        nikudProgress: { ...np, wordsStudied: studied, wordsCorrect: correct },
+      };
+      scheduleSave(next);
+      return next;
+    });
+  }, [scheduleSave]);
+
+  // ── SM-2 очередь огласовок ─────────────────────────────────────────────────
+  const getDueVowelCards = useCallback(() => {
+    const now     = Date.now();
+    const reviews = stats.nikudProgress?.vowelReviews || {};
+    return Object.entries(reviews)
+      .filter(([, r]) => r.nextReview <= now)
+      .map(([key]) => key);
+  }, [stats.nikudProgress]);
+
+  // ── SM-2 очередь букв ──────────────────────────────────────────────────────
   const getDueCards = useCallback((alphabet) => {
     const now = Date.now();
     return alphabet.filter(l => {
       const r = stats.cardReviews?.[l.id];
-      return !r || r.nextReview<=now;
+      return !r || r.nextReview <= now;
     });
   }, [stats.cardReviews]);
 
-  // ─── AI usage: проверить и инкрементировать лимит ─────────────────────────
+  // ── AI лимит ───────────────────────────────────────────────────────────────
   const AI_FREE_LIMIT = 3;
 
   const canUseAI = useCallback(() => {
     if (stats.isPremium) return true;
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const today = new Date().toISOString().slice(0, 10);
     const usage = stats.aiUsageToday;
-    if (usage.date !== today) return true; // новый день — сбросился
+    if (usage.date !== today) return true;
     return usage.count < AI_FREE_LIMIT;
   }, [stats.isPremium, stats.aiUsageToday]);
 
   const incrementAIUsage = useCallback(() => {
-    if (stats.isPremium) return; // premium — не считаем
+    if (stats.isPremium) return;
     setStats(prev => {
-      const today = new Date().toISOString().slice(0, 10);
+      const today    = new Date().toISOString().slice(0, 10);
       const prevUsage = prev.aiUsageToday || { date: null, count: 0 };
-      const newCount = prevUsage.date === today ? prevUsage.count + 1 : 1;
-      const next = {
-        ...prev,
-        aiUsageToday: { date: today, count: newCount },
-      };
+      const newCount  = prevUsage.date === today ? prevUsage.count + 1 : 1;
+      const next      = { ...prev, aiUsageToday: { date: today, count: newCount } };
       scheduleSave(next);
       return next;
     });
@@ -288,7 +369,12 @@ export function StatsProvider({ children }) {
       completeGroupTest,
       getDueCards,
       ready,
-      // Premium / AI helpers
+      // Огласовки
+      completeNikudGroupTest,
+      updateVowelReview,
+      recordWordResult,
+      getDueVowelCards,
+      // Premium / AI
       canUseAI,
       incrementAIUsage,
       getAIUsageLeft,

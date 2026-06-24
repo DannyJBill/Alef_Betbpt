@@ -314,3 +314,328 @@ export const LETTER_GROUPS = [
   { id:4, name:"Редкие буквы",   nameHe:"אותיות נדירות",  letterIds:[18,19,20,21,22],     description:"Редкие и сложные буквы",             color:"rose",    unlocksAfter:3 },
   { id:5, name:"Финальные формы",nameHe:"אותיות סופיות",  letterIds:[101,102,103,104,105],description:"Буквы, меняющие форму в конце слова", color:"purple",  unlocksAfter:4 },
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// НИКУД — огласовки (добавить в конец alphabet.js)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Отдельные огласовки — справочник
+export const NIKUD = [
+  // Группа 1 — «Три кита» (А, И, У — максимально разные, не спутать)
+  { id: "patah",   symbol: "ַ",   sound: "а", name: "Патах",  nameHe: "פַּתַח",  groupId: 1,
+    hint: "Черта снизу — звук А",
+    visualDesc: "горизонтальная черта под буквой" },
+  { id: "hirik",   symbol: "ִ",   sound: "и", name: "Хирик", nameHe: "חִירִיק", groupId: 1,
+    hint: "Точка снизу — звук И",
+    visualDesc: "одна точка под буквой" },
+  { id: "shuruk",  symbol: "וּ",  sound: "у", name: "Шурук", nameHe: "שׁוּרוּק", groupId: 1,
+    hint: "Вав с точкой — звук У",
+    visualDesc: "буква вав с точкой внутри" },
+
+  // Группа 2 — «Двойник А» (камац тоже А — концепция двойников)
+  { id: "kamatz",  symbol: "ָ",   sound: "а", name: "Камац", nameHe: "קָמַץ",  groupId: 2,
+    hint: "Т-образный знак снизу — тоже А",
+    visualDesc: "знак похожий на перевёрнутую Т под буквой",
+    twinOf: "patah", twinNote: "Камац и патах звучат одинаково — оба А" },
+
+  // Группа 3 — «Э-звуки» (два знака = один звук Э)
+  { id: "tsere",   symbol: "ֵ",   sound: "э", name: "Цере",   nameHe: "צֵרֵי",  groupId: 3,
+    hint: "Две точки снизу слева — звук Э",
+    visualDesc: "две точки под буквой, вытянуты горизонтально" },
+  { id: "segol",   symbol: "ֶ",   sound: "э", name: "Сеголь", nameHe: "סֶגוֹל", groupId: 3,
+    hint: "Три точки треугольником — тоже Э",
+    visualDesc: "три точки под буквой треугольником",
+    twinOf: "tsere", twinNote: "Цере и сеголь звучат одинаково — оба Э" },
+
+  // Группа 4 — «О-звук» + кубуц (Stars)
+  { id: "holam",   symbol: "ֹ",   sound: "о", name: "Холам",  nameHe: "חֹלֶם",  groupId: 4,
+    hint: "Точка сверху слева — звук О",
+    visualDesc: "маленькая точка над буквой слева" },
+  { id: "kubutz",  symbol: "ֻ",   sound: "у", name: "Кубуц",  nameHe: "קִיבּוּץ", groupId: 4,
+    hint: "Три точки по диагонали снизу — тоже У",
+    visualDesc: "три точки под буквой по диагонали",
+    twinOf: "shuruk", twinNote: "Кубуц и шурук звучат одинаково — оба У" },
+
+  // Группа 5 — «Шва и особые случаи» (Stars)
+  { id: "shva",    symbol: "ְ",   sound: "", name: "Шва",    nameHe: "שְׁוָא",  groupId: 5,
+    hint: "Две точки вертикально — молчит или краткое Э",
+    visualDesc: "две точки вертикально под буквой",
+    special: true,
+    specialNote: "Шва — особый знак. Либо закрывает слог (молчит), либо открывает новый (краткое Э)" },
+];
+
+// Группы огласовок — параллельно LETTER_GROUPS
+export const NIKUD_GROUPS = [
+  {
+    id: 1,
+    name: "Три кита",
+    nameHe: "שלושה עוגנים",
+    vowelIds: ["patah", "hirik", "shuruk"],
+    description: "А, И, У — три звука которые невозможно перепутать",
+    color: "emerald",
+    unlocksAfter: null, // первая группа открыта сразу (при isPremium)
+    isPaid: false,      // бесплатно
+    // Центральная идея модуля О-1/О-2
+    conceptTitle: "Буква + значок = слог",
+    conceptBody: "В иврите буквы — только согласные. Гласный звук добавляется значком рядом. Буква всегда читается вместе со своим значком — после него.",
+    conceptExample: { word: "שָׁלוֹם", syllables: ["שָׁ", "לוֹ", "ם"], transliteration: "ша-лом", translation: "мир / привет" },
+  },
+  {
+    id: 2,
+    name: "Двойник А",
+    nameHe: "כפיל האלף",
+    vowelIds: ["kamatz"],
+    description: "Камац выглядит иначе — но звучит так же",
+    color: "blue",
+    unlocksAfter: 1,
+    isPaid: false,
+    conceptTitle: "Два знака — один звук",
+    conceptBody: "В иврите бывает так: разные знаки звучат одинаково. Камац и патах оба дают звук А. Это не ошибка — так сложилось исторически. Ваша задача: не пугаться, а привыкнуть.",
+    conceptExample: { word: "אָב", syllables: ["אָ", "ב"], transliteration: "ав", translation: "отец" },
+  },
+  {
+    id: 3,
+    name: "Э-звуки",
+    nameHe: "צלילי האי",
+    vowelIds: ["tsere", "segol"],
+    description: "Цере и сеголь — снова двойники, теперь для Э",
+    color: "amber",
+    unlocksAfter: 2,
+    isPaid: false,
+    conceptTitle: "Снова двойники",
+    conceptBody: "Паттерн тот же: два знака, один звук Э. Цере — две точки горизонтально, сеголь — три точки треугольником. Оба читаются как Э. Теперь у тебя 4 огласовки и ты знаешь А, И, У, Э.",
+    conceptExample: { word: "בֶּן", syllables: ["בֶּ", "ן"], transliteration: "бэн", translation: "сын" },
+  },
+  {
+    id: 4,
+    name: "О-звук",
+    nameHe: "צליל האו",
+    vowelIds: ["holam", "kubutz"],
+    description: "Холам и кубуц — последний звук О и второй вариант У",
+    color: "rose",
+    unlocksAfter: 3,
+    isPaid: true, // Stars
+    conceptTitle: "Полная картина",
+    conceptBody: "Холам — точка над буквой, звук О. Кубуц — три точки снизу по диагонали, тоже У (второй вариант после шурука). Теперь ты знаешь все 5 гласных звуков иврита.",
+    conceptExample: { word: "שָׁלוֹם", syllables: ["שָׁ", "לוֹ", "ם"], transliteration: "ша-лом", translation: "мир / привет" },
+  },
+  {
+    id: 5,
+    name: "Шва и матери чтения",
+    nameHe: "שווא ואמות קריאה",
+    vowelIds: ["shva"],
+    description: "Особые случаи — шва, матери чтения, правила распознавания",
+    color: "purple",
+    unlocksAfter: 4,
+    isPaid: true, // Stars
+    conceptTitle: "Последний секрет иврита",
+    conceptBody: "Шва — знак без чёткого звука. Иногда молчит (закрывает слог), иногда произносится как краткое Э (открывает слог). А буквы א ה ו י иногда вообще не читаются — они лишь уточняют вид гласного.",
+    conceptExample: { word: "בְּרֵאשִׁית", syllables: ["בְּ", "רֵא", "שִׁית"], transliteration: "б-рей-шит", translation: "в начале (первое слово Торы)" },
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SIGHT WORDS — слова для чтения
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const SIGHT_WORDS = [
+  // Группа 1 — только огласовки группы 1 (патах, хирик, шурук) — бесплатно
+  {
+    id: 1, nikudGroup: 1, isPaid: false,
+    hebrew: "מַיִם", plain: "מים",
+    syllables: ["מַ", "יִ", "ם"],
+    transliteration: "ма-им",
+    translation: "вода", emoji: "💧",
+    distractors: ["ма-ям", "ми-им", "му-им"],
+  },
+  {
+    id: 2, nikudGroup: 1, isPaid: false,
+    hebrew: "בִּית", plain: "בית",
+    syllables: ["בִּ", "ית"],
+    transliteration: "бит",
+    translation: "дом", emoji: "🏠",
+    distractors: ["бат", "бут", "бэт"],
+  },
+  {
+    id: 3, nikudGroup: 1, isPaid: false,
+    hebrew: "יַד", plain: "יד",
+    syllables: ["יַ", "ד"],
+    transliteration: "яд",
+    translation: "рука", emoji: "✋",
+    distractors: ["йид", "юд", "йэд"],
+  },
+  {
+    id: 4, nikudGroup: 1, isPaid: false,
+    hebrew: "גִּיל", plain: "גיל",
+    syllables: ["גִּי", "ל"],
+    transliteration: "гиль",
+    translation: "возраст / радость", emoji: "🎂",
+    distractors: ["галь", "гуль", "гэль"],
+  },
+  {
+    id: 5, nikudGroup: 1, isPaid: false,
+    hebrew: "דָּג", plain: "דג",
+    syllables: ["דָּ", "ג"],
+    transliteration: "даг",
+    translation: "рыба", emoji: "🐟",
+    distractors: ["диг", "дуг", "дэг"],
+  },
+
+  // Группа 2 — добавляется камац — бесплатно
+  {
+    id: 6, nikudGroup: 2, isPaid: false,
+    hebrew: "אָב", plain: "אב",
+    syllables: ["אָ", "ב"],
+    transliteration: "ав",
+    translation: "отец", emoji: "👨",
+    distractors: ["ив", "ув", "эв"],
+  },
+  {
+    id: 7, nikudGroup: 2, isPaid: false,
+    hebrew: "אָח", plain: "אח",
+    syllables: ["אָ", "ח"],
+    transliteration: "ах",
+    translation: "брат", emoji: "👦",
+    distractors: ["их", "ух", "эх"],
+  },
+  {
+    id: 8, nikudGroup: 2, isPaid: false,
+    hebrew: "יָד", plain: "יד",
+    syllables: ["יָ", "ד"],
+    transliteration: "яд",
+    translation: "рука (альт.)", emoji: "🤚",
+    distractors: ["йид", "йуд", "йэд"],
+  },
+  {
+    id: 9, nikudGroup: 2, isPaid: false,
+    hebrew: "לָב", plain: "לב",
+    syllables: ["לָ", "ב"],
+    transliteration: "лав",
+    translation: "лев (имя)", emoji: "🦁",
+    distractors: ["лив", "лув", "лэв"],
+  },
+  {
+    id: 10, nikudGroup: 2, isPaid: false,
+    hebrew: "מָה", plain: "מה",
+    syllables: ["מָ", "ה"],
+    transliteration: "ма",
+    translation: "что", emoji: "❓",
+    distractors: ["ми", "му", "мэ"],
+  },
+
+  // Группа 3 — добавляются цере и сеголь — бесплатно
+  {
+    id: 11, nikudGroup: 3, isPaid: false,
+    hebrew: "בֶּן", plain: "בן",
+    syllables: ["בֶּ", "ן"],
+    transliteration: "бэн",
+    translation: "сын", emoji: "👦",
+    distractors: ["бан", "бин", "бун"],
+  },
+  {
+    id: 12, nikudGroup: 3, isPaid: false,
+    hebrew: "שֶׁמֶשׁ", plain: "שמש",
+    syllables: ["שֶׁ", "מֶ", "שׁ"],
+    transliteration: "шэ-мэш",
+    translation: "солнце", emoji: "☀️",
+    distractors: ["ша-маш", "ши-миш", "шу-муш"],
+  },
+  {
+    id: 13, nikudGroup: 3, isPaid: false,
+    hebrew: "סֵפֶר", plain: "ספר",
+    syllables: ["סֵ", "פֶ", "ר"],
+    transliteration: "сэ-фэр",
+    translation: "книга", emoji: "📖",
+    distractors: ["са-фар", "си-фир", "су-фур"],
+  },
+  {
+    id: 14, nikudGroup: 3, isPaid: false,
+    hebrew: "לֶחֶם", plain: "לחם",
+    syllables: ["לֶ", "חֶ", "ם"],
+    transliteration: "лэ-хэм",
+    translation: "хлеб", emoji: "🍞",
+    distractors: ["ла-хам", "ли-хим", "лу-хум"],
+  },
+  {
+    id: 15, nikudGroup: 3, isPaid: false,
+    hebrew: "כֶּלֶב", plain: "כלב",
+    syllables: ["כֶּ", "לֶ", "ב"],
+    transliteration: "кэ-лэв",
+    translation: "собака", emoji: "🐕",
+    distractors: ["ка-лав", "ки-лив", "ку-лув"],
+  },
+
+  // Группа 4+ — Stars
+  {
+    id: 16, nikudGroup: 4, isPaid: true,
+    hebrew: "שָׁלוֹם", plain: "שלום",
+    syllables: ["שָׁ", "לוֹ", "ם"],
+    transliteration: "ша-лом",
+    translation: "мир / привет", emoji: "✌️",
+    distractors: ["ши-лим", "шу-лум", "шэ-лэм"],
+  },
+  {
+    id: 17, nikudGroup: 4, isPaid: true,
+    hebrew: "תּוֹדָה", plain: "תודה",
+    syllables: ["תּוֹ", "דָה"],
+    transliteration: "то-да",
+    translation: "спасибо", emoji: "🙏",
+    distractors: ["ти-ди", "ту-ду", "тэ-дэ"],
+  },
+  {
+    id: 18, nikudGroup: 4, isPaid: true,
+    hebrew: "כֹּל", plain: "כל",
+    syllables: ["כֹּ", "ל"],
+    transliteration: "коль",
+    translation: "всё / весь", emoji: "🌍",
+    distractors: ["каль", "киль", "куль"],
+  },
+  {
+    id: 19, nikudGroup: 4, isPaid: true,
+    hebrew: "יוֹם", plain: "יום",
+    syllables: ["יוֹ", "ם"],
+    transliteration: "йом",
+    translation: "день", emoji: "📅",
+    distractors: ["ям", "йим", "йэм"],
+  },
+  {
+    id: 20, nikudGroup: 4, isPaid: true,
+    hebrew: "טוֹב", plain: "טוב",
+    syllables: ["טוֹ", "ב"],
+    transliteration: "тов",
+    translation: "хорошо / добро", emoji: "👍",
+    distractors: ["тав", "тив", "тэв"],
+  },
+  {
+    id: 21, nikudGroup: 4, isPaid: true,
+    hebrew: "אוֹר", plain: "אור",
+    syllables: ["אוֹ", "ר"],
+    transliteration: "ор",
+    translation: "свет", emoji: "💡",
+    distractors: ["ар", "ир", "эр"],
+  },
+  {
+    id: 22, nikudGroup: 4, isPaid: true,
+    hebrew: "כֹּכָב", plain: "כוכב",
+    syllables: ["כֹּ", "כָ", "ב"],
+    transliteration: "ко-хав",
+    translation: "звезда", emoji: "⭐",
+    distractors: ["ка-хав", "ки-хив", "ку-хув"],
+  },
+  {
+    id: 23, nikudGroup: 5, isPaid: true,
+    hebrew: "בְּרֵאשִׁית", plain: "בראשית",
+    syllables: ["בְּ", "רֵא", "שִׁית"],
+    transliteration: "б-рэй-шит",
+    translation: "в начале (Берешит)", emoji: "📜",
+    distractors: ["б-ра-шат", "б-ри-шит", "б-ру-шут"],
+  },
+  {
+    id: 24, nikudGroup: 5, isPaid: true,
+    hebrew: "שְׁמַע", plain: "שמע",
+    syllables: ["שְׁ", "מַ", "ע"],
+    transliteration: "шма",
+    translation: "слушай (Шма Исраэль)", emoji: "👂",
+    distractors: ["ша-ма", "ши-ми", "шу-му"],
+  },
+];

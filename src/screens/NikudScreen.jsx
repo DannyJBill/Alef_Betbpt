@@ -12,7 +12,7 @@
  *   'intro' → 'learn' → 'practice' → 'test' → 'result'
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useTheme } from "../context/ThemeContext";
 import {
   useStats,
@@ -444,6 +444,14 @@ function WordsTab({ dark, stats }) {
   const [isCorrect, setIsCorrect] = useState(null);
 
   const word = availableWords[current % availableWords.length];
+
+  // Фиксируем порядок вариантов — пересчитываем только при смене слова,
+  // иначе shuffle на каждом рендере меняет кнопки местами
+  const wordOptions = useMemo(
+    () => word ? shuffle([word.transliteration, ...word.distractors]) : [],
+    [word?.id] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
   if (!word) return (
     <div className="px-4 pt-8 text-center">
       <p className={`text-4xl mb-4`}>📖</p>
@@ -452,8 +460,6 @@ function WordsTab({ dark, stats }) {
       </p>
     </div>
   );
-
-  const options = shuffle([word.transliteration, ...word.distractors]);
 
   function handleAnswer(opt) {
     if (phase !== "quiz") return;
@@ -513,7 +519,7 @@ function WordsTab({ dark, stats }) {
       {/* Варианты ответа */}
       {phase !== "show" && (
         <div className="grid grid-cols-2 gap-3">
-          {options.map(opt => {
+          {wordOptions.map(opt => {
             let cls = dark ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-800";
             if (phase === "feedback") {
               if (opt === word.transliteration) cls = dark ? "bg-emerald-950 border-emerald-500 text-emerald-300" : "bg-emerald-50 border-emerald-400 text-emerald-700";
@@ -946,22 +952,34 @@ function LearnScene({ vowel, vowelIndex, total, colors, dark, isLast, onNext }) 
 
 // ─── Сцена: Practice ─────────────────────────────────────────────────────────
 function PracticeScene({ vowels, colors, dark, onNext, onReview }) {
-  // 12 вопросов: показываем слог → выбираем звук
-  const letters   = PRACTICE_LETTERS.slice(0, 6);
-  const questions = useCallback(() => {
+  const letters = PRACTICE_LETTERS.slice(0, 6);
+
+  // Фиксируем вопросы один раз при монтировании — иначе shuffle на каждом рендере
+  const questions = useMemo(() => {
     const q = [];
     for (let i = 0; i < 12; i++) {
       const vowel  = vowels[i % vowels.length];
       const letter = letters[i % letters.length];
-      q.push({ vowel, letter, slug: letter + vowel.symbol });
+      // Нормализуем: пустой sound (шва) → специальная метка, чтобы сравнение работало
+      const soundLabel = vowel.sound || "∅";
+      q.push({ vowel, letter, slug: letter + vowel.symbol, soundLabel });
     }
     return shuffle(q);
-  }, [vowels])(); // eslint-disable-line
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [idx,      setIdx]      = useState(0);
   const [selected, setSelected] = useState(null);
   const [revealed, setRevealed] = useState(false);
   const [correct,  setCorrect]  = useState(0);
+
+  // Фиксируем варианты ответа при смене вопроса — не при каждом setState
+  const practiceOptions = useMemo(() => {
+    if (idx >= questions.length) return [];
+    const q      = questions[idx];
+    const sounds = ["а", "и", "у", "э", "о", "∅"];
+    const wrong  = sounds.filter(s => s !== q.soundLabel).slice(0, 3);
+    return shuffle([q.soundLabel, ...wrong]);
+  }, [idx, questions]);
 
   if (idx >= questions.length) {
     return (
@@ -980,15 +998,12 @@ function PracticeScene({ vowels, colors, dark, onNext, onReview }) {
     );
   }
 
-  const q       = questions[idx];
-  // Варианты: правильный звук + звуки других огласовок (или А/И/У/Э/О как заглушки)
-  const sounds  = ["а", "и", "у", "э", "о"];
-  const wrong   = sounds.filter(s => s !== q.vowel.sound).slice(0, 3);
-  const options = shuffle([q.vowel.sound || "—", ...wrong]);
+  const q = questions[idx];
 
   function handlePick(opt) {
     if (revealed) return;
-    const isRight = opt === q.vowel.sound;
+    // Сравниваем с той же нормализованной меткой что в options
+    const isRight = opt === q.soundLabel;
     setSelected(opt);
     setRevealed(true);
     if (isRight) {
@@ -1025,12 +1040,12 @@ function PracticeScene({ vowels, colors, dark, onNext, onReview }) {
 
       {/* Варианты */}
       <div className="grid grid-cols-2 gap-3">
-        {options.map(opt => {
+        {practiceOptions.map(opt => {
           let cls = dark
             ? "bg-gray-800 border-gray-700 text-gray-200"
             : "bg-white border-gray-200 text-gray-800";
           if (revealed) {
-            if (opt === q.vowel.sound) cls = dark ? "bg-emerald-950 border-emerald-500 text-emerald-300" : "bg-emerald-50 border-emerald-400 text-emerald-700";
+            if (opt === q.soundLabel) cls = dark ? "bg-emerald-950 border-emerald-500 text-emerald-300" : "bg-emerald-50 border-emerald-400 text-emerald-700";
             else if (opt === selected) cls = dark ? "bg-rose-950 border-rose-500 text-rose-300"         : "bg-rose-50 border-rose-400 text-rose-700";
           }
           return (
@@ -1039,7 +1054,7 @@ function PracticeScene({ vowels, colors, dark, onNext, onReview }) {
               onClick={() => handlePick(opt)}
               className={`py-5 rounded-2xl border font-bold text-2xl transition-all ${cls} ${!revealed ? "active:scale-95" : ""}`}
             >
-              «{opt}»
+              {opt === "∅" ? "молчит" : `«${opt}»`}
             </button>
           );
         })}
@@ -1050,31 +1065,37 @@ function PracticeScene({ vowels, colors, dark, onNext, onReview }) {
 
 // ─── Сцена: Test ──────────────────────────────────────────────────────────────
 function TestScene({ vowels, allVowels, colors, dark, onDone }) {
-  // Генерация вопросов: чередуем слог→звук и звук→слог
   const letters = PRACTICE_LETTERS.slice(0, 5);
 
-  const questions = useCallback(() => {
+  // Фиксируем вопросы один раз — useMemo гарантирует стабильность при ре-рендерах
+  const questions = useMemo(() => {
     const q = [];
     vowels.forEach((vowel, vi) => {
-      const letter = letters[vi % letters.length];
-      // Вопрос тип 1: показать слог → выбрать звук
-      const wrongVowels = allVowels.filter(v => v.id !== vowel.id && v.sound !== vowel.sound).slice(0, 3);
+      const letter     = letters[vi % letters.length];
+      const soundLabel = vowel.sound || "∅"; // нормализация для шва и пустых
+
+      // Тип 1: показать слог → выбрать звук
+      const wrongVowels = allVowels.filter(v =>
+        v.id !== vowel.id && (v.sound || "∅") !== soundLabel
+      ).slice(0, 3);
       q.push({
-        type:    "slug_to_sound",
-        slug:    letter + vowel.symbol,
-        correct: vowel.sound || "—",
-        options: shuffle([vowel.sound || "—", ...wrongVowels.map(v => v.sound || "—")]),
-        vowelId: vowel.id,
+        type:       "slug_to_sound",
+        slug:       letter + vowel.symbol,
+        correct:    soundLabel,
+        // options фиксируем здесь — не пересчитываем в рендере
+        options:    shuffle([soundLabel, ...wrongVowels.map(v => v.sound || "∅")]),
+        vowelId:    vowel.id,
         letter,
       });
-      // Вопрос тип 2: показать звук → выбрать слог
+
+      // Тип 2: показать звук → выбрать слог
       const wrongSlugs = allVowels
-        .filter(v => v.id !== vowel.id && v.sound !== vowel.sound)
+        .filter(v => v.id !== vowel.id && (v.sound || "∅") !== soundLabel)
         .slice(0, 3)
         .map(v => letter + v.symbol);
       q.push({
         type:    "sound_to_slug",
-        sound:   vowel.sound || "—",
+        sound:   soundLabel === "∅" ? "молчит" : `«${soundLabel}»`,
         correct: letter + vowel.symbol,
         options: shuffle([letter + vowel.symbol, ...wrongSlugs]),
         vowelId: vowel.id,
@@ -1082,18 +1103,24 @@ function TestScene({ vowels, allVowels, colors, dark, onDone }) {
       });
     });
     return shuffle(q).slice(0, Math.max(6, vowels.length * 2));
-  }, [vowels, allVowels])(); // eslint-disable-line
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [idx,      setIdx]      = useState(0);
   const [selected, setSelected] = useState(null);
   const [revealed, setRevealed] = useState(false);
   const [results,  setResults]  = useState([]);
 
-  if (idx >= questions.length) {
-    const score = Math.round((results.filter(Boolean).length / results.length) * 100);
-    onDone(score);
-    return null;
-  }
+  // onDone вызываем через useEffect — не в теле рендера
+  const doneCalled = useRef(false);
+  useEffect(() => {
+    if (idx >= questions.length && !doneCalled.current && questions.length > 0) {
+      doneCalled.current = true;
+      const score = Math.round((results.filter(Boolean).length / results.length) * 100);
+      onDone(score);
+    }
+  }, [idx, questions.length, results, onDone]);
+
+  if (idx >= questions.length) return null;
 
   const q = questions[idx];
 
@@ -1130,7 +1157,7 @@ function TestScene({ vowels, allVowels, colors, dark, onDone }) {
         {isSlugToSound ? (
           <span className="text-9xl font-bold" style={{ direction: "rtl", fontFamily: "serif" }}>{q.slug}</span>
         ) : (
-          <span className={`text-5xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>«{q.sound}»</span>
+          <span className={`text-5xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>{q.sound}</span>
         )}
       </div>
 
@@ -1144,6 +1171,10 @@ function TestScene({ vowels, allVowels, colors, dark, onDone }) {
             if (opt === q.correct) cls = dark ? "bg-emerald-950 border-emerald-500 text-emerald-300" : "bg-emerald-50 border-emerald-400 text-emerald-700";
             else if (opt === selected) cls = dark ? "bg-rose-950 border-rose-500 text-rose-300"       : "bg-rose-50 border-rose-400 text-rose-700";
           }
+          // Для slug_to_sound показываем звук (∅ → "молчит"), для sound_to_slug — слог
+          const label = isSlugToSound
+            ? (opt === "∅" ? "молчит" : `«${opt}»`)
+            : opt;
           return (
             <button
               key={opt}
@@ -1152,7 +1183,7 @@ function TestScene({ vowels, allVowels, colors, dark, onDone }) {
                 ${isSlugToSound ? "text-2xl" : "text-4xl"}`}
               style={!isSlugToSound ? { direction: "rtl", fontFamily: "serif" } : {}}
             >
-              {isSlugToSound ? `«${opt}»` : opt}
+              {label}
               {revealed && opt === q.correct && " ✓"}
               {revealed && opt === selected && opt !== q.correct && " ✗"}
             </button>

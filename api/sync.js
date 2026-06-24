@@ -1,47 +1,28 @@
-/**
- * api/sync.js
- * Vercel Serverless Function — /api/sync
- * Сохранение и загрузка прогресса пользователя в Supabase.
- *
- * Верифицирует подпись Telegram initData перед любой записью в БД.
- * Из initData автоматически извлекается профиль пользователя:
- * id, username, first_name, language_code, is_premium.
- */
-
 import { createHmac } from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
 function getSupabase() {
-  const url = process.env.SUPABASE_URL?.trim().replace(/\/$/, "");
+  const url = process.env.SUPABASE_URL?.trim().replace(/\/$/, ""); // remove trailing slash
   const key = process.env.SUPABASE_SERVICE_KEY?.trim();
   if (!url || !key) throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY");
   return createClient(url, key);
 }
 
-/**
- * Верифицирует подпись Telegram initData и возвращает объект user.
- * Возвращает null если подпись невалидна.
- */
 function verifyTelegramData(initData, botToken) {
   try {
     const params = new URLSearchParams(initData);
     const hash = params.get("hash");
     if (!hash) return null;
     params.delete("hash");
-
     const dataCheckString = [...params.entries()]
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([k, v]) => `${k}=${v}`)
       .join("\n");
-
     const secretKey = createHmac("sha256", "WebAppData").update(botToken).digest();
     const expected  = createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
-
     if (expected !== hash) return null;
     return JSON.parse(params.get("user"));
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 export default async function handler(req, res) {
@@ -53,10 +34,10 @@ export default async function handler(req, res) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN?.trim();
   if (!botToken) return res.status(500).json({ error: "Bot token not configured" });
 
-  // В режиме разработки (initData === "dev") пропускаем верификацию
+  // In development (no real initData) — skip verification
   let user;
   if (process.env.NODE_ENV === "development" || initData === "dev") {
-    user = { id: 0, username: "dev", first_name: "Dev", language_code: "ru", is_premium: false };
+    user = { id: 0, username: "dev", first_name: "Dev" };
   } else {
     user = verifyTelegramData(initData, botToken);
     if (!user) return res.status(403).json({ error: "Invalid Telegram signature" });
@@ -70,9 +51,22 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: e.message });
   }
 
-  // ── SAVE ──────────────────────────────────────────────────────────────────
   if (action === "save") {
     if (!stats) return res.status(400).json({ error: "stats required" });
+
+    // Rate limit: skip save if last save was less than 30s ago
+    const { data: existing } = await supabase
+      .from("user_stats")
+      .select("updated_at")
+      .eq("telegram_id", user.id)
+      .maybeSingle();
+
+    if (existing?.updated_at) {
+      const lastSave = new Date(existing.updated_at).getTime();
+      if (Date.now() - lastSave < 30000) {
+        return res.status(200).json({ ok: true, skipped: true });
+      }
+    }
 
     const { error } = await supabase
       .from("user_stats")
@@ -80,9 +74,9 @@ export default async function handler(req, res) {
         telegram_id:   user.id,
         username:      user.username      || null,
         first_name:    user.first_name    || null,
-        language_code: user.language_code || null,  // язык интерфейса TG ("ru", "en", "he"…)
-        is_premium:    user.is_premium    ?? false,  // Telegram Premium
-        last_seen_at:  new Date().toISOString(),     // время последнего входа
+        language_code: user.language_code || null,
+        is_premium:    user.is_premium    ?? false,
+        last_seen_at:  new Date().toISOString(),
         stats:         { ...stats, telegramId: user.id },
       }, { onConflict: "telegram_id" });
 
@@ -90,27 +84,22 @@ export default async function handler(req, res) {
       console.error("Supabase upsert error:", JSON.stringify(error));
       return res.status(500).json({ error: error.message, code: error.code });
     }
-
     return res.status(200).json({ ok: true });
   }
 
-  // ── LOAD ──────────────────────────────────────────────────────────────────
   if (action === "load") {
     const { data, error } = await supabase
       .from("user_stats")
       .select("stats, updated_at")
       .eq("telegram_id", user.id)
-      .maybeSingle(); // возвращает null вместо ошибки если запись не найдена
+      .maybeSingle(); // maybeSingle returns null instead of error when not found
 
     if (error) {
       console.error("Supabase select error:", JSON.stringify(error));
       return res.status(500).json({ error: error.message, code: error.code });
     }
-
     return res.status(200).json({
-      stats: data
-        ? { ...data.stats, updatedAt: new Date(data.updated_at).getTime() }
-        : null,
+      stats: data ? { ...data.stats, updatedAt: new Date(data.updated_at).getTime() } : null
     });
   }
 

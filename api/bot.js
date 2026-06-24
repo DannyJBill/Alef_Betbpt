@@ -33,10 +33,10 @@ async function getStats(telegramId) {
 async function cmdStart(chatId, user) {
   await send(chatId,
     `👋 Шалом, <b>${user.first_name || "друг"}</b>!\n\n` +
-    `Учи алфавит — карточки, игры и AI-помощник 🇮🇱\n\n` +
-    `Нажми ниже 👇`,
+    `Учи ивритский алфавит — 22 буквы, игры, SM-2 повторения и AI-помощник 🇮🇱\n\n` +
+    `Нажми кнопку ниже 👇`,
     { reply_markup: { inline_keyboard: [[
-      { text: "📖 Открыть AlefBet", web_app: { url: APP_URL } }
+      { text: "📖 Открыть Alef Bet", web_app: { url: APP_URL } }
     ]]}}
   );
 }
@@ -90,29 +90,48 @@ async function cmdReset(chatId, telegramId) {
 
 // ── Push senders (called by cron) ─────────────────────────────────────────────
 
+// Send in batches to avoid Vercel function timeout (10s on free plan)
+async function sendBatch(rows, textFn, filterFn) {
+  const BATCH_SIZE = 30;
+  const BATCH_DELAY = 1000; // 1s between batches
+  let sent = 0;
+
+  const eligible = rows.filter(filterFn);
+
+  for (let i = 0; i < eligible.length; i += BATCH_SIZE) {
+    const batch = eligible.slice(i, i + BATCH_SIZE);
+    await Promise.all(batch.map(async ({ telegram_id, stats: s }) => {
+      const text = textFn(s);
+      if (!text) return;
+      await send(telegram_id, text, { reply_markup: { inline_keyboard: [[
+        { text: "📖 Открыть Alef Bet", web_app: { url: APP_URL } }
+      ]]}});
+      sent++;
+    }));
+    if (i + BATCH_SIZE < eligible.length) {
+      await new Promise(r => setTimeout(r, BATCH_DELAY));
+    }
+  }
+  return sent;
+}
+
 export async function sendDailyReminders() {
   const { data: rows } = await supabase.from("user_stats").select("telegram_id, stats");
   if (!rows) return 0;
 
   const today = new Date().toDateString();
-  let sent = 0;
+  const now = Date.now();
 
-  for (const { telegram_id, stats: s } of rows) {
-    if (s?.lastStudiedDate === today) continue;
-    const due = Object.values(s?.cardReviews || {})
-      .filter(r => r.nextReview <= Date.now()).length;
-
-    const text = due > 0
-      ? `⏰ <b>Время повторить!</b>\n\n${due} букв ждут повторения.\n🔥 Серия: ${s?.streak || 0} дней — не прерывай!`
-      : `📖 <b>Учись каждый день!</b>\n\n🔥 Серия: ${s?.streak || 0} дней\nЗайди и пройди новую группу!`;
-
-    await send(telegram_id, text, { reply_markup: { inline_keyboard: [[
-      { text: "📖 Открыть AlefBet", web_app: { url: APP_URL } }
-    ]]}});
-    sent++;
-    await new Promise(r => setTimeout(r, 50));
-  }
-  return sent;
+  return sendBatch(
+    rows,
+    (s) => {
+      const due = Object.values(s?.cardReviews || {}).filter(r => r.nextReview <= now).length;
+      return due > 0
+        ? `⏰ <b>Время повторить!</b>\n\n${due} букв ждут повторения.\n🔥 Серия: ${s?.streak || 0} дней — не прерывай!`
+        : `📖 <b>Учись каждый день!</b>\n\n🔥 Серия: ${s?.streak || 0} дней\nЗайди и пройди новую группу!`;
+    },
+    ({ stats: s }) => s?.lastStudiedDate !== today
+  );
 }
 
 export async function sendSmartReminders() {
@@ -120,23 +139,17 @@ export async function sendSmartReminders() {
   if (!rows) return 0;
 
   const now = Date.now();
-  let sent = 0;
 
-  for (const { telegram_id, stats: s } of rows) {
-    const due = Object.values(s?.cardReviews || {})
-      .filter(r => r.nextReview <= now).length;
-    if (!due) continue;
-
-    await send(telegram_id,
-      `🧠 <b>${due} букв</b> готовы к повторению!\n\nЗакрепи знания — займёт пару минут.`,
-      { reply_markup: { inline_keyboard: [[
-        { text: "🃏 Повторить сейчас", web_app: { url: APP_URL } }
-      ]]}}
-    );
-    sent++;
-    await new Promise(r => setTimeout(r, 50));
-  }
-  return sent;
+  return sendBatch(
+    rows,
+    (s) => {
+      const due = Object.values(s?.cardReviews || {}).filter(r => r.nextReview <= now).length;
+      return due > 0
+        ? `🧠 <b>${due} букв</b> готовы к повторению!\n\nЗакрепи знания — займёт пару минут.`
+        : null;
+    },
+    ({ stats: s }) => Object.values(s?.cardReviews || {}).some(r => r.nextReview <= now)
+  );
 }
 
 // ── Webhook handler ───────────────────────────────────────────────────────────

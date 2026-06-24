@@ -1,6 +1,8 @@
 /**
- * GET /api/admin        — JSON данные
- * GET /api/admin?view=1 — HTML дашборд
+ * GET  /api/admin?view=1&secret=X  — HTML дашборд
+ * GET  /api/admin?secret=X          — JSON данные
+ * POST /api/admin?secret=X          — отправить сообщение пользователю
+ *   body: { telegram_id, message }
  */
 import { createClient } from "@supabase/supabase-js";
 
@@ -11,8 +13,19 @@ function getSupabase() {
   );
 }
 
+const BOT_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
+
+async function sendMessage(chatId, text) {
+  const r = await fetch(`${BOT_API}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" }),
+  });
+  return r.json();
+}
+
 async function getData(supabase) {
-  const now = new Date();
+  const now       = new Date();
   const today     = now.toISOString().split("T")[0];
   const week_ago  = new Date(now - 7  * 86400000).toISOString().split("T")[0];
   const month_ago = new Date(now - 30 * 86400000).toISOString().split("T")[0];
@@ -22,7 +35,7 @@ async function getData(supabase) {
     { count: dau },
     { count: wau },
     { count: mau },
-    { data: all_stats },
+    { data: all_rows },
     { data: events7d },
     { data: sessions14d },
     { count: referrals_total },
@@ -31,17 +44,16 @@ async function getData(supabase) {
     supabase.from("daily_sessions").select("*", { count: "exact", head: true }).eq("date", today),
     supabase.from("daily_sessions").select("telegram_id", { count: "exact", head: true }).gte("date", week_ago),
     supabase.from("daily_sessions").select("telegram_id", { count: "exact", head: true }).gte("date", month_ago),
-    supabase.from("user_stats").select("stats, first_name, username, last_seen_at").order("last_seen_at", { ascending: false }),
+    supabase.from("user_stats").select("telegram_id, first_name, username, last_seen_at, is_premium, language_code, stats").order("last_seen_at", { ascending: false }),
     supabase.from("events").select("event_type").gte("created_at", new Date(now - 7 * 86400000).toISOString()),
     supabase.from("daily_sessions").select("date, telegram_id").gte("date", new Date(now - 14 * 86400000).toISOString().split("T")[0]).order("date"),
     supabase.from("referrals").select("*", { count: "exact", head: true }),
   ]);
 
-  const stats_list = (all_stats || []).map(r => r.stats).filter(Boolean);
+  const stats_list = (all_rows || []).map(r => r.stats).filter(Boolean);
   const avg_xp     = stats_list.length ? Math.round(stats_list.reduce((s,r)=>s+(r.xp||0),0)/stats_list.length) : 0;
   const avg_streak = stats_list.length ? (stats_list.reduce((s,r)=>s+(r.streak||0),0)/stats_list.length).toFixed(1) : 0;
-  const premium    = stats_list.filter(r=>r.is_premium).length;
-  const ru_users   = stats_list.filter(r=>r.language_code==="ru").length;
+  const premium    = (all_rows||[]).filter(r=>r.is_premium).length;
 
   const group_funnel = [1,2,3,4,5].map(gid => ({
     id: gid,
@@ -51,7 +63,6 @@ async function getData(supabase) {
   const event_counts = {};
   (events7d||[]).forEach(e => { event_counts[e.event_type] = (event_counts[e.event_type]||0)+1; });
 
-  // DAU по дням
   const dau_map = {};
   (sessions14d||[]).forEach(r => {
     if (!dau_map[r.date]) dau_map[r.date] = new Set();
@@ -61,29 +72,31 @@ async function getData(supabase) {
     .map(([date, set]) => ({ date: date.slice(5), count: set.size }))
     .sort((a,b) => a.date.localeCompare(b.date));
 
-  const top10 = (all_stats||[])
-    .filter(r => r.stats?.xp > 0)
-    .sort((a,b) => (b.stats?.xp||0) - (a.stats?.xp||0))
-    .slice(0,10)
-    .map(r => ({
-      name: r.first_name || r.username || "—",
-      xp: r.stats?.xp || 0,
-      streak: r.stats?.streak || 0,
-      groups: Object.values(r.stats?.groupProgress||{}).filter(v=>v==="completed").length,
-      last: r.last_seen_at ? new Date(r.last_seen_at).toLocaleDateString("ru") : "—",
-    }));
+  // Полный список юзеров
+  const users = (all_rows||[]).map(r => ({
+    telegram_id: r.telegram_id,
+    name:        r.first_name || "—",
+    username:    r.username ? `@${r.username}` : "—",
+    xp:          r.stats?.xp || 0,
+    streak:      r.stats?.streak || 0,
+    groups:      Object.values(r.stats?.groupProgress||{}).filter(v=>v==="completed").length,
+    premium:     r.is_premium ? "✓" : "",
+    lang:        r.language_code || "—",
+    last_seen:   r.last_seen_at ? new Date(r.last_seen_at).toLocaleString("ru") : "—",
+  }));
 
-  return { total, dau, wau, mau, avg_xp, avg_streak, premium, ru_users,
-           group_funnel, event_counts, dau_chart, top10,
+  const top10 = [...users].sort((a,b)=>b.xp-a.xp).slice(0,10);
+
+  return { total, dau, wau, mau, avg_xp, avg_streak, premium,
+           group_funnel, event_counts, dau_chart, top10, users,
            referrals_total, generated_at: now.toISOString() };
 }
 
-function renderHTML(d) {
+function renderHTML(d, secret) {
   const bar = (val, max, color="#6366f1") =>
     `<div style="background:#e5e7eb;border-radius:4px;height:8px;margin-top:4px">
        <div style="background:${color};height:8px;border-radius:4px;width:${Math.round((val/Math.max(max,1))*100)}%"></div>
      </div>`;
-
   const maxDau = Math.max(...d.dau_chart.map(r=>r.count), 1);
 
   return `<!DOCTYPE html>
@@ -96,29 +109,47 @@ function renderHTML(d) {
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:20px}
   h1{font-size:22px;font-weight:800;margin-bottom:4px}
-  .sub{color:#64748b;font-size:13px;margin-bottom:24px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px}
-  .card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-  .card .val{font-size:28px;font-weight:800;color:#6366f1}
-  .card .lbl{font-size:12px;color:#64748b;margin-top:2px}
-  .section{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:16px}
+  .sub{color:#64748b;font-size:13px;margin-bottom:20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+  .card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .card .val{font-size:26px;font-weight:800;color:#6366f1}
+  .card .lbl{font-size:11px;color:#64748b;margin-top:2px}
+  .section{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:14px}
   .section h2{font-size:14px;font-weight:700;margin-bottom:12px;color:#475569}
-  .chart{display:flex;align-items:flex-end;gap:4px;height:60px}
-  .bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1}
+  .chart{display:flex;align-items:flex-end;gap:3px;height:60px}
+  .bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0}
   .bar-fill{background:#6366f1;border-radius:3px 3px 0 0;width:100%;min-height:2px}
-  .bar-lbl{font-size:9px;color:#94a3b8;margin-top:2px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;color:#94a3b8;font-weight:600;padding:6px 8px;border-bottom:1px solid #f1f5f9}
-  td{padding:6px 8px;border-bottom:1px solid #f8fafc}
-  .tag{display:inline-block;background:#ede9fe;color:#7c3aed;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600}
-  .refresh{position:fixed;top:16px;right:16px;background:#6366f1;color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:600}
+  .bar-lbl{font-size:8px;color:#94a3b8;margin-top:2px;white-space:nowrap}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{text-align:left;color:#94a3b8;font-weight:600;padding:6px 6px;border-bottom:2px solid #f1f5f9;white-space:nowrap}
+  td{padding:5px 6px;border-bottom:1px solid #f8fafc;vertical-align:middle}
+  tr:hover td{background:#f8fafc}
+  .tag{display:inline-block;background:#ede9fe;color:#7c3aed;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:600}
+  .btn{background:#6366f1;color:#fff;border:none;border-radius:7px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
+  .btn:hover{background:#4f46e5}
+  .btn-sm{background:#10b981;font-size:11px;padding:3px 8px}
+  .refresh{position:fixed;top:16px;right:16px;background:#6366f1;color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:600;z-index:100}
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
+  .modal.show{display:flex}
+  .modal-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:420px}
+  .modal-box h3{font-size:16px;font-weight:700;margin-bottom:4px}
+  .modal-box .uid{font-size:12px;color:#64748b;margin-bottom:12px}
+  textarea{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:13px;resize:vertical;min-height:80px;outline:none;font-family:inherit}
+  textarea:focus{border-color:#6366f1}
+  .modal-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+  .btn-cancel{background:#f1f5f9;color:#64748b}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:300;display:none}
+  input[type=text]{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:13px;outline:none;margin-bottom:10px}
+  input[type=text]:focus{border-color:#6366f1}
+  .users-count{font-size:12px;color:#64748b;margin-bottom:8px}
 </style>
 </head>
 <body>
 <button class="refresh" onclick="location.reload()">↻ Обновить</button>
-<h1>📊 Alef Bet — Аналитика</h1>
+<h1>📊 Alef Bet — Админка</h1>
 <div class="sub">Обновлено: ${new Date(d.generated_at).toLocaleString("ru")}</div>
 
+<!-- Метрики -->
 <div class="grid">
   <div class="card"><div class="val">${d.total}</div><div class="lbl">Всего пользователей</div></div>
   <div class="card"><div class="val" style="color:#10b981">${d.dau}</div><div class="lbl">DAU (сегодня)</div></div>
@@ -130,6 +161,7 @@ function renderHTML(d) {
   <div class="card"><div class="val" style="color:#84cc16">${d.premium}</div><div class="lbl">TG Premium</div></div>
 </div>
 
+<!-- DAU chart -->
 <div class="section">
   <h2>📈 DAU — последние 14 дней</h2>
   <div class="chart">
@@ -141,6 +173,7 @@ function renderHTML(d) {
   </div>
 </div>
 
+<!-- Воронка -->
 <div class="section">
   <h2>🏆 Воронка по группам</h2>
   ${["Первые шаги","Звуки и формы","Похожие буквы","Редкие буквы","Финальные формы"].map((name,i)=>{
@@ -150,12 +183,11 @@ function renderHTML(d) {
       <div style="display:flex;justify-content:space-between;font-size:13px">
         <span>${i+1}. ${name}</span>
         <span style="font-weight:700;color:#6366f1">${g.completed} (${pct}%)</span>
-      </div>
-      ${bar(g.completed, d.total)}
-    </div>`;
+      </div>${bar(g.completed, d.total)}</div>`;
   }).join("")}
 </div>
 
+<!-- События -->
 <div class="section">
   <h2>⚡ События за 7 дней</h2>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -166,37 +198,172 @@ function renderHTML(d) {
   </div>
 </div>
 
+<!-- Все пользователи -->
 <div class="section">
-  <h2>👑 Топ-10 по XP</h2>
-  <table>
-    <tr><th>Имя</th><th>XP</th><th>Стрик</th><th>Групп</th><th>Был</th></tr>
-    ${d.top10.map(r=>`<tr>
-      <td>${r.name}</td>
-      <td><b>${r.xp}</b></td>
-      <td>${r.streak > 0 ? "🔥"+r.streak : "—"}</td>
-      <td>${r.groups}/5</td>
-      <td style="color:#94a3b8">${r.last}</td>
-    </tr>`).join("")}
+  <h2>👥 Все пользователи</h2>
+  <input type="text" id="search" placeholder="🔍 Поиск по имени, @username или ID..." oninput="filterUsers()">
+  <div class="users-count" id="usersCount">Показано: ${d.users.length} из ${d.users.length}</div>
+  <div style="overflow-x:auto">
+  <table id="usersTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Username</th>
+        <th>XP</th>
+        <th>Стрик</th>
+        <th>Групп</th>
+        <th>Язык</th>
+        <th>Premium</th>
+        <th>Последний вход</th>
+        <th>Написать</th>
+      </tr>
+    </thead>
+    <tbody id="usersBody">
+    ${d.users.map(u=>`
+      <tr data-search="${(u.name+u.username+u.telegram_id).toLowerCase()}">
+        <td style="font-family:monospace;color:#64748b;font-size:11px">${u.telegram_id}</td>
+        <td><b>${u.name}</b></td>
+        <td style="color:#6366f1">${u.username}</td>
+        <td><b>${u.xp}</b></td>
+        <td>${u.streak > 0 ? "🔥"+u.streak : "—"}</td>
+        <td>${u.groups}/5</td>
+        <td>${u.lang}</td>
+        <td style="text-align:center">${u.premium}</td>
+        <td style="color:#94a3b8;font-size:11px">${u.last_seen}</td>
+        <td><button class="btn btn-sm" onclick="openMsg('${u.telegram_id}','${u.name.replace(/'/g,"\\'")}')">✉️ Написать</button></td>
+      </tr>`).join("")}
+    </tbody>
   </table>
+  </div>
 </div>
+
+<!-- Модальное окно -->
+<div class="modal" id="msgModal">
+  <div class="modal-box">
+    <h3>✉️ Сообщение пользователю</h3>
+    <div class="uid" id="msgTarget">—</div>
+    <textarea id="msgText" placeholder="Текст сообщения (поддерживается HTML: <b>, <i>, <a>)..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeMsg()">Отмена</button>
+      <button class="btn" onclick="sendMsg()">Отправить →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  let currentUserId = null;
+  const SECRET = "${secret}";
+
+  function openMsg(id, name) {
+    currentUserId = id;
+    document.getElementById('msgTarget').textContent = name + ' · ID: ' + id;
+    document.getElementById('msgText').value = '';
+    document.getElementById('msgModal').classList.add('show');
+    document.getElementById('msgText').focus();
+  }
+
+  function closeMsg() {
+    document.getElementById('msgModal').classList.remove('show');
+    currentUserId = null;
+  }
+
+  function showToast(msg, ok = true) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    t.style.background = ok ? '#1e293b' : '#ef4444';
+    setTimeout(() => { t.style.display = 'none'; }, 3000);
+  }
+
+  async function sendMsg() {
+    const text = document.getElementById('msgText').value.trim();
+    if (!text || !currentUserId) return;
+    try {
+      const r = await fetch('/api/admin?secret=' + SECRET, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegram_id: currentUserId, message: text })
+      });
+      const data = await r.json();
+      if (data.ok) {
+        showToast('✅ Сообщение отправлено!');
+        closeMsg();
+      } else {
+        showToast('❌ Ошибка: ' + (data.error || 'неизвестно'), false);
+      }
+    } catch(e) {
+      showToast('❌ Ошибка соединения', false);
+    }
+  }
+
+  function filterUsers() {
+    const q = document.getElementById('search').value.toLowerCase();
+    const rows = document.querySelectorAll('#usersBody tr');
+    let visible = 0;
+    rows.forEach(row => {
+      const match = !q || row.dataset.search.includes(q);
+      row.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+    document.getElementById('usersCount').textContent =
+      'Показано: ' + visible + ' из ' + rows.length;
+  }
+
+  // Закрыть модал по клику на фон
+  document.getElementById('msgModal').addEventListener('click', function(e) {
+    if (e.target === this) closeMsg();
+  });
+
+  // Отправить по Ctrl+Enter
+  document.getElementById('msgText').addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') sendMsg();
+  });
+</script>
 </body>
 </html>`;
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "GET") return res.status(405).end();
-
   const secret = req.headers["x-admin-secret"] || req.query.secret;
   if (secret !== process.env.ADMIN_SECRET) {
     return res.status(401).send("Unauthorized");
   }
 
   const supabase = getSupabase();
+
+  // ── POST — отправить сообщение ──────────────────────────────────────────────
+  if (req.method === "POST") {
+    const { telegram_id, message } = req.body || {};
+    if (!telegram_id || !message) return res.status(400).json({ error: "telegram_id and message required" });
+
+    const result = await sendMessage(telegram_id, message);
+    if (!result.ok) {
+      console.error("TG send error:", result);
+      return res.status(500).json({ error: result.description || "Telegram error" });
+    }
+
+    // Логировать в events
+    await supabase.from("events").insert({
+      telegram_id: null,
+      event_type: "admin_message",
+      payload: { to: telegram_id, preview: message.slice(0, 50) },
+    });
+
+    return res.status(200).json({ ok: true });
+  }
+
+  // ── GET ──────────────────────────────────────────────────────────────────────
+  if (req.method !== "GET") return res.status(405).end();
+
   const data = await getData(supabase);
 
   if (req.query.view === "1") {
-    res.setHeader("Content-Type", "text/html");
-    return res.status(200).send(renderHTML(data));
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    return res.status(200).send(renderHTML(data, secret));
   }
 
   return res.status(200).json(data);

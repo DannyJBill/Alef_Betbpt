@@ -143,10 +143,12 @@ export function StatsProvider({ children }) {
   }, []);
 
   const scheduleSave = useCallback((data) => {
+    // Local storage — fast (300ms debounce)
     clearTimeout(saveRef.current);
     saveRef.current = setTimeout(() => saveToStorage(data), 300);
+    // Server save — slow debounce (30s) to avoid hammering Supabase
     clearTimeout(serverSaveRef.current);
-    serverSaveRef.current = setTimeout(() => saveStatsToServer(data), 3000);
+    serverSaveRef.current = setTimeout(() => saveStatsToServer(data), 30000);
   }, []);
 
   const updateStats = useCallback((updater) => {

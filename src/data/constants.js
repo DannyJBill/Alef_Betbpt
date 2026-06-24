@@ -14,6 +14,11 @@ export const INITIAL_STATS = {
   dailyGoal: 10,
   dailyDone: 0,
   totalTime: 0,
+  referralCode:      null,
+  referredBy:        null,
+  referralRewarded:  false,
+  referralsCount:    0,
+  referralsXpEarned: 0,
 };
 
 export function computeLevel(xp) { return Math.floor(xp/100)+1; }

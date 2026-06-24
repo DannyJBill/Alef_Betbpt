@@ -1,29 +1,53 @@
+import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { levelProgress } from "../data/constants";
 import ProgressBar from "../components/ui/ProgressBar";
 
+const BOT_USERNAME = "alef_betbot"; // поменяй на своего бота
+const APP_SHORT    = "learn";
+
 export default function ProfileScreen() {
   const { dark } = useTheme();
   const { stats } = useStats();
+  const [copied, setCopied] = useState(false);
 
   const { level, pct: levelPct, xpToNext } = levelProgress(stats.xp);
+  const tg = window.Telegram?.WebApp;
+  const isTelegram = !!tg;
+
+  // Реферальная ссылка
+  const refCode = stats.referralCode || `ref_${Date.now()}`;
+  const refLink = `https://t.me/${BOT_USERNAME}/${APP_SHORT}?startapp=${refCode}`;
+  const shareText = "Учу иврит по приложению Alef Bet 🇮🇱 — выучил алфавит за неделю! Присоединяйся →";
+
+  function handleShare() {
+    const url = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
+    tg.openTelegramLink(url);
+  }
+
+  function handleCopy() {
+    navigator.clipboard.writeText(refLink).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   const achievements = [
     { icon: "🌟", name: "Первая буква",  done: stats.xp >= 20 },
     { icon: "📚", name: "5 уроков",      done: stats.dailyDone >= 5 },
     { icon: "🔥", name: "3 дня подряд",  done: stats.streak >= 3 },
     { icon: "⚡", name: "100 XP",        done: stats.xp >= 100 },
-    { icon: "🎯", name: "Точность 80%",  done: false },
-    { icon: "🏆", name: "Весь алфавит",  done: false },
+    { icon: "🎯", name: "Точность 80%",  done: stats.totalAnswers > 0 && (stats.correctAnswers / stats.totalAnswers) >= 0.8 },
+    { icon: "🏆", name: "Весь алфавит",  done: Object.values(stats.groupProgress || {}).filter(v => v === 'completed').length >= 5 },
+    { icon: "👥", name: "Пригласил друга", done: (stats.referralsCount || 0) >= 1 },
   ];
 
   const statCards = [
-    { icon: "⚡", val: stats.xp,              label: "XP" },
-    { icon: "🔥", val: stats.streak,           label: "Дней" },
-    { icon: "💰", val: stats.coins,            label: "Монет" },
-    { icon: "📖", val: stats.dailyDone,        label: "Уроков" },
-    { icon: "⏱️", val: `${stats.totalTime}м`, label: "Времени" },
+    { icon: "⚡", val: stats.xp,       label: "XP" },
+    { icon: "🔥", val: stats.streak,   label: "Дней" },
+    { icon: "💰", val: stats.coins,    label: "Монет" },
+    { icon: "📖", val: stats.dailyDone,label: "Уроков" },
   ];
 
   return (
@@ -44,14 +68,49 @@ export default function ProfileScreen() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
+      <div className="grid grid-cols-4 gap-2 mb-5">
         {statCards.map(s => (
           <div key={s.label} className={`rounded-2xl p-3 text-center ${dark ? "bg-gray-800" : "bg-gray-50"}`}>
             <div className="text-xl">{s.icon}</div>
-            <div className={`font-bold text-lg ${dark ? "text-white" : "text-gray-900"}`}>{s.val}</div>
+            <div className={`font-bold text-base ${dark ? "text-white" : "text-gray-900"}`}>{s.val}</div>
             <div className={`text-xs ${dark ? "text-gray-500" : "text-gray-400"}`}>{s.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* Referral block */}
+      <div className={`rounded-2xl p-4 mb-5 border ${dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100"}`}>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xl">👥</span>
+          <p className={`font-bold text-sm ${dark ? "text-white" : "text-gray-800"}`}>Пригласи друга</p>
+        </div>
+        <p className={`text-xs mb-3 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+          Ты и друг получите по <b>+100 XP</b> когда он пройдёт первую группу букв
+        </p>
+
+        <div className="flex gap-2 mb-3">
+          {isTelegram && (
+            <button onClick={handleShare}
+              className="flex-1 py-2.5 rounded-xl bg-indigo-500 text-white font-semibold text-sm active:scale-95 transition-all">
+              Пригласить в Telegram →
+            </button>
+          )}
+          <button onClick={handleCopy}
+            className={`${isTelegram ? '' : 'flex-1'} px-4 py-2.5 rounded-xl font-semibold text-sm active:scale-95 transition-all border ${
+              copied
+                ? 'bg-emerald-500 text-white border-emerald-500'
+                : dark ? 'border-gray-600 text-gray-300' : 'border-gray-200 text-gray-600'
+            }`}>
+            {copied ? 'Скопировано ✓' : 'Скопировать ссылку'}
+          </button>
+        </div>
+
+        {(stats.referralsCount > 0 || stats.referralsXpEarned > 0) && (
+          <div className={`flex gap-4 text-xs pt-3 border-t ${dark ? "border-gray-700 text-gray-400" : "border-gray-100 text-gray-500"}`}>
+            <span>👤 Приглашено: <b className={dark ? "text-white" : "text-gray-800"}>{stats.referralsCount || 0}</b></span>
+            <span>⚡ Заработано: <b className={dark ? "text-yellow-400" : "text-indigo-600"}>{stats.referralsXpEarned || 0} XP</b></span>
+          </div>
+        )}
       </div>
 
       {/* Achievements */}

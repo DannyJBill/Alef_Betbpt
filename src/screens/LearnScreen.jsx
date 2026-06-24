@@ -335,3 +335,12 @@ export default function LearnScreen() {
 
   return null;
 }
+
+// Share result helper — exported for reuse
+export function shareGroupResult(group, score, refCode) {
+  const tg = window.Telegram?.WebApp;
+  if (!tg) return;
+  const refLink = `https://t.me/AlefBetBot/learn?startapp=${refCode}`;
+  const text = `Прошёл группу "${group?.name}" с результатом ${score}%! 🇮🇱\nУчу иврит в Alef Bet → ${refLink}`;
+  tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(text)}`);
+}

@@ -3,14 +3,40 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
-import { handleSuccessfulPayment } from "./_paymentsLib.js";
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
+  process.env.SUPABASE_URL?.trim().replace(/\/$/, ""),
+  process.env.SUPABASE_SERVICE_KEY?.trim()
 );
 const API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 const APP_URL = process.env.APP_URL || "https://alef-betbpt.vercel.app";
+
+// Инлайн — обработка успешного платежа Stars
+async function handleSuccessfulPayment(telegramId, payment) {
+  const payload = payment.invoice_payload || "";
+  const [productId] = payload.split(":");
+  if (productId !== "nikud_lifetime") return false;
+
+  const { data: row } = await supabase
+    .from("user_stats").select("stats")
+    .eq("telegram_id", telegramId).maybeSingle();
+
+  const existing = row?.stats || {};
+  await supabase.from("user_stats").upsert({
+    telegram_id: telegramId,
+    stats: {
+      ...existing,
+      isPremium:          true,
+      premiumPurchasedAt: Date.now(),
+      premiumType:        "lifetime",
+      xp:                 (existing.xp || 0) + 200,
+    },
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "telegram_id" });
+
+  console.log(`[payments] isPremium set for user ${telegramId}`);
+  return true;
+}
 
 async function send(chatId, text, extra = {}) {
   await fetch(`${API}/sendMessage`, {

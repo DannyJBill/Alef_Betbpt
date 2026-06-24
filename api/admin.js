@@ -231,7 +231,7 @@ function renderHTML(d, secret) {
         <td>${u.lang}</td>
         <td style="text-align:center">${u.premium}</td>
         <td style="color:#94a3b8;font-size:11px">${u.last_seen}</td>
-        <td style="white-space:nowrap"><button class="btn btn-sm" onclick="openMsg('${u.telegram_id}','${u.name.replace(/\'\'/g,\"\\'\")}')">✉️</button> <button class="btn btn-sm" style="background:${u.premium?'#10b981':'#f59e0b'}" onclick="openPremium('${u.telegram_id}','${u.name.replace(/\'/g,\"\\'\")}',${u.premium?'true':'false'})">⭐</button></td>
+        <td style="white-space:nowrap"><button class="btn btn-sm" onclick="openMsg('${u.telegram_id}','${u.name}')">✉️</button> <button class="btn btn-sm" style="background:${u.premium?'#10b981':'#f59e0b'}" onclick="openPremium('${u.telegram_id}','${u.name}',${u.premium?'true':'false'})">⭐</button></td>
       </tr>`).join("")}
     </tbody>
   </table>

@@ -50,7 +50,7 @@ export default function NikudScreen() {
     const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
     if (!tgId || stats.isPremium) return;
 
-    fetch(`/api/payments/status?telegramId=${tgId}`)
+    fetch(`/api/payments-status?telegramId=${tgId}`)
       .then(r => r.json())
       .then(data => {
         if (data.isPremium && !stats.isPremium) {
@@ -81,7 +81,7 @@ export default function NikudScreen() {
 
     try {
       // Получить invoice link с сервера
-      const res = await fetch("/api/payments/create", {
+      const res = await fetch("/api/payments-create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId: "nikud_lifetime", telegramId: tgId }),

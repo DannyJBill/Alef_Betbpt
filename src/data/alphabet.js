@@ -101,7 +101,7 @@ export const ALPHABET = [
     ],
   },
   {
-    id:10, symbol:"י", name:"Йод", trans:"й/и", sound:"й",
+    id:10, symbol:"י", name:"Йуд", trans:"й/и", sound:"й",
     pronunciation:"Й как в «йога»; также гласная И в матках чтения",
     group:2, exampleWord:"יום", exampleTrans:"йом", exampleMeaning:"день",
     similarTo:[6], audioFile:"yod.mp3", finalForm:null, isFinalForm:false,
@@ -198,7 +198,7 @@ export const ALPHABET = [
     words:[
       { he:"ציפור",  tr:"ципор",  ru:"птица"   },
       { he:"צבא",   tr:"цава",   ru:"армия"   },
-      { he:"צלחת",  tr:"цэлахат",ru:"тарелка" },
+      { he:"צלחת",  tr:"цалахат",ru:"тарелка" },
     ],
   },
   {

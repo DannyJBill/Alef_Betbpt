@@ -7,7 +7,7 @@ export const ALPHABET = [
     similarTo:[16], audioFile:"alef.mp3", finalForm:null, isFinalForm:false,
     words:[
       { he:"אבא",   tr:"аба",    ru:"папа"    },
-      { he:"אם",    tr:"эм",     ru:"мама"    },
+      { he:"אמא",   tr:"има",    ru:"мама"    },
       { he:"ארץ",   tr:"эрэц",   ru:"страна"  },
     ],
   },

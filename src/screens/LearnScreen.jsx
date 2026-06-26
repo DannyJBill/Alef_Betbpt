@@ -4,6 +4,7 @@ import { useStats } from "../context/StatsContext";
 import { LETTER_GROUPS } from "../data/alphabet";
 import { getGroupLetters, isGroupUnlocked, getGroupMastery, GROUP_COLORS } from "../helpers/groupHelpers";
 import HebrewKeyboard from "../components/ui/HebrewKeyboard";
+import { speakLetter } from "../helpers/speak";
 
 function shuffle(arr) {
   const a=[...arr];
@@ -91,7 +92,7 @@ export default function LearnScreen() {
 
   // ── PHASE: groups ──────────────────────────────────────────────────────────
   if (phase === 'groups') return (
-    <div className="pb-20 px-4 pt-4 max-w-md mx-auto flex flex-col gap-3">
+    <div className="px-4 pt-3 max-w-md mx-auto flex flex-col gap-2" style={{height:"100%"}}>
       <h2 className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>Учись</h2>
       {LETTER_GROUPS.map(g => {
         const unlocked = isGroupUnlocked(g.id, stats.groupProgress);
@@ -143,35 +144,31 @@ export default function LearnScreen() {
   if (phase === 'studying') {
     const letter = groupLetters[letterIdx];
     return (
-      <div className="pb-20 px-4 pt-4 max-w-md mx-auto flex flex-col gap-4">
+      <div className="px-4 pt-3 max-w-md mx-auto flex flex-col gap-3" style={{height:"100%",overflowY:"auto"}}>
         <div className="flex gap-1">
           {groupLetters.map((_, i) => (
             <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i <= letterIdx ? colors.fill : dark ? 'bg-gray-700' : 'bg-gray-200'}`} />
           ))}
         </div>
-        <div className={`rounded-3xl p-8 flex flex-col items-center gap-3 border-2 ${colors.border} ${dark ? 'bg-gray-800' : 'bg-white'}`}>
-          <span style={{ fontSize: 120, lineHeight: 1, fontFamily: 'serif' }} className={dark ? 'text-white' : 'text-gray-900'}>{letter.symbol}</span>
-          {letter.isFinalForm && <span className={`text-xs px-2 py-0.5 rounded-full ${colors.text} border ${colors.border} ${dark ? 'bg-gray-700' : 'bg-gray-100'}`}>финальная форма</span>}
-          <h2 className={`text-3xl font-bold ${dark ? 'text-white' : 'text-gray-900'}`}>{letter.name}</h2>
-          <p className={`text-sm ${dark ? 'text-gray-400' : 'text-gray-500'}`}>«{letter.sound}» · {letter.trans}</p>
-          <button
-            onClick={() => { if (window.speechSynthesis) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(letter.symbol); u.lang='he-IL'; u.rate=0.8; window.speechSynthesis.speak(u); } }}
-            className={`mt-1 px-5 py-2 rounded-full text-sm border transition-all active:scale-95 ${dark ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}>
-            🔊 Послушать
-          </button>
-        </div>
-        {letter.words && letter.words.length > 0 && (
-          <div className={`rounded-2xl border ${colors.border} overflow-hidden ${dark ? 'bg-gray-800' : 'bg-white'}`}>
-            <p className={`text-xs px-4 pt-3 pb-1 ${dark ? 'text-gray-400' : 'text-gray-400'}`}>Примеры слов:</p>
-            {letter.words.map((w, i) => (
-              <div key={i} className={`flex items-baseline gap-2 px-4 py-2 ${i < letter.words.length - 1 ? `border-b ${dark ? 'border-gray-700' : 'border-gray-100'}` : 'pb-3'}`}>
-                <span style={{ fontFamily: 'serif', direction: 'rtl' }} className={`text-xl font-bold w-20 flex-shrink-0 ${dark ? 'text-white' : 'text-gray-900'}`}>{w.he}</span>
-                <span className={`text-xs flex-1 ${dark ? 'text-gray-400' : 'text-gray-400'}`}>{w.tr}</span>
-                <span className={`text-sm font-medium ${dark ? 'text-gray-200' : 'text-gray-700'}`}>{w.ru}</span>
-              </div>
-            ))}
+        <div className={`rounded-3xl p-5 flex flex-col items-center gap-2 border-2 ${colors.border} ${colors.bg}`}>
+          <span style={{ fontSize: "min(100px, 18vw)", lineHeight: 1, fontFamily: 'serif' }}>{letter.symbol}</span>
+          {letter.isFinalForm && <span className={`text-xs px-2 py-0.5 rounded-full ${colors.bg} ${colors.text} border ${colors.border}`}>финальная форма</span>}
+          <div className="flex items-center gap-2">
+            <h2 className={`text-3xl font-bold ${dark ? 'text-white' : 'text-gray-900'}`}>{letter.name}</h2>
+            <button onClick={()=>speakLetter(letter)}
+              className={`w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all ${dark?'bg-white/10':'bg-white/60'}`}
+              aria-label="Произнести">🔊</button>
           </div>
-        )}
+          <p className={`text-sm ${dark ? 'text-gray-400' : 'text-gray-500'}`}>«{letter.sound}» · {letter.trans}</p>
+
+        </div>
+        <div className={`rounded-2xl px-4 py-3 border ${colors.border} ${colors.bg}`}>
+          <p className={`text-xs mb-2 ${dark ? 'text-gray-500' : 'text-gray-400'}`}>Примеры слов:</p>
+          {letter.words?.slice(0,3).map((w, i) => {
+            const text = typeof w === 'string' ? w : `${w.he} (${w.tr}) — ${w.ru}`;
+            return <p key={i} className={`text-sm leading-6 ${dark ? 'text-gray-200' : 'text-gray-700'}`}>{text}</p>;
+          })}
+        </div>
         <button onClick={nextLetter}
           className={`w-full py-4 rounded-2xl font-bold text-white text-lg ${colors.fill} active:scale-[0.98] transition-all`}>
           {letterIdx < groupLetters.length - 1 ? 'Понятно, дальше →' : 'К тесту →'}
@@ -186,7 +183,7 @@ export default function LearnScreen() {
     const isKeyboard = q.type === 'name-to-symbol';
 
     return (
-      <div className="pb-20 px-4 pt-4 max-w-md mx-auto flex flex-col gap-3">
+      <div className="pb-4 px-4 pt-4 max-w-md mx-auto flex flex-col gap-3">
         <p className={`text-sm text-center ${dark ? 'text-gray-400' : 'text-gray-500'}`}>{qIdx + 1} / {questions.length}</p>
         <div className={`h-1.5 rounded-full ${dark ? 'bg-gray-700' : 'bg-gray-200'}`}>
           <div className={`h-full ${colors.fill} rounded-full transition-all`} style={{ width: `${(qIdx / questions.length) * 100}%` }} />
@@ -206,7 +203,7 @@ export default function LearnScreen() {
         <p className={`text-sm text-center ${dark ? 'text-gray-400' : 'text-gray-500'}`}>{q.promptLabel}</p>
 
         {/* Prompt */}
-        <div className={`rounded-3xl flex items-center justify-center ${dark ? 'bg-gray-800' : 'bg-gray-50'}`} style={{ height: 140 }}>
+        <div className={`rounded-3xl flex items-center justify-center ${dark ? 'bg-gray-800' : 'bg-gray-50'}`} style={{ height: 'min(140px, 25vw)', minHeight: 90 }}>
           <span style={{
             fontSize: q.type === 'letter-to-name' ? 100 : 32,
             fontFamily: 'serif', fontWeight: 'bold',
@@ -225,7 +222,7 @@ export default function LearnScreen() {
                 : answered === 'correct'
                   ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-950'
                   : 'border-rose-400 bg-rose-50 dark:bg-rose-950'
-            }`} style={{ height: 72 }}>
+            }`} style={{ height: 60 }}>
               {input ? (
                 <span style={{ fontSize: 52, fontFamily: 'serif' }}
                   className={answered === 'correct' ? 'text-emerald-600' : answered === 'wrong' ? 'text-rose-600' : dark ? 'text-white' : 'text-gray-900'}>
@@ -290,7 +287,7 @@ export default function LearnScreen() {
     const isPassed = score >= 70;
     const nextGrp  = LETTER_GROUPS.find(g => g.unlocksAfter === groupId);
     return (
-      <div className="pb-20 px-4 pt-10 max-w-md mx-auto flex flex-col items-center gap-5 text-center">
+      <div className="pb-4 px-4 pt-6 max-w-md mx-auto flex flex-col items-center gap-4 text-center">
         <span className="text-6xl">{isPassed ? '🎉' : '💪'}</span>
         <div>
           <p className={`text-2xl font-bold ${dark ? 'text-white' : 'text-gray-900'}`}>

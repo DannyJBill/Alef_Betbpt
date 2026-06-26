@@ -3,15 +3,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { LETTER_GROUPS, ALL_LETTERS } from "../data/alphabet";
 import { getGroupLetters, isGroupUnlocked, GROUP_COLORS } from "../helpers/groupHelpers";
-
-function speakLetter(symbol) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(symbol);
-  u.lang = 'he-IL';
-  u.rate = 0.8;
-  window.speechSynthesis.speak(u);
-}
+import { speakLetter } from "../helpers/speak";
 
 export default function CardsScreen() {
   const { dark } = useTheme();
@@ -43,8 +35,9 @@ export default function CardsScreen() {
   const handleAnswer = useCallback((quality) => {
     updateCardReview(queue[current].id, quality);
     setSessionStats(s=>({...s, easy:s.easy+(quality===2?1:0), hard:s.hard+(quality===1?1:0), again:s.again+(quality===0?1:0)}));
+    // Сначала скрыть кнопки, потом перейти — чтобы не мелькала оборотная сторона
     setFlipped(false);
-    setCurrent(c=>c+1);
+    setTimeout(() => setCurrent(c=>c+1), 350);
   },[queue,current,updateCardReview]);
 
   // ── groupSelect ────────────────────────────────────────────────────────────
@@ -52,7 +45,7 @@ export default function CardsScreen() {
     const allDue = getDueCards(UNLOCKED_LETTERS).length;
     const weakCount = UNLOCKED_LETTERS.filter(l=>(stats.weakLetters?.[l.id]||0)>0).length;
     return (
-      <div className="pb-20 px-4 pt-4 max-w-md mx-auto flex flex-col gap-3">
+      <div className="pb-4 px-4 pt-4 max-w-md mx-auto flex flex-col gap-3">
         <h2 className={`text-xl font-bold ${dark?'text-white':'text-gray-900'}`}>Карточки</h2>
         {allDue>0 ? (
           <button onClick={()=>startSession('all-due')}
@@ -113,7 +106,7 @@ export default function CardsScreen() {
     const total = sessionStats.easy+sessionStats.hard+sessionStats.again;
     const lastScope = queue[0] ? 'all-due' : 'all-due'; // сохраняем scope для повтора
     return (
-      <div className={`pb-20 px-4 pt-12 max-w-md mx-auto text-center ${dark?'text-white':'text-gray-900'}`}>
+      <div className={`pb-4 px-4 pt-8 max-w-md mx-auto text-center ${dark?'text-white':'text-gray-900'}`}>
         <div className="text-5xl mb-3">✨</div>
         <h2 className="text-2xl font-bold mb-1">Сессия завершена!</h2>
         {total===0
@@ -142,7 +135,7 @@ export default function CardsScreen() {
   const isWeak = (stats.weakLetters?.[card.id]||0)>0;
   const review = stats.cardReviews?.[card.id];
   return (
-    <div className="pb-20 px-4 pt-4 max-w-md mx-auto">
+    <div className="px-4 pt-3 max-w-md mx-auto flex flex-col" style={{height:"100%"}}>
       <div className="flex justify-between text-xs mb-2">
         <span className={dark?'text-gray-400':'text-gray-500'}>{current+1} / {queue.length}</span>
         <div className="flex gap-2">
@@ -153,40 +146,28 @@ export default function CardsScreen() {
       <div className={`h-1.5 rounded-full mb-5 ${dark?'bg-gray-700':'bg-gray-200'}`}>
         <div className="h-full bg-indigo-500 rounded-full transition-all" style={{width:`${(current/queue.length)*100}%`}}/>
       </div>
-      <div onClick={()=>setFlipped(f=>!f)} style={{perspective:1000}} className="cursor-pointer mb-5" role="button">
-        <div style={{transformStyle:'preserve-3d',transform:flipped?'rotateY(180deg)':'rotateY(0deg)',transition:'transform 0.45s',position:'relative',height:260}}>
+      <div onClick={()=>!flipped&&setFlipped(true)} style={{perspective:1000}} className="cursor-pointer mb-5" role="button">
+        <div style={{transformStyle:'preserve-3d',transform:flipped?'rotateY(180deg)':'rotateY(0deg)',transition:'transform 0.45s',position:'relative',height:200}}>
           <div style={{backfaceVisibility:'hidden'}}
             className={`absolute inset-0 rounded-3xl flex flex-col items-center justify-center shadow-lg border ${dark?'bg-gray-700 border-gray-600':'bg-white border-gray-100'}`}>
-            <span style={{fontSize:110,lineHeight:1,fontFamily:'serif'}}>{card.symbol}</span>
+            <span style={{fontSize:90,lineHeight:1,fontFamily:'serif'}}>{card.symbol}</span>
             {card.isFinalForm&&<span className={`text-xs mt-2 px-2 py-0.5 rounded-full ${dark?'bg-indigo-900 text-indigo-300':'bg-indigo-100 text-indigo-600'}`}>финальная форма</span>}
-            <button
-              onClick={e=>{e.stopPropagation();speakLetter(card.symbol);}}
-              className={`mt-4 px-4 py-1.5 rounded-full text-xs border transition-all active:scale-95 ${dark?'border-gray-600 text-gray-400 hover:bg-gray-700':'border-gray-200 text-gray-400 hover:bg-gray-50'}`}>
-              🔊 Произношение
-            </button>
+            <p className={`text-xs mt-4 ${dark?'text-gray-600':'text-gray-300'}`}>нажмите чтобы открыть</p>
           </div>
           <div style={{backfaceVisibility:'hidden',transform:'rotateY(180deg)'}}
-            className={`absolute inset-0 rounded-3xl flex flex-col items-center justify-center p-5 shadow-lg border ${dark?'bg-gray-800 border-gray-600':'bg-white border-gray-100'}`}>
-            <span style={{fontSize:52,fontFamily:'serif'}} className={dark?'text-white':'text-gray-900'}>{card.symbol}</span>
+            className={`absolute inset-0 rounded-3xl flex flex-col items-center justify-center px-4 py-2 shadow-lg ${dark?'bg-indigo-800':'bg-indigo-500'} text-white`}>
+            <span style={{fontSize:40,fontFamily:'serif',lineHeight:1}}>{card.symbol}</span>
             <div className="flex items-center gap-2 mt-1">
-              <h3 className={`text-xl font-bold ${dark?'text-white':'text-gray-900'}`}>{card.name}</h3>
-              <button
-                onClick={e=>{e.stopPropagation();speakLetter(card.symbol);}}
-                className={`px-2.5 py-1 rounded-full text-xs border active:scale-95 transition-all ${dark?'border-gray-600 text-gray-400':'border-gray-200 text-gray-500'}`}>
-                🔊
-              </button>
+              <h3 className="text-xl font-bold">{card.name}</h3>
+              <button onClick={e=>{e.stopPropagation();speakLetter(card);}} className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center active:scale-95">🔊</button>
             </div>
-            <p className={`text-sm mt-0.5 ${dark?'text-gray-300':'text-gray-500'}`}>«{card.sound}» · {card.trans}</p>
-            {card.pronunciation&&<p className={`mt-1.5 text-xs text-center px-2 ${dark?'text-gray-400':'text-gray-500'}`}>{card.pronunciation}</p>}
-            {card.words&&card.words.length>0&&(
-              <div className={`mt-3 w-full rounded-xl overflow-hidden border ${dark?'bg-gray-700 border-gray-600':'bg-gray-50 border-gray-100'}`}>
-                {card.words.map((w,i)=>(
-                  <div key={i} className={`flex items-baseline gap-2 px-3 py-1.5 ${i<card.words.length-1?`border-b ${dark?'border-gray-600':'border-gray-200'}`:''}`}>
-                    <span style={{fontFamily:'serif',direction:'rtl'}} className={`text-base font-bold w-16 flex-shrink-0 ${dark?'text-white':'text-gray-900'}`}>{w.he}</span>
-                    <span className={`text-xs flex-1 ${dark?'text-gray-400':'text-gray-400'}`}>{w.tr}</span>
-                    <span className={`text-xs font-medium ${dark?'text-gray-200':'text-gray-700'}`}>{w.ru}</span>
-                  </div>
-                ))}
+            <p className="text-indigo-200 text-xs mt-0.5">«{card.sound}» · {card.trans}</p>
+            {card.words?.length > 0 && (
+              <div className={`mt-2 w-full rounded-xl px-3 py-1.5 ${dark?'bg-indigo-900/50':'bg-indigo-600/50'}`}>
+                {card.words.slice(0,3).map((w,i) => {
+                  const text = typeof w === 'string' ? w : `${w.he} (${w.tr}) — ${w.ru}`;
+                  return <p key={i} className="text-xs text-indigo-100 leading-5">{text}</p>;
+                })}
               </div>
             )}
           </div>

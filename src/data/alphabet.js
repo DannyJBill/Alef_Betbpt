@@ -48,7 +48,7 @@ export const ALPHABET = [
     id:5, symbol:"ה", name:"Хэй", trans:"h", sound:"х",
     pronunciation:"Мягкое Х, как лёгкий выдох — не горловое",
     group:1, exampleWord:"הר", exampleTrans:"hар", exampleMeaning:"гора",
-    similarTo:[8,11], audioFile:"hey.mp3", finalForm:null, isFinalForm:false,
+    similarTo:[8,11], audioFile:"he.mp3", finalForm:null, isFinalForm:false,
     words:[
       { he:"הר",    tr:"hар",    ru:"гора"    },
       { he:"הוא",   tr:"hу",     ru:"он"      },
@@ -82,7 +82,7 @@ export const ALPHABET = [
     id:8, symbol:"ח", name:"Хэт", trans:"х(гл)", sound:"х",
     pronunciation:"Горловое Х — как в «Бах» или украинском «г»",
     group:2, exampleWord:"חיים", exampleTrans:"хаим", exampleMeaning:"жизнь",
-    similarTo:[5,11], audioFile:"khet.mp3", finalForm:null, isFinalForm:false,
+    similarTo:[5,11], audioFile:"chet.mp3", finalForm:null, isFinalForm:false,
     words:[
       { he:"חיים",  tr:"хаим",   ru:"жизнь"   },
       { he:"חם",    tr:"хам",    ru:"тёплый"  },
@@ -104,7 +104,7 @@ export const ALPHABET = [
     id:10, symbol:"י", name:"Йуд", trans:"й/и", sound:"й",
     pronunciation:"Й как в «йога»; также гласная И в матках чтения",
     group:2, exampleWord:"יום", exampleTrans:"йом", exampleMeaning:"день",
-    similarTo:[6], audioFile:"yod.mp3", finalForm:null, isFinalForm:false,
+    similarTo:[6], audioFile:"yud.mp3", finalForm:null, isFinalForm:false,
     words:[
       { he:"יום",   tr:"йом",    ru:"день"    },
       { he:"יד",    tr:"яд",     ru:"рука"    },
@@ -115,7 +115,7 @@ export const ALPHABET = [
     id:11, symbol:"כ", name:"Каф", trans:"к/х", sound:"к",
     pronunciation:"К с дагешем; без дагеша — горловое Х (как Хэт, но мягче)",
     group:2, exampleWord:"כוכב", exampleTrans:"кохав", exampleMeaning:"звезда",
-    similarTo:[2,5,8], audioFile:"kaf.mp3", finalForm:"ך", isFinalForm:false,
+    similarTo:[2,5,8], audioFile:"chaf.mp3", finalForm:"ך", isFinalForm:false,
     words:[
       { he:"כוכב",  tr:"кохав",  ru:"звезда"  },
       { he:"כלב",   tr:"кэлев",  ru:"собака"  },
@@ -160,7 +160,7 @@ export const ALPHABET = [
     id:15, symbol:"ס", name:"Самех", trans:"с", sound:"с",
     pronunciation:"С как в «сом» — всегда глухая",
     group:3, exampleWord:"ספר", exampleTrans:"сэфэр", exampleMeaning:"книга",
-    similarTo:[9,13], audioFile:"samekh.mp3", finalForm:null, isFinalForm:false,
+    similarTo:[9,13], audioFile:"samech.mp3", finalForm:null, isFinalForm:false,
     words:[
       { he:"ספר",   tr:"сэфэр",  ru:"книга"   },
       { he:"סוס",   tr:"сус",    ru:"лошадь"  },
@@ -182,7 +182,7 @@ export const ALPHABET = [
     id:17, symbol:"פ", name:"Пэй", trans:"п/ф", sound:"п",
     pronunciation:"П с дагешем; без дагеша — Ф",
     group:3, exampleWord:"פרח", exampleTrans:"пэрах", exampleMeaning:"цветок",
-    similarTo:[2,11], audioFile:"pe.mp3", finalForm:"ף", isFinalForm:false,
+    similarTo:[2,11], audioFile:"fay.mp3", finalForm:"ף", isFinalForm:false,
     words:[
       { he:"פרח",   tr:"пэрах",  ru:"цветок"  },
       { he:"פה",    tr:"по",     ru:"рот/здесь"},
@@ -238,7 +238,7 @@ export const ALPHABET = [
     id:22, symbol:"ת", name:"Тав", trans:"т", sound:"т",
     pronunciation:"Т как в «там» — последняя буква алфавита",
     group:4, exampleWord:"תפוח", exampleTrans:"тапуах", exampleMeaning:"яблоко",
-    similarTo:[], audioFile:"tav.mp3", finalForm:null, isFinalForm:false,
+    similarTo:[], audioFile:"thaf.mp3", finalForm:null, isFinalForm:false,
     words:[
       { he:"תפוח",  tr:"тапуах", ru:"яблоко"  },
       { he:"תודה",  tr:"тода",   ru:"спасибо" },

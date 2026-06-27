@@ -145,6 +145,9 @@ export function StatsProvider({ children }) {
         if (serverRicher || serverFresher) {
           setStats({ ...INITIAL_STATS, ...migrate(server) });
         }
+      } else {
+        // No server record — save immediately (new user or after reset)
+        await saveStatsToServer(local);
       }
 
       if (!referralDoneRef.current) {
@@ -167,12 +170,11 @@ export function StatsProvider({ children }) {
   }, []);
 
   const scheduleSave = useCallback((data) => {
-    // Local save: debounce 300ms (reset on each action — fine)
+    // Local save: debounce 300ms
     clearTimeout(saveRef.current);
     saveRef.current = setTimeout(() => saveToStorage(data), 300);
 
-    // Server save: fires 30s after the FIRST action in a burst, not the last.
-    // This ensures data reaches the server even during active gameplay.
+    // Server save: fires 30s after FIRST action in a burst, not reset on each action
     if (!serverSaveRef.current) {
       serverSaveRef.current = setTimeout(() => {
         saveStatsToServer(data);
@@ -372,7 +374,6 @@ export function StatsProvider({ children }) {
         ? `ref_${window.Telegram.WebApp.initDataUnsafe.user.id}`
         : `ref_${Date.now()}`,
     };
-
     // 1. Очистить все локальные хранилища
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
     try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
@@ -383,13 +384,12 @@ export function StatsProvider({ children }) {
         );
       } catch {}
     }
-
     // 2. Удалить строку из базы
     await resetStatsOnServer();
-
-    // 3. Сбросить стейт
+    // 3. Сбросить стейт и сразу создать новую строку
     setStats(fresh);
     await saveToStorage(fresh);
+    await saveStatsToServer(fresh);
   }, []);
 
   useEffect(() => () => {

@@ -9,8 +9,10 @@ const APP_SHORT    = "learn";
 
 export default function ProfileScreen() {
   const { dark } = useTheme();
-  const { stats } = useStats();
+  const { stats, resetStats } = useStats();
   const [copied, setCopied] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const { level, pct: levelPct, xpToNext } = levelProgress(stats.xp);
   const tg = window.Telegram?.WebApp;
@@ -20,6 +22,14 @@ export default function ProfileScreen() {
   const refCode = stats.referralCode || `ref_${Date.now()}`;
   const refLink = `https://t.me/${BOT_USERNAME}/${APP_SHORT}?startapp=${refCode}`;
   const shareText = "Учу иврит по приложению Alef Bet 🇮🇱 — выучил алфавит за неделю! Присоединяйся →";
+
+  async function handleReset() {
+    if (!confirmReset) { setConfirmReset(true); return; }
+    setResetting(true);
+    await resetStats();
+    setResetting(false);
+    setConfirmReset(false);
+  }
 
   function handleShare() {
     const url = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
@@ -128,6 +138,39 @@ export default function ProfileScreen() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Bottom actions */}
+      <div className="mt-5 flex flex-col gap-3">
+        {/* Support */}
+        <button
+          onClick={() => window.Telegram?.WebApp?.openTelegramLink("https://t.me/alef_betbot")}
+          className={`w-full py-3 rounded-2xl font-semibold text-sm border transition-all active:scale-95 ${
+            dark ? "border-gray-700 text-gray-300 bg-gray-800" : "border-gray-200 text-gray-600 bg-white"
+          }`}>
+          💬 Написать в поддержку
+        </button>
+
+        {/* Reset */}
+        <button
+          onClick={handleReset}
+          disabled={resetting}
+          className={`w-full py-3 rounded-2xl font-semibold text-sm transition-all active:scale-95 ${
+            confirmReset
+              ? "bg-red-500 text-white"
+              : dark ? "border border-gray-700 text-red-400 bg-gray-800" : "border border-gray-200 text-red-400 bg-white"
+          }`}>
+          {resetting ? "Сбрасываем…" : confirmReset ? "⚠️ Подтвердить сброс — это нельзя отменить" : "🗑 Сбросить прогресс"}
+        </button>
+        {confirmReset && !resetting && (
+          <button
+            onClick={() => setConfirmReset(false)}
+            className={`w-full py-2 rounded-2xl text-sm transition-all active:scale-95 ${
+              dark ? "text-gray-500" : "text-gray-400"
+            }`}>
+            Отмена
+          </button>
+        )}
       </div>
     </div>
   );

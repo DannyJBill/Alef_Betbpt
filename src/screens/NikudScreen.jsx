@@ -902,7 +902,7 @@ function LearnScene({ vowel, vowelIndex, total, colors, dark, isLast, onNext }) 
           <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${colors.text}`}>
             {vowel.name}
           </p>
-          <div className="text-9xl font-bold mb-2" style={{ direction: "rtl", fontFamily: "serif" }}>
+          <div className={`text-9xl font-bold mb-2 ${dark ? "text-white" : "text-gray-900"}`} style={{ direction: "rtl", fontFamily: "serif" }}>
             {DEMO_LETTER}{vowel.symbol}
           </div>
           <div className={`text-3xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>
@@ -911,7 +911,7 @@ function LearnScene({ vowel, vowelIndex, total, colors, dark, isLast, onNext }) 
         </div>
 
         {/* Подсказка */}
-        <div className={`w-full rounded-xl p-3 ${dark ? "bg-black/20" : "bg-white/60"} text-center`}>
+        <div className={`w-full rounded-xl p-3 border ${colors.light} ${colors.border} text-center`}>
           <p className={`text-sm ${dark ? "text-gray-300" : "text-gray-600"}`}>{vowel.hint}</p>
           <p className={`text-xs mt-1 ${dark ? "text-gray-500" : "text-gray-400"}`}>{vowel.visualDesc}</p>
         </div>

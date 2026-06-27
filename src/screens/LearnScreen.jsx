@@ -151,7 +151,7 @@ export default function LearnScreen() {
           ))}
         </div>
         <div className={`rounded-3xl p-5 flex flex-col items-center gap-2 border-2 ${colors.border} ${colors.bg}`}>
-          <span style={{ fontSize: "min(100px, 18vw)", lineHeight: 1, fontFamily: 'serif' }}>{letter.symbol}</span>
+          <span style={{ fontSize: "min(100px, 18vw)", lineHeight: 1, fontFamily: 'serif' }} className={dark ? 'text-white' : 'text-gray-900'}>{letter.symbol}</span>
           {letter.isFinalForm && <span className={`text-xs px-2 py-0.5 rounded-full ${colors.bg} ${colors.text} border ${colors.border}`}>финальная форма</span>}
           <div className="flex items-center gap-2">
             <h2 className={`text-3xl font-bold ${dark ? 'text-white' : 'text-gray-900'}`}>{letter.name}</h2>

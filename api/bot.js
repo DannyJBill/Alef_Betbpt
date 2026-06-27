@@ -108,12 +108,12 @@ async function cmdStreak(chatId, telegramId) {
   await send(chatId, msg);
 }
 
-async function cmdReset(chatId, telegramId) {
+async function cmdReset(chatId) {
   await send(chatId,
-    "⚠️ Сбросить <b>весь прогресс</b>?\n\nЭто нельзя отменить.",
+    "⚠️ Чтобы сбросить прогресс — открой приложение и используй кнопку сброса в профиле.\n\n" +
+    "Это необходимо чтобы очистить все локальные данные на устройстве.",
     { reply_markup: { inline_keyboard: [[
-      { text: "✅ Да, сбросить", callback_data: `reset:${telegramId}` },
-      { text: "❌ Отмена",       callback_data: "cancel" },
+      { text: "📖 Открыть Alef Bet", web_app: { url: APP_URL } }
     ]]}}
   );
 }
@@ -190,19 +190,13 @@ export default async function handler(req, res) {
 
   // Inline button press
   if (body.callback_query) {
-    const { id, data, from, message } = body.callback_query;
+    const { id, message } = body.callback_query;
     await fetch(`${API}/answerCallbackQuery`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ callback_query_id: id }),
     });
-    if (data?.startsWith("reset:")) {
-      const tid = data.split(":")[1];
-      await supabase.from("user_stats").delete().eq("telegram_id", tid);
-      await send(message.chat.id, "✅ Прогресс сброшен. Начинаем с чистого листа! 🌱");
-    } else if (data === "cancel") {
-      await send(message.chat.id, "❌ Отменено. Прогресс сохранён.");
-    }
+    await send(message.chat.id, "Используй кнопку сброса в профиле приложения.");
     return res.status(200).end();
   }
 
@@ -247,7 +241,7 @@ export default async function handler(req, res) {
     case "/start":  await cmdStart(chatId, msg.from); break;
     case "/stats":  await cmdStats(chatId, userId); break;
     case "/streak": await cmdStreak(chatId, userId); break;
-    case "/reset":  await cmdReset(chatId, userId); break;
+    case "/reset":  await cmdReset(chatId); break;
     case "/help":
       await send(chatId,
         "📋 <b>Команды</b>\n\n" +

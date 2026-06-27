@@ -1,6 +1,6 @@
 import { createContext, useContext, useCallback, useState, useEffect, useRef } from "react";
 import { INITIAL_STATS, computeLevel } from "../data/constants";
-import { saveStatsToServer, loadStatsFromServer } from "../helpers/serverSync";
+import { saveStatsToServer, loadStatsFromServer, resetStatsOnServer } from "../helpers/serverSync";
 import { LETTER_GROUPS, NIKUD_GROUPS } from "../data/alphabet";
 import { Analytics } from "../helpers/analytics";
 
@@ -135,7 +135,7 @@ export function StatsProvider({ children }) {
       setStats(local);
       setReady(true);
 
-      const server = await loadStatsFromServer();
+      const server = await loadStatsFromServer(local);
       if (server) {
         const score = (s) => (s.xp || 0) * 10
           + Object.values(s.groupProgress || {}).filter(v => v === "completed").length * 1000
@@ -167,10 +167,18 @@ export function StatsProvider({ children }) {
   }, []);
 
   const scheduleSave = useCallback((data) => {
+    // Local save: debounce 300ms (reset on each action — fine)
     clearTimeout(saveRef.current);
     saveRef.current = setTimeout(() => saveToStorage(data), 300);
-    clearTimeout(serverSaveRef.current);
-    serverSaveRef.current = setTimeout(() => saveStatsToServer(data), 30000);
+
+    // Server save: fires 30s after the FIRST action in a burst, not the last.
+    // This ensures data reaches the server even during active gameplay.
+    if (!serverSaveRef.current) {
+      serverSaveRef.current = setTimeout(() => {
+        saveStatsToServer(data);
+        serverSaveRef.current = null;
+      }, 30000);
+    }
   }, []);
 
   const updateStats = useCallback((updater) => {
@@ -356,6 +364,34 @@ export function StatsProvider({ children }) {
     return Math.max(0, AI_FREE_LIMIT - usage.count);
   }, [stats.isPremium, stats.aiUsageToday]);
 
+  // ── Полный сброс прогресса ─────────────────────────────────────────────────
+  const resetStats = useCallback(async () => {
+    const fresh = {
+      ...INITIAL_STATS,
+      referralCode: window.Telegram?.WebApp?.initDataUnsafe?.user?.id
+        ? `ref_${window.Telegram.WebApp.initDataUnsafe.user.id}`
+        : `ref_${Date.now()}`,
+    };
+
+    // 1. Очистить все локальные хранилища
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
+    if (TGCloud) {
+      try {
+        await new Promise((res, rej) =>
+          TGCloud.removeItem(STORAGE_KEY, e => e ? rej(e) : res())
+        );
+      } catch {}
+    }
+
+    // 2. Удалить строку из базы
+    await resetStatsOnServer();
+
+    // 3. Сбросить стейт
+    setStats(fresh);
+    await saveToStorage(fresh);
+  }, []);
+
   useEffect(() => () => {
     clearTimeout(saveRef.current);
     clearTimeout(serverSaveRef.current);
@@ -369,6 +405,7 @@ export function StatsProvider({ children }) {
       completeGroupTest,
       getDueCards,
       ready,
+      resetStats,
       // Огласовки
       completeNikudGroupTest,
       updateVowelReview,

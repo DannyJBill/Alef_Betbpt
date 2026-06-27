@@ -1,5 +1,5 @@
 /**
- * Sync stats with server (Vercel KV) using Telegram initData as auth.
+ * Sync stats with server using Telegram initData as auth.
  * Falls back silently if not in Telegram or server unavailable.
  */
 
@@ -11,7 +11,7 @@ export function getInitData() {
 
 export async function saveStatsToServer(stats) {
   const initData = getInitData();
-  if (!initData) return; // not in Telegram — skip
+  if (!initData) return;
 
   try {
     await fetch("/api/sync", {
@@ -41,9 +41,9 @@ export async function loadStatsFromServer(localStats = null) {
     if (localStats) {
       return {
         ...serverStats,
-        xp:     Math.max(serverStats.xp     ?? 0, localStats.xp     ?? 0),
-        coins:  Math.max(serverStats.coins   ?? 0, localStats.coins   ?? 0),
-        streak: Math.max(serverStats.streak  ?? 0, localStats.streak  ?? 0),
+        xp:        Math.max(serverStats.xp     ?? 0, localStats.xp     ?? 0),
+        coins:     Math.max(serverStats.coins   ?? 0, localStats.coins   ?? 0),
+        streak:    Math.max(serverStats.streak  ?? 0, localStats.streak  ?? 0),
         // Premium: once granted, never revoke on client side
         isPremium: serverStats.isPremium || localStats.isPremium || false,
       };
@@ -51,4 +51,18 @@ export async function loadStatsFromServer(localStats = null) {
 
     return serverStats;
   } catch { return null; }
+}
+
+export async function resetStatsOnServer() {
+  const initData = getInitData();
+  if (!initData) return false;
+
+  try {
+    const res = await fetch("/api/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData, action: "reset" }),
+    });
+    return res.ok;
+  } catch { return false; }
 }

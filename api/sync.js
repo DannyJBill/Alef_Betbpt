@@ -51,6 +51,18 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: e.message });
   }
 
+  if (action === "reset") {
+    const { error } = await supabase
+      .from("user_stats")
+      .delete()
+      .eq("telegram_id", user.id);
+    if (error) {
+      console.error("Supabase delete error:", JSON.stringify(error));
+      return res.status(500).json({ error: error.message });
+    }
+    return res.status(200).json({ ok: true });
+  }
+
   if (action === "save") {
     if (!stats) return res.status(400).json({ error: "stats required" });
 
@@ -68,6 +80,7 @@ export default async function handler(req, res) {
       }
     }
 
+    const now = new Date().toISOString();
     const { error } = await supabase
       .from("user_stats")
       .upsert({
@@ -76,7 +89,8 @@ export default async function handler(req, res) {
         first_name:    user.first_name    || null,
         language_code: user.language_code || null,
         is_premium:    user.is_premium    ?? false,
-        last_seen_at:  new Date().toISOString(),
+        last_seen_at:  now,
+        updated_at:    now,
         stats:         { ...stats, telegramId: user.id },
       }, { onConflict: "telegram_id" });
 

@@ -683,6 +683,12 @@ function GroupLesson({ groupId, dark, stats, onBack, onOpenGroup }) {
   const vowels = NIKUD.filter(v => group.vowelIds.includes(v.id));
   const colors = COLOR_MAP[group.color];
 
+  // Огласовки из всех групп которые были пройдены ДО текущей
+  const nikudProgress = stats.nikudProgress?.groupProgress || {};
+  const previousVowels = NIKUD_GROUPS
+    .filter(g => g.id < groupId && nikudProgress[g.id] === 'completed')
+    .flatMap(g => NIKUD.filter(v => g.vowelIds.includes(v.id)));
+
   // Линейный поток сцен
   const [scene,    setScene]    = useState("intro");  // intro | learn_N | practice | test | result
   const [learnIdx, setLearnIdx] = useState(0);        // индекс текущей огласовки в learn
@@ -766,6 +772,7 @@ function GroupLesson({ groupId, dark, stats, onBack, onOpenGroup }) {
       {scene === "test" && (
         <TestScene
           vowels={vowels}
+          previousVowels={previousVowels}
           allVowels={NIKUD}
           colors={colors}
           dark={dark}
@@ -1074,45 +1081,66 @@ function PracticeScene({ vowels, colors, dark, onNext, onReview }) {
 }
 
 // ─── Сцена: Test ──────────────────────────────────────────────────────────────
-function TestScene({ vowels, allVowels, colors, dark, onDone }) {
+function TestScene({ vowels, previousVowels, allVowels, colors, dark, onDone }) {
   const letters = PRACTICE_LETTERS.slice(0, 5);
 
-  // Фиксируем вопросы один раз — useMemo гарантирует стабильность при ре-рендерах
   const questions = useMemo(() => {
     const q = [];
-    vowels.forEach((vowel, vi) => {
-      const letter     = letters[vi % letters.length];
-      const soundLabel = vowel.sound || "∅"; // нормализация для шва и пустых
+    let letterIdx = 0;
 
-      // Тип 1: показать слог → выбрать звук
-      const wrongVowels = allVowels.filter(v =>
-        v.id !== vowel.id && (v.sound || "∅") !== soundLabel
-      ).slice(0, 3);
-      q.push({
-        type:       "slug_to_sound",
-        slug:       letter + vowel.symbol,
-        correct:    soundLabel,
-        // options фиксируем здесь — не пересчитываем в рендере
-        options:    shuffle([soundLabel, ...wrongVowels.map(v => v.sound || "∅")]),
-        vowelId:    vowel.id,
-        letter,
-      });
+    function makeQuestion(vowel, type) {
+      const letter     = letters[letterIdx++ % letters.length];
+      const soundLabel = vowel.sound || "∅";
 
-      // Тип 2: показать звук → выбрать слог
-      const wrongSlugs = allVowels
-        .filter(v => v.id !== vowel.id && (v.sound || "∅") !== soundLabel)
-        .slice(0, 3)
-        .map(v => letter + v.symbol);
-      q.push({
-        type:    "sound_to_slug",
-        sound:   soundLabel === "∅" ? "молчит" : `«${soundLabel}»`,
-        correct: letter + vowel.symbol,
-        options: shuffle([letter + vowel.symbol, ...wrongSlugs]),
-        vowelId: vowel.id,
-        letter,
-      });
+      if (type === "slug_to_sound") {
+        const seenSounds = new Set([soundLabel]);
+        const wrongVowels = allVowels.filter(v => {
+          const s = v.sound || "∅";
+          if (v.id === vowel.id || seenSounds.has(s)) return false;
+          seenSounds.add(s);
+          return true;
+        }).slice(0, 3);
+        return {
+          type:    "slug_to_sound",
+          slug:    letter + vowel.symbol,
+          correct: soundLabel,
+          options: shuffle([soundLabel, ...wrongVowels.map(v => v.sound || "∅")]),
+          vowelId: vowel.id,
+          letter,
+        };
+      } else {
+        const seenSymbols = new Set([vowel.symbol]);
+        const wrongSlugs = allVowels
+          .filter(v => {
+            if (v.id === vowel.id || seenSymbols.has(v.symbol)) return false;
+            seenSymbols.add(v.symbol);
+            return true;
+          })
+          .slice(0, 3)
+          .map(v => letter + v.symbol);
+        return {
+          type:    "sound_to_slug",
+          sound:   soundLabel === "∅" ? "молчит" : `«${soundLabel}»`,
+          correct: letter + vowel.symbol,
+          options: shuffle([letter + vowel.symbol, ...wrongSlugs]),
+          vowelId: vowel.id,
+          letter,
+        };
+      }
+    }
+
+    // 2 вопроса на каждую новую огласовку (оба типа)
+    vowels.forEach(vowel => {
+      q.push(makeQuestion(vowel, "slug_to_sound"));
+      q.push(makeQuestion(vowel, "sound_to_slug"));
     });
-    return shuffle(q).slice(0, Math.max(6, vowels.length * 2));
+
+    // 1 вопрос на каждую предыдущую пройденную огласовку (типы чередуются)
+    (previousVowels || []).forEach((vowel, i) => {
+      q.push(makeQuestion(vowel, i % 2 === 0 ? "slug_to_sound" : "sound_to_slug"));
+    });
+
+    return shuffle(q);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [idx,      setIdx]      = useState(0);
@@ -1163,9 +1191,9 @@ function TestScene({ vowels, allVowels, colors, dark, onDone }) {
       </p>
 
       {/* Вопрос */}
-      <div className={`rounded-3xl border-2 ${colors.border} ${colors.bg} h-44 flex items-center justify-center`}>
+      <div className={`rounded-3xl border-2 ${colors.border} ${dark ? "bg-gray-800" : "bg-white"} h-44 flex items-center justify-center`}>
         {isSlugToSound ? (
-          <span className="text-9xl font-bold" style={{ direction: "rtl", fontFamily: "serif" }}>{q.slug}</span>
+          <span className={`text-9xl font-bold ${dark ? "text-white" : "text-gray-900"}`} style={{ direction: "rtl", fontFamily: "serif" }}>{q.slug}</span>
         ) : (
           <span className={`text-5xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>{q.sound}</span>
         )}

@@ -41,6 +41,7 @@ const COLOR_MAP = {
     fill:   "bg-emerald-500",
     btn:    "bg-emerald-500 active:bg-emerald-600",
     light:  "bg-emerald-100 dark:bg-emerald-900",
+    bgFixed: "bg-emerald-50", borderFixed: "border-emerald-200", textFixed: "text-emerald-700", lightFixed: "bg-emerald-100",
   },
   blue: {
     bg:     "bg-blue-50 dark:bg-blue-950",
@@ -49,6 +50,7 @@ const COLOR_MAP = {
     fill:   "bg-blue-500",
     btn:    "bg-blue-500 active:bg-blue-600",
     light:  "bg-blue-100 dark:bg-blue-900",
+    bgFixed: "bg-blue-50", borderFixed: "border-blue-200", textFixed: "text-blue-700", lightFixed: "bg-blue-100",
   },
   amber: {
     bg:     "bg-amber-50 dark:bg-amber-950",
@@ -57,6 +59,7 @@ const COLOR_MAP = {
     fill:   "bg-amber-500",
     btn:    "bg-amber-500 active:bg-amber-600",
     light:  "bg-amber-100 dark:bg-amber-900",
+    bgFixed: "bg-amber-50", borderFixed: "border-amber-200", textFixed: "text-amber-700", lightFixed: "bg-amber-100",
   },
   rose: {
     bg:     "bg-rose-50 dark:bg-rose-950",
@@ -65,6 +68,7 @@ const COLOR_MAP = {
     fill:   "bg-rose-500",
     btn:    "bg-rose-500 active:bg-rose-600",
     light:  "bg-rose-100 dark:bg-rose-900",
+    bgFixed: "bg-rose-50", borderFixed: "border-rose-200", textFixed: "text-rose-700", lightFixed: "bg-rose-100",
   },
   purple: {
     bg:     "bg-purple-50 dark:bg-purple-950",
@@ -73,6 +77,7 @@ const COLOR_MAP = {
     fill:   "bg-purple-500",
     btn:    "bg-purple-500 active:bg-purple-600",
     light:  "bg-purple-100 dark:bg-purple-900",
+    bgFixed: "bg-purple-50", borderFixed: "border-purple-200", textFixed: "text-purple-700", lightFixed: "bg-purple-100",
   },
 };
 
@@ -788,40 +793,39 @@ function IntroScene({ group, vowels, colors, dark, onNext }) {
   if (step === 0) {
     return (
       <div className="px-4 pt-6 flex flex-col gap-6">
-        <div className={`rounded-3xl p-6 border-2 ${colors.border} ${colors.bg} text-center`}>
-          <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${colors.text}`}>
+        <div className={`rounded-3xl p-6 border-2 ${colors.borderFixed} ${colors.bgFixed} text-center`}>
+          <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${colors.textFixed}`}>
             Группа {group.id} · {group.name}
           </p>
-          <h2 className={`text-2xl font-bold mb-3 ${dark ? "text-white" : "text-gray-900"}`}>
+          <h2 className="text-2xl font-bold mb-3 text-gray-900">
             {group.conceptTitle}
           </h2>
-          <p className={`text-base leading-relaxed ${dark ? "text-gray-300" : "text-gray-600"}`}>
+          <p className="text-base leading-relaxed text-gray-600">
             {group.conceptBody}
           </p>
         </div>
 
         {/* Пример слова из концепции */}
         {group.conceptExample && (
-          <div className={`rounded-2xl p-5 border ${dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100"}`}>
-            <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${dark ? "text-gray-500" : "text-gray-400"}`}>
+          <div className="rounded-2xl p-5 border bg-white border-gray-100">
+            <p className="text-xs font-semibold uppercase tracking-wide mb-3 text-gray-400">
               Пример:
             </p>
             <div className="text-center">
-              <p className="text-5xl font-bold mb-2" style={{ direction: "rtl", fontFamily: "serif" }}>
+              <p className="text-5xl font-bold mb-2 text-gray-900" style={{ direction: "rtl", fontFamily: "serif" }}>
                 {group.conceptExample.word}
               </p>
-              {/* Слоги */}
               <div className="flex justify-center gap-2 mb-2" style={{ direction: "rtl" }}>
                 {group.conceptExample.syllables.map((s, i) => (
-                  <span key={i} className={`text-xl px-2 py-1 rounded-lg ${colors.light} ${colors.text} font-semibold`}>
+                  <span key={i} className={`text-xl px-2 py-1 rounded-lg ${colors.lightFixed} ${colors.textFixed} font-semibold`}>
                     {s}
                   </span>
                 ))}
               </div>
-              <p className={`text-lg font-medium ${dark ? "text-gray-300" : "text-gray-700"}`}>
+              <p className="text-lg font-medium text-gray-700">
                 {group.conceptExample.transliteration}
               </p>
-              <p className={`text-sm ${dark ? "text-gray-500" : "text-gray-400"}`}>
+              <p className="text-sm text-gray-400">
                 {group.conceptExample.translation}
               </p>
             </div>
@@ -842,23 +846,23 @@ function IntroScene({ group, vowels, colors, dark, onNext }) {
   return (
     <div className="px-4 pt-6 flex flex-col gap-5">
       <div className="text-center">
-        <p className={`text-lg font-semibold mb-1 ${dark ? "text-white" : "text-gray-900"}`}>
+        <p className="text-lg font-semibold mb-1 text-gray-900">
           В этой группе {vowels.length} {vowels.length === 1 ? "огласовка" : "огласовки"}:
         </p>
-        <p className={`text-sm ${dark ? "text-gray-400" : "text-gray-500"}`}>
+        <p className="text-sm text-gray-500">
           Изучим каждую по очереди
         </p>
       </div>
 
       <div className="flex flex-col gap-3">
         {vowels.map((v, i) => (
-          <div key={v.id} className={`rounded-2xl p-4 border flex items-center gap-4 ${colors.bg} ${colors.border}`}>
-            <span className="text-5xl font-bold" style={{ direction: "rtl", fontFamily: "serif" }}>
+          <div key={v.id} className={`rounded-2xl p-4 border flex items-center gap-4 ${colors.bgFixed} ${colors.borderFixed}`}>
+            <span className="text-5xl font-bold text-gray-900" style={{ direction: "rtl", fontFamily: "serif" }}>
               {DEMO_LETTER}{v.symbol}
             </span>
             <div>
-              <p className={`font-bold text-lg ${colors.text}`}>«{v.sound || "…"}»</p>
-              <p className={`text-sm ${dark ? "text-gray-400" : "text-gray-500"}`}>{v.name} · {v.hint}</p>
+              <p className={`font-bold text-lg ${colors.textFixed}`}>«{v.sound || "…"}»</p>
+              <p className="text-sm text-gray-500">{v.name} · {v.hint}</p>
             </div>
           </div>
         ))}
@@ -896,43 +900,43 @@ function LearnScene({ vowel, vowelIndex, total, colors, dark, isLast, onNext }) 
       </div>
 
       {/* Главная карточка знака */}
-      <div className={`rounded-3xl border-2 ${colors.border} ${colors.bg} p-8 flex flex-col items-center gap-4`}>
+      <div className={`rounded-3xl border-2 ${colors.borderFixed} ${colors.bgFixed} p-8 flex flex-col items-center gap-4`}>
         {/* Анимированный знак */}
         <div className="text-center">
-          <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${colors.text}`}>
+          <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${colors.textFixed}`}>
             {vowel.name}
           </p>
-          <div className={`text-9xl font-bold mb-2 ${dark ? "text-white" : "text-gray-900"}`} style={{ direction: "rtl", fontFamily: "serif" }}>
+          <div className="text-9xl font-bold mb-2 text-gray-900" style={{ direction: "rtl", fontFamily: "serif" }}>
             {DEMO_LETTER}{vowel.symbol}
           </div>
-          <div className={`text-3xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>
+          <div className="text-3xl font-bold text-gray-900">
             «{vowel.sound || "молчит"}»
           </div>
         </div>
 
         {/* Подсказка */}
-        <div className={`w-full rounded-xl p-3 border ${colors.light} ${colors.border} text-center`}>
-          <p className={`text-sm ${dark ? "text-gray-300" : "text-gray-600"}`}>{vowel.hint}</p>
-          <p className={`text-xs mt-1 ${dark ? "text-gray-500" : "text-gray-400"}`}>{vowel.visualDesc}</p>
+        <div className={`w-full rounded-xl p-3 border ${colors.lightFixed} ${colors.borderFixed} text-center`}>
+          <p className="text-sm text-gray-600">{vowel.hint}</p>
+          <p className="text-xs mt-1 text-gray-400">{vowel.visualDesc}</p>
         </div>
 
         {/* Особая заметка для двойников */}
         {vowel.twinNote && (
-          <div className={`w-full rounded-xl p-3 border ${dark ? "bg-amber-950/40 border-amber-800 text-amber-300" : "bg-amber-50 border-amber-200 text-amber-700"} text-center`}>
+          <div className="w-full rounded-xl p-3 border bg-amber-50 border-amber-200 text-amber-700 text-center">
             <p className="text-sm">💡 {vowel.twinNote}</p>
           </div>
         )}
       </div>
 
       {/* Паттерн: тот же знак с разными буквами */}
-      <div className={`rounded-2xl p-4 border ${dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100"}`}>
-        <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${dark ? "text-gray-500" : "text-gray-400"}`}>
+      <div className="rounded-2xl p-4 border bg-white border-gray-100">
+        <p className="text-xs font-semibold uppercase tracking-wide mb-3 text-gray-400">
           Этот знак работает с любой буквой:
         </p>
         <div className="flex gap-3 flex-wrap">
           {shown.map((letter, i) => (
-            <div key={i} className={`rounded-xl px-3 py-2 ${colors.light} border ${colors.border} text-center`}>
-              <span className={`text-3xl font-bold ${colors.text}`} style={{ direction: "rtl", fontFamily: "serif" }}>
+            <div key={i} className={`rounded-xl px-3 py-2 ${colors.lightFixed} border ${colors.borderFixed} text-center`}>
+              <span className={`text-3xl font-bold ${colors.textFixed}`} style={{ direction: "rtl", fontFamily: "serif" }}>
                 {letter}{vowel.symbol}
               </span>
             </div>
@@ -940,7 +944,7 @@ function LearnScene({ vowel, vowelIndex, total, colors, dark, isLast, onNext }) 
           {exampleIdx < exampleLetters.length - 1 && (
             <button
               onClick={() => setExampleIdx(i => i + 1)}
-              className={`rounded-xl px-3 py-2 border border-dashed ${dark ? "border-gray-600 text-gray-500" : "border-gray-300 text-gray-400"} text-sm`}
+              className="rounded-xl px-3 py-2 border border-dashed border-gray-300 text-gray-400 text-sm"
             >
               + ещё
             </button>

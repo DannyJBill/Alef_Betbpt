@@ -30,6 +30,16 @@ export default function LearnScreen() {
   const group        = LETTER_GROUPS.find(g => g.id === groupId);
   const colors       = group ? GROUP_COLORS[group.color] : {};
 
+  // Фиксированные светлые тона для карточек контента (без dark:)
+  const FIXED_CARD_COLORS = {
+    emerald: { bgFixed: 'bg-emerald-50', borderFixed: 'border-emerald-200', textFixed: 'text-emerald-700' },
+    blue:    { bgFixed: 'bg-blue-50',    borderFixed: 'border-blue-200',    textFixed: 'text-blue-700'    },
+    amber:   { bgFixed: 'bg-amber-50',   borderFixed: 'border-amber-200',   textFixed: 'text-amber-700'   },
+    rose:    { bgFixed: 'bg-rose-50',    borderFixed: 'border-rose-200',    textFixed: 'text-rose-700'    },
+    purple:  { bgFixed: 'bg-purple-50',  borderFixed: 'border-purple-200',  textFixed: 'text-purple-700'  },
+  };
+  const fixedColors = group ? (FIXED_CARD_COLORS[group.color] || {}) : {};
+
   // ── Build questions: 3 types rotate ──────────────────────────────────────
   function buildQuestions(letters) {
     return shuffle(letters).map((letter, i) => {
@@ -150,23 +160,23 @@ export default function LearnScreen() {
             <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i <= letterIdx ? colors.fill : dark ? 'bg-gray-700' : 'bg-gray-200'}`} />
           ))}
         </div>
-        <div className={`rounded-3xl p-5 flex flex-col items-center gap-2 border-2 ${colors.border} ${colors.bg}`}>
-          <span style={{ fontSize: "min(100px, 18vw)", lineHeight: 1, fontFamily: 'serif' }} className={dark ? 'text-white' : 'text-gray-900'}>{letter.symbol}</span>
-          {letter.isFinalForm && <span className={`text-xs px-2 py-0.5 rounded-full ${colors.bg} ${colors.text} border ${colors.border}`}>финальная форма</span>}
+        <div className={`rounded-3xl p-5 flex flex-col items-center gap-2 border-2 ${fixedColors.borderFixed} ${fixedColors.bgFixed}`}>
+          <span style={{ fontSize: "min(100px, 18vw)", lineHeight: 1, fontFamily: 'serif' }} className="text-gray-900">{letter.symbol}</span>
+          {letter.isFinalForm && <span className={`text-xs px-2 py-0.5 rounded-full ${fixedColors.bgFixed} ${fixedColors.textFixed} border ${fixedColors.borderFixed}`}>финальная форма</span>}
           <div className="flex items-center gap-2">
-            <h2 className={`text-3xl font-bold ${dark ? 'text-white' : 'text-gray-900'}`}>{letter.name}</h2>
+            <h2 className="text-3xl font-bold text-gray-900">{letter.name}</h2>
             <button onClick={()=>speakLetter(letter)}
-              className={`w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all ${dark?'bg-white/10':'bg-white/60'}`}
+              className="w-9 h-9 rounded-full flex items-center justify-center active:scale-95 transition-all bg-black/10"
               aria-label="Произнести">🔊</button>
           </div>
-          <p className={`text-sm ${dark ? 'text-gray-400' : 'text-gray-500'}`}>«{letter.sound}» · {letter.trans}</p>
+          <p className="text-sm text-gray-500">«{letter.sound}» · {letter.trans}</p>
 
         </div>
-        <div className={`rounded-2xl px-4 py-3 border ${colors.border} ${colors.bg}`}>
-          <p className={`text-xs mb-2 ${dark ? 'text-gray-500' : 'text-gray-400'}`}>Примеры слов:</p>
+        <div className={`rounded-2xl px-4 py-3 border ${fixedColors.borderFixed} ${fixedColors.bgFixed}`}>
+          <p className="text-xs mb-2 text-gray-400">Примеры слов:</p>
           {letter.words?.slice(0,3).map((w, i) => {
             const text = typeof w === 'string' ? w : `${w.he} (${w.tr}) — ${w.ru}`;
-            return <p key={i} className={`text-sm leading-6 ${dark ? 'text-gray-200' : 'text-gray-700'}`}>{text}</p>;
+            return <p key={i} className="text-sm leading-6 text-gray-700">{text}</p>;
           })}
         </div>
         <button onClick={nextLetter}

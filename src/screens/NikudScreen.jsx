@@ -151,7 +151,10 @@ export default function NikudScreen() {
   }
 
   // ── Premium контент ─────────────────────────────────────────────────────────
-  if (buyState === "success" || buyState === "already") {
+  // Показываем premium если isPremium в stats (загружены асинхронно) ИЛИ только что купили
+  const showPremium = stats.isPremium || buyState === "success";
+
+  if (showPremium) {
     // Если открыта группа — показать урок
     if (activeGroup !== null) {
       return (
@@ -160,6 +163,7 @@ export default function NikudScreen() {
           dark={dark}
           stats={stats}
           onBack={() => setActiveGroup(null)}
+          onOpenGroup={setActiveGroup}
         />
       );
     }
@@ -353,7 +357,7 @@ function GroupsTab({ dark, stats, onOpenGroup }) {
       {NIKUD_GROUPS.map(group => {
         const progress  = nikudProgress[group.id] || 'locked';
         const isLocked  = progress === 'locked';
-        const isPaid    = group.isPaid && !stats.isPremium;
+        const isPaidGate = group.isPaid && !stats.isPremium;  // платный контент без подписки
         const completed = progress === 'completed';
         const score     = testScores[group.id]?.score;
         const colors    = COLOR_MAP[group.color];
@@ -362,9 +366,9 @@ function GroupsTab({ dark, stats, onOpenGroup }) {
         return (
           <div
             key={group.id}
-            onClick={() => !isLocked && !isPaid && onOpenGroup(group.id)}
+            onClick={() => !isLocked && !isPaidGate && onOpenGroup(group.id)}
             className={`rounded-2xl border p-4 transition-all
-              ${isLocked || isPaid
+              ${isLocked || isPaidGate
                 ? "border-gray-200 dark:border-gray-800 opacity-50"
                 : `${colors.border} ${colors.bg} cursor-pointer active:scale-[0.98]`
               }`}
@@ -373,22 +377,22 @@ function GroupsTab({ dark, stats, onOpenGroup }) {
               <div className="flex items-center gap-2">
                 {isLocked
                   ? <span className="text-lg">🔒</span>
-                  : isPaid
+                  : isPaidGate
                     ? <span className="text-lg">⭐</span>
                     : completed
                       ? <span className="text-lg">✅</span>
                       : <span className={`w-2.5 h-2.5 rounded-full ${colors.fill}`} />
                 }
-                <span className={`font-semibold text-base ${isLocked || isPaid ? (dark ? "text-gray-400" : "text-gray-500") : colors.text}`}>
+                <span className={`font-semibold text-base ${isLocked || isPaidGate ? (dark ? "text-gray-400" : "text-gray-500") : colors.text}`}>
                   {group.name}
                 </span>
               </div>
-              {!isLocked && !isPaid && (
+              {!isLocked && !isPaidGate && (
                 <span className={`text-xs px-2 py-1 rounded-full border ${colors.bg} ${colors.text} ${colors.border}`}>
                   {completed ? `${score}%` : progress === 'available' ? 'Начать →' : 'Продолжить →'}
                 </span>
               )}
-              {isPaid && (
+              {isPaidGate && (
                 <span className={`text-xs px-2 py-1 rounded-full ${dark ? "bg-amber-950 text-amber-400 border border-amber-800" : "bg-amber-50 text-amber-600 border border-amber-200"}`}>
                   ⭐ Stars
                 </span>
@@ -398,7 +402,7 @@ function GroupsTab({ dark, stats, onOpenGroup }) {
             <p className={`text-xs mb-2 ${dark ? "text-gray-500" : "text-gray-400"}`}>{group.description}</p>
 
             {/* Знаки огласовок группы */}
-            {!isLocked && !isPaid && (
+            {!isLocked && !isPaidGate && (
               <div className="flex gap-2 flex-wrap">
                 {vowels.map(v => (
                   <div key={v.id} className={`rounded-lg px-2 py-1 border ${colors.light} ${colors.border}`}>
@@ -668,7 +672,7 @@ function VowelReviewSession({ dueKeys, dark, onAnswer }) {
 }
 
 // ─── Урок группы ─────────────────────────────────────────────────────────────
-function GroupLesson({ groupId, dark, stats, onBack }) {
+function GroupLesson({ groupId, dark, stats, onBack, onOpenGroup }) {
   const group  = NIKUD_GROUPS.find(g => g.id === groupId);
   const vowels = NIKUD.filter(v => group.vowelIds.includes(v.id));
   const colors = COLOR_MAP[group.color];
@@ -770,6 +774,7 @@ function GroupLesson({ groupId, dark, stats, onBack }) {
           colors={colors}
           dark={dark}
           onBack={onBack}
+          onOpenGroup={onOpenGroup}
         />
       )}
     </div>
@@ -1195,9 +1200,21 @@ function TestScene({ vowels, allVowels, colors, dark, onDone }) {
 }
 
 // ─── Сцена: Result ────────────────────────────────────────────────────────────
-function ResultScene({ group, score, vowels, colors, dark, onBack }) {
+function ResultScene({ group, score, vowels, colors, dark, onBack, onOpenGroup }) {
   const isPassed  = score >= 70;
   const nextGroup = NIKUD_GROUPS.find(g => g.unlocksAfter === group.id);
+
+  function handlePrimaryBtn() {
+    if (isPassed && nextGroup && !nextGroup.isPaid && onOpenGroup) {
+      // Автопереход в следующую группу
+      onOpenGroup(nextGroup.id);
+    } else if (!isPassed && onOpenGroup) {
+      // Перезапустить ту же группу
+      onOpenGroup(group.id);
+    } else {
+      onBack();
+    }
+  }
 
   return (
     <div className="px-4 pt-8 flex flex-col items-center gap-5 text-center">
@@ -1225,7 +1242,7 @@ function ResultScene({ group, score, vowels, colors, dark, onBack }) {
 
       {/* Что теперь умеешь */}
       {isPassed && (
-        <div className={`w-full rounded-2xl p-4 border ${dark ? `${colors.bg} ${colors.border}` : `${colors.bg} ${colors.border}`}`}>
+        <div className={`w-full rounded-2xl p-4 border ${colors.bg} ${colors.border}`}>
           <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${colors.text}`}>
             Ты теперь читаешь:
           </p>
@@ -1263,12 +1280,12 @@ function ResultScene({ group, score, vowels, colors, dark, onBack }) {
       {/* Кнопки */}
       <div className="w-full flex flex-col gap-3">
         <button
-          onClick={onBack}
+          onClick={handlePrimaryBtn}
           className={`w-full py-4 rounded-2xl font-bold text-white text-lg ${colors.btn}`}
         >
           {isPassed
             ? (nextGroup && !nextGroup.isPaid ? `К группе "${nextGroup.name}" →` : "К списку групп")
-            : "Повторить группу"}
+            : "Попробовать ещё раз"}
         </button>
         {!isPassed && (
           <button

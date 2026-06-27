@@ -144,7 +144,7 @@ export default function LearnScreen() {
   if (phase === 'studying') {
     const letter = groupLetters[letterIdx];
     return (
-      <div className="px-4 pt-3 pb-6 max-w-md mx-auto flex flex-col gap-3" style={{minHeight:"100%",overflowY:"auto"}}>
+      <div className="px-4 pt-3 pb-6 max-w-md mx-auto flex flex-col gap-3" style={{minHeight:"100%",overflowY:"auto",paddingBottom:"80px"}}>
         <div className="flex gap-1">
           {groupLetters.map((_, i) => (
             <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i <= letterIdx ? colors.fill : dark ? 'bg-gray-700' : 'bg-gray-200'}`} />

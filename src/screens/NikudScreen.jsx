@@ -363,7 +363,7 @@ function GroupsTab({ dark, stats, onOpenGroup }) {
       {NIKUD_GROUPS.map(group => {
         const progress  = nikudProgress[group.id] || 'locked';
         const isLocked  = progress === 'locked';
-        const isPaidGate = group.isPaid && !stats.isPremium;  // платный контент без подписки
+        const isPaidGate = false;  // все группы временно бесплатны
         const completed = progress === 'completed';
         const score     = testScores[group.id]?.score;
         const colors    = COLOR_MAP[group.color];
@@ -445,7 +445,7 @@ function WordsTab({ dark, stats }) {
     .map(([k]) => Number(k));
 
   const availableWords = SIGHT_WORDS.filter(w =>
-    unlockedGroupIds.includes(w.nikudGroup) && !w.isPaid
+    unlockedGroupIds.includes(w.nikudGroup)
   );
 
   const [current,   setCurrent]   = useState(0);
@@ -1093,37 +1093,55 @@ function TestScene({ vowels, previousVowels, allVowels, colors, dark, onDone }) 
       const soundLabel = vowel.sound || "∅";
 
       if (type === "slug_to_sound") {
+        // Все звуки которые считаются правильными (могут быть дубли: патах и камац оба «а»)
+        const correctSounds = new Set(
+          allVowels.filter(v => (v.sound || "∅") === soundLabel).map(v => v.sound || "∅")
+        );
+        // Неправильные — только те у которых другой звук
         const seenSounds = new Set([soundLabel]);
         const wrongVowels = allVowels.filter(v => {
           const s = v.sound || "∅";
-          if (v.id === vowel.id || seenSounds.has(s)) return false;
+          if (correctSounds.has(s) || seenSounds.has(s)) return false;
           seenSounds.add(s);
           return true;
         }).slice(0, 3);
         return {
-          type:    "slug_to_sound",
-          slug:    letter + vowel.symbol,
-          correct: soundLabel,
-          options: shuffle([soundLabel, ...wrongVowels.map(v => v.sound || "∅")]),
-          vowelId: vowel.id,
+          type:          "slug_to_sound",
+          slug:          letter + vowel.symbol,
+          correct:       soundLabel,
+          correctSet:    correctSounds,  // для засчитывания любого правильного
+          options:       shuffle([soundLabel, ...wrongVowels.map(v => v.sound || "∅")]),
+          vowelId:       vowel.id,
           letter,
         };
       } else {
-        const seenSymbols = new Set([vowel.symbol]);
+        // Все слоги которые правильно читаются как этот звук
+        const correctSlugs = new Set(
+          allVowels
+            .filter(v => (v.sound || "∅") === soundLabel)
+            .map(v => letter + v.symbol)
+        );
+        // Неправильные — буква + огласовка с другим звуком
+        const seenSymbols = new Set(
+          allVowels.filter(v => (v.sound || "∅") === soundLabel).map(v => v.symbol)
+        );
         const wrongSlugs = allVowels
           .filter(v => {
-            if (v.id === vowel.id || seenSymbols.has(v.symbol)) return false;
+            if (correctSlugs.has(letter + v.symbol) || seenSymbols.has(v.symbol)) return false;
             seenSymbols.add(v.symbol);
             return true;
           })
           .slice(0, 3)
           .map(v => letter + v.symbol);
+        // Показываем только один из правильных слогов как «канонический» вариант
+        const canonicalSlug = letter + vowel.symbol;
         return {
-          type:    "sound_to_slug",
-          sound:   soundLabel === "∅" ? "молчит" : `«${soundLabel}»`,
-          correct: letter + vowel.symbol,
-          options: shuffle([letter + vowel.symbol, ...wrongSlugs]),
-          vowelId: vowel.id,
+          type:          "sound_to_slug",
+          sound:         soundLabel === "∅" ? "молчит" : `«${soundLabel}»`,
+          correct:       canonicalSlug,
+          correctSet:    correctSlugs,  // засчитываем любой слог с нужным звуком
+          options:       shuffle([canonicalSlug, ...wrongSlugs]),
+          vowelId:       vowel.id,
           letter,
         };
       }
@@ -1164,7 +1182,7 @@ function TestScene({ vowels, previousVowels, allVowels, colors, dark, onDone }) 
 
   function handlePick(opt) {
     if (revealed) return;
-    const isRight = opt === q.correct;
+    const isRight = q.correctSet ? q.correctSet.has(opt) : opt === q.correct;
     setSelected(opt);
     setRevealed(true);
     setResults(r => [...r, isRight]);
@@ -1202,14 +1220,14 @@ function TestScene({ vowels, previousVowels, allVowels, colors, dark, onDone }) 
       {/* Варианты */}
       <div className="grid grid-cols-2 gap-3">
         {q.options.map(opt => {
+          const isCorrectOpt = q.correctSet ? q.correctSet.has(opt) : opt === q.correct;
           let cls = dark
             ? "bg-gray-800 border-gray-700 text-gray-200"
             : "bg-white border-gray-200 text-gray-800";
           if (revealed) {
-            if (opt === q.correct) cls = dark ? "bg-emerald-950 border-emerald-500 text-emerald-300" : "bg-emerald-50 border-emerald-400 text-emerald-700";
+            if (isCorrectOpt)       cls = dark ? "bg-emerald-950 border-emerald-500 text-emerald-300" : "bg-emerald-50 border-emerald-400 text-emerald-700";
             else if (opt === selected) cls = dark ? "bg-rose-950 border-rose-500 text-rose-300"       : "bg-rose-50 border-rose-400 text-rose-700";
           }
-          // Для slug_to_sound показываем звук (∅ → "молчит"), для sound_to_slug — слог
           const label = isSlugToSound
             ? (opt === "∅" ? "молчит" : `«${opt}»`)
             : opt;
@@ -1222,8 +1240,8 @@ function TestScene({ vowels, previousVowels, allVowels, colors, dark, onDone }) 
               style={!isSlugToSound ? { direction: "rtl", fontFamily: "serif" } : {}}
             >
               {label}
-              {revealed && opt === q.correct && " ✓"}
-              {revealed && opt === selected && opt !== q.correct && " ✗"}
+              {revealed && isCorrectOpt && " ✓"}
+              {revealed && opt === selected && !isCorrectOpt && " ✗"}
             </button>
           );
         })}
@@ -1238,7 +1256,7 @@ function ResultScene({ group, score, vowels, colors, dark, onBack, onOpenGroup }
   const nextGroup = NIKUD_GROUPS.find(g => g.unlocksAfter === group.id);
 
   function handlePrimaryBtn() {
-    if (isPassed && nextGroup && !nextGroup.isPaid && onOpenGroup) {
+    if (isPassed && nextGroup && onOpenGroup) {
       // Автопереход в следующую группу
       onOpenGroup(nextGroup.id);
     } else if (!isPassed && onOpenGroup) {
@@ -1296,7 +1314,7 @@ function ResultScene({ group, score, vowels, colors, dark, onBack, onOpenGroup }
       )}
 
       {/* Разблокировка */}
-      {isPassed && nextGroup && !nextGroup.isPaid && (
+      {isPassed && nextGroup && (
         <div className={`w-full rounded-2xl p-4 border ${dark ? "bg-blue-950 border-blue-800" : "bg-blue-50 border-blue-200"}`}>
           <p className={`text-sm font-medium ${dark ? "text-blue-400" : "text-blue-600"}`}>
             🔓 Открыта новая группа!
@@ -1317,7 +1335,7 @@ function ResultScene({ group, score, vowels, colors, dark, onBack, onOpenGroup }
           className={`w-full py-4 rounded-2xl font-bold text-white text-lg ${colors.btn}`}
         >
           {isPassed
-            ? (nextGroup && !nextGroup.isPaid ? `К группе "${nextGroup.name}" →` : "К списку групп")
+            ? (nextGroup ? `К группе "${nextGroup.name}" →` : "К списку групп")
             : "Попробовать ещё раз"}
         </button>
         {!isPassed && (

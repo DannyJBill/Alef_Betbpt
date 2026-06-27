@@ -45,7 +45,7 @@ export default function CardsScreen() {
     const allDue = getDueCards(UNLOCKED_LETTERS).length;
     const weakCount = UNLOCKED_LETTERS.filter(l=>(stats.weakLetters?.[l.id]||0)>0).length;
     return (
-      <div className="pb-4 px-4 pt-4 max-w-md mx-auto flex flex-col gap-3">
+      <div className="pb-20 px-4 pt-4 max-w-md mx-auto flex flex-col gap-3">
         <h2 className={`text-xl font-bold ${dark?'text-white':'text-gray-900'}`}>Карточки</h2>
         {allDue>0 ? (
           <button onClick={()=>startSession('all-due')}

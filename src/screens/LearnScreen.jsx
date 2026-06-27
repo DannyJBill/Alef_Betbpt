@@ -99,7 +99,7 @@ const fixedColors = group ? (FIXED_CARD_COLORS[group.color] || {}) : {};
 
   // ── PHASE: groups ──────────────────────────────────────────────────────────
   if (phase === 'groups') return (
-    <div className="px-4 pt-3 max-w-md mx-auto flex flex-col gap-2" style={{height:"100%"}}>
+    <div className="px-4 pt-3 max-w-md mx-auto flex flex-col gap-2" style={{height:"100%", overflowY:"auto", paddingBottom:"80px"}}>
       <h2 className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>Учись</h2>
       {LETTER_GROUPS.map(g => {
         const unlocked = isGroupUnlocked(g.id, stats.groupProgress);

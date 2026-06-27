@@ -297,9 +297,9 @@ function PaywallScreen({ dark, buyState, errorMsg, onBuy }) {
 // ─── Premium-контент: табы ─────────────────────────────────────────────────────
 function PremiumContent({ dark, activeTab, setActiveTab, stats, onOpenGroup, isNew }) {
   const TABS = [
-    { id: "groups", label: "Группы",    icon: "📚" },
-    { id: "words",  label: "Слова",     icon: "📖" },
-    { id: "review", label: "Повторение",icon: "🃏" },
+    { id: "groups", label: "Группы", icon: "📚" },
+    { id: "words",  label: "Слова",  icon: "📖" },
+    { id: "game",   label: "Игра",   icon: "⚡" },
   ];
 
   return (
@@ -335,9 +335,9 @@ function PremiumContent({ dark, activeTab, setActiveTab, stats, onOpenGroup, isN
       </div>
 
       {/* Контент */}
-      {activeTab === "groups"  && <GroupsTab  dark={dark} stats={stats} onOpenGroup={onOpenGroup} />}
-      {activeTab === "words"   && <WordsTab   dark={dark} stats={stats} />}
-      {activeTab === "review"  && <ReviewTab  dark={dark} stats={stats} />}
+      {activeTab === "groups" && <GroupsTab dark={dark} stats={stats} onOpenGroup={onOpenGroup} />}
+      {activeTab === "words"  && <WordsTab  dark={dark} stats={stats} />}
+      {activeTab === "game"   && <NikudGameTab dark={dark} stats={stats} />}
     </div>
   );
 }
@@ -543,6 +543,247 @@ function WordsTab({ dark, stats }) {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Таб «Игра» ───────────────────────────────────────────────────────────────
+function NikudGameTab({ dark, stats }) {
+  const { updateStats } = useStats();
+
+  // Огласовки из пройденных групп
+  const nikudProgress = stats.nikudProgress?.groupProgress || {};
+  const unlockedVowels = NIKUD_GROUPS
+    .filter(g => nikudProgress[g.id] === 'completed' || nikudProgress[g.id] === 'available')
+    .flatMap(g => NIKUD.filter(v => g.vowelIds.includes(v.id)));
+
+  const allGroupsDone = NIKUD_GROUPS.every(g => nikudProgress[g.id] === 'completed');
+
+  const [phase, setPhase]   = useState("menu"); // menu | playing | over
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [score, setScore]   = useState(0);
+  const [flash, setFlash]   = useState(null);   // null | "ok" | "err"
+  const [question, setQuestion] = useState(null);
+
+  const timerRef   = useRef(null);
+  const flashRef   = useRef(null);
+  const xpSaved    = useRef(false);
+  const prevKey    = useRef(null);
+
+  const ALL_TYPES = ["slug_to_sound","sound_to_slug","slug_to_translit","translit_to_slug"];
+
+  // Генерация одного вопроса — рандомная огласовка, рандомная буква, рандомный тип
+  function nextQuestion(vowelPool) {
+    const pool = vowelPool || unlockedVowels;
+    if (!pool.length) return;
+
+    let vowel, letterKey;
+    do {
+      vowel     = pool[Math.floor(Math.random() * pool.length)];
+      letterKey = PRACTICE_LETTERS[Math.floor(Math.random() * PRACTICE_LETTERS.length)];
+    } while (`${vowel.id}:${letterKey}` === prevKey.current && pool.length > 1);
+    prevKey.current = `${vowel.id}:${letterKey}`;
+
+    const type = ALL_TYPES[Math.floor(Math.random() * ALL_TYPES.length)];
+    setQuestion(buildQuestion(vowel, type, letterKey, NIKUD));
+  }
+
+  // Таймер
+  useEffect(() => {
+    if (phase !== "playing") return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) { clearInterval(timerRef.current); setPhase("over"); return 0; }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [phase]);
+
+  // XP при завершении
+  useEffect(() => {
+    if (phase === "over" && !xpSaved.current) {
+      xpSaved.current = true;
+      const xpGained = score * 5;
+      if (xpGained > 0) {
+        updateStats(s => ({ ...s, xp: s.xp + xpGained, coins: s.coins + Math.floor(score / 5) }));
+      }
+    }
+    if (phase !== "over") xpSaved.current = false;
+  }, [phase, score, updateStats]);
+
+  function startGame() {
+    setScore(0); setTimeLeft(60); setFlash(null);
+    setPhase("playing");
+    nextQuestion();
+  }
+
+  function handlePick(opt) {
+    if (!question) return;
+    const isRight = question.correctSet ? question.correctSet.has(opt) : opt === question.correct;
+    setFlash(isRight ? "ok" : "err");
+    if (isRight) setScore(s => s + 1);
+    clearTimeout(flashRef.current);
+    flashRef.current = setTimeout(() => {
+      setFlash(null);
+      nextQuestion();
+    }, isRight ? 250 : 600);
+  }
+
+  // ── Заглушка если нет пройденных групп ──────────────────────────────────────
+  if (unlockedVowels.length === 0) {
+    return (
+      <div className="px-4 pt-8 text-center flex flex-col items-center gap-4">
+        <span className="text-5xl">🔒</span>
+        <p className={`font-semibold ${dark ? "text-gray-300" : "text-gray-700"}`}>
+          Пройди хотя бы одну группу
+        </p>
+        <p className={`text-sm ${dark ? "text-gray-500" : "text-gray-400"}`}>
+          Игра станет доступна после первой пройденной группы
+        </p>
+      </div>
+    );
+  }
+
+  const timerPct   = (timeLeft / 60) * 100;
+  const timerColor = timeLeft > 30 ? "bg-emerald-500" : timeLeft > 10 ? "bg-amber-500" : "bg-rose-500";
+
+  // ── Меню ────────────────────────────────────────────────────────────────────
+  if (phase === "menu") return (
+    <div className="px-4 pt-4 text-center flex flex-col gap-5">
+      <div className="text-6xl">⚡</div>
+      <div>
+        <p className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>Скоростной режим</p>
+        <p className={`text-sm mt-1 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+          60 секунд — слоги из пройденных групп
+        </p>
+      </div>
+
+      {/* Сколько огласовок в игре */}
+      <div className={`rounded-2xl p-4 ${dark ? "bg-gray-800" : "bg-gray-50"}`}>
+        <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${dark ? "text-gray-500" : "text-gray-400"}`}>
+          В игре
+        </p>
+        <div className="flex gap-2 flex-wrap justify-center">
+          {unlockedVowels.map(v => (
+            <span key={v.id} className={`text-2xl font-bold ${dark ? "text-white" : "text-gray-800"}`}
+              style={{ direction: "rtl", fontFamily: "serif" }}>
+              {DEMO_LETTER}{v.symbol}
+            </span>
+          ))}
+        </div>
+        {!allGroupsDone && (
+          <p className={`text-xs mt-2 ${dark ? "text-gray-600" : "text-gray-400"}`}>
+            Пройди все группы — добавятся новые огласовки
+          </p>
+        )}
+      </div>
+
+      {/* Медали */}
+      <div className="grid grid-cols-3 gap-3">
+        {[["🥉","10"],["🥈","20"],["🥇","30+"]].map(([medal, pts]) => (
+          <div key={pts} className={`rounded-2xl p-3 ${dark ? "bg-gray-800" : "bg-gray-50"}`}>
+            <p className={`text-sm font-bold ${dark ? "text-white" : "text-gray-700"}`}>{medal} {pts}</p>
+            <p className={`text-xs ${dark ? "text-gray-500" : "text-gray-400"}`}>очков</p>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={startGame}
+        className="w-full py-5 rounded-2xl font-bold text-xl text-white bg-gradient-to-r from-orange-500 to-red-500">
+        Поехали! 🚀
+      </button>
+    </div>
+  );
+
+  // ── Game over ────────────────────────────────────────────────────────────────
+  if (phase === "over") {
+    const xpGained = score * 5;
+    return (
+      <div className="px-4 pt-4 text-center flex flex-col gap-5">
+        <div className="text-6xl">{score >= 20 ? "🏆" : score >= 10 ? "🎯" : "💪"}</div>
+        <div>
+          <p className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>Время вышло!</p>
+          <p className={`text-5xl font-black mt-1 ${dark ? "text-indigo-400" : "text-indigo-600"}`}>{score}</p>
+          <p className={`text-sm mt-1 ${dark ? "text-gray-400" : "text-gray-500"}`}>
+            правильных ответов · +{xpGained} XP
+          </p>
+        </div>
+        <button onClick={startGame}
+          className="w-full py-4 rounded-2xl font-bold text-xl text-white bg-gradient-to-r from-orange-500 to-red-500">
+          Ещё раз!
+        </button>
+        <button onClick={() => setPhase("menu")}
+          className={`w-full py-4 rounded-2xl font-bold text-lg border-2 ${dark ? "border-gray-700 text-gray-300" : "border-gray-200 text-gray-600"}`}>
+          В меню
+        </button>
+      </div>
+    );
+  }
+
+  // ── Playing ──────────────────────────────────────────────────────────────────
+  if (!question) return null;
+
+  const isSoundToSlug    = question.type === "sound_to_slug";
+  const isTranslitToSlug = question.type === "translit_to_slug";
+  const showsSlugInCard  = question.type === "slug_to_sound" || question.type === "slug_to_translit";
+
+  const prompt =
+    question.type === "slug_to_sound"    ? "Какой звук?" :
+    question.type === "sound_to_slug"    ? "Найди слог:" :
+    question.type === "slug_to_translit" ? "Как читается?" :
+                                           "Найди слог:";
+
+  return (
+    <div className={`px-4 pt-2 flex flex-col gap-4 transition-colors ${
+      flash === "ok" ? (dark ? "bg-emerald-900/20" : "bg-emerald-50") :
+      flash === "err" ? (dark ? "bg-rose-900/20" : "bg-rose-50") : ""
+    }`}>
+      {/* Шапка: таймер + счёт */}
+      <div className="flex justify-between items-center">
+        <span className={`font-black text-2xl ${
+          timeLeft <= 10 ? "text-rose-500 animate-pulse" : dark ? "text-white" : "text-gray-800"
+        }`}>{timeLeft}с</span>
+        <div className={`flex-1 mx-3 h-2 rounded-full overflow-hidden ${dark ? "bg-gray-700" : "bg-gray-200"}`}>
+          <div className={`h-full ${timerColor} rounded-full transition-all duration-1000`}
+            style={{ width: `${timerPct}%` }} />
+        </div>
+        <span className={`font-bold text-xl ${dark ? "text-yellow-400" : "text-yellow-600"}`}>⚡ {score}</span>
+      </div>
+
+      {/* Подпись */}
+      <p className={`text-center text-sm font-medium ${dark ? "text-gray-400" : "text-gray-500"}`}>{prompt}</p>
+
+      {/* Карточка вопроса */}
+      <div className={`rounded-3xl border-2 h-40 flex items-center justify-center ${
+        dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+      }`}>
+        {showsSlugInCard
+          ? <span className={`text-9xl font-bold ${dark ? "text-white" : "text-gray-900"}`}
+              style={{ direction:"rtl", fontFamily:"serif" }}>{question.slug}</span>
+          : <span className={`text-5xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>{question.sound}</span>
+        }
+      </div>
+
+      {/* Варианты ответа */}
+      <div className="grid grid-cols-2 gap-3">
+        {question.options.map(opt => {
+          const isSlugOpt = isSoundToSlug || isTranslitToSlug;
+          return (
+            <button
+              key={opt}
+              onClick={() => handlePick(opt)}
+              className={`py-5 rounded-2xl border font-bold active:scale-95 transition-all
+                ${isSlugOpt ? "text-4xl" : "text-xl"}
+                ${dark ? "bg-gray-800 border-gray-700 text-gray-200 active:border-indigo-500"
+                        : "bg-white border-gray-200 text-gray-800 active:border-indigo-400"}`}
+              style={isSlugOpt ? { direction:"rtl", fontFamily:"serif" } : {}}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

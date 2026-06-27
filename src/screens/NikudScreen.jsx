@@ -21,6 +21,7 @@ import {
   NIKUD,
   NIKUD_GROUPS,
   SIGHT_WORDS,
+  ALPHABET,
 } from "../data/alphabet";
 
 // ─── Константы ────────────────────────────────────────────────────────────────
@@ -435,18 +436,11 @@ function GroupsTab({ dark, stats, onOpenGroup }) {
 
 // ─── Таб «Слова» ──────────────────────────────────────────────────────────────
 function WordsTab({ dark, stats }) {
-  const nikudProgress  = stats.nikudProgress?.groupProgress || { 1:'available' };
   const wordsStudied   = stats.nikudProgress?.wordsStudied  || [];
   const { recordWordResult } = useStats();
 
-  // Доступны слова из пройденных и текущих групп
-  const unlockedGroupIds = Object.entries(nikudProgress)
-    .filter(([, v]) => v !== 'locked')
-    .map(([k]) => Number(k));
-
-  const availableWords = SIGHT_WORDS.filter(w =>
-    unlockedGroupIds.includes(w.nikudGroup)
-  );
+  // Все слова доступны — огласовки бесплатны
+  const availableWords = SIGHT_WORDS;
 
   const [current,   setCurrent]   = useState(0);
   const [phase,     setPhase]     = useState("show");   // show | quiz | feedback
@@ -763,6 +757,8 @@ function GroupLesson({ groupId, dark, stats, onBack, onOpenGroup }) {
       {scene === "practice" && (
         <PracticeScene
           vowels={vowels}
+          previousVowels={previousVowels}
+          allVowels={NIKUD}
           colors={colors}
           dark={dark}
           onNext={goNext}
@@ -967,47 +963,174 @@ function LearnScene({ vowel, vowelIndex, total, colors, dark, isLast, onNext }) 
   );
 }
 
-// ─── Сцена: Practice ─────────────────────────────────────────────────────────
-function PracticeScene({ vowels, colors, dark, onNext, onReview }) {
-  const letters = PRACTICE_LETTERS.slice(0, 6);
+// ─── Маппинг символ буквы → её согласный звук ────────────────────────────────
+// Используется для генерации полного чтения слога (согласный + гласный)
+const LETTER_SOUND_MAP = {};
+// Заполняем при первом вызове (LETTERS доступен после импорта)
+function getLetterSound(symbol) {
+  if (!LETTER_SOUND_MAP[symbol]) {
+    const found = ALPHABET.find(l => l.symbol === symbol);
+    LETTER_SOUND_MAP[symbol] = found ? found.sound : symbol;
+  }
+  return LETTER_SOUND_MAP[symbol];
+}
 
-  // Фиксируем вопросы один раз при монтировании — иначе shuffle на каждом рендере
-  const questions = useMemo(() => {
-    const q = [];
-    for (let i = 0; i < 12; i++) {
-      const vowel  = vowels[i % vowels.length];
-      const letter = letters[i % letters.length];
-      // Нормализуем: пустой sound (шва) → специальная метка, чтобы сравнение работало
-      const soundLabel = vowel.sound || "∅";
-      q.push({ vowel, letter, slug: letter + vowel.symbol, soundLabel });
+// Полное чтение слога: согласный + гласный, напр. «ма», «ли», «ку»
+function slugReading(letterSymbol, vowelSound) {
+  const cons = getLetterSound(letterSymbol);
+  const vow  = vowelSound || "";
+  return cons + vow; // напр. "м" + "а" = "ма"
+}
+
+// ─── (❌ механика отключена — реализуем позже) ────────────────────────────────
+
+// ─── Хелпер: генерация вопросов ───────────────────────────────────────────────
+// Типы:
+//   slug_to_sound    — מַ → «а» / «и» / «у»
+//   sound_to_slug    — «а» → מַ / מוּ / דִ
+//   slug_to_translit — מַ → «ма» / «ли» / «ку»
+//   translit_to_slug — «ма» → מַ / לִ / כוּ / בֵ
+function buildQuestion(vowel, type, letter, allVowels) {
+  const soundLabel = vowel.sound || "∅";
+
+  if (type === "slug_to_sound") {
+    const slug           = letter + vowel.symbol;
+    const displayCorrect = soundLabel === "∅" ? "молчит" : `«${soundLabel}»`;
+    const correctSounds  = new Set(
+      allVowels.filter(v => (v.sound || "∅") === soundLabel)
+        .map(v => v.sound === "∅" ? "молчит" : `«${v.sound}»`)
+    );
+    const seenSounds = new Set([soundLabel]);
+    const wrongVowels = allVowels.filter(v => {
+      const s = v.sound || "∅";
+      if (correctSounds.has(s === "∅" ? "молчит" : `«${s}»`) || seenSounds.has(s)) return false;
+      seenSounds.add(s); return true;
+    }).slice(0, 3);
+    return {
+      type, slug,
+      correct: displayCorrect,
+      correctSet: correctSounds,
+      options: shuffle([displayCorrect, ...wrongVowels.map(v => v.sound === "∅" ? "молчит" : `«${v.sound}»`)]),
+      vowelId: vowel.id, letter,
+    };
+  }
+
+  if (type === "sound_to_slug") {
+    const correctSlugs = new Set(
+      allVowels.filter(v => (v.sound || "∅") === soundLabel).map(v => letter + v.symbol)
+    );
+    const seenSymbols = new Set(
+      allVowels.filter(v => (v.sound || "∅") === soundLabel).map(v => v.symbol)
+    );
+    const wrongSlugs = allVowels
+      .filter(v => {
+        if (correctSlugs.has(letter+v.symbol) || seenSymbols.has(v.symbol)) return false;
+        seenSymbols.add(v.symbol); return true;
+      })
+      .slice(0, 3).map(v => letter + v.symbol);
+    const canonicalSlug = letter + vowel.symbol;
+    const soundDisplay  = soundLabel === "∅" ? "молчит" : `«${soundLabel}»`;
+    return {
+      type, sound: soundDisplay,
+      correct: canonicalSlug,
+      correctSet: correctSlugs,
+      options: shuffle([canonicalSlug, ...wrongSlugs]),
+      vowelId: vowel.id, letter,
+    };
+  }
+
+  if (type === "slug_to_translit") {
+    // מַ → «ма» / «ли» / «ку» / «бэ»
+    const slug        = letter + vowel.symbol;
+    const correctRead = slugReading(letter, vowel.sound);
+    const diffLetters = PRACTICE_LETTERS.filter(l => l !== letter);
+    const wrongPool = [
+      ...allVowels.filter(v => (v.sound||"∅") !== soundLabel && v.sound)
+        .slice(0, 2).map(v => slugReading(letter, v.sound)),
+      ...shuffle(diffLetters).slice(0, 2).map(l => {
+        const dv = shuffle(allVowels.filter(v => v.sound && (v.sound||"∅") !== soundLabel))[0];
+        return slugReading(l, dv?.sound || "а");
+      }),
+    ].filter(r => r !== correctRead);
+    return {
+      type, slug,
+      correct: correctRead,
+      correctSet: new Set([correctRead]),
+      options: shuffle([correctRead, ...shuffle(wrongPool).slice(0, 3)]),
+      vowelId: vowel.id, letter,
+    };
+  }
+
+  if (type === "translit_to_slug") {
+    // «ма» → מַ / לִ / כוּ / בֵ
+    const correctRead = slugReading(letter, vowel.sound);
+    const correctSlug = letter + vowel.symbol;
+    const diffLetters = shuffle(PRACTICE_LETTERS.filter(l => l !== letter));
+    const wrongPool   = [];
+    for (const dl of diffLetters) {
+      for (const dv of shuffle([...allVowels])) {
+        const candidate = dl + dv.symbol;
+        const reading   = slugReading(dl, dv.sound);
+        if (reading !== correctRead && !wrongPool.includes(candidate)) {
+          wrongPool.push(candidate);
+          if (wrongPool.length >= 3) break;
+        }
+      }
+      if (wrongPool.length >= 3) break;
     }
-    return shuffle(q);
+    return {
+      type, sound: correctRead,
+      correct: correctSlug,
+      correctSet: new Set([correctSlug]),
+      options: shuffle([correctSlug, ...wrongPool.slice(0, 3)]),
+      vowelId: vowel.id, letter,
+    };
+  }
+}
+
+// ─── Сцена: Practice ─────────────────────────────────────────────────────────
+function PracticeScene({ vowels, previousVowels, allVowels, colors, dark, onNext, onReview }) {
+
+  const questions = useMemo(() => {
+    const av   = allVowels || vowels;
+    const prev = previousVowels || [];
+    const ALL_TYPES = ["slug_to_sound","sound_to_slug","slug_to_translit","translit_to_slug"];
+    const q  = [];
+    let li   = 0;
+
+    // Новые огласовки × 4 типа (по одному каждого, разные буквы)
+    vowels.forEach(vowel => {
+      ALL_TYPES.forEach(type => {
+        q.push(buildQuestion(vowel, type, PRACTICE_LETTERS[li++ % PRACTICE_LETTERS.length], av));
+      });
+    });
+
+    // Остаток до 12 — рандомные вопросы из предыдущих пройденных
+    if (prev.length > 0) {
+      const prevShuffled = shuffle([...prev]);
+      let pi = 0;
+      while (q.length < 12) {
+        const vowel = prevShuffled[pi % prevShuffled.length];
+        const type  = ALL_TYPES[Math.floor(Math.random() * ALL_TYPES.length)];
+        q.push(buildQuestion(vowel, type, PRACTICE_LETTERS[li++ % PRACTICE_LETTERS.length], av));
+        pi++;
+      }
+    }
+
+    return shuffle(q.slice(0, 12));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [idx,      setIdx]      = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [revealed, setRevealed] = useState(false);
-  const [correct,  setCorrect]  = useState(0);
-
-  // Фиксируем варианты ответа при смене вопроса — не при каждом setState
-  const practiceOptions = useMemo(() => {
-    if (idx >= questions.length) return [];
-    const q      = questions[idx];
-    const sounds = ["а", "и", "у", "э", "о", "∅"];
-    const wrong  = sounds.filter(s => s !== q.soundLabel).slice(0, 3);
-    return shuffle([q.soundLabel, ...wrong]);
-  }, [idx, questions]);
+  const [idx,     setIdx]     = useState(0);
+  const [selected,setSelected]= useState(null);
+  const [revealed,setRevealed]= useState(false);
+  const [correct, setCorrect] = useState(0);
 
   if (idx >= questions.length) {
     return (
       <div className="px-4 pt-8 flex flex-col items-center gap-5 text-center">
         <span className="text-6xl">✨</span>
-        <p className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>
-          Практика завершена!
-        </p>
-        <p className={`text-base ${dark ? "text-gray-400" : "text-gray-500"}`}>
-          {correct} из {questions.length} правильно
-        </p>
+        <p className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>Практика завершена!</p>
+        <p className={`text-base ${dark ? "text-gray-400" : "text-gray-500"}`}>{correct} из {questions.length} правильно</p>
         <button onClick={onNext} className={`w-full py-4 rounded-2xl font-bold text-white text-lg ${colors.btn}`}>
           К тесту →
         </button>
@@ -1015,63 +1138,66 @@ function PracticeScene({ vowels, colors, dark, onNext, onReview }) {
     );
   }
 
-  const q = questions[idx];
+  const q             = questions[idx];
+  const isSoundToSlug  = q.type === "sound_to_slug";
+  const isTranslitToSlug = q.type === "translit_to_slug";
+  const showsSlugInCard  = q.type === "slug_to_sound" || q.type === "slug_to_translit";
 
   function handlePick(opt) {
     if (revealed) return;
-    // Сравниваем с той же нормализованной меткой что в options
-    const isRight = opt === q.soundLabel;
+    const isRight = q.correctSet ? q.correctSet.has(opt) : opt === q.correct;
     setSelected(opt);
     setRevealed(true);
-    if (isRight) {
-      setCorrect(c => c + 1);
-      onReview(`${q.vowel.id}:${q.letter}`, 2);
-    } else {
-      onReview(`${q.vowel.id}:${q.letter}`, 0);
-    }
-    setTimeout(() => {
-      setIdx(i => i + 1);
-      setSelected(null);
-      setRevealed(false);
-    }, 700);
+    if (isRight) { setCorrect(c => c + 1); if (q.vowelId && q.letter) onReview(`${q.vowelId}:${q.letter}`, 2); }
+    else { if (q.vowelId && q.letter) onReview(`${q.vowelId}:${q.letter}`, 0); }
+    setTimeout(() => { setIdx(i => i + 1); setSelected(null); setRevealed(false); }, 800);
   }
+
+  const prompt =
+    q.type === "slug_to_sound"    ? "Какой звук у этого слога?" :
+    q.type === "sound_to_slug"    ? "Найди слог с таким звуком:" :
+    q.type === "slug_to_translit" ? "Как читается этот слог?" :
+                                    "Найди слог с таким чтением:";
 
   return (
     <div className="px-4 pt-4 flex flex-col gap-5">
-      {/* Счётчик */}
       <div className="flex justify-between items-center">
         <p className={`text-sm ${dark ? "text-gray-400" : "text-gray-500"}`}>{idx + 1} / {questions.length}</p>
         <p className={`text-sm font-medium ${dark ? "text-emerald-400" : "text-emerald-600"}`}>✓ {correct}</p>
       </div>
 
-      <p className={`text-center text-base ${dark ? "text-gray-400" : "text-gray-500"}`}>
-        Какой звук?
-      </p>
+      <p className={`text-center text-base font-medium ${dark ? "text-gray-300" : "text-gray-700"}`}>{prompt}</p>
 
-      {/* Слог */}
-      <div className={`rounded-3xl border-2 ${colors.border} ${colors.bg} h-44 flex items-center justify-center`}>
-        <span className="text-9xl font-bold" style={{ direction: "rtl", fontFamily: "serif" }}>
-          {q.slug}
-        </span>
+      {/* Карточка вопроса */}
+      <div className={`rounded-3xl border-2 ${colors.border} ${dark ? "bg-gray-800" : "bg-white"} h-44 flex items-center justify-center`}>
+        {showsSlugInCard
+          ? <span className={`text-9xl font-bold ${dark ? "text-white" : "text-gray-900"}`} style={{ direction:"rtl", fontFamily:"serif" }}>{q.slug}</span>
+          : <span className={`text-5xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>{q.sound}</span>
+        }
       </div>
 
       {/* Варианты */}
       <div className="grid grid-cols-2 gap-3">
-        {practiceOptions.map(opt => {
-          let cls = dark
-            ? "bg-gray-800 border-gray-700 text-gray-200"
-            : "bg-white border-gray-200 text-gray-800";
+        {q.options.map(opt => {
+          const isCorrectOpt = q.correctSet ? q.correctSet.has(opt) : opt === q.correct;
+          const isSlugOpt    = isSoundToSlug || isTranslitToSlug;
+          let cls = dark ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-800";
           if (revealed) {
-            if (opt === q.soundLabel) cls = dark ? "bg-emerald-950 border-emerald-500 text-emerald-300" : "bg-emerald-50 border-emerald-400 text-emerald-700";
-            else if (opt === selected) cls = dark ? "bg-rose-950 border-rose-500 text-rose-300"         : "bg-rose-50 border-rose-400 text-rose-700";
+            if (isCorrectOpt)          cls = dark ? "bg-emerald-950 border-emerald-500 text-emerald-300" : "bg-emerald-50 border-emerald-400 text-emerald-700";
+            else if (opt === selected) cls = dark ? "bg-rose-950 border-rose-500 text-rose-300"          : "bg-rose-50 border-rose-400 text-rose-700";
           }
+          const textCls = isSlugOpt ? "text-4xl" : "text-2xl";
+          const style   = isSlugOpt ? { direction:"rtl", fontFamily:"serif" } : {};
           return (
             <button
               key={opt}
               onClick={() => handlePick(opt)}
-              className={`py-5 rounded-2xl border font-bold text-2xl transition-all ${cls} ${!revealed ? "active:scale-95" : ""}`}
+              className={`py-5 rounded-2xl border font-bold transition-all ${cls} ${!revealed ? "active:scale-95" : ""} ${textCls}`}
+              style={style}
             >
-              {opt === "∅" ? "молчит" : `«${opt}»`}
+              {opt}
+              {revealed && isCorrectOpt && " ✓"}
+              {revealed && opt === selected && !isCorrectOpt && " ✗"}
             </button>
           );
         })}
@@ -1082,83 +1208,54 @@ function PracticeScene({ vowels, colors, dark, onNext, onReview }) {
 
 // ─── Сцена: Test ──────────────────────────────────────────────────────────────
 function TestScene({ vowels, previousVowels, allVowels, colors, dark, onDone }) {
-  const letters = PRACTICE_LETTERS.slice(0, 5);
 
   const questions = useMemo(() => {
-    const q = [];
-    let letterIdx = 0;
+    const prev   = previousVowels || [];
+    // ИвР = иврит → русский: slug_to_sound, slug_to_translit
+    // РуИ = русский → иврит: sound_to_slug, translit_to_slug
+    const IVR_TYPES = ["slug_to_sound", "slug_to_translit"];
+    const RUI_TYPES = ["sound_to_slug", "translit_to_slug"];
+    let li = 0;
 
-    function makeQuestion(vowel, type) {
-      const letter     = letters[letterIdx++ % letters.length];
-      const soundLabel = vowel.sound || "∅";
+    // Генерируем пул для новых (все 4 типа × каждая огласовка, разные буквы)
+    const newPool = [];
+    vowels.forEach(vowel => {
+      [...IVR_TYPES, ...RUI_TYPES].forEach(type => {
+        newPool.push(buildQuestion(vowel, type, PRACTICE_LETTERS[li++ % PRACTICE_LETTERS.length], allVowels));
+      });
+    });
 
-      if (type === "slug_to_sound") {
-        // Все звуки которые считаются правильными (могут быть дубли: патах и камац оба «а»)
-        const correctSounds = new Set(
-          allVowels.filter(v => (v.sound || "∅") === soundLabel).map(v => v.sound || "∅")
-        );
-        // Неправильные — только те у которых другой звук
-        const seenSounds = new Set([soundLabel]);
-        const wrongVowels = allVowels.filter(v => {
-          const s = v.sound || "∅";
-          if (correctSounds.has(s) || seenSounds.has(s)) return false;
-          seenSounds.add(s);
-          return true;
-        }).slice(0, 3);
-        return {
-          type:          "slug_to_sound",
-          slug:          letter + vowel.symbol,
-          correct:       soundLabel,
-          correctSet:    correctSounds,  // для засчитывания любого правильного
-          options:       shuffle([soundLabel, ...wrongVowels.map(v => v.sound || "∅")]),
-          vowelId:       vowel.id,
-          letter,
-        };
-      } else {
-        // Все слоги которые правильно читаются как этот звук
-        const correctSlugs = new Set(
-          allVowels
-            .filter(v => (v.sound || "∅") === soundLabel)
-            .map(v => letter + v.symbol)
-        );
-        // Неправильные — буква + огласовка с другим звуком
-        const seenSymbols = new Set(
-          allVowels.filter(v => (v.sound || "∅") === soundLabel).map(v => v.symbol)
-        );
-        const wrongSlugs = allVowels
-          .filter(v => {
-            if (correctSlugs.has(letter + v.symbol) || seenSymbols.has(v.symbol)) return false;
-            seenSymbols.add(v.symbol);
-            return true;
-          })
-          .slice(0, 3)
-          .map(v => letter + v.symbol);
-        // Показываем только один из правильных слогов как «канонический» вариант
-        const canonicalSlug = letter + vowel.symbol;
-        return {
-          type:          "sound_to_slug",
-          sound:         soundLabel === "∅" ? "молчит" : `«${soundLabel}»`,
-          correct:       canonicalSlug,
-          correctSet:    correctSlugs,  // засчитываем любой слог с нужным звуком
-          options:       shuffle([canonicalSlug, ...wrongSlugs]),
-          vowelId:       vowel.id,
-          letter,
-        };
-      }
+    // Генерируем пул для предыдущих
+    const prevPool = [];
+    shuffle([...prev]).forEach(vowel => {
+      [...IVR_TYPES, ...RUI_TYPES].forEach(type => {
+        prevPool.push(buildQuestion(vowel, type, PRACTICE_LETTERS[li++ % PRACTICE_LETTERS.length], allVowels));
+      });
+    });
+
+    // Набираем ровно 6 ИвР и 6 РуИ
+    // Сначала берём из новых, недостающее — из предыдущих
+    const ivrNew = shuffle(newPool.filter(q => IVR_TYPES.includes(q.type)));
+    const ruiNew = shuffle(newPool.filter(q => RUI_TYPES.includes(q.type)));
+    const ivrPrev = shuffle(prevPool.filter(q => IVR_TYPES.includes(q.type)));
+    const ruiPrev = shuffle(prevPool.filter(q => RUI_TYPES.includes(q.type)));
+
+    const ivr = [...ivrNew, ...ivrPrev].slice(0, 6);
+    const rui = [...ruiNew, ...ruiPrev].slice(0, 6);
+
+    // Если всё ещё не хватает (нет предыдущих и мало новых) — дублируем с новой буквой
+    while (ivr.length < 6) {
+      const vowel = vowels[ivr.length % vowels.length];
+      const type  = IVR_TYPES[ivr.length % IVR_TYPES.length];
+      ivr.push(buildQuestion(vowel, type, PRACTICE_LETTERS[li++ % PRACTICE_LETTERS.length], allVowels));
+    }
+    while (rui.length < 6) {
+      const vowel = vowels[rui.length % vowels.length];
+      const type  = RUI_TYPES[rui.length % RUI_TYPES.length];
+      rui.push(buildQuestion(vowel, type, PRACTICE_LETTERS[li++ % PRACTICE_LETTERS.length], allVowels));
     }
 
-    // 2 вопроса на каждую новую огласовку (оба типа)
-    vowels.forEach(vowel => {
-      q.push(makeQuestion(vowel, "slug_to_sound"));
-      q.push(makeQuestion(vowel, "sound_to_slug"));
-    });
-
-    // 1 вопрос на каждую предыдущую пройденную огласовку (типы чередуются)
-    (previousVowels || []).forEach((vowel, i) => {
-      q.push(makeQuestion(vowel, i % 2 === 0 ? "slug_to_sound" : "sound_to_slug"));
-    });
-
-    return shuffle(q);
+    return shuffle([...ivr, ...rui]);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [idx,      setIdx]      = useState(0);
@@ -1166,7 +1263,6 @@ function TestScene({ vowels, previousVowels, allVowels, colors, dark, onDone }) 
   const [revealed, setRevealed] = useState(false);
   const [results,  setResults]  = useState([]);
 
-  // onDone вызываем через useEffect — не в теле рендера
   const doneCalled = useRef(false);
   useEffect(() => {
     if (idx >= questions.length && !doneCalled.current && questions.length > 0) {
@@ -1178,7 +1274,10 @@ function TestScene({ vowels, previousVowels, allVowels, colors, dark, onDone }) 
 
   if (idx >= questions.length) return null;
 
-  const q = questions[idx];
+  const q               = questions[idx];
+  const isSoundToSlug   = q.type === "sound_to_slug";
+  const isTranslitToSlug = q.type === "translit_to_slug";
+  const showsSlugInCard  = q.type === "slug_to_sound" || q.type === "slug_to_translit";
 
   function handlePick(opt) {
     if (revealed) return;
@@ -1186,60 +1285,50 @@ function TestScene({ vowels, previousVowels, allVowels, colors, dark, onDone }) 
     setSelected(opt);
     setRevealed(true);
     setResults(r => [...r, isRight]);
-    setTimeout(() => {
-      setIdx(i => i + 1);
-      setSelected(null);
-      setRevealed(false);
-    }, 800);
+    setTimeout(() => { setIdx(i => i + 1); setSelected(null); setRevealed(false); }, 800);
   }
 
-  const isSlugToSound = q.type === "slug_to_sound";
+  const prompt =
+    q.type === "slug_to_sound"    ? "Какой звук у этого слога?" :
+    q.type === "sound_to_slug"    ? "Найди слог с таким звуком:" :
+    q.type === "slug_to_translit" ? "Как читается этот слог?" :
+                                    "Найди слог с таким чтением:";
 
   return (
     <div className="px-4 pt-4 flex flex-col gap-5">
       <div className="flex justify-between items-center">
         <p className={`text-sm ${dark ? "text-gray-400" : "text-gray-500"}`}>{idx + 1} / {questions.length}</p>
-        <p className={`text-sm font-medium ${dark ? "text-emerald-400" : "text-emerald-600"}`}>
-          ✓ {results.filter(Boolean).length}
-        </p>
+        <p className={`text-sm font-medium ${dark ? "text-emerald-400" : "text-emerald-600"}`}>✓ {results.filter(Boolean).length}</p>
       </div>
 
-      <p className={`text-center text-base font-medium ${dark ? "text-gray-300" : "text-gray-700"}`}>
-        {isSlugToSound ? "Какой звук у этого слога?" : "Найди слог с таким звуком:"}
-      </p>
+      <p className={`text-center text-base font-medium ${dark ? "text-gray-300" : "text-gray-700"}`}>{prompt}</p>
 
-      {/* Вопрос */}
       <div className={`rounded-3xl border-2 ${colors.border} ${dark ? "bg-gray-800" : "bg-white"} h-44 flex items-center justify-center`}>
-        {isSlugToSound ? (
-          <span className={`text-9xl font-bold ${dark ? "text-white" : "text-gray-900"}`} style={{ direction: "rtl", fontFamily: "serif" }}>{q.slug}</span>
-        ) : (
-          <span className={`text-5xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>{q.sound}</span>
-        )}
+        {showsSlugInCard
+          ? <span className={`text-9xl font-bold ${dark ? "text-white" : "text-gray-900"}`} style={{ direction:"rtl", fontFamily:"serif" }}>{q.slug}</span>
+          : <span className={`text-5xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>{q.sound}</span>
+        }
       </div>
 
-      {/* Варианты */}
       <div className="grid grid-cols-2 gap-3">
         {q.options.map(opt => {
           const isCorrectOpt = q.correctSet ? q.correctSet.has(opt) : opt === q.correct;
-          let cls = dark
-            ? "bg-gray-800 border-gray-700 text-gray-200"
-            : "bg-white border-gray-200 text-gray-800";
+          const isSlugOpt    = isSoundToSlug || isTranslitToSlug;
+          let cls = dark ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-800";
           if (revealed) {
-            if (isCorrectOpt)       cls = dark ? "bg-emerald-950 border-emerald-500 text-emerald-300" : "bg-emerald-50 border-emerald-400 text-emerald-700";
-            else if (opt === selected) cls = dark ? "bg-rose-950 border-rose-500 text-rose-300"       : "bg-rose-50 border-rose-400 text-rose-700";
+            if (isCorrectOpt)          cls = dark ? "bg-emerald-950 border-emerald-500 text-emerald-300" : "bg-emerald-50 border-emerald-400 text-emerald-700";
+            else if (opt === selected) cls = dark ? "bg-rose-950 border-rose-500 text-rose-300"          : "bg-rose-50 border-rose-400 text-rose-700";
           }
-          const label = isSlugToSound
-            ? (opt === "∅" ? "молчит" : `«${opt}»`)
-            : opt;
+          const textCls = isSlugOpt ? "text-4xl" : "text-xl";
+          const style   = isSlugOpt ? { direction:"rtl", fontFamily:"serif" } : {};
           return (
             <button
               key={opt}
               onClick={() => handlePick(opt)}
-              className={`py-5 rounded-2xl border font-bold transition-all ${cls} ${!revealed ? "active:scale-95" : ""}
-                ${isSlugToSound ? "text-2xl" : "text-4xl"}`}
-              style={!isSlugToSound ? { direction: "rtl", fontFamily: "serif" } : {}}
+              className={`py-5 rounded-2xl border font-bold transition-all ${cls} ${!revealed ? "active:scale-95" : ""} ${textCls}`}
+              style={style}
             >
-              {label}
+              {opt}
               {revealed && isCorrectOpt && " ✓"}
               {revealed && opt === selected && !isCorrectOpt && " ✗"}
             </button>

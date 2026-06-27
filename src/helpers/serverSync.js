@@ -22,7 +22,7 @@ export async function saveStatsToServer(stats) {
   } catch { /* silent fail — local storage is still the source of truth */ }
 }
 
-export async function loadStatsFromServer() {
+export async function loadStatsFromServer(localStats = null) {
   const initData = getInitData();
   if (!initData) return null;
 
@@ -33,7 +33,22 @@ export async function loadStatsFromServer() {
       body: JSON.stringify({ initData, action: "load" }),
     });
     if (!res.ok) return null;
-    const { stats } = await res.json();
-    return stats;
+    const { stats: serverStats } = await res.json();
+    if (!serverStats) return null;
+
+    // Never let server data roll back local progress.
+    // Take the best of each field independently.
+    if (localStats) {
+      return {
+        ...serverStats,
+        xp:     Math.max(serverStats.xp     ?? 0, localStats.xp     ?? 0),
+        coins:  Math.max(serverStats.coins   ?? 0, localStats.coins   ?? 0),
+        streak: Math.max(serverStats.streak  ?? 0, localStats.streak  ?? 0),
+        // Premium: once granted, never revoke on client side
+        isPremium: serverStats.isPremium || localStats.isPremium || false,
+      };
+    }
+
+    return serverStats;
   } catch { return null; }
 }

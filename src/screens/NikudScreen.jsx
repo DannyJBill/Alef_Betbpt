@@ -22,7 +22,6 @@ import {
   NIKUD_GROUPS,
   ALPHABET,
 } from "../data/alphabet";
-import { WORD_CATEGORIES } from "../data/words";
 
 // ─── Константы ────────────────────────────────────────────────────────────────
 const PREORDER_PRICE = 99;
@@ -298,7 +297,6 @@ function PaywallScreen({ dark, buyState, errorMsg, onBuy }) {
 function PremiumContent({ dark, activeTab, setActiveTab, stats, onOpenGroup, isNew }) {
   const TABS = [
     { id: "groups", label: "Группы", icon: "📚" },
-    { id: "words",  label: "Слова",  icon: "📖" },
     { id: "game",   label: "Игра",   icon: "⚡" },
   ];
 
@@ -336,7 +334,6 @@ function PremiumContent({ dark, activeTab, setActiveTab, stats, onOpenGroup, isN
 
       {/* Контент */}
       {activeTab === "groups" && <GroupsTab dark={dark} stats={stats} onOpenGroup={onOpenGroup} />}
-      {activeTab === "words"  && <WordsTab  dark={dark} />}
       {activeTab === "game"   && <NikudGameTab dark={dark} stats={stats} />}
     </div>
   );
@@ -430,194 +427,6 @@ function GroupsTab({ dark, stats, onOpenGroup }) {
           </div>
         );
       })}
-    </div>
-  );
-}
-
-// ─── Таб «Слова» ──────────────────────────────────────────────────────────────
-const WORDS_COLOR_MAP = {
-  emerald: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400", btn: "bg-emerald-600" },
-  blue:    { bg: "bg-blue-500/10",    border: "border-blue-500/30",    text: "text-blue-400",    btn: "bg-blue-600" },
-  amber:   { bg: "bg-amber-500/10",   border: "border-amber-500/30",   text: "text-amber-400",   btn: "bg-amber-600" },
-  rose:    { bg: "bg-rose-500/10",    border: "border-rose-500/30",    text: "text-rose-400",    btn: "bg-rose-600" },
-  purple:  { bg: "bg-purple-500/10",  border: "border-purple-500/30",  text: "text-purple-400",  btn: "bg-purple-600" },
-  orange:  { bg: "bg-orange-500/10",  border: "border-orange-500/30",  text: "text-orange-400",  btn: "bg-orange-600" },
-};
-
-function WordsTab({ dark }) {
-  const [activeGroup, setActiveGroup] = useState(null);
-
-  if (activeGroup !== null) {
-    return (
-      <WordsFlashcards
-        group={activeGroup}
-        dark={dark}
-        onBack={() => setActiveGroup(null)}
-      />
-    );
-  }
-
-  return (
-    <div className="px-4 flex flex-col gap-3">
-      {WORD_CATEGORIES.map(group => {
-        const colors = WORDS_COLOR_MAP[group.color] || WORDS_COLOR_MAP.blue;
-        const isEmpty = !group.words || group.words.length === 0;
-        return (
-          <button
-            key={group.id}
-            onClick={() => !isEmpty && setActiveGroup(group)}
-            className={`w-full text-left rounded-2xl border p-4 transition-all
-              ${isEmpty
-                ? dark ? "border-gray-800 bg-gray-900/50 opacity-50" : "border-gray-200 bg-gray-50 opacity-50"
-                : `${colors.border} ${colors.bg} active:scale-[0.98]`
-              }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">{group.icon}</span>
-                <div>
-                  <p className={`font-semibold text-base ${dark ? "text-white" : "text-gray-900"}`}>
-                    {group.name}
-                  </p>
-                  <p className={`text-xs mt-0.5 ${isEmpty ? (dark ? "text-gray-600" : "text-gray-400") : colors.text}`}>
-                    {isEmpty ? "Скоро" : `${group.words.length} слов`}
-                  </p>
-                </div>
-              </div>
-              {!isEmpty && (
-                <span className={`text-xl ${colors.text}`}>→</span>
-              )}
-            </div>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function WordsFlashcards({ group, dark, onBack }) {
-  const colors = WORDS_COLOR_MAP[group.color] || WORDS_COLOR_MAP.blue;
-  const words  = group.words || [];
-
-  const [idx,      setIdx]     = useState(0);
-  const [flipped,  setFlipped] = useState(false);
-  const audioRef = useRef(null);
-
-  const word = words[idx];
-
-  function playAudio() {
-    if (!word?.audio) return;
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-    audioRef.current = new Audio(`/words499/${word.audio}`);
-    audioRef.current.play().catch(() => {});
-  }
-
-  function next() { setFlipped(false); setTimeout(() => setIdx(i => (i + 1) % words.length), 50); }
-  function prev() { setFlipped(false); setTimeout(() => setIdx(i => (i - 1 + words.length) % words.length), 50); }
-
-  if (!word) return null;
-
-  return (
-    <div className="px-4 flex flex-col gap-4">
-      {/* Шапка */}
-      <div className="flex items-center justify-between">
-        <button onClick={onBack} className={`text-sm font-medium ${dark ? "text-gray-400" : "text-gray-500"}`}>
-          ← {group.icon} {group.name}
-        </button>
-        <span className={`text-sm ${dark ? "text-gray-500" : "text-gray-400"}`}>
-          {idx + 1} / {words.length}
-        </span>
-      </div>
-
-      {/* Прогресс-бар */}
-      <div className={`h-1 rounded-full ${dark ? "bg-gray-800" : "bg-gray-200"}`}>
-        <div
-          className={`h-1 rounded-full transition-all ${colors.btn}`}
-          style={{ width: `${((idx + 1) / words.length) * 100}%` }}
-        />
-      </div>
-
-      {/* Карточка */}
-      <div
-        className="cursor-pointer select-none"
-        style={{ perspective: "1000px" }}
-        onClick={() => { setFlipped(f => !f); if (!flipped) playAudio(); }}
-      >
-        <div style={{
-          transformStyle: "preserve-3d",
-          transition: "transform 0.4s ease",
-          transform: flipped ? "rotateY(180deg)" : "none",
-          position: "relative",
-          height: "260px",
-        }}>
-          {/* Лицо — иврит */}
-          <div
-            style={{ backfaceVisibility: "hidden", position: "absolute", inset: 0 }}
-            className={`rounded-3xl border-2 flex flex-col items-center justify-center gap-3 p-6
-              ${colors.border} ${dark ? "bg-gray-800" : "bg-white"}`}
-          >
-            <p className={`text-7xl font-bold ${dark ? "text-white" : "text-gray-900"}`}
-              style={{ direction: "rtl", fontFamily: "serif" }}>
-              {word.hebrew}
-            </p>
-            <p className={`text-sm ${dark ? "text-gray-500" : "text-gray-400"}`}>
-              Нажми — узнаешь перевод
-            </p>
-          </div>
-
-          {/* Оборот — перевод + транслитерация */}
-          <div
-            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", position: "absolute", inset: 0 }}
-            className={`rounded-3xl border-2 flex flex-col items-center justify-center gap-4 p-6
-              ${colors.border} ${dark ? "bg-gray-800" : "bg-white"}`}
-          >
-            <p className={`text-5xl font-bold ${dark ? "text-white" : "text-gray-900"}`}
-              style={{ direction: "rtl", fontFamily: "serif" }}>
-              {word.hebrew}
-            </p>
-            <div className="text-center">
-              <p className={`text-2xl font-semibold ${dark ? "text-white" : "text-gray-900"}`}>
-                {word.translation}
-              </p>
-              <p className={`text-base mt-1 ${colors.text}`}>
-                {word.transliteration}
-              </p>
-            </div>
-            {word.audio && (
-              <button
-                onClick={e => { e.stopPropagation(); playAudio(); }}
-                className={`px-4 py-2 rounded-xl text-sm font-medium ${colors.btn} text-white`}
-              >
-                🔊 Произношение
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Навигация */}
-      <div className="flex gap-3">
-        <button
-          onClick={prev}
-          className={`flex-1 py-4 rounded-2xl border font-semibold transition-all active:scale-95
-            ${dark ? "border-gray-700 text-gray-300" : "border-gray-200 text-gray-600"}`}
-        >
-          ← Назад
-        </button>
-        <button
-          onClick={next}
-          className={`flex-1 py-4 rounded-2xl font-semibold text-white transition-all active:scale-95 ${colors.btn}`}
-        >
-          Вперёд →
-        </button>
-      </div>
-
-      {/* Подсказка первый раз */}
-      {!flipped && idx === 0 && (
-        <p className={`text-center text-xs ${dark ? "text-gray-600" : "text-gray-400"}`}>
-          Нажми на карточку чтобы перевернуть
-        </p>
-      )}
     </div>
   );
 }

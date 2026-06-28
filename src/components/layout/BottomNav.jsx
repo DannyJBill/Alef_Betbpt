@@ -4,6 +4,7 @@ const NAV_ITEMS = [
   { id: "home",     icon: "🏠", label: "Главная"   },
   { id: "alphabet", icon: "🔤", label: "Алфавит"   },
   { id: "nikud",    icon: "📖", label: "Огласовки" },
+  { id: "words",    icon: "💬", label: "Слова"     },
   { id: "profile",  icon: "👤", label: "Профиль"   },
 ];
 

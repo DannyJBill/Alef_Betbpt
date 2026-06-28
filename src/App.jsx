@@ -7,10 +7,11 @@ import BottomNav      from "./components/layout/BottomNav";
 import HomeScreen     from "./screens/HomeScreen";
 import AlphabetScreen from "./screens/AlphabetScreen";
 import NikudScreen    from "./screens/NikudScreen";
+import WordsScreen    from "./screens/WordsScreen";
 import ProfileScreen  from "./screens/ProfileScreen";
 import AIAssistant    from "./screens/AIAssistant";
 
-const TABS = ["home", "alphabet", "nikud", "profile"];
+const TABS = ["home", "alphabet", "nikud", "words", "profile"];
 
 function LoadingScreen({ dark }) {
   return (
@@ -32,8 +33,7 @@ function AppShell() {
   const { dark, toggle } = useTheme();
   const { ready } = useStats();
   const [tab, setTab] = useState("home");
-  // active режим внутри AlphabetScreen — поднят сюда чтобы сбрасываться при смене таба
-  const [activeMode, setActiveMode] = useState(null); // null | 'learn' | 'cards' | 'game'
+  const [activeMode, setActiveMode] = useState(null);
 
   function navigateTo(mode) {
     setActiveMode(mode);
@@ -42,7 +42,6 @@ function AppShell() {
 
   function handleSetTab(t) {
     setTab(t);
-    // При уходе с alphabet — сбросить режим
     if (t !== "alphabet") setActiveMode(null);
   }
 
@@ -58,6 +57,7 @@ function AppShell() {
             {t === "home"     && <HomeScreen onNavigate={navigateTo} />}
             {t === "alphabet" && <AlphabetScreen activeMode={activeMode} setActiveMode={setActiveMode} />}
             {t === "nikud"    && <NikudScreen />}
+            {t === "words"    && <WordsScreen />}
             {t === "profile"  && <ProfileScreen />}
           </div>
         ))}

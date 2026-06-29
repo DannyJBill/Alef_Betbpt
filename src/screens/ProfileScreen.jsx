@@ -7,7 +7,7 @@ import ProgressBar from "../components/ui/ProgressBar";
 const BOT_USERNAME = "alef_betbot"; // поменяй на своего бота
 const APP_SHORT    = "learn";
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ onBack }) {
   const { dark } = useTheme();
   const { stats, resetStats } = useStats();
   const [copied, setCopied] = useState(false);
@@ -49,7 +49,7 @@ export default function ProfileScreen() {
     { icon: "🔥", name: "3 дня подряд",  done: stats.streak >= 3 },
     { icon: "⚡", name: "100 XP",        done: stats.xp >= 100 },
     { icon: "🎯", name: "Точность 80%",  done: stats.totalAnswers > 0 && (stats.correctAnswers / stats.totalAnswers) >= 0.8 },
-    { icon: "🏆", name: "Весь алфавит",  done: Object.values(stats.groupProgress || {}).filter(v => v === 'completed').length >= 5 },
+    { icon: "🏆", name: "Весь алфавит",  done: Object.values(stats.progress?.letters || {}).filter(v => v === 'done').length >= 5 },
     { icon: "👥", name: "Пригласил друга", done: (stats.referralsCount || 0) >= 1 },
   ];
 
@@ -62,6 +62,13 @@ export default function ProfileScreen() {
 
   return (
     <div className="pb-20 px-4 pt-6 max-w-md mx-auto">
+      {/* Назад */}
+      {onBack && (
+        <button onClick={onBack}
+          className="flex items-center gap-1 mb-4 text-sm font-medium text-indigo-500">
+          ← Главная
+        </button>
+      )}
       {/* Avatar */}
       <div className="flex flex-col items-center mb-6">
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-3xl mb-3">

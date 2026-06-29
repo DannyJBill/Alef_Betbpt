@@ -1,11 +1,9 @@
 import { useTheme } from "../../context/ThemeContext";
 
 const NAV_ITEMS = [
-  { id: "home",     icon: "🏠", label: "Главная"   },
-  { id: "alphabet", icon: "🔤", label: "Алфавит"   },
-  { id: "nikud",    icon: "📖", label: "Огласовки" },
-  { id: "words",    icon: "💬", label: "Слова"     },
-  { id: "profile",  icon: "👤", label: "Профиль"   },
+  { id: "home",  icon: "🏠", label: "Главная" },
+  { id: "study", icon: "📚", label: "Учиться" },
+  { id: "game",  icon: "⚡", label: "Игра"    },
 ];
 
 export default function BottomNav({ tab, setTab }) {

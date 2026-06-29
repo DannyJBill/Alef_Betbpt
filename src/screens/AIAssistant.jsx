@@ -9,12 +9,10 @@ import { useStats } from "../context/StatsContext";
 import { askAI } from "../helpers/ai";
 import { AI_HISTORY_LIMIT } from "../data/constants";
 
-const WELCOME = "Шалом! 🇮🇱 Я помогу вам выучить алфавит иврита. Спрашивайте всё, что непонятно!";
-const AI_FREE_LIMIT = 3;
+const WELCOME    = "Шалом! 🇮🇱 Я помогу вам выучить алфавит иврита. Спрашивайте всё, что непонятно!";
+const FREE_LIMIT = 3;
 
-function getTodayKey() {
-  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-}
+function getTodayKey() { return new Date().toISOString().slice(0, 10); }
 
 export default function AIAssistant() {
   const { dark } = useTheme();
@@ -32,52 +30,42 @@ export default function AIAssistant() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs]);
 
-  // ─── Вычислить сколько вопросов осталось ──────────────────────────────────
   const isPremium = Boolean(stats?.isPremium);
 
   function getUsageLeft() {
     if (isPremium) return Infinity;
     const usage = stats?.aiUsageToday;
-    if (!usage || usage.date !== getTodayKey()) return AI_FREE_LIMIT;
-    return Math.max(0, AI_FREE_LIMIT - (usage.count || 0));
+    if (!usage || usage.date !== getTodayKey()) return FREE_LIMIT;
+    return Math.max(0, FREE_LIMIT - (usage.count || 0));
   }
 
-  function canAsk() {
-    return isPremium || getUsageLeft() > 0;
-  }
+  function canAsk() { return isPremium || getUsageLeft() > 0; }
 
-  function doIncrementUsage() {
+  function incrementUsage() {
     if (isPremium) return;
     updateStats(prev => {
-      const today   = getTodayKey();
-      const prev_u  = prev.aiUsageToday || { date: null, count: 0 };
-      const count   = prev_u.date === today ? (prev_u.count || 0) + 1 : 1;
+      const today = getTodayKey();
+      const u     = prev.aiUsageToday || { date: null, count: 0 };
+      const count = u.date === today ? (u.count || 0) + 1 : 1;
       return { ...prev, aiUsageToday: { date: today, count } };
     });
   }
 
-  // ─── Отправить сообщение ───────────────────────────────────────────────────
   async function send() {
     if (!input.trim() || loading) return;
-
-    if (!canAsk()) {
-      setShowLimit(true);
-      return;
-    }
+    if (!canAsk()) { setShowLimit(true); return; }
 
     const userMsg   = input.trim();
     setInput("");
     const userEntry = { id: nextId.current++, role: "user", text: userMsg };
     setMsgs(m => [...m, userEntry]);
     setLoading(true);
-
-    doIncrementUsage();
+    incrementUsage();
 
     try {
       const history = [...msgs, userEntry]
         .slice(-AI_HISTORY_LIMIT)
         .map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }));
-
       const reply = await askAI(history);
       setMsgs(m => [...m, { id: nextId.current++, role: "assistant", text: reply }]);
     } catch (err) {
@@ -117,7 +105,7 @@ export default function AIAssistant() {
               <div>
                 <p className="text-white font-bold text-sm">AI-помощник</p>
                 <p className="text-indigo-200 text-xs">
-                  {isPremium ? "Premium · безлимит ⭐" : "Всегда готов помочь"}
+                  {isPremium ? "Premium · безлимит ⭐" : "Иврит для олим 🇮🇱"}
                 </p>
               </div>
             </div>
@@ -125,23 +113,20 @@ export default function AIAssistant() {
             {!isPremium && (
               <div className="flex flex-col items-end gap-1">
                 <div className="flex gap-1">
-                  {Array.from({ length: AI_FREE_LIMIT }, (_, i) => (
-                    <div
-                      key={i}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        i < usageLeft ? "bg-white" : "bg-white/30"
-                      }`}
+                  {Array.from({ length: FREE_LIMIT }, (_, i) => (
+                    <div key={i}
+                      className={`w-2 h-2 rounded-full transition-all ${i < usageLeft ? "bg-white" : "bg-white/30"}`}
                     />
                   ))}
                 </div>
                 <span className="text-[10px] text-indigo-200">
-                  {usageLeft}/{AI_FREE_LIMIT} сегодня
+                  {usageLeft === Infinity ? "∞" : usageLeft}/{FREE_LIMIT} сегодня
                 </span>
               </div>
             )}
           </div>
 
-          {/* Paywall вместо чата */}
+          {/* Paywall */}
           {(showLimit || isExhausted) ? (
             <div className="flex-1 flex flex-col items-center justify-center p-5 text-center gap-4">
               <div className="text-4xl">⭐</div>
@@ -150,24 +135,20 @@ export default function AIAssistant() {
                   Лимит на сегодня исчерпан
                 </p>
                 <p className={`text-sm ${dark ? "text-gray-400" : "text-gray-500"}`}>
-                  Бесплатно — {AI_FREE_LIMIT} вопроса в день. Завтра сбросится.
+                  Бесплатно — {FREE_LIMIT} вопроса в день. Завтра сбросится.
                 </p>
               </div>
-              <div className={`w-full rounded-2xl p-4 border ${
-                dark ? "bg-amber-950 border-amber-800" : "bg-amber-50 border-amber-200"
-              }`}>
+              <div className={`w-full rounded-2xl p-4 border ${dark ? "bg-amber-950 border-amber-800" : "bg-amber-50 border-amber-200"}`}>
                 <p className={`text-sm font-semibold mb-1 ${dark ? "text-amber-300" : "text-amber-700"}`}>
                   Premium — безлимитный AI
                 </p>
                 <p className={`text-xs ${dark ? "text-amber-400" : "text-amber-600"}`}>
-                  Входит в предзаказ раздела огласовок за 99 ⭐
+                  Скоро в приложении ⭐
                 </p>
               </div>
               {showLimit && !isExhausted && (
-                <button
-                  onClick={() => setShowLimit(false)}
-                  className={`text-xs underline ${dark ? "text-gray-600" : "text-gray-400"}`}
-                >
+                <button onClick={() => setShowLimit(false)}
+                  className={`text-xs underline ${dark ? "text-gray-600" : "text-gray-400"}`}>
                   Закрыть
                 </button>
               )}
@@ -191,9 +172,7 @@ export default function AIAssistant() {
                 ))}
                 {loading && (
                   <div className="flex justify-start">
-                    <div className={`px-3 py-2 rounded-2xl text-sm ${
-                      dark ? "bg-gray-800 text-gray-400" : "bg-gray-100 text-gray-400"
-                    }`}>
+                    <div className={`px-3 py-2 rounded-2xl text-sm ${dark ? "bg-gray-800 text-gray-400" : "bg-gray-100 text-gray-500"}`}>
                       ⌛ Думаю...
                     </div>
                   </div>
@@ -203,9 +182,7 @@ export default function AIAssistant() {
 
               {/* Предупреждение — остался 1 вопрос */}
               {!isPremium && usageLeft === 1 && (
-                <div className={`px-3 py-1.5 text-xs text-center ${
-                  dark ? "bg-amber-950 text-amber-400" : "bg-amber-50 text-amber-600"
-                }`}>
+                <div className={`px-3 py-1.5 text-xs text-center ${dark ? "bg-amber-950 text-amber-400" : "bg-amber-50 text-amber-600"}`}>
                   Остался 1 вопрос на сегодня
                 </div>
               )}
@@ -216,20 +193,16 @@ export default function AIAssistant() {
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && send()}
-                  placeholder="Спросите про букву..."
+                  placeholder="Спросите про иврит..."
                   aria-label="Сообщение AI-помощнику"
                   className={`flex-1 rounded-xl px-3 py-2 text-sm outline-none ${
-                    dark
-                      ? "bg-gray-800 text-white placeholder-gray-500"
-                      : "bg-gray-100 text-gray-800 placeholder-gray-400"
+                    dark ? "bg-gray-800 text-white placeholder-gray-500" : "bg-gray-100 text-gray-800 placeholder-gray-400"
                   }`}
                 />
-                <button
-                  onClick={send}
+                <button onClick={send}
                   disabled={loading || !input.trim()}
                   aria-label="Отправить"
-                  className="bg-indigo-500 text-white rounded-xl px-3 py-2 text-sm font-bold disabled:opacity-50"
-                >
+                  className="bg-indigo-500 text-white rounded-xl px-3 py-2 text-sm font-bold disabled:opacity-50">
                   →
                 </button>
               </div>

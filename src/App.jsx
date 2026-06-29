@@ -2,16 +2,15 @@ import { useState } from "react";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { StatsProvider, useStats } from "./context/StatsContext";
 
-import TopBar         from "./components/layout/TopBar";
-import BottomNav      from "./components/layout/BottomNav";
-import HomeScreen     from "./screens/HomeScreen";
-import AlphabetScreen from "./screens/AlphabetScreen";
-import NikudScreen    from "./screens/NikudScreen";
-import WordsScreen    from "./screens/WordsScreen";
-import ProfileScreen  from "./screens/ProfileScreen";
-import AIAssistant    from "./screens/AIAssistant";
+import TopBar      from "./components/layout/TopBar";
+import BottomNav   from "./components/layout/BottomNav";
+import HomeScreen  from "./screens/HomeScreen";
+import StudyScreen from "./screens/StudyScreen";
+import GameScreen  from "./screens/GameScreen";
+import ProfileScreen from "./screens/ProfileScreen";
+import AIAssistant from "./screens/AIAssistant";
 
-const TABS = ["home", "alphabet", "nikud", "words", "profile"];
+const TABS = ["home", "study", "game"];
 
 function LoadingScreen({ dark }) {
   return (
@@ -33,19 +32,38 @@ function AppShell() {
   const { dark, toggle } = useTheme();
   const { ready } = useStats();
   const [tab, setTab] = useState("home");
-  const [activeMode, setActiveMode] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [studySection, setStudySection] = useState(null); // 'alphabet'|'nikud'|'words'
 
-  function navigateTo(mode) {
-    setActiveMode(mode);
-    setTab("alphabet");
+  function openProfile() { setShowProfile(true); }
+  function closeProfile() { setShowProfile(false); }
+
+  function navigateToStudy(section) {
+    setStudySection(section);
+    setTab("study");
   }
 
+  const [studyKey, setStudyKey] = useState(0);
+
   function handleSetTab(t) {
-    setTab(t);
-    if (t !== "alphabet") setActiveMode(null);
+    if (t === tab && t === "study") {
+      // Already on study tab — reset to root
+      setStudyKey(k => k + 1);
+      setStudySection(null);
+    } else {
+      setTab(t);
+      if (t !== "study") setStudySection(null);
+    }
   }
 
   if (!ready) return <LoadingScreen dark={dark} />;
+
+  // Profile — modal overlay
+  if (showProfile) return (
+    <div className={`min-h-screen transition-colors duration-300 ${dark ? "bg-gray-950 text-white" : "bg-gray-50 text-gray-900"}`}>
+      <ProfileScreen onBack={closeProfile} />
+    </div>
+  );
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${dark ? "bg-gray-950 text-white" : "bg-gray-50 text-gray-900"}`}>
@@ -54,11 +72,9 @@ function AppShell() {
       <main style={{ minHeight: "calc(100vh - 56px)" }}>
         {TABS.map(t => (
           <div key={t} style={{ display: tab === t ? "block" : "none" }}>
-            {t === "home"     && <HomeScreen onNavigate={navigateTo} />}
-            {t === "alphabet" && <AlphabetScreen activeMode={activeMode} setActiveMode={setActiveMode} />}
-            {t === "nikud"    && <NikudScreen />}
-            {t === "words"    && <WordsScreen />}
-            {t === "profile"  && <ProfileScreen />}
+            {t === "home"  && <HomeScreen onOpenProfile={openProfile} onNavigateStudy={navigateToStudy} />}
+            {t === "study" && <StudyScreen key={studyKey} initialSection={studySection} onClearSection={() => setStudySection(null)} />}
+            {t === "game"  && <GameScreen />}
           </div>
         ))}
       </main>

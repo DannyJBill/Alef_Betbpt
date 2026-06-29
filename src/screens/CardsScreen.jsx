@@ -13,7 +13,7 @@ export default function CardsScreen() {
 
   // Only letters from unlocked groups
   const UNLOCKED_LETTERS = ALL_LETTERS.filter(l =>
-    LETTER_GROUPS.find(g => g.letterIds.includes(l.id) && stats.groupProgress?.[g.id] !== 'locked')
+    LETTER_GROUPS.find(g => g.letterIds.includes(l.id) && stats.progress?.letters?.[g.id] !== 'locked')
   );
   const [current, setCurrent] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -68,7 +68,7 @@ export default function CardsScreen() {
           </button>
         )}
         {LETTER_GROUPS.map(g => {
-          const unlocked = isGroupUnlocked(g.id, stats.groupProgress);
+          const unlocked = isGroupUnlocked(g.id, stats.progress?.letters);
           const letters  = getGroupLetters(g.id);
           const due      = getDueCards(letters).length;
           const c        = GROUP_COLORS[g.color];

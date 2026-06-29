@@ -92,102 +92,149 @@ function shuffle(arr) {
 }
 
 // ─── Главный компонент ────────────────────────────────────────────────────────
-export default function NikudScreen() {
+export default function NikudScreen({ onBack }) {
   const { dark } = useTheme();
-  const { stats, updateStats } = useStats();
+  const { stats, getDueVowelCards } = useStats();
+  const [activeMode, setActiveMode] = useState(null); // null | 'learn' | 'cards'
+  const [activeGroup, setActiveGroup] = useState(null);
 
-  const [buyState, setBuyState] = useState("idle");
-  const [errorMsg, setErrorMsg] = useState("");
+  const p             = stats.progress || {};
+  const lettersReady  = p.letters?.[1] === 'done' && p.letters?.[2] === 'done';
+  const doneSounds    = [1,2,3,4,5].filter(n => p.sounds?.[n] === 'done').length;
+  const activeSoundGrp = [1,2,3,4,5].find(n => p.sounds?.[n] === 'available');
+  const dueCount      = lettersReady ? getDueVowelCards().length : 0;
 
-  // Обучающий режим
-  const [activeTab,   setActiveTab]   = useState("groups"); // groups | words | review
-  const [activeGroup, setActiveGroup] = useState(null);     // id группы или null
-
-  useEffect(() => {
-    if (stats.isPremium) setBuyState("already");
-  }, [stats.isPremium]);
-
-  useEffect(() => {
-    const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-    if (!tgId || stats.isPremium) return;
-    fetch(`/api/payments-status?telegramId=${tgId}`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.isPremium && !stats.isPremium) {
-          updateStats(prev => ({
-            ...prev,
-            isPremium:          true,
-            premiumPurchasedAt: data.premiumPurchasedAt,
-            premiumType:        data.premiumType,
-          }));
-          setBuyState("already");
-        }
-      })
-      .catch(() => {});
-  }, []); // eslint-disable-line
-
-  async function handleBuy() {
-    const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-    if (!tgId) { setErrorMsg("Открой приложение через Telegram"); setBuyState("error"); return; }
-    setBuyState("loading"); setErrorMsg("");
-    try {
-      const res  = await fetch("/api/payments-create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: "nikud_lifetime", telegramId: tgId }),
-      });
-      const data = await res.json();
-      if (data.alreadyPurchased) { updateStats(prev => ({ ...prev, isPremium: true })); setBuyState("already"); return; }
-      if (!data.invoiceLink) throw new Error(data.error || "No invoice link");
-      window.Telegram.WebApp.openInvoice(data.invoiceLink, (status) => {
-        if (status === "paid") {
-          updateStats(prev => ({ ...prev, isPremium: true, premiumPurchasedAt: Date.now(), premiumType: "lifetime", xp: (prev.xp||0)+200 }));
-          setBuyState("success");
-        } else if (status === "cancelled") {
-          setBuyState("idle");
-        } else if (status === "failed") {
-          setErrorMsg("Оплата не прошла. Попробуй ещё раз."); setBuyState("error");
-        }
-      });
-    } catch (err) {
-      console.error("[NikudScreen] buy error:", err);
-      setErrorMsg("Ошибка соединения. Попробуй позже."); setBuyState("error");
-    }
-  }
-
-  // ── Premium контент ─────────────────────────────────────────────────────────
-  // Показываем premium если isPremium в stats (загружены асинхронно) ИЛИ только что купили
-  const showPremium = stats.isPremium || buyState === "success";
-
-  if (showPremium) {
-    // Если открыта группа — показать урок
-    if (activeGroup !== null) {
-      return (
-        <GroupLesson
-          key={activeGroup}
-          groupId={activeGroup}
-          dark={dark}
-          stats={stats}
-          onBack={() => setActiveGroup(null)}
-          onOpenGroup={setActiveGroup}
-        />
-      );
-    }
-
+  // Открыта группа — показать урок
+  if (activeGroup !== null) {
     return (
-      <PremiumContent
+      <GroupLesson
+        key={activeGroup}
+        groupId={activeGroup}
         dark={dark}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
         stats={stats}
+        onBack={() => setActiveGroup(null)}
         onOpenGroup={setActiveGroup}
-        isNew={buyState === "success"}
       />
     );
   }
 
-  // ── Paywall ─────────────────────────────────────────────────────────────────
-  return <PaywallScreen dark={dark} buyState={buyState} errorMsg={errorMsg} onBuy={handleBuy} />;
+  // Выбран режим — показать его с back bar
+  if (activeMode) {
+    return (
+      <div>
+        <div className={`flex items-center gap-3 px-4 py-3 border-b ${dark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-100'}`}>
+          <button onClick={() => setActiveMode(null)}
+            className={`text-sm font-semibold flex items-center gap-1.5 ${dark ? 'text-blue-400' : 'text-blue-600'}`}>
+            ← Назад
+          </button>
+          <span className={`text-sm font-bold ${dark ? 'text-white' : 'text-gray-800'}`}>
+            {activeMode === 'learn' ? 'Учиться' : 'Карточки'}
+          </span>
+        </div>
+        {activeMode === 'learn' && (
+          <GroupsOnly
+            dark={dark}
+            stats={stats}
+            onOpenGroup={setActiveGroup}
+          />
+        )}
+        {activeMode === 'cards' && (
+          <div className="pb-20 px-4 pt-4 max-w-md mx-auto">
+            <AllVowelCards dark={dark} stats={stats} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Хаб
+  const activities = [
+    {
+      id: 'learn',
+      icon: '📚',
+      title: 'Учиться',
+      desc: !lettersReady
+        ? 'Сначала пройди Буквы группы 1 и 2'
+        : activeSoundGrp
+          ? `Группа ${activeSoundGrp} · Учим знаки огласовок`
+          : doneSounds >= 5 ? 'Все группы пройдены 🏆' : 'Начни с первой группы',
+      badge: lettersReady && activeSoundGrp ? `Группа ${activeSoundGrp}` : null,
+      gradient: 'from-blue-500 to-cyan-600',
+      locked: !lettersReady,
+    },
+    {
+      id: 'cards',
+      icon: '🃏',
+      title: 'Карточки',
+      desc: !lettersReady
+        ? 'Доступно после Букв гр.1 и 2'
+        : dueCount > 0 ? `${dueCount} огласовок на повторение` : 'Все карточки повторены ✓',
+      badge: lettersReady && dueCount > 0 ? `${dueCount} сегодня` : null,
+      gradient: 'from-emerald-500 to-teal-600',
+      locked: !lettersReady,
+    },
+  ];
+
+  return (
+    <div className="pb-20 px-4 pt-4 max-w-md mx-auto">
+      {onBack && (
+        <button onClick={onBack} className={`flex items-center gap-1 mb-3 text-sm font-medium ${dark ? 'text-blue-400' : 'text-blue-600'}`}>
+          ← Учиться
+        </button>
+      )}
+      <h2 className={`text-xl font-bold mb-1 ${dark ? 'text-white' : 'text-gray-900'}`}>Огласовки</h2>
+      <p className={`text-sm mb-5 ${dark ? 'text-gray-400' : 'text-gray-500'}`}>
+        {lettersReady ? `${doneSounds}/5 групп пройдено` : 'Открывается после Букв гр.1+2'}
+      </p>
+
+      <div className="flex flex-col gap-3">
+        {activities.map(a => (
+          <button key={a.id}
+            onClick={() => !a.locked && setActiveMode(a.id)}
+            disabled={a.locked}
+            className={`w-full text-left rounded-2xl p-5 bg-gradient-to-r ${a.gradient} text-white active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed`}>
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{a.locked ? '🔒' : a.icon}</span>
+                <span className="text-lg font-bold">{a.title}</span>
+              </div>
+              {a.badge && <span className="text-xs font-bold bg-white/20 px-2 py-1 rounded-full">{a.badge}</span>}
+            </div>
+            <p className="text-sm opacity-90 mb-3">{a.desc}</p>
+            <span className="text-sm font-semibold opacity-80">{a.locked ? 'Заблокировано' : 'Открыть →'}</span>
+          </button>
+        ))}
+      </div>
+
+      {lettersReady && (
+        <div className={`mt-5 rounded-2xl p-4 border ${dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+          <p className={`text-xs font-semibold uppercase tracking-wide mb-3 ${dark ? 'text-gray-500' : 'text-gray-400'}`}>
+            Прогресс по группам
+          </p>
+          {NIKUD_GROUPS.map(g => {
+            const status = p.sounds?.[g.id] || 'locked';
+            const score  = stats.testScores?.[`sounds_${g.id}`];
+            return (
+              <div key={g.id} className="flex items-center gap-3 py-1.5">
+                <span className="text-sm w-4">
+                  {status === 'done' ? '✅' : status === 'locked' ? '🔒' : '▶️'}
+                </span>
+                <span className={`text-sm flex-1 ${status === 'locked' ? dark ? 'text-gray-600' : 'text-gray-300' : dark ? 'text-gray-200' : 'text-gray-700'}`}>
+                  {g.name}
+                </span>
+                {status === 'done' && score != null && (
+                  <span className={`text-xs font-bold ${dark ? 'text-gray-400' : 'text-gray-500'}`}>{score}%</span>
+                )}
+                {status === 'available' && (
+                  <span className="text-xs text-blue-500 font-medium">активна</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ─── Paywall ──────────────────────────────────────────────────────────────────
@@ -294,7 +341,7 @@ function PaywallScreen({ dark, buyState, errorMsg, onBuy }) {
 }
 
 // ─── Premium-контент: табы ─────────────────────────────────────────────────────
-function PremiumContent({ dark, activeTab, setActiveTab, stats, onOpenGroup, isNew }) {
+function PremiumContent({ dark, activeTab, setActiveTab, stats, onOpenGroup, onBack, isNew }) {
   const TABS = [
     { id: "groups", label: "Группы", icon: "📚" },
     { id: "game",   label: "Игра",   icon: "⚡" },
@@ -304,6 +351,11 @@ function PremiumContent({ dark, activeTab, setActiveTab, stats, onOpenGroup, isN
     <div className="pb-24 max-w-md mx-auto">
       {/* Шапка */}
       <div className="px-4 pt-4 pb-3">
+        {onBack && (
+          <button onClick={onBack} className={`flex items-center gap-1 mb-3 text-sm font-medium ${dark ? "text-blue-400" : "text-blue-600"}`}>
+            ← Учиться
+          </button>
+        )}
         <h2 className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>
           Огласовки
         </h2>
@@ -339,11 +391,56 @@ function PremiumContent({ dark, activeTab, setActiveTab, stats, onOpenGroup, isN
   );
 }
 
+// ─── Учиться: только группы (без игры) ──────────────────────────────────────
+function GroupsOnly({ dark, stats, onOpenGroup }) {
+  return (
+    <div className="pb-24 max-w-md mx-auto">
+      <div className="px-4 pt-4 pb-3">
+        <h2 className={`text-xl font-bold ${dark ? 'text-white' : 'text-gray-900'}`}>Учиться</h2>
+        <p className={`text-sm ${dark ? 'text-gray-400' : 'text-gray-500'}`}>Огласовки по группам</p>
+      </div>
+      <GroupsTab dark={dark} stats={stats} onOpenGroup={onOpenGroup} />
+    </div>
+  );
+}
+
+// ─── Карточки: вся колода пройденных огласовок ───────────────────────────────
+function AllVowelCards({ dark, stats }) {
+  const { updateVowelReview } = useStats();
+  const p = stats.progress?.sounds || {};
+  const unlockedVowels = NIKUD_GROUPS
+    .filter(g => p[g.id] === 'done' || p[g.id] === 'available')
+    .flatMap(g => NIKUD.filter(v => g.vowelIds.includes(v.id)));
+
+  if (unlockedVowels.length === 0) {
+    return (
+      <div className="pt-8 text-center">
+        <span className="text-4xl">🔒</span>
+        <p className={`mt-3 text-sm ${dark ? 'text-gray-400' : 'text-gray-500'}`}>
+          Сначала изучи хотя бы одну группу
+        </p>
+      </div>
+    );
+  }
+
+  // Одна карточка на огласовку (не на слог)
+  const deck = unlockedVowels.map(v => v.id);
+
+  return (
+    <div>
+      <p className={`text-sm mb-4 ${dark ? 'text-gray-400' : 'text-gray-500'}`}>
+        {deck.length} огласовок · вся колода
+      </p>
+      <VowelFlipDeck vowelIds={deck} dark={dark} onAnswer={updateVowelReview} />
+    </div>
+  );
+}
+
 // ─── Таб «Группы» ─────────────────────────────────────────────────────────────
 function GroupsTab({ dark, stats, onOpenGroup }) {
-  const nikudProgress = stats.nikudProgress?.groupProgress ||
+  const nikudProgress = stats.progress?.sounds ||
     { 1:'available', 2:'locked', 3:'locked', 4:'locked', 5:'locked' };
-  const testScores    = stats.nikudProgress?.groupTestScores || {};
+  const testScores    = stats.testScores || {};
 
   return (
     <div className="px-4 flex flex-col gap-3">
@@ -362,8 +459,8 @@ function GroupsTab({ dark, stats, onOpenGroup }) {
         const progress  = nikudProgress[group.id] || 'locked';
         const isLocked  = progress === 'locked';
         const isPaidGate = false;  // все группы временно бесплатны
-        const completed = progress === 'completed';
-        const score     = testScores[group.id]?.score;
+        const completed = progress === 'done';
+        const score     = testScores[`sounds_${group.id}`];
         const colors    = COLOR_MAP[group.color];
         const vowels    = NIKUD.filter(v => group.vowelIds.includes(v.id));
 
@@ -436,12 +533,12 @@ function NikudGameTab({ dark, stats }) {
   const { updateStats } = useStats();
 
   // Огласовки из пройденных групп
-  const nikudProgress = stats.nikudProgress?.groupProgress || {};
+  const nikudProgress = stats.progress?.sounds || {};
   const unlockedVowels = NIKUD_GROUPS
-    .filter(g => nikudProgress[g.id] === 'completed' || nikudProgress[g.id] === 'available')
+    .filter(g => nikudProgress[g.id] === 'done' || nikudProgress[g.id] === 'available')
     .flatMap(g => NIKUD.filter(v => g.vowelIds.includes(v.id)));
 
-  const allGroupsDone = NIKUD_GROUPS.every(g => nikudProgress[g.id] === 'completed');
+  const allGroupsDone = NIKUD_GROUPS.every(g => nikudProgress[g.id] === 'done');
 
   const [phase, setPhase]   = useState("menu"); // menu | playing | over
   const [timeLeft, setTimeLeft] = useState(60);
@@ -701,6 +798,117 @@ function ReviewTab({ dark, stats }) {
   );
 }
 
+// Примеры слогов для карточек
+const VOWEL_EXAMPLES = {
+  "patah": [["ל","ла"], ["מ","ма"], ["פּ","па"]],
+  "hirik": [["ל","ли"], ["מ","ми"], ["פּ","пи"]],
+  "shuruk": [["ל","лу"], ["מ","му"], ["פּ","пу"]],
+  "kamatz": [["ל","ла"], ["מ","ма"], ["כּ","ка"]],
+  "tsere": [["ל","лэ"], ["מ","мэ"], ["פּ","пэ"]],
+  "segol": [["ל","ле"], ["מ","ме"], ["פּ","пе"]],
+  "holam": [["ל","ло"], ["מ","мо"], ["כּ","ко"]],
+  "kubutz": [["ל","лу"], ["מ","му"], ["כּ","ку"]],
+  "shva": [["ל","л-"], ["מ","м-"], ["כּ","к-"]]
+};
+
+function VowelFlipDeck({ vowelIds, dark, onAnswer }) {
+  const [queue]   = useState(() => shuffle([...vowelIds]));
+  const [idx,     setIdx]     = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [done,    setDone]    = useState(false);
+
+  if (done || idx >= queue.length) {
+    return (
+      <div className="text-center py-8 flex flex-col items-center gap-4">
+        <span className="text-5xl">🎉</span>
+        <p className={`font-semibold ${dark ? 'text-gray-200' : 'text-gray-800'}`}>Сессия завершена!</p>
+      </div>
+    );
+  }
+
+  const vowelId = queue[idx];
+  const vowel   = NIKUD.find(v => v.id === vowelId);
+  if (!vowel) return null;
+
+  const examples = VOWEL_EXAMPLES[vowelId] || [];
+
+  function handleRate(q) {
+    onAnswer(`${vowelId}:מ`, q);
+    setFlipped(false);
+    if (idx + 1 >= queue.length) setDone(true);
+    else setIdx(i => i + 1);
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p className={`text-xs text-center ${dark ? 'text-gray-500' : 'text-gray-400'}`}>
+        {idx + 1} / {queue.length}
+      </p>
+
+      <div className="cursor-pointer" style={{ perspective: '800px' }}
+        onClick={() => !flipped && setFlipped(true)}>
+        <div style={{
+          transformStyle: 'preserve-3d', transition: 'transform 0.4s',
+          transform: flipped ? 'rotateY(180deg)' : 'none',
+          position: 'relative', height: '240px',
+        }}>
+          {/* Лицо — знак огласовки крупно */}
+          <div style={{ backfaceVisibility: 'hidden', position: 'absolute', inset: 0 }}
+            className={`rounded-3xl border-2 flex flex-col items-center justify-center gap-3
+              ${dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+            <span style={{ fontSize: 96, fontFamily: 'serif', direction: 'rtl', lineHeight: 1.4 }}>
+              {'מ' + vowel.symbol}
+            </span>
+            <p className={`text-xs ${dark ? 'text-gray-600' : 'text-gray-300'}`}>нажми — узнаешь звук</p>
+          </div>
+          {/* Оборот — название + звук + примеры */}
+          <div style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)', position: 'absolute', inset: 0 }}
+            className={`rounded-3xl border-2 flex flex-col items-center justify-center gap-3 p-5
+              ${dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+            <p className={`text-xs font-semibold uppercase tracking-widest ${dark ? 'text-gray-500' : 'text-gray-400'}`}>
+              {vowel.name}
+            </p>
+            <p className={`text-5xl font-black ${dark ? 'text-white' : 'text-gray-900'}`}>
+              «{vowel.sound || '—'}»
+            </p>
+            {/* Примеры слогов */}
+            {examples.length > 0 && (
+              <div className="flex gap-3 mt-1">
+                {examples.map(([heb, rus], i) => (
+                  <div key={i} className={`flex flex-col items-center gap-0.5`}>
+                    <span style={{ fontFamily: 'serif', fontSize: 22, direction: 'rtl' }}
+                      className={dark ? 'text-blue-300' : 'text-blue-600'}>
+                      {heb + vowel.symbol}
+                    </span>
+                    <span className={`text-xs ${dark ? 'text-gray-400' : 'text-gray-500'}`}>{rus}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className={`text-xs text-center ${dark ? 'text-gray-600' : 'text-gray-400'}`}>{vowel.hint}</p>
+          </div>
+        </div>
+      </div>
+
+      {flipped && (
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { q: 0, label: 'Снова',  emoji: '✗', cls: dark ? 'bg-rose-950 border-rose-800 text-rose-300'    : 'bg-rose-50 border-rose-200 text-rose-600'    },
+            { q: 1, label: 'Трудно', emoji: '〜', cls: dark ? 'bg-amber-950 border-amber-800 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-600' },
+            { q: 2, label: 'Легко',  emoji: '✓', cls: dark ? 'bg-emerald-950 border-emerald-800 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-600' },
+          ].map(btn => (
+            <button key={btn.q} onClick={() => handleRate(btn.q)}
+              className={`py-4 rounded-2xl border font-semibold flex flex-col items-center gap-1 active:scale-95 transition-all ${btn.cls}`}>
+              <span className="text-xl">{btn.emoji}</span>
+              <span className="text-xs">{btn.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function VowelReviewSession({ dueKeys, dark, onAnswer }) {
   const [queue,   setQueue]   = useState(() => shuffle(dueKeys));
   const [idx,     setIdx]     = useState(0);
@@ -803,9 +1011,9 @@ function GroupLesson({ groupId, dark, stats, onBack, onOpenGroup }) {
   const colors = COLOR_MAP[group.color];
 
   // Огласовки из всех групп которые были пройдены ДО текущей
-  const nikudProgress = stats.nikudProgress?.groupProgress || {};
+  const nikudProgress = stats.progress?.sounds || {};
   const previousVowels = NIKUD_GROUPS
-    .filter(g => g.id < groupId && nikudProgress[g.id] === 'completed')
+    .filter(g => g.id < groupId && nikudProgress[g.id] === 'done')
     .flatMap(g => NIKUD.filter(v => g.vowelIds.includes(v.id)));
 
   // Линейный поток сцен

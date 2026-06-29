@@ -102,12 +102,12 @@ const fixedColors = group ? (FIXED_CARD_COLORS[group.color] || {}) : {};
     <div className="px-4 pt-3 max-w-md mx-auto flex flex-col gap-2" style={{height:"100%", overflowY:"auto", paddingBottom:"80px"}}>
       <h2 className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>Учись</h2>
       {LETTER_GROUPS.map(g => {
-        const unlocked = isGroupUnlocked(g.id, stats.groupProgress);
-        const progress = stats.groupProgress?.[g.id];
+        const unlocked = isGroupUnlocked(g.id, stats.progress?.letters);
+        const progress = stats.progress?.letters?.[g.id];
         const mastery  = getGroupMastery(g.id, stats.cardReviews);
         const letters  = getGroupLetters(g.id);
         const c        = GROUP_COLORS[g.color];
-        const score    = stats.groupTestScores?.[g.id]?.score;
+        const score    = stats.blockScores || {}?.[g.id]?.score;
         return (
           <div key={g.id} onClick={() => unlocked && startGroup(g.id)}
             className={`rounded-2xl border p-4 transition-all ${

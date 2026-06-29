@@ -8,9 +8,8 @@ import { useStats } from "../context/StatsContext";
 import { ALL_LETTERS } from "../data/alphabet";
 import LearnScreen  from "./LearnScreen";
 import CardsScreen  from "./CardsScreen";
-import GameScreen   from "./GameScreen";
 
-export default function AlphabetScreen({ activeMode, setActiveMode }) {
+export default function AlphabetScreen({ activeMode, setActiveMode, onBack }) {
   const { dark } = useTheme();
   const { stats, getDueCards } = useStats();
   const active = activeMode;
@@ -31,22 +30,21 @@ export default function AlphabetScreen({ activeMode, setActiveMode }) {
       </div>
       {active === "learn"  && <LearnScreen />}
       {active === "cards"  && <CardsScreen />}
-      {active === "game"   && <GameScreen />}
     </div>
   );
 
   // Метрики для карточек активностей
-  const completedGroups = Object.values(stats.groupProgress || {}).filter(v => v === "completed").length;
-  const activeGroup = [1,2,3,4,5].find(id => stats.groupProgress?.[id] === "available");
+  const completedGroups = Object.values(stats.progress?.letters || {}).filter(v => v === "done").length;
+  const activeGroup = [1,2,3,4,5].find(id => stats.progress?.letters?.[id] === "available");
 
   const UNLOCKED = ALL_LETTERS.filter(l =>
     [1,2,3,4,5].find(gid =>
       [1,2,3,4,5].includes(gid) &&
-      stats.groupProgress?.[gid] !== "locked"
+      stats.progress?.letters?.[gid] !== "locked"
     )
   );
   const dueCount = getDueCards(ALL_LETTERS.filter(l =>
-    Object.entries(stats.groupProgress || {}).some(([gid, v]) =>
+    Object.entries(stats.progress?.letters || {}).some(([gid, v]) =>
       v !== "locked" && [1,2,3,4,5].map(Number).includes(Number(gid))
     )
   )).length;
@@ -78,19 +76,16 @@ export default function AlphabetScreen({ activeMode, setActiveMode }) {
       cta: "Открыть карточки →",
       gradient: "from-emerald-500 to-teal-600",
     },
-    {
-      id: "game",
-      icon: "⚡",
-      title: "Игра на скорость",
-      desc: "60 секунд · Три типа вопросов · XP за каждый ответ",
-      badge: null,
-      cta: "Играть →",
-      gradient: "from-orange-500 to-red-500",
-    },
+
   ];
 
   return (
     <div className="pb-20 px-4 pt-4 max-w-md mx-auto">
+      {onBack && (
+        <button onClick={onBack} className={`flex items-center gap-1 mb-3 text-sm font-medium ${dark ? "text-indigo-400" : "text-indigo-600"}`}>
+          ← Учиться
+        </button>
+      )}
       <h2 className={`text-xl font-bold mb-1 ${dark ? "text-white" : "text-gray-900"}`}>Алфавит</h2>
       <p className={`text-sm mb-5 ${dark ? "text-gray-400" : "text-gray-500"}`}>
         {completedGroups}/5 групп пройдено
@@ -129,17 +124,17 @@ export default function AlphabetScreen({ activeMode, setActiveMode }) {
           { id:4, name:"Редкие буквы",   color:"bg-rose-500" },
           { id:5, name:"Финальные формы",color:"bg-purple-500" },
         ].map(g => {
-          const status = stats.groupProgress?.[g.id] || "locked";
+          const status = stats.progress?.letters?.[g.id] || "locked";
           const score  = stats.groupTestScores?.[g.id]?.score;
           return (
             <div key={g.id} className="flex items-center gap-3 py-1.5">
               <span className="text-sm w-4">
-                {status === "completed" ? "✅" : status === "locked" ? "🔒" : "▶️"}
+                {status === "done" ? "✅" : status === "locked" ? "🔒" : "▶️"}
               </span>
               <span className={`text-sm flex-1 ${status === "locked" ? dark ? "text-gray-600" : "text-gray-300" : dark ? "text-gray-200" : "text-gray-700"}`}>
                 {g.name}
               </span>
-              {status === "completed" && score != null && (
+              {status === "done" && score != null && (
                 <span className={`text-xs font-bold ${dark ? "text-gray-400" : "text-gray-500"}`}>{score}%</span>
               )}
             </div>

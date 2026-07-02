@@ -1,12 +1,12 @@
 import { createContext, useContext, useCallback, useState, useEffect, useRef } from "react";
-import { INITIAL_STATS, computeLevel, INITIAL_PROGRESS, MIN_CORRECT_TO_UNLOCK, WORDS_UNLOCK_THRESHOLD } from "../data/constants";
+import { INITIAL_STATS, computeLevel, MIN_CORRECT_TO_UNLOCK } from "../data/constants";
 import { saveStatsToServer, loadStatsFromServer, resetStatsOnServer } from "../helpers/serverSync";
 import { LETTER_GROUPS, NIKUD_GROUPS } from "../data/alphabet";
-import { recalcProgress, blockKey, getContinueTarget, recalcWordsProgress } from "../helpers/progressHelpers";
+import { deriveProgress, blockKey, sectionBlockToId } from "../helpers/progressHelpers";
 import { Analytics } from "../helpers/analytics";
 
 const STORAGE_KEY    = "hebrew-app-stats";
-const SCHEMA_VERSION = 5;
+const SCHEMA_VERSION = 7;
 
 const TGCloud = window.Telegram?.WebApp?.CloudStorage;
 function tgGet(k) { return new Promise((res,rej) => TGCloud.getItem(k,(e,v)=>e?rej(e):res(v))); }
@@ -96,13 +96,10 @@ function migrate(p) {
     }
     if (hasWords) blockScores[blockKey('words', 1)] = MIN_CORRECT_TO_UNLOCK;
 
-    // sounds[1] остаётся locked — откроется после L1+L2
-    p.progress    = recalcProgress(
-      { letters: lettersNew, sounds: soundsNew,
-        words:   { 1:'available',2:'locked',3:'locked',4:'locked',5:'locked' },
-        phrases: { 1:'available',2:'locked',3:'locked',4:'locked',5:'locked' } },
-      blockScores
-    );
+    // Статусы здесь не важны — шаг v7 пересчитает всё из фактов (deriveProgress)
+    p.progress    = { letters: lettersNew, sounds: soundsNew,
+      words:   { 1:'locked',2:'locked',3:'locked',4:'locked',5:'locked' },
+      phrases: { 1:'locked',2:'locked',3:'locked',4:'locked',5:'locked' } };
     p.blockScores = blockScores;
     p.testScores  = {};  // пересчитается при следующем тесте
 
@@ -126,6 +123,65 @@ function migrate(p) {
 
     p.version = 5;
   }
+
+  // v5 → v6: грамматические уроки (переходная схема, поглощается v7)
+  if (p.version < 6) {
+    p.lessonScores = p.lessonScores ?? {};
+    p.version = 6;
+  }
+
+  // v6 → v7: единый граф курса. Хранятся только ФАКТЫ (scores/blockScores/
+  // readingProgress), статусы всегда выводятся deriveProgress().
+  if (p.version < 7) {
+    const scores = { ...(p.scores || {}) };
+
+    // testScores 'letters_2'→'L1.2', 'sounds_3'→'N1.3'
+    Object.entries(p.testScores || {}).forEach(([key, val]) => {
+      const [section, n] = key.split('_');
+      const id = sectionBlockToId(section, Number(n));
+      if (id) scores[id] = Math.max(scores[id] ?? 0, val ?? 0);
+    });
+
+    // lessonScores 'C0':85 → scores как есть
+    Object.entries(p.lessonScores || {}).forEach(([id, val]) => {
+      scores[id] = Math.max(scores[id] ?? 0, val ?? 0);
+    });
+
+    // Блоки, помеченные done в старой матрице, не должны регресснуть:
+    // раньше done ставился за любой завершённый тест (даже <70%) — фиксируем
+    // фактом score = max(имеющийся, порог 70).
+    const oldProgress = p.progress || {};
+    for (const section of ['letters', 'sounds']) {
+      for (let n = 1; n <= 5; n++) {
+        if (oldProgress[section]?.[n] === 'done') {
+          const id = sectionBlockToId(section, n);
+          scores[id] = Math.max(scores[id] ?? 0, 70);
+        }
+      }
+    }
+    // words/phrases done жили на счётчиках blockScores — счётчики сохраняются как есть.
+
+    p.scores = scores;
+    delete p.testScores;
+    delete p.lessonScores;
+
+    p.version = 7;
+  }
+
+  // Накопительный словарь (единый поток слов): per-word прогресс.
+  // readingProgress.studied (массив id) остаётся фактом «слово введено»;
+  // words — детализация { id: { seen, correct, wrong } }. Идемпотентно.
+  p.readingProgress = p.readingProgress || { studied: [] };
+  if (!p.readingProgress.words) {
+    p.readingProgress.words = {};
+    (p.readingProgress.studied || []).forEach(id => {
+      p.readingProgress.words[id] = { seen: 1, correct: 0, wrong: 0 };
+    });
+  }
+
+  // Статусы — всегда свежая деривация из фактов (curriculum мог измениться
+  // между деплоями; хранимый progress — только кэш)
+  p.progress = deriveProgress(p);
 
   return p;
 }
@@ -297,13 +353,12 @@ export function StatsProvider({ children }) {
       const newScore     = isCorrect ? oldScore + 1 : oldScore;
       const newBlockScores = { ...prev.blockScores, [key]: newScore };
 
-      // Пересчитываем матрицу
-      const newProgress  = recalcProgress(prev.progress || INITIAL_PROGRESS, newBlockScores);
+      // Статусы всегда выводятся из фактов (v7)
+      const withFacts = { ...prev, blockScores: newBlockScores };
 
       const next = applyStreak({
-        ...prev,
-        blockScores:    newBlockScores,
-        progress:       newProgress,
+        ...withFacts,
+        progress:       deriveProgress(withFacts),
         totalAnswers:   (prev.totalAnswers||0)+1,
         correctAnswers: (prev.correctAnswers||0)+(isCorrect?1:0),
         xp:             (prev.xp||0)+(isCorrect?2:0),
@@ -313,32 +368,24 @@ export function StatsProvider({ children }) {
     });
   }, [scheduleSave]);
 
-  // ── Принудительное завершение блока (после теста ≥70%) ────────────────────
+  // ── Завершение теста блока (буквы/огласовки) ───────────────────────────────
+  // v7: пишем ФАКТ — процент теста в scores['L1.n'/'N1.n']. Блок становится done
+  // при score ≥ порога узла (70) ИЛИ через игровой путь (счётчики recordGameAnswer).
+  // Изменение против v5/v6: тест <70% больше НЕ помечает блок done принудительно.
   const completeBlock = useCallback((section, blockN, testScore) => {
     setStats(prev => {
-      const key = blockKey(section, blockN);
-      // Ставим счёт не ниже MIN_CORRECT_TO_UNLOCK
-      const newScore = Math.max(prev.blockScores?.[key] || 0, MIN_CORRECT_TO_UNLOCK);
-      const newBlockScores = { ...prev.blockScores, [key]: newScore };
+      const id = sectionBlockToId(section, blockN);
+      const newScores = {
+        ...(prev.scores || {}),
+        [id]: Math.max(prev.scores?.[id] ?? 0, testScore),
+      };
 
-      // Сохраняем процент теста
-      const testKey = `${section}_${blockN}`;
-      const newTestScores = { ...(prev.testScores || {}), [testKey]: Math.max(prev.testScores?.[testKey] || 0, testScore) };
-
-      // Пересчитываем матрицу
-      const newProgress = recalcProgress(prev.progress || INITIAL_PROGRESS, newBlockScores);
-
-      // Пересчитываем доступность слов на основе тестовых результатов
-      const newWordsProgress = recalcWordsProgress(newProgress.words || {}, newTestScores);
-      newProgress.words = newWordsProgress;
-
+      const withFacts = { ...prev, scores: newScores };
       const xpBonus = testScore >= 90 ? 80 : testScore >= 70 ? 50 : 10;
       const next = {
-        ...prev,
-        blockScores: newBlockScores,
-        testScores:  newTestScores,
-        progress:    newProgress,
-        xp:          (prev.xp||0) + xpBonus,
+        ...withFacts,
+        progress: deriveProgress(withFacts),
+        xp:       (prev.xp||0) + xpBonus,
       };
 
       // Реферальный бонус при первом блоке
@@ -356,6 +403,27 @@ export function StatsProvider({ children }) {
     });
   }, [scheduleSave]);
 
+  // ── Грамматические уроки (v6) ──────────────────────────────────────────────
+  /**
+   * Завершение грамматического урока.
+   * @param {string} lessonId — 'C0', 'M1.2', …
+   * @param {number|null} score — процент теста; null для уроков без теста
+   */
+  const completeLesson = useCallback((lessonId, score) => {
+    setStats(prev => {
+      const newScore = score == null ? 100 : Math.max(prev.scores?.[lessonId] ?? 0, score);
+      const withFacts = {
+        ...prev,
+        scores: { ...(prev.scores || {}), [lessonId]: newScore },
+      };
+      const xpBonus = newScore >= 90 ? 80 : newScore >= 70 ? 50 : 10;
+      const next = { ...withFacts, progress: deriveProgress(withFacts), xp: (prev.xp || 0) + xpBonus };
+      Analytics.lessonComplete(lessonId, newScore);
+      scheduleSave(next);
+      return next;
+    });
+  }, [scheduleSave]);
+
   // ── Обратная совместимость: старые экраны ─────────────────────────────────
   // LearnScreen / NikudScreen ещё используют completeGroupTest / completeNikudGroupTest
   const completeGroupTest = useCallback((groupId, score) => {
@@ -367,6 +435,55 @@ export function StatsProvider({ children }) {
   }, [completeBlock]);
 
   // ── SM-2 для огласовок ─────────────────────────────────────────────────────
+  // ── Накопительный словарь (сквозной поток слов) ────────────────────────────
+  /** Слово показано (карточка перевёрнута / встречено впервые). +2 XP за новое. */
+  const recordWordSeen = useCallback((id) => {
+    setStats(prev => {
+      const rp = prev.readingProgress || { studied: [], words: {} };
+      const words = { ...(rp.words || {}) };
+      const isNew = !rp.studied?.includes(id);
+      const w = words[id] || { seen: 0, correct: 0, wrong: 0 };
+      words[id] = { ...w, seen: w.seen + 1 };
+      const next = {
+        ...prev,
+        readingProgress: {
+          ...rp,
+          studied: isNew ? [...(rp.studied || []), id] : rp.studied,
+          words,
+        },
+        xp: (prev.xp || 0) + (isNew ? 2 : 0),
+      };
+      scheduleSave(next);
+      return next;
+    });
+  }, [scheduleSave]);
+
+  /** Ответ в квизе по слову. Правильный ответ также вводит слово в словарь. */
+  const recordWordAnswer = useCallback((id, isCorrect) => {
+    setStats(prev => {
+      const rp = prev.readingProgress || { studied: [], words: {} };
+      const words = { ...(rp.words || {}) };
+      const w = words[id] || { seen: 0, correct: 0, wrong: 0 };
+      words[id] = {
+        ...w,
+        correct: w.correct + (isCorrect ? 1 : 0),
+        wrong:   w.wrong   + (isCorrect ? 0 : 1),
+      };
+      const isNew = isCorrect && !rp.studied?.includes(id);
+      const next = {
+        ...prev,
+        readingProgress: {
+          ...rp,
+          studied: isNew ? [...(rp.studied || []), id] : rp.studied,
+          words,
+        },
+        xp: (prev.xp || 0) + (isNew ? 2 : 0),
+      };
+      scheduleSave(next);
+      return next;
+    });
+  }, [scheduleSave]);
+
   const updateVowelReview = useCallback((key, quality) => {
     setStats(prev => {
       const reviews = { ...(prev.vowelReviews || {}) };
@@ -490,12 +607,15 @@ export function StatsProvider({ children }) {
       // Матрица
       recordGameAnswer,
       completeBlock,
+      completeLesson,
       // Обратная совместимость
       completeGroupTest,
       completeNikudGroupTest,
       // SM-2
       updateCardReview,
       updateVowelReview,
+      recordWordSeen,
+      recordWordAnswer,
       getDueCards,
       getDueVowelCards,
       // Слова

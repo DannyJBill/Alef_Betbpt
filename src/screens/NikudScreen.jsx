@@ -92,11 +92,11 @@ function shuffle(arr) {
 }
 
 // ─── Главный компонент ────────────────────────────────────────────────────────
-export default function NikudScreen({ onBack }) {
+export default function NikudScreen({ onBack, onOpenReading, initialGroup }) {
   const { dark } = useTheme();
   const { stats, getDueVowelCards } = useStats();
   const [activeMode, setActiveMode] = useState(null); // null | 'learn' | 'cards'
-  const [activeGroup, setActiveGroup] = useState(null);
+  const [activeGroup, setActiveGroup] = useState(initialGroup ?? null);
 
   const p             = stats.progress || {};
   const lettersReady  = p.letters?.[1] === 'done' && p.letters?.[2] === 'done';
@@ -112,8 +112,9 @@ export default function NikudScreen({ onBack }) {
         groupId={activeGroup}
         dark={dark}
         stats={stats}
-        onBack={() => setActiveGroup(null)}
+        onBack={() => (initialGroup != null && onBack) ? onBack() : setActiveGroup(null)}
         onOpenGroup={setActiveGroup}
+        onOpenReading={onOpenReading}
       />
     );
   }
@@ -213,7 +214,7 @@ export default function NikudScreen({ onBack }) {
           </p>
           {NIKUD_GROUPS.map(g => {
             const status = p.sounds?.[g.id] || 'locked';
-            const score  = stats.testScores?.[`sounds_${g.id}`];
+            const score  = stats.scores?.[`N1.${g.id}`];
             return (
               <div key={g.id} className="flex items-center gap-3 py-1.5">
                 <span className="text-sm w-4">
@@ -440,7 +441,7 @@ function AllVowelCards({ dark, stats }) {
 function GroupsTab({ dark, stats, onOpenGroup }) {
   const nikudProgress = stats.progress?.sounds ||
     { 1:'available', 2:'locked', 3:'locked', 4:'locked', 5:'locked' };
-  const testScores    = stats.testScores || {};
+  const scores        = stats.scores || {};
 
   return (
     <div className="px-4 flex flex-col gap-3">
@@ -460,7 +461,7 @@ function GroupsTab({ dark, stats, onOpenGroup }) {
         const isLocked  = progress === 'locked';
         const isPaidGate = false;  // все группы временно бесплатны
         const completed = progress === 'done';
-        const score     = testScores[`sounds_${group.id}`];
+        const score     = scores[`N1.${group.id}`];
         const colors    = COLOR_MAP[group.color];
         const vowels    = NIKUD.filter(v => group.vowelIds.includes(v.id));
 
@@ -500,6 +501,9 @@ function GroupsTab({ dark, stats, onOpenGroup }) {
               )}
             </div>
 
+            {isLocked && getLockHint(`N1.${group.id}`, stats) && (
+              <p className="text-xs font-medium text-amber-600 mb-1">{getLockHint(`N1.${group.id}`, stats)}</p>
+            )}
             <p className={`text-xs mb-2 ${dark ? "text-gray-500" : "text-gray-400"}`}>{group.description}</p>
 
             {/* Знаки огласовок группы */}
@@ -1005,7 +1009,7 @@ function VowelReviewSession({ dueKeys, dark, onAnswer }) {
 }
 
 // ─── Урок группы ─────────────────────────────────────────────────────────────
-function GroupLesson({ groupId, dark, stats, onBack, onOpenGroup }) {
+function GroupLesson({ groupId, dark, stats, onBack, onOpenGroup, onOpenReading }) {
   const group  = NIKUD_GROUPS.find(g => g.id === groupId);
   const vowels = NIKUD.filter(v => group.vowelIds.includes(v.id));
   const colors = COLOR_MAP[group.color];
@@ -1117,6 +1121,8 @@ function GroupLesson({ groupId, dark, stats, onBack, onOpenGroup }) {
           dark={dark}
           onBack={onBack}
           onOpenGroup={onOpenGroup}
+          onOpenReading={onOpenReading}
+          stats={stats}
         />
       )}
     </div>
@@ -1673,7 +1679,7 @@ function TestScene({ vowels, previousVowels, allVowels, colors, dark, onDone }) 
 }
 
 // ─── Сцена: Result ────────────────────────────────────────────────────────────
-function ResultScene({ group, score, vowels, colors, dark, onBack, onOpenGroup }) {
+function ResultScene({ group, score, vowels, colors, dark, onBack, onOpenGroup, onOpenReading, stats }) {
   const isPassed  = score >= 70;
   const nextGroup = NIKUD_GROUPS.find(g => g.unlocksAfter === group.id);
 
@@ -1712,6 +1718,14 @@ function ResultScene({ group, score, vowels, colors, dark, onBack, onOpenGroup }
           {score}%
         </span>
       </div>
+
+      {/* Свежие порции слов в словаре */}
+      {isPassed && onOpenReading && getFreshPortions(stats).slice(0, 1).map(({ block, freshCount }) => (
+        <button key={block.id} onClick={() => onOpenReading(block.id)}
+          className="w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600">
+          📖 Изучить {freshCount} новых слов →
+        </button>
+      ))}
 
       {/* Что теперь умеешь */}
       {isPassed && (

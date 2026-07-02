@@ -11,7 +11,7 @@ import { ALL_LETTERS } from "../data/alphabet";
 const PATH_SECTIONS = [
   { id:"alphabet", icon:"🔤", label:"Буквы",      color:"indigo",  maxGroups:5 },
   { id:"nikud",    icon:"📖", label:"Огласовки",  color:"blue",    maxGroups:5 },
-  { id:"reading",  icon:"🗣️", label:"Чтение",     color:"emerald", maxGroups:3 },
+  { id:"reading",  icon:"📖", label:"Словарь",    color:"emerald", maxGroups:3 },
   { id:"words",    icon:"💬", label:"Разговор",      color:"amber",   maxGroups:16 },
 ];
 
@@ -39,8 +39,8 @@ function useSectionProgress(stats) {
   return {
     alphabet: { pct: pct(p.letters), done: [1,2,3,4,5].filter(n=>isDone(p.letters,n)).length, total:5, unlocked: true },
     nikud:    { pct: pct(p.sounds),  done: [1,2,3,4,5].filter(n=>isDone(p.sounds,n)).length,  total:5, unlocked: isDone(p.letters,1) && isDone(p.letters,2) },
-    reading:  { pct: 0, done:0, total:3, unlocked: checkReadingUnlock(1, p) },
-    words:    { pct: wordsPct, done: learnedWords, total: totalWords, unlocked: checkWordsUnlock(1, stats.testScores||{}) },
+    reading:  { pct: 0, done:0, total:3, unlocked: checkReadingUnlock(1, stats) },
+    words:    { pct: wordsPct, done: learnedWords, total: totalWords, unlocked: checkWordsUnlock(1, stats) },
   };
 }
 

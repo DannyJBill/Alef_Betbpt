@@ -42,10 +42,21 @@ export const INITIAL_BLOCK_SCORES = {};
 // Формат: { 'letters_2': 92, 'sounds_2': 88, ... }
 export const INITIAL_TEST_SCORES = {};
 
-// ─── Начальные stats (schema v5) ─────────────────────────────────────────────
+// ─── Прогресс грамматических уроков — начальные статусы ──────────────────────
+// (v7: статусы всегда выводятся deriveProgress из curriculum.js; это лишь
+//  корректное начальное значение для нового пользователя)
+export const INITIAL_LESSON_PROGRESS = {
+  syntax:     { 'C0': 'locked', 'C1': 'locked' },
+  morphology: { 'M1.2': 'locked', 'M1.3': 'locked', 'M1.4': 'locked' },
+};
+
+// ─── Начальные stats (schema v7) ─────────────────────────────────────────────
+// v7: хранятся только ФАКТЫ (scores, blockScores, readingProgress).
+// Статусы (progress) — производные, пересчитываются deriveProgress() из
+// data/curriculum.js при каждом изменении фактов и при загрузке (migrate).
 export const INITIAL_STATS = {
   // Мета
-  version: 5,
+  version: 7,
 
   // Геймификация
   xp: 0,
@@ -71,9 +82,15 @@ export const INITIAL_STATS = {
   premiumPurchasedAt: null,
   aiUsageToday:       { date: null, count: 0 },
 
-  // ── Матрица прогрессии ────────────────────────────────────────────────────
-  progress:    INITIAL_PROGRESS,   // статусы блоков
-  blockScores: INITIAL_BLOCK_SCORES, // счётчики правильных
+  // ── ФАКТЫ прогресса (v7) ──────────────────────────────────────────────────
+  // Проценты тестов, ключи = id узлов curriculum.js:
+  // 'L1.2': 85, 'N1.1': 90, 'C0': 85 (уроки без теста пишутся как 100)
+  scores: {},
+  // Счётчики правильных ответов в игре: 'letters_1': 12 (игровой путь к done)
+  blockScores: INITIAL_BLOCK_SCORES,
+
+  // ── Производное (кэш для экранов, пересчитывается deriveProgress) ─────────
+  progress:    { ...INITIAL_PROGRESS, ...INITIAL_LESSON_PROGRESS },
 
   // ── SM-2 карточки (буквы) ─────────────────────────────────────────────────
   cardReviews: {},   // letterId → { interval, repetitions, ef, nextReview }
@@ -86,9 +103,6 @@ export const INITIAL_STATS = {
   // ── Прогресс чтения ───────────────────────────────────────────────────────
   readingProgress: { studied: [] },
 
-  // ── Тестовые результаты блоков ────────────────────────────────────────────
-  // 'letters_2': 92 означает "тест блока 2 букв сдан на 92%"
-  testScores: {},
 };
 
 // ─── Константы ────────────────────────────────────────────────────────────────

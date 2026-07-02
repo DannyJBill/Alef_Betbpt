@@ -1,194 +1,257 @@
 /**
- * StudyScreen — 📚 Учиться
+ * StudyScreen — 📚 Учиться (перестройка 02.07.2026, вариант Б)
  *
- * Хаб для всех учебных модулей.
- * Секции: alphabet | nikud | reading | words
- * Каждая секция рендерит соответствующий экран.
+ * Два таба вместо пяти секций с хабами:
+ *   🛤 Путь        — вертикальная лента узлов курса в каноническом порядке
+ *                    (COURSE_PATH из curriculum.js). Тап по доступному узлу
+ *                    сразу открывает контент: группу букв/огласовок, порцию
+ *                    слов, грамматический урок — без промежуточных хабов.
+ *                    Тап по пройденному узлу — шпаргалка (CheatSheet) с
+ *                    кнопкой «Пройти заново».
+ *   📚 Мой словарь — накопитель слов (DictView внутри ReadingScreen dictOnly).
+ *
+ * Сплетение треков (v7.1) читается прямо на ленте: замки объясняются
+ * getLockHint. Старые экраны-хабы (AlphabetScreen, GrammarScreen, ReadingScreen
+ * feed) с этого экрана больше не открываются.
  */
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { LETTER_GROUPS, NIKUD_GROUPS } from "../data/alphabet";
-import { WORD_CATEGORIES } from "../data/words";
-import { levelProgress, WORDS_UNLOCK_THRESHOLD } from "../data/constants";
-import { checkWordsUnlock, checkReadingUnlock } from "../helpers/progressHelpers";
+import {
+  COURSE_PATH, CURRICULUM_BY_ID, getNodeStatus, getContinueNode,
+  getReadingBlockStudiedPct, isReadingBlockUnlocked, getLockHint,
+} from "../data/curriculum";
+import { READING_BLOCKS } from "../data/reading";
+import { GRAMMAR_LESSONS_BY_ID } from "../data/grammarLessons";
 
-import AlphabetScreen from "./AlphabetScreen";
-import NikudScreen    from "./NikudScreen";
-import WordsScreen    from "./WordsScreen";
-import ReadingScreen  from "./ReadingScreen";
+import LearnScreen   from "./LearnScreen";
+import NikudScreen   from "./NikudScreen";
+import ReadingScreen from "./ReadingScreen";
+import LessonScreen  from "./LessonScreen";
+import CheatSheet    from "./CheatSheet";
 
-// ─── Цвета секций ──────────────────────────────────────────────────────────────
-const SEC_COLORS = {
-  alphabet: { from:"from-indigo-500",  to:"to-purple-600",  light:"bg-indigo-50 dark:bg-indigo-900/20",  text:"text-indigo-600 dark:text-indigo-400",  bar:"bg-indigo-500",  border:"border-indigo-200 dark:border-indigo-800" },
-  nikud:    { from:"from-blue-500",    to:"to-cyan-600",    light:"bg-blue-50 dark:bg-blue-900/20",      text:"text-blue-600 dark:text-blue-400",      bar:"bg-blue-500",    border:"border-blue-200 dark:border-blue-800" },
-  reading:  { from:"from-emerald-500", to:"to-teal-600",    light:"bg-emerald-50 dark:bg-emerald-900/20",text:"text-emerald-600 dark:text-emerald-400", bar:"bg-emerald-500", border:"border-emerald-200 dark:border-emerald-800" },
-  words:    { from:"from-amber-500",   to:"to-orange-600",  light:"bg-amber-50 dark:bg-amber-900/20",    text:"text-amber-600 dark:text-amber-400",     bar:"bg-amber-500",   border:"border-amber-200 dark:border-amber-800" },
+// ─── Представление узла в ленте ───────────────────────────────────────────────
+
+const KIND_META = {
+  letters: { icon: "🔤", color: "indigo" },
+  sounds:  { icon: "🎵", color: "blue" },
+  reading: { icon: "📖", color: "emerald" },
+  grammar: { icon: "🧩", color: "violet" },
 };
 
-const SECTIONS = [
-  { id:"alphabet", icon:"🔤", label:"Буквы",     sub:"22 буквы · 5 групп" },
-  { id:"nikud",    icon:"📖", label:"Огласовки", sub:"9 знаков · 5 групп" },
-  { id:"reading",  icon:"🗣️", label:"Чтение",   sub:"Слоги и слова" },
-  { id:"words",    icon:"💬", label:"Разговор",  sub:"Слова и фразы" },
-];
+function nodeView(item, stats) {
+  // Порция урока (R1.x) — не узел графа
+  const block = READING_BLOCKS.find(b => b.id === item.id);
+  if (item.inDev) {
+    return { id: item.id, kind: 'grammar', title: item.title, sub: 'в разработке',
+             status: 'indev', icon: item.icon || '🧩' };
+  }
+  const node = CURRICULUM_BY_ID[item.id];
+  if (!node && block) {
+    const unlocked = isReadingBlockUnlocked(block, stats);
+    const pct = getReadingBlockStudiedPct(item.id, stats);
+    return {
+      id: item.id, kind: 'reading',
+      title: block.title,
+      sub: !unlocked
+        ? `после урока ${block.lesson}`
+        : `${block.items.length} слов` + (block.review?.length ? ` + ${block.review.length} повт.` : ''),
+      status: !unlocked ? 'locked' : pct >= 1 ? 'done' : 'available',
+      pct, icon: '📖',
+    };
+  }
+  if (!node) return null;
 
-function useSectionStats(stats) {
-  const p = stats.progress || {};
-  const ts = stats.testScores || {};
-  const pct = (sectionP) => {
-    const done = [1,2,3,4,5].filter(n => sectionP?.[n] === "done").length;
-    return Math.round((done / 5) * 100);
-  };
-  const alphaDone = [1,2,3,4,5].filter(n=>p.letters?.[n]==="done").length;
-  const nikudDone = [1,2,3,4,5].filter(n=>p.sounds?.[n]==="done").length;
-  const readingUnlocked = checkReadingUnlock(1, p);
-  const wordsUnlocked   = checkWordsUnlock(1, ts);
-  const totalWords = WORD_CATEGORIES.reduce((s,c)=>s+c.words.length,0);
-  const learnedW   = Object.keys(stats.wordsCorrect||{}).filter(k=>(stats.wordsCorrect[k]||0)>=2).length;
-  const l2score = ts['letters_2'] || 0;
-  const s2score = ts['sounds_2']  || 0;
-
-  return {
-    alphabet: { pct: pct(p.letters), sub:`${alphaDone}/5 групп`, unlocked:true },
-    nikud:    { pct: pct(p.sounds),  sub: p.letters?.[2]==='done'||p.sounds?.[1]==='available'||p.sounds?.[1]==='done' ? `${nikudDone}/5 групп` : "После Букв гр.1+2", unlocked: p.letters?.[1]==='done' && p.letters?.[2]==='done' },
-    reading:  { pct: 0, sub: readingUnlocked ? "Доступно" : `Буквы 1 + Звуки 1`, unlocked: readingUnlocked },
-    words:    {
-      pct: totalWords ? Math.round((learnedW/totalWords)*100) : 0,
-      sub: wordsUnlocked ? `${learnedW}/${totalWords} слов` : `Буквы 2 (${l2score}%) + Звуки 2 (${s2score}%) ≥${WORDS_UNLOCK_THRESHOLD}%`,
-      unlocked: wordsUnlocked
-    },
-  };
+  const status = getNodeStatus(item.id, stats);
+  let title = item.id, sub = '';
+  if (node.kind === 'letters') {
+    const g = LETTER_GROUPS.find(g => g.id === node.block);
+    title = `Буквы · ${g?.name || node.block}`;
+    sub = g?.description || '';
+  } else if (node.kind === 'sounds') {
+    const g = NIKUD_GROUPS.find(g => g.id === node.block);
+    title = `Огласовки · ${g?.name || node.block}`;
+    sub = g?.description || '';
+  } else if (node.kind === 'reading') {
+    const b = READING_BLOCKS.find(b => b.id === item.id);
+    title = b?.title || item.id;
+    const pct = getReadingBlockStudiedPct(item.id, stats);
+    sub = `${b?.items.length ?? 0} слов` + (b?.mode === 'preview' ? ' · 🔊 на слух' : '');
+    return { id: item.id, kind: 'reading', title, sub, status,
+             pct, icon: '📖', preview: b?.mode === 'preview' };
+  } else if (node.kind === 'grammar') {
+    const l = GRAMMAR_LESSONS_BY_ID[item.id];
+    title = l?.title || item.id;
+    sub = l?.tagline || 'Грамматика';
+  }
+  return { id: item.id, kind: node.kind, title, sub, status,
+           score: stats.scores?.[item.id], icon: KIND_META[node.kind]?.icon || '📘' };
 }
 
+// ─── Строка узла ──────────────────────────────────────────────────────────────
 
-
-// ─── Карточка секции ──────────────────────────────────────────────────────────
-function SectionCard({ section, stat, dark, onClick }) {
-  const c = SEC_COLORS[section.id];
-  const locked = !stat.unlocked;
+function PathNode({ v, dark, isCurrent, lockHint, onOpen }) {
+  const done = v.status === 'done';
+  const locked = v.status === 'locked' || v.status === 'indev';
+  const base = dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100";
 
   return (
-    <button onClick={() => !locked && onClick(section.id)}
+    <button
+      onClick={() => !locked && onOpen(v)}
       disabled={locked}
-      className={`rounded-2xl p-4 border text-left transition-all w-full
-        ${locked
-          ? dark ? "opacity-40 bg-gray-800 border-gray-700" : "opacity-40 bg-gray-50 border-gray-200"
-          : dark ? `${c.light} ${c.border} active:scale-[0.98]` : `${c.light} ${c.border} active:scale-[0.98]`
-        }`}>
-      <div className="flex items-center gap-3">
-        {/* Иконка */}
-        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${c.from} ${c.to} flex items-center justify-center text-2xl flex-shrink-0
-          ${locked ? "opacity-50 grayscale" : ""}`}>
-          {locked ? "🔒" : section.icon}
-        </div>
-        {/* Текст */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1">
-            <span className="font-bold text-sm text-gray-900">{section.label}</span>
-            <span className={`text-xs font-bold ${locked ? "text-gray-400" : c.text}`}>
-              {locked ? "Закрыто" : stat.pct >= 100 ? "✅" : `${stat.pct}%`}
-            </span>
+      className={`w-full text-left rounded-2xl border p-3.5 flex items-center gap-3 transition-all
+        ${locked ? `opacity-55 ${base}` : base}
+        ${isCurrent ? "ring-2 ring-emerald-400" : ""}`}
+    >
+      <span className="text-2xl w-9 text-center shrink-0">
+        {done ? "✅" : locked ? "🔒" : v.icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className={`font-bold text-sm truncate ${dark ? "text-white" : "text-gray-900"}`}>
+          {v.title}
+        </p>
+        <p className="text-xs text-gray-400 truncate">
+          {v.status === 'indev' ? 'скоро — урок в разработке' : (lockHint || v.sub)}
+        </p>
+        {v.kind === 'reading' && !locked && !done && v.pct > 0 && (
+          <div className={`h-1 rounded-full mt-1.5 ${dark ? "bg-gray-700" : "bg-gray-100"}`}>
+            <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.round(v.pct * 100)}%` }}/>
           </div>
-          <p className={"text-xs mb-1.5 text-gray-500"}>{stat.sub}</p>
-          {!locked && (
-            <div className={`h-1.5 rounded-full ${dark?"bg-gray-700":"bg-gray-200"}`}>
-              <div className={`h-full rounded-full transition-all ${c.bar}`}
-                style={{ width:`${stat.pct}%` }} />
-            </div>
-          )}
-        </div>
-        {!locked && <span className="text-lg flex-shrink-0 text-gray-400">›</span>}
+        )}
       </div>
+      <span className="shrink-0 text-xs font-bold">
+        {done && v.score != null && <span className="text-emerald-500">{v.score}%</span>}
+        {done && v.score == null && <span className="text-emerald-500">100%</span>}
+        {isCurrent && <span className="text-emerald-500">← ты здесь</span>}
+      </span>
     </button>
   );
 }
 
-// ─── Главный компонент ────────────────────────────────────────────────────────
-export default function StudyScreen({ initialSection, onClearSection }) {
+// ─── Главный экран ────────────────────────────────────────────────────────────
+
+export default function StudyScreen({ initialSection }) {
   const { dark } = useTheme();
   const { stats } = useStats();
-  const [section, setSection] = useState(initialSection || null);
-  const [alphaMode, setAlphaMode] = useState(null);
+  const [tab, setTab] = useState(initialSection === 'reading' ? 'dict' : 'path');
+  // active: { type:'letters'|'sounds'|'portion'|'grammar'|'sheet', ... }
+  const [active, setActive] = useState(null);
+  const [readingTarget, setReadingTarget] = useState(null);
 
-  const secStats = useSectionStats(stats);
+  const continueId = getContinueNode(stats);
 
-  // Когда App.jsx передаёт initialSection через navigateToStudy
-  useEffect(() => {
-    if (initialSection) {
-      setSection(initialSection);
-      onClearSection?.();
+  // CTA «Изучить N новых слов» из результатов уроков → сразу в порцию
+  function openReading(blockId) {
+    setActive({ type: 'portion', id: blockId });
+    setReadingTarget(null);
+  }
+
+  function openNode(v) {
+    if (v.status === 'done') {
+      setActive({ type: 'sheet', v });
+      return;
     }
-  }, [initialSection]);
+    startNode(v);
+  }
 
-  function openSection(id) { setSection(id); setAlphaMode(null); }
-  function goBack() { setSection(null); setAlphaMode(null); }
+  function startNode(v) {
+    if (v.kind === 'letters') setActive({ type: 'letters', group: Number(v.id.split('.')[1]) });
+    else if (v.kind === 'sounds') setActive({ type: 'sounds', group: Number(v.id.split('.')[1]) });
+    else if (v.kind === 'reading') setActive({ type: 'portion', id: v.id });
+    else if (v.kind === 'grammar') setActive({ type: 'grammar', id: v.id });
+  }
 
-  // ── Рендер активной секции ─────────────────────────────────────────────────
-  if (section === "alphabet") return (
-    <AlphabetScreen
-      activeMode={alphaMode}
-      setActiveMode={setAlphaMode}
-      onBack={goBack}
-    />
-  );
-  if (section === "nikud")   return <NikudScreen onBack={goBack} />;
-  if (section === "reading") return <ReadingScreen onBack={goBack} />;
-  if (section === "words")   return <WordsScreen onBack={goBack} />;
+  const back = () => setActive(null);
 
-  // ── Список секций ──────────────────────────────────────────────────────────
-  const alphaDoneGroups = Object.values(stats.groupProgress||{}).filter(v=>v==="completed").length;
-  const dueCards = stats.cardReviews ? Object.keys(stats.cardReviews).length : 0;
+  // ── Активный контент (вместо ленты) ──
+  if (active?.type === 'letters')
+    return <LearnScreen initialGroup={active.group} onBack={back} onOpenReading={openReading} />;
+  if (active?.type === 'sounds')
+    return <NikudScreen initialGroup={active.group} onBack={back} onOpenReading={openReading} />;
+  if (active?.type === 'portion')
+    return <ReadingScreen soloBlock={active.id} onBack={back} />;
+  if (active?.type === 'grammar') {
+    const lesson = GRAMMAR_LESSONS_BY_ID[active.id];
+    return <LessonScreen lesson={lesson} onBack={back} onOpenReading={openReading} />;
+  }
+  if (active?.type === 'sheet') {
+    const v = active.v;
+    return (
+      <CheatSheet
+        nodeId={v.id} kind={v.kind} title={v.title} dark={dark}
+        onBack={back}
+        onRetake={() => startNode(v)}
+      />
+    );
+  }
+
+  // ── Лента ──
+  const TABS = [
+    { id: 'path', icon: '🛤', label: 'Путь' },
+    { id: 'dict', icon: '📚', label: 'Мой словарь' },
+  ];
 
   return (
-    <div className="pb-24 px-4 pt-4 max-w-md mx-auto flex flex-col gap-3">
-      <div className="pt-1 pb-1">
-        <h2 className={`text-xl font-bold ${dark?"text-white":"text-gray-900"}`}>Учиться</h2>
-        <p className={`text-xs mt-0.5 ${dark?"text-gray-400":"text-gray-500"}`}>Выбери раздел или продолжи с того места</p>
+    <div className="pb-24 max-w-md mx-auto">
+      <div className="px-4 pt-4 pb-3">
+        <h2 className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>Учиться</h2>
       </div>
 
-      {/* Кнопка "Продолжить" — умный быстрый старт */}
-      <ContinueButton stats={stats} secStats={secStats} dark={dark} onOpen={openSection} />
-
-      {/* Секции */}
-      {SECTIONS.map(s => (
-        <SectionCard key={s.id} section={s} stat={secStats[s.id]} dark={dark} onClick={openSection} />
-      ))}
-    </div>
-  );
-}
-
-// ─── Умная кнопка "Продолжить" ────────────────────────────────────────────────
-function ContinueButton({ stats, secStats, dark, onOpen }) {
-  // Определяем что сейчас актуальнее всего
-  const p  = stats.progress || {};
-  const ts = stats.testScores || {};
-  const alphaDone = [1,2,3,4,5].filter(n=>p.letters?.[n]==="done").length;
-  const nikudDone = [1,2,3,4,5].filter(n=>p.sounds?.[n]==="done").length;
-  const dueCards   = Object.entries(stats.cardReviews||{}).filter(([,r]) => {
-    if (!r?.nextReview) return false;
-    return new Date(r.nextReview) <= new Date();
-  }).length;
-
-  let target = "alphabet";
-  let label  = "Учить буквы";
-  let sub    = alphaDone < 5 ? `Группа ${alphaDone + 1} из 5` : "Повторить алфавит";
-
-  if (dueCards > 0) { label = `Повторить ${dueCards} букв`; sub = "SM-2 карточки готовы"; }
-  else if (alphaDone >= 1 && nikudDone < 5) { target = "nikud"; label = "Учить огласовки"; sub = `Группа ${nikudDone + 1} из 5`; }
-  else if (nikudDone >= 5) { target = "words"; label = "Учить слова"; sub = "Словарный тренажёр"; }
-
-  return (
-    <button onClick={() => onOpen(target)}
-      className="w-full rounded-2xl p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-left active:scale-[0.98] transition-all">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="font-bold text-sm">▶ Продолжить</p>
-          <p className="text-xs opacity-80 mt-0.5">{label} · {sub}</p>
+      <div className="px-4 mb-4">
+        <div className={`flex rounded-2xl p-1 ${dark ? "bg-gray-800" : "bg-gray-100"}`}>
+          {TABS.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-1.5
+                ${tab === t.id
+                  ? dark ? "bg-gray-700 text-white shadow" : "bg-white text-gray-900 shadow"
+                  : dark ? "text-gray-400" : "text-gray-500"}`}>
+              <span>{t.icon}</span><span>{t.label}</span>
+            </button>
+          ))}
         </div>
-        <span className="text-2xl">→</span>
       </div>
-    </button>
+
+      {tab === 'dict' ? (
+        <ReadingScreen dictOnly />
+      ) : (
+        <div className="px-4 flex flex-col gap-4">
+          {/* Продолжить */}
+          {continueId && (
+            <button
+              onClick={() => {
+                const item = COURSE_PATH.flatMap(c => c.items).find(i => i.id === continueId);
+                const v = item && nodeView(item, stats);
+                if (v) startNode(v);
+              }}
+              className="w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600">
+              ▶ Продолжить
+            </button>
+          )}
+
+          {COURSE_PATH.map(ch => (
+            <div key={ch.chapter}>
+              <p className={`text-xs font-bold uppercase tracking-wide mb-2 ${dark ? "text-gray-500" : "text-gray-400"}`}>
+                {ch.chapter}
+              </p>
+              <div className="flex flex-col gap-2">
+                {ch.items.map(item => {
+                  const v = nodeView(item, stats);
+                  if (!v) return null;
+                  const lockHint = v.status === 'locked' && CURRICULUM_BY_ID[v.id]
+                    ? getLockHint(v.id, stats) : null;
+                  return (
+                    <PathNode key={v.id} v={v} dark={dark}
+                      isCurrent={v.id === continueId}
+                      lockHint={lockHint}
+                      onOpen={openNode} />
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

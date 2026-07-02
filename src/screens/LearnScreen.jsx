@@ -3,6 +3,8 @@ import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { LETTER_GROUPS } from "../data/alphabet";
 import { getGroupLetters, isGroupUnlocked, getGroupMastery, GROUP_COLORS } from "../helpers/groupHelpers";
+import { getFreshPortions } from "../helpers/progressHelpers";
+import { getLockHint } from "../data/curriculum";
 import HebrewKeyboard from "../components/ui/HebrewKeyboard";
 import { speakLetter } from "../helpers/speak";
 
@@ -12,11 +14,13 @@ function shuffle(arr) {
   return a;
 }
 
-export default function LearnScreen() {
+export default function LearnScreen({ onOpenReading, initialGroup, onBack }) {
   const { dark } = useTheme();
   const { stats, updateStats, completeGroupTest } = useStats();
-  const [phase, setPhase]         = useState('groups');
-  const [groupId, setGroupId]     = useState(null);
+  const [phase, setPhase]         = useState(initialGroup ? 'studying' : 'groups');
+  // Выход из урока: при прямом входе из «Пути» — назад в Путь, иначе — к списку групп
+  const exitLesson = () => { if (initialGroup && onBack) onBack(); else setPhase('groups'); };
+  const [groupId, setGroupId]     = useState(initialGroup ?? null);
   const [letterIdx, setLetterIdx] = useState(0);
   const [questions, setQuestions] = useState([]);
   const [qIdx, setQIdx]           = useState(0);
@@ -105,6 +109,7 @@ const fixedColors = group ? (FIXED_CARD_COLORS[group.color] || {}) : {};
         const unlocked = isGroupUnlocked(g.id, stats.progress?.letters);
         const progress = stats.progress?.letters?.[g.id];
         const mastery  = getGroupMastery(g.id, stats.cardReviews);
+        const lockHint = !unlocked ? getLockHint(`L1.${g.id}`, stats) : null;
         const letters  = getGroupLetters(g.id);
         const c        = GROUP_COLORS[g.color];
         const score    = stats.blockScores || {}?.[g.id]?.score;
@@ -124,6 +129,9 @@ const fixedColors = group ? (FIXED_CARD_COLORS[group.color] || {}) : {};
                 </span>
               )}
             </div>
+            {lockHint && (
+              <p className="text-xs font-medium text-amber-600 mt-1">{lockHint}</p>
+            )}
             {unlocked && (
               <>
                 <div className="flex gap-1 mb-2 flex-wrap">
@@ -314,15 +322,21 @@ const fixedColors = group ? (FIXED_CARD_COLORS[group.color] || {}) : {};
             <p className={`text-lg font-bold mt-1 ${GROUP_COLORS[nextGrp.color].text}`}>{nextGrp.name}</p>
           </div>
         )}
+        {isPassed && onOpenReading && getFreshPortions(stats).slice(0, 1).map(({ block, freshCount }) => (
+          <button key={block.id} onClick={() => onOpenReading(block.id)}
+            className="w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600">
+            📖 Изучить {freshCount} новых слов →
+          </button>
+        ))}
         {isPassed ? (
           <div className="w-full flex flex-col gap-3">
             {nextGrp && (
-              <button onClick={() => setPhase('groups')}
+              <button onClick={exitLesson}
                 className={`w-full py-4 rounded-2xl font-bold text-white text-lg ${colors.fill}`}>
                 Перейти к «{nextGrp.name}» →
               </button>
             )}
-            <button onClick={() => setPhase('groups')}
+            <button onClick={exitLesson}
               className={`w-full py-3 rounded-2xl border font-medium ${dark ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
               К списку групп
             </button>
@@ -333,7 +347,7 @@ const fixedColors = group ? (FIXED_CARD_COLORS[group.color] || {}) : {};
               className="w-full py-4 rounded-2xl bg-amber-500 text-white font-bold text-lg">
               Повторить буквы и пересдать
             </button>
-            <button onClick={() => setPhase('groups')}
+            <button onClick={exitLesson}
               className={`w-full py-3 rounded-2xl border font-medium ${dark ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-500'}`}>
               Вернуться к группам
             </button>

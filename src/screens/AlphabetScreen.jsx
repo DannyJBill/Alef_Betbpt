@@ -9,7 +9,7 @@ import { ALL_LETTERS } from "../data/alphabet";
 import LearnScreen  from "./LearnScreen";
 import CardsScreen  from "./CardsScreen";
 
-export default function AlphabetScreen({ activeMode, setActiveMode, onBack }) {
+export default function AlphabetScreen({ activeMode, setActiveMode, onBack, onOpenReading }) {
   const { dark } = useTheme();
   const { stats, getDueCards } = useStats();
   const active = activeMode;
@@ -28,7 +28,7 @@ export default function AlphabetScreen({ activeMode, setActiveMode, onBack }) {
           {{ learn: "Учиться", cards: "Карточки", game: "Игра" }[active]}
         </span>
       </div>
-      {active === "learn"  && <LearnScreen />}
+      {active === "learn"  && <LearnScreen onOpenReading={onOpenReading} />}
       {active === "cards"  && <CardsScreen />}
     </div>
   );

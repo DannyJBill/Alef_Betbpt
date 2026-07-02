@@ -25,7 +25,7 @@ function buildQuestionPool(stats, topics) {
 
   // Доступные буквы — fallback на первые 6 если ничего не открыто
   const unlockedLetters = ALPHABET.filter(l =>
-    LETTER_GROUPS.find(g => g.letterIds.includes(l.id) && stats.groupProgress?.[g.id] !== "locked")
+    LETTER_GROUPS.find(g => g.letterIds.includes(l.id) && stats.progress?.letters?.[g.id] !== "locked")
   );
   const gameLetters = unlockedLetters.length >= 4 ? unlockedLetters : ALPHABET.slice(0, 6);
 
@@ -42,7 +42,7 @@ function buildQuestionPool(stats, topics) {
 
   // Пройденные огласовки
   const doneNikudGroups = NIKUD_GROUPS.filter(g =>
-    stats.nikudProgress?.groupProgress?.[g.id] === "completed"
+    stats.progress?.sounds?.[g.id] === "done"
   );
   const unlockedVowels = doneNikudGroups.flatMap(g => g.vowels.map(vid => NIKUD.find(v => v.id === vid)).filter(Boolean));
 
@@ -57,7 +57,7 @@ function buildQuestionPool(stats, topics) {
 
   // Слова
   if (topics.includes("words")) {
-    const learnedWordIds = new Set(stats.nikudProgress?.wordsStudied || []);
+    const learnedWordIds = new Set(stats.wordsStudied || []);
     const allWords = WORD_CATEGORIES.flatMap(c => c.words.filter(w => learnedWordIds.has(w.id)));
     if (allWords.length >= 4) {
       allWords.forEach(w => {
@@ -273,9 +273,9 @@ function TrainingMenu({ stats, dark, onStart }) {
   }
 
   // Проверяем доступность тем
-  const unlockedAlpha  = ALPHABET.filter(l => LETTER_GROUPS.find(g => g.letterIds.includes(l.id) && stats.groupProgress?.[g.id] !== "locked")).length;
-  const unlockedNikud  = NIKUD_GROUPS.filter(g => stats.nikudProgress?.groupProgress?.[g.id] === "completed").length;
-  const learnedWords   = (stats.nikudProgress?.wordsStudied || []).length;
+  const unlockedAlpha  = ALPHABET.filter(l => LETTER_GROUPS.find(g => g.letterIds.includes(l.id) && stats.progress?.letters?.[g.id] !== "locked")).length;
+  const unlockedNikud  = NIKUD_GROUPS.filter(g => stats.progress?.sounds?.[g.id] === "done").length;
+  const learnedWords   = (stats.wordsStudied || []).length;
 
   const topicAvail = {
     alphabet: unlockedAlpha >= 4,
@@ -357,15 +357,15 @@ export default function GameScreen() {
   const [showTraining, setShowTraining] = useState(false);
 
   const unlockedLetters = ALPHABET.filter(l =>
-    LETTER_GROUPS.find(g => g.letterIds.includes(l.id) && stats.groupProgress?.[g.id] !== "locked")
+    LETTER_GROUPS.find(g => g.letterIds.includes(l.id) && stats.progress?.letters?.[g.id] !== "locked")
   );
   const hasEnoughForGame = unlockedLetters.length >= 4;
 
   function startRated() {
     // Рейтинговая: всё пройденное, буквы всегда включены
     const topics = ["alphabet"];
-    if (NIKUD_GROUPS.some(g => stats.nikudProgress?.groupProgress?.[g.id] === "completed")) topics.push("nikud");
-    if ((stats.nikudProgress?.wordsStudied||[]).length >= 4) topics.push("words");
+    if (NIKUD_GROUPS.some(g => stats.progress?.sounds?.[g.id] === "done")) topics.push("nikud");
+    if ((stats.wordsStudied||[]).length >= 4) topics.push("words");
     setConfig({ topics, timeLimit: 60, isRated: true });
     setPhase("playing");
     setShowTraining(false);
@@ -456,8 +456,8 @@ export default function GameScreen() {
   // ── Главное меню игры ──────────────────────────────────────────────────────
   const ratedTopics = [];
   if (unlockedLetters.length >= 4) ratedTopics.push("Буквы");
-  if (NIKUD_GROUPS.some(g => stats.nikudProgress?.groupProgress?.[g.id] === "completed")) ratedTopics.push("Огласовки");
-  if ((stats.nikudProgress?.wordsStudied||[]).length >= 4) ratedTopics.push("Слова");
+  if (NIKUD_GROUPS.some(g => stats.progress?.sounds?.[g.id] === "done")) ratedTopics.push("Огласовки");
+  if ((stats.wordsStudied||[]).length >= 4) ratedTopics.push("Слова");
 
   return (
     <div className="pb-24 px-4 pt-6 max-w-md mx-auto">

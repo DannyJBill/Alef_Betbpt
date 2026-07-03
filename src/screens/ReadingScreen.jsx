@@ -5,7 +5,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
-import { READING_BLOCKS, READING_ITEMS, getBlockCards } from "../data/reading";
+import { READING_BLOCKS, READING_ITEMS, PHRASE_LOCKS, getUnlockedPhraseLocks, getBlockCards } from "../data/reading";
 import { ALPHABET, LETTER_GROUPS } from "../data/alphabet";
 import { isReadingBlockUnlocked } from "../data/curriculum";
 import { getKnownLetters, filterReadable } from "../helpers/vocab";
@@ -351,6 +351,39 @@ function statusOf(w) {
   return { dot: "bg-amber-400", label: "учу" };
 }
 
+// «Ты уже можешь сказать» — фразы-замки зоны 0, собранные из изученных слов.
+function PhraseLocksSection({ studied, dark }) {
+  const unlocked = getUnlockedPhraseLocks(studied);
+  const lockedCount = PHRASE_LOCKS.length - unlocked.length;
+  if (unlocked.length === 0 && lockedCount === 0) return null;
+  return (
+    <div className={`rounded-2xl border p-4 ${dark?"bg-gray-800 border-gray-700":"bg-white border-gray-100"}`}>
+      <p className={`text-sm font-bold mb-1 ${dark?"text-white":"text-gray-900"}`}>✨ Ты уже можешь сказать</p>
+      {unlocked.length === 0 ? (
+        <p className="text-xs text-gray-400">Учи слова — фразы из них будут открываться здесь.</p>
+      ) : (
+        <div className={`divide-y ${dark?"divide-gray-700":"divide-gray-100"}`}>
+          {unlocked.map(p => (
+            <div key={p.id} className="py-2">
+              <div className="flex items-center gap-2">
+                <span className={`text-lg font-bold ${dark?"text-white":"text-gray-900"}`} dir="rtl">{p.hebrew}</span>
+                {p.audio && (
+                  <button onClick={() => playAudio(p.audio)}
+                    className="text-sm opacity-60 active:scale-95">🔊</button>
+                )}
+              </div>
+              <p className={`text-xs ${dark?"text-gray-400":"text-gray-500"}`}>{p.transliteration} — {p.translation}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {lockedCount > 0 && (
+        <p className="text-[11px] text-gray-400 mt-2">🔒 ещё {lockedCount} — откроются с новыми словами</p>
+      )}
+    </div>
+  );
+}
+
 function DictView({ stats, dark, onOpen }) {
   const [q, setQ] = useState("");
   const wordsMap = stats.readingProgress?.words || {};
@@ -399,6 +432,9 @@ function DictView({ stats, dark, onOpen }) {
           </button>
         </div>
       </div>
+
+      {/* Фразы-замки: «ты уже можешь сказать» */}
+      <PhraseLocksSection studied={studied} dark={dark} />
 
       {/* Поиск */}
       <input value={q} onChange={e => setQ(e.target.value)} placeholder="Поиск по словарю…"

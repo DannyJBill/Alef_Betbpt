@@ -6,7 +6,7 @@
 import { deriveProgress, getNodeStatus, isNodeDone, getReadingBlockStudiedPct, isReadingBlockUnlocked, getLockHint } from '../src/data/curriculum.js';
 import { checkReadingUnlock, checkWordsUnlock, getFreshPortions } from '../src/helpers/progressHelpers.js';
 import { GRAMMAR_LESSONS } from '../src/data/grammarLessons.js';
-import { READING_BLOCKS, READING_ITEMS, getBlockCards } from '../src/data/reading.js';
+import { READING_BLOCKS, READING_ITEMS, getBlockCards, PHRASE_LOCKS, getUnlockedPhraseLocks } from '../src/data/reading.js';
 import { getKnownLetters, isReadableByLetters } from '../src/helpers/vocab.js';
 import { ALPHABET, LETTER_GROUPS } from '../src/data/alphabet.js';
 
@@ -152,6 +152,63 @@ check('цепочка CH1.1→CH1.2→CH1.3', isNodeDone('CH1.2', gCh) && getNod
 const r128 = READING_BLOCKS.find(b => b.id === 'R1.28');
 check('R1.28: 5 items, открыт после CH1.3', !!r128 && r128.items.length === 5 && isReadingBlockUnlocked(r128, { ...gCh, scores: { ...gCh.scores, 'CH1.3': 90 } }) && !isReadingBlockUnlocked(r128, gCh));
 check('все уроки уровня 1 имеют practiceItems', GRAMMAR_LESSONS.filter(l => l.level === 1).every(l => l.practiceItems.length >= 5));
+
+// ── 12d. Фразы-замки зоны 0 ──
+check('PHRASE_LOCKS: 16 фраз, все composedOf-ссылки валидны',
+  PHRASE_LOCKS.length === 16 &&
+  PHRASE_LOCKS.every(p => p.composedOf.length >= 2 && p.composedOf.every(id => READING_ITEMS.some(i => i.id === id))));
+check('фразы-замки: пустой словарь → 0 открытых', getUnlockedPhraseLocks([]).length === 0);
+check('фразы-замки: зэ+тов открывает pl_01, но не pl_02 (нет לא)',
+  getUnlockedPhraseLocks(['rw_18','rw_32']).some(p => p.id === 'pl_01') &&
+  !getUnlockedPhraseLocks(['rw_18','rw_32']).some(p => p.id === 'pl_02'));
+check('фразы-замки: полный словарь → все 16 открыты',
+  getUnlockedPhraseLocks(READING_ITEMS.map(i => i.id)).length === 16);
+
+// ── 12e. Глаголы Г1 ──
+check('G1.1 locked до M1.4', getNodeStatus('G1.1', g) === 'locked');
+const gM14 = { ...g2, scores: { ...g2.scores, 'M1.4': 95 } };
+check('G1.1 available после M1.4', getNodeStatus('G1.1', gM14) === 'available');
+check('G1.1 без practiceItems (урок-концепция), G1.6 порог 90',
+  GRAMMAR_LESSONS.find(l => l.id === 'G1.1').practiceItems.length === 0 &&
+  GRAMMAR_LESSONS.find(l => l.id === 'G1.6').threshold === 90);
+const gG = { ...gM14, scores: { ...gM14.scores, 'G1.1': 100, 'G1.2': 80, 'G1.3': 75, 'G1.4': 85, 'G1.5': 72, 'G1.6': 89 } };
+check('G1.6=89 < 90 → не done', !isNodeDone('G1.6', gG));
+check('G1.6=90 → done', isNodeDone('G1.6', { ...gG, scores: { ...gG.scores, 'G1.6': 90 } }));
+const r130 = READING_BLOCKS.find(b => b.id === 'R1.30');
+check('R1.30: 6 items, открыт после G1.2', !!r130 && r130.items.length === 6 && isReadingBlockUnlocked(r130, gG) && !isReadingBlockUnlocked(r130, gM14));
+check('G1-порции: review-ссылки валидны',
+  ['R1.30','R1.31','R1.32','R1.33','R1.34'].every(bid =>
+    READING_BLOCKS.find(b => b.id === bid).review.every(id => READING_ITEMS.some(i => i.id === id))));
+
+// ── 12f. C2 + CH1.4 (уровень 2 полностью) ──
+check('C2 available после G1.4 (не ждёт G1.6)', getNodeStatus('C2', { ...gG, scores: { ...gG.scores, 'G1.6': 0 } }) === 'available');
+check('CH1.4 available после CH1.3', getNodeStatus('CH1.4', { ...gCh, scores: { ...gCh.scores, 'CH1.3': 90 } }) === 'available');
+check('CH1.4 locked без CH1.3', getNodeStatus('CH1.4', gCh) === 'locked');
+check('R1.36: 5 ж.р. чисел, review валиден',
+  (() => { const b = READING_BLOCKS.find(x => x.id === 'R1.36');
+    return b && b.items.length === 5 && b.review.every(id => READING_ITEMS.some(i => i.id === id)); })());
+check('уровень 2 полностью: 8 уроков в коде',
+  ['G1.1','G1.2','G1.3','G1.4','G1.5','G1.6','C2','CH1.4'].every(id => GRAMMAR_LESSONS.some(l => l.id === id)));
+
+// ── 12g. Уровень 3 (M2, C3, G2, C4, CH2.1) ──
+const gL2 = { ...gG, scores: { ...gG.scores, 'G1.6': 95, 'C2': 80, 'CH1.4': 80 } };
+check('M2.1 и G2.1 available после G1.6', getNodeStatus('M2.1', gL2) === 'available' && getNodeStatus('G2.1', gL2) === 'available');
+check('M2.1 locked до G1.6', getNodeStatus('M2.1', gG) === 'locked');
+const gM2 = { ...gL2, scores: { ...gL2.scores, 'M2.1': 80, 'M2.2': 80, 'M2.3': 80, 'M2.4': 80, 'M2.5': 80, 'M2.6': 80 } };
+check('C3 available после M2.6, M2.7 после C3', getNodeStatus('C3', gM2) === 'available' &&
+  getNodeStatus('M2.7', { ...gM2, scores: { ...gM2.scores, 'C3': 75 } }) === 'available');
+const gC4a = { ...gM2, scores: { ...gM2.scores, 'C3': 80, 'M2.7': 80, 'M2.8': 80, 'M2.9': 95, 'G2.1': 80 } };
+check('C4 требует ОБА: M2.9 и G2.2', getNodeStatus('C4', gC4a) === 'locked' &&
+  getNodeStatus('C4', { ...gC4a, scores: { ...gC4a.scores, 'G2.2': 80 } }) === 'available');
+check('M2.9 порог 90: 89 не done', !isNodeDone('M2.9', { ...gM2, scores: { ...gM2.scores, 'C3': 80, 'M2.7': 80, 'M2.8': 80, 'M2.9': 89 } }));
+check('CH2.1 после CH1.4', getNodeStatus('CH2.1', gL2) === 'available');
+check('уровень 3: все 16 уроков в коде и в графе',
+  ['M2.1','M2.2','M2.3','M2.4','M2.5','M2.6','C3','M2.7','M2.8','M2.9','G2.1','G2.2','G2.3','G2.4','C4','CH2.1']
+    .every(id => GRAMMAR_LESSONS.some(l => l.id === id) && getNodeStatus(id, g) === 'locked'));
+check('порции уровня 3: R1.37–R1.52 существуют, review валидны',
+  ['R1.37','R1.38','R1.39','R1.40','R1.41','R1.42','R1.43','R1.44','R1.45','R1.46','R1.47','R1.48','R1.49','R1.50','R1.51','R1.52']
+    .every(bid => { const b = READING_BLOCKS.find(x => x.id === bid);
+      return b && b.items.length >= 3 && b.review.every(id => READING_ITEMS.some(i => i.id === id)); }));
 
 // ── 13. Единый поток: свежие порции для CTA ──
 const freshStats = { scores: { 'L1.1': 80 }, blockScores: {},

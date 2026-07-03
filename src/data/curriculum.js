@@ -92,6 +92,38 @@ export const CURRICULUM = [
   { id: 'CH1.1', kind: 'grammar', module: 'numbers', requires: ['M1.3'],  done: { type: 'score', threshold: 70 } },
   { id: 'CH1.2', kind: 'grammar', module: 'numbers', requires: ['CH1.1'], done: { type: 'score', threshold: 70 } },
   { id: 'CH1.3', kind: 'grammar', module: 'numbers', requires: ['CH1.2'], done: { type: 'score', threshold: 70 } },
+
+  // ── Глагол — Г1, паАль настоящее (открывается после M1 done = M1.4) ──
+  { id: 'G1.1', kind: 'grammar', module: 'verb', requires: ['M1.4'], done: { type: 'score', threshold: 70 } },
+  { id: 'G1.2', kind: 'grammar', module: 'verb', requires: ['G1.1'], done: { type: 'score', threshold: 70 } },
+  { id: 'G1.3', kind: 'grammar', module: 'verb', requires: ['G1.2'], done: { type: 'score', threshold: 70 } },
+  { id: 'G1.4', kind: 'grammar', module: 'verb', requires: ['G1.3'], done: { type: 'score', threshold: 70 } },
+  { id: 'G1.5', kind: 'grammar', module: 'verb', requires: ['G1.4'], done: { type: 'score', threshold: 70 } },
+  { id: 'G1.6', kind: 'grammar', module: 'verb', requires: ['G1.5'], done: { type: 'score', threshold: 90 } },
+
+  // ── Уровень 2: сквозной C2 и числа CH1.4 ──
+  { id: 'C2',    kind: 'grammar', module: 'syntax',  requires: ['G1.4'],  done: { type: 'score', threshold: 70 } },
+  { id: 'CH1.4', kind: 'grammar', module: 'numbers', requires: ['CH1.3'], done: { type: 'score', threshold: 70 } },
+
+  // ── Уровень 3: М2 (мн.ч.+предлоги), С3, Г2, С4, Ч2 ──
+  // ⚠️ Реестр: «М2 ← порции уровня 1 изучены + G1 done». Гейт по порциям R1.2x
+  //    не реализован (они не узлы графа) — пока только G1.6. Решить с Daniel.
+  { id: 'M2.1', kind: 'grammar', module: 'morphology', requires: ['G1.6'], done: { type: 'score', threshold: 70 } },
+  { id: 'M2.2', kind: 'grammar', module: 'morphology', requires: ['M2.1'], done: { type: 'score', threshold: 70 } },
+  { id: 'M2.3', kind: 'grammar', module: 'morphology', requires: ['M2.2'], done: { type: 'score', threshold: 70 } },
+  { id: 'M2.4', kind: 'grammar', module: 'morphology', requires: ['M2.3'], done: { type: 'score', threshold: 70 } },
+  { id: 'M2.5', kind: 'grammar', module: 'morphology', requires: ['M2.4'], done: { type: 'score', threshold: 70 } },
+  { id: 'M2.6', kind: 'grammar', module: 'morphology', requires: ['M2.5'], done: { type: 'score', threshold: 70 } },
+  { id: 'C3',   kind: 'grammar', module: 'syntax',     requires: ['M2.6'], done: { type: 'score', threshold: 70 } },
+  { id: 'M2.7', kind: 'grammar', module: 'morphology', requires: ['C3'],   done: { type: 'score', threshold: 70 } },
+  { id: 'M2.8', kind: 'grammar', module: 'morphology', requires: ['M2.7'], done: { type: 'score', threshold: 70 } },
+  { id: 'M2.9', kind: 'grammar', module: 'morphology', requires: ['M2.8'], done: { type: 'score', threshold: 90 } },
+  { id: 'G2.1', kind: 'grammar', module: 'verb', requires: ['G1.6'], done: { type: 'score', threshold: 70 } },
+  { id: 'G2.2', kind: 'grammar', module: 'verb', requires: ['G2.1'], done: { type: 'score', threshold: 70 } },
+  { id: 'G2.3', kind: 'grammar', module: 'verb', requires: ['G2.2'], done: { type: 'score', threshold: 70 } },
+  { id: 'G2.4', kind: 'grammar', module: 'verb', requires: ['G2.3'], done: { type: 'score', threshold: 90 } },
+  { id: 'C4',   kind: 'grammar', module: 'syntax',   requires: ['M2.9', 'G2.2'], done: { type: 'score', threshold: 70 } },
+  { id: 'CH2.1', kind: 'grammar', module: 'numbers', requires: ['CH1.4'], done: { type: 'score', threshold: 70 } },
 ];
 
 export const CURRICULUM_BY_ID = Object.fromEntries(CURRICULUM.map(n => [n.id, n]));
@@ -255,6 +287,40 @@ export const COURSE_PATH = [
       { id: 'CH1.1' }, { id: 'R1.26' },
       { id: 'CH1.2' }, { id: 'R1.27' },
       { id: 'CH1.3' }, { id: 'R1.28' },
+    ],
+  },
+  {
+    chapter: 'Уровень 2',
+    items: [
+      { id: 'G1.1' },
+      { id: 'G1.2' }, { id: 'R1.30' },
+      { id: 'G1.3' }, { id: 'R1.31' },
+      { id: 'G1.4' }, { id: 'R1.32' },
+      { id: 'G1.5' }, { id: 'R1.33' },
+      { id: 'G1.6' }, { id: 'R1.34' },
+      { id: 'C2' },    { id: 'R1.35' },
+      { id: 'CH1.4' }, { id: 'R1.36' },
+    ],
+  },
+  {
+    chapter: 'Уровень 3',
+    items: [
+      { id: 'M2.1' }, { id: 'R1.37' },
+      { id: 'M2.2' }, { id: 'R1.38' },
+      { id: 'M2.3' }, { id: 'R1.39' },
+      { id: 'M2.4' }, { id: 'R1.40' },
+      { id: 'M2.5' }, { id: 'R1.41' },
+      { id: 'M2.6' }, { id: 'R1.42' },
+      { id: 'C3' },   { id: 'R1.43' },
+      { id: 'M2.7' }, { id: 'R1.44' },
+      { id: 'M2.8' }, { id: 'R1.45' },
+      { id: 'M2.9' }, { id: 'R1.46' },
+      { id: 'G2.1' }, { id: 'R1.47' },
+      { id: 'G2.2' }, { id: 'R1.48' },
+      { id: 'G2.3' }, { id: 'R1.49' },
+      { id: 'G2.4' }, { id: 'R1.50' },
+      { id: 'C4' },   { id: 'R1.51' },
+      { id: 'CH2.1' }, { id: 'R1.52' },
     ],
   },
 ];

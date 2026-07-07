@@ -64,6 +64,14 @@ export const CURRICULUM = [
   { id: 'VN1.4', kind: 'reading', requires: ['N1.4'],          done: { type: 'studied', threshold: 1 } },
   { id: 'VN1.5', kind: 'reading', requires: ['N1.5', 'L1.4'],  done: { type: 'studied', threshold: 1 } },
 
+  // ── Фонетика (дагеш, шва) — надстройка над зоной 0 ──
+  // D1.1 — концепция (без теста); D1.3 требует M1.1 (артикль) → ставится в ленте после него.
+  { id: 'D1.1',  kind: 'grammar', module: 'phonetics', requires: ['N1.5'],  done: { type: 'score', threshold: 70 } },
+  { id: 'D1.2',  kind: 'grammar', module: 'phonetics', requires: ['D1.1'],  done: { type: 'score', threshold: 70 } },
+  { id: 'SH1.1', kind: 'grammar', module: 'phonetics', requires: ['D1.2'],  done: { type: 'score', threshold: 70 } },
+  { id: 'SH1.2', kind: 'grammar', module: 'phonetics', requires: ['SH1.1'], done: { type: 'score', threshold: 70 } },
+  { id: 'D1.3',  kind: 'grammar', module: 'phonetics', requires: ['M1.1'],  done: { type: 'score', threshold: 70 } },
+
   // ── Разговор (W1-5) — done через игровые счётчики (как раньше) ──
   // 🟡 R1-конфликт (ранний словарь vs финал уровня 6) НЕ решён — условия
   // сохранены как в действующем checkWordsUnlock. Менять здесь, когда решится.
@@ -83,22 +91,22 @@ export const CURRICULUM = [
   // ── Грамматика — уровень 1 (перенесено из мастерской 01-02.07.2026) ──
   { id: 'C0',   kind: 'grammar', module: 'syntax',     requires: ['VL1.3'],  done: { type: 'score', threshold: 70 } },
   { id: 'M1.1', kind: 'grammar', module: 'morphology', requires: ['C0'],   done: { type: 'score', threshold: 70 } },
-  { id: 'C1',   kind: 'grammar', module: 'syntax',     requires: ['M1.1'],   done: { type: 'score', threshold: 70 } },
+  { id: 'C1',   kind: 'grammar', module: 'syntax',     requires: ['M1.4'],   done: { type: 'score', threshold: 70 } },
   { id: 'M1.2', kind: 'grammar', module: 'morphology', requires: ['M1.1'],   done: { type: 'score', threshold: 70 } },
   { id: 'M1.3', kind: 'grammar', module: 'morphology', requires: ['M1.2'],   done: { type: 'score', threshold: 70 } },
   { id: 'M1.4', kind: 'grammar', module: 'morphology', requires: ['M1.3'],   done: { type: 'score', threshold: 90 } },
 
   // ── Числа — Ч1 (открывается после M1.3) ──
-  { id: 'CH1.1', kind: 'grammar', module: 'numbers', requires: ['M1.3'],  done: { type: 'score', threshold: 70 } },
+  { id: 'CH1.1', kind: 'grammar', module: 'numbers', requires: ['M1.3', 'L1.4'],  done: { type: 'score', threshold: 70 } },
   { id: 'CH1.2', kind: 'grammar', module: 'numbers', requires: ['CH1.1'], done: { type: 'score', threshold: 70 } },
   { id: 'CH1.3', kind: 'grammar', module: 'numbers', requires: ['CH1.2'], done: { type: 'score', threshold: 70 } },
 
   // ── Глагол — Г1, паАль настоящее (открывается после M1 done = M1.4) ──
-  { id: 'G1.1', kind: 'grammar', module: 'verb', requires: ['M1.4'], done: { type: 'score', threshold: 70 } },
+  { id: 'G1.1', kind: 'grammar', module: 'verb', requires: ['M1.4', 'N1.5'], done: { type: 'score', threshold: 70 } },
   { id: 'G1.2', kind: 'grammar', module: 'verb', requires: ['G1.1'], done: { type: 'score', threshold: 70 } },
   { id: 'G1.3', kind: 'grammar', module: 'verb', requires: ['G1.2'], done: { type: 'score', threshold: 70 } },
   { id: 'G1.4', kind: 'grammar', module: 'verb', requires: ['G1.3'], done: { type: 'score', threshold: 70 } },
-  { id: 'G1.5', kind: 'grammar', module: 'verb', requires: ['G1.4'], done: { type: 'score', threshold: 70 } },
+  { id: 'G1.5', kind: 'grammar', module: 'verb', requires: ['C2'],   done: { type: 'score', threshold: 70 } },
   { id: 'G1.6', kind: 'grammar', module: 'verb', requires: ['G1.5'], done: { type: 'score', threshold: 90 } },
 
   // ── Уровень 2: сквозной C2 и числа CH1.4 ──
@@ -118,7 +126,7 @@ export const CURRICULUM = [
   { id: 'M2.7', kind: 'grammar', module: 'morphology', requires: ['C3'],   done: { type: 'score', threshold: 70 } },
   { id: 'M2.8', kind: 'grammar', module: 'morphology', requires: ['M2.7'], done: { type: 'score', threshold: 70 } },
   { id: 'M2.9', kind: 'grammar', module: 'morphology', requires: ['M2.8'], done: { type: 'score', threshold: 90 } },
-  { id: 'G2.1', kind: 'grammar', module: 'verb', requires: ['G1.6'], done: { type: 'score', threshold: 70 } },
+  { id: 'G2.1', kind: 'grammar', module: 'verb', requires: ['M2.9'], done: { type: 'score', threshold: 70 } },
   { id: 'G2.2', kind: 'grammar', module: 'verb', requires: ['G2.1'], done: { type: 'score', threshold: 70 } },
   { id: 'G2.3', kind: 'grammar', module: 'verb', requires: ['G2.2'], done: { type: 'score', threshold: 70 } },
   { id: 'G2.4', kind: 'grammar', module: 'verb', requires: ['G2.3'], done: { type: 'score', threshold: 90 } },
@@ -273,20 +281,22 @@ export const COURSE_PATH = [
       { id: 'L1.3' }, { id: 'VL1.3' }, { id: 'N1.3' }, { id: 'VN1.3' },
       { id: 'L1.4' }, { id: 'VL1.4' }, { id: 'N1.4' }, { id: 'VN1.4' },
       { id: 'L1.5' }, { id: 'N1.5' }, { id: 'VN1.5' },
+      { id: 'D1.1' }, { id: 'D1.2' }, { id: 'SH1.1' }, { id: 'SH1.2' },
     ],
   },
   {
     chapter: 'Уровень 1 · Именное предложение и артикль',
     items: [
       { id: 'C0' },   { id: 'R1.20' },
-      { id: 'M1.1' }, { id: 'R1.21' },
-      { id: 'C1' },   { id: 'R1.22' },
+      { id: 'M1.1' }, { id: 'R1.21' }, { id: 'D1.3' },
       { id: 'M1.2' }, { id: 'R1.23' },
       { id: 'M1.3' }, { id: 'R1.24' },
       { id: 'M1.4' }, { id: 'R1.25' },
+      { id: 'C1' },   { id: 'R1.22' },
       { id: 'CH1.1' }, { id: 'R1.26' },
       { id: 'CH1.2' }, { id: 'R1.27' },
       { id: 'CH1.3' }, { id: 'R1.28' },
+      { id: 'CH1.4' }, { id: 'R1.36' },
     ],
   },
   {
@@ -296,10 +306,9 @@ export const COURSE_PATH = [
       { id: 'G1.2' }, { id: 'R1.30' },
       { id: 'G1.3' }, { id: 'R1.31' },
       { id: 'G1.4' }, { id: 'R1.32' },
+      { id: 'C2' },   { id: 'R1.35' },
       { id: 'G1.5' }, { id: 'R1.33' },
       { id: 'G1.6' }, { id: 'R1.34' },
-      { id: 'C2' },    { id: 'R1.35' },
-      { id: 'CH1.4' }, { id: 'R1.36' },
     ],
   },
   {

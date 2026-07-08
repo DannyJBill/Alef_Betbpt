@@ -13,6 +13,16 @@
 import { ALPHABET, LETTER_GROUPS, NIKUD, NIKUD_GROUPS } from "../data/alphabet";
 import { READING_BLOCKS, getBlockCards } from "../data/reading";
 import { GRAMMAR_LESSONS_BY_ID } from "../data/grammarLessons";
+import { RichText } from "../helpers/richText";
+
+// Акцент callout/иврита по модулю урока
+const MODULE_C = {
+  syntax:     { soft: "bg-violet-50", bar: "bg-violet-500", text: "text-violet-700" },
+  morphology: { soft: "bg-teal-50",   bar: "bg-teal-500",   text: "text-teal-700" },
+  verb:       { soft: "bg-orange-50", bar: "bg-orange-500", text: "text-orange-700" },
+  numbers:    { soft: "bg-sky-50",    bar: "bg-sky-500",    text: "text-sky-700" },
+  phonetics:  { soft: "bg-emerald-50",bar: "bg-emerald-500",text: "text-emerald-700" },
+};
 
 function playAudio(file) {
   if (!file) return;
@@ -110,21 +120,27 @@ function PortionSheet({ nodeId, dark }) {
 function GrammarSheet({ nodeId, dark }) {
   const lesson = GRAMMAR_LESSONS_BY_ID[nodeId];
   if (!lesson) return null;
+  const c = MODULE_C[lesson.module] || MODULE_C.syntax;
   return (
     <div className="flex flex-col gap-3">
       {lesson.rule && (
-        <div className={`rounded-2xl border p-4 ${dark?"bg-gray-800 border-gray-700":"bg-white border-gray-100"}`}>
-          <p className={`font-bold text-sm mb-1 ${dark?"text-white":"text-gray-900"}`}>Правило</p>
-          <p className={`text-sm whitespace-pre-line ${dark?"text-gray-300":"text-gray-600"}`}>{lesson.rule}</p>
+        <div className="rounded-2xl border border-gray-100 bg-white p-4">
+          <p className="font-bold text-sm mb-2 text-gray-900">Правило</p>
+          <RichText text={lesson.rule} c={c} />
         </div>
       )}
       {(lesson.examples || []).length > 0 && (
-        <div className={`rounded-2xl border divide-y ${dark?"bg-gray-800 border-gray-700 divide-gray-700":"bg-white border-gray-100 divide-gray-100"}`}>
+        <div className="rounded-2xl border border-gray-100 bg-white divide-y divide-gray-100">
           {lesson.examples.map((ex, i) => (
             <div key={i} className="px-4 py-2.5">
-              <div className={`text-lg font-bold ${dark?"text-white":"text-gray-900"}`} dir="rtl">{ex.hebrew}</div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-gray-900" dir="rtl" style={{ fontFamily: "'Noto Sans Hebrew', sans-serif" }}>{ex.hebrew}</span>
+                {ex.audio && (
+                  <button onClick={() => playAudio(ex.audio)} aria-label="Озвучить" className="text-sm active:scale-95">🔊</button>
+                )}
+              </div>
               <div className="text-xs text-gray-400">{ex.translit}</div>
-              <div className={`text-sm ${dark?"text-gray-300":"text-gray-600"}`}>{ex.ru}</div>
+              <div className="text-sm text-gray-600">{ex.ru}</div>
             </div>
           ))}
         </div>

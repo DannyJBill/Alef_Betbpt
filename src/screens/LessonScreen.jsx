@@ -27,6 +27,7 @@ import { useState, useMemo } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { shuffle } from "../helpers/utils";
+import { RichText, renderInline } from "../helpers/richText";
 
 const MODULE_COLORS = {
   syntax:     { grad: "from-violet-500 to-purple-600", text: "text-violet-700", soft: "bg-violet-50", border: "border-violet-200", bar: "bg-violet-500", fill: "bg-violet-500" },
@@ -60,105 +61,6 @@ function SpeakBtn({ file, className = "" }) {
   return (
     <button onClick={e => { e.stopPropagation(); playAudio(file); }}
       aria-label="Озвучить" className={`active:scale-95 ${className}`}>🔊</button>
-  );
-}
-
-// Иконка callout по лейблу. "> важно: ..." → ⚠️ важно. Дефолт — 💡 суть.
-const LABEL_ICON = { "суть": "💡", "важно": "⚠️", "внимание": "⚠️", "запомни": "📌", "пример": "📝", "совет": "💬", "исключение": "❗" };
-
-// ── Инлайн: подсветка иврита + **жирный** ─────────────────────────────────────
-function renderSegment(text, c, keyBase) {
-  const tokens = text.split(/(\s+)/);
-  const nodes = [];
-  let buf = [];
-  const flushHe = () => {
-    if (!buf.length) return;
-    nodes.push(
-      <span key={`${keyBase}-h${nodes.length}`} dir="rtl"
-        className={`font-semibold ${c.text}`} style={{ ...HEB_FONT, fontSize: "1.08em" }}>
-        {buf.join("")}
-      </span>
-    );
-    buf = [];
-  };
-  tokens.forEach((tok, i) => {
-    if (tok.trim() === "") { buf.length ? buf.push(tok) : nodes.push(tok); }
-    else if (HE.test(tok)) { buf.push(tok); }
-    else { flushHe(); nodes.push(<span key={`${keyBase}-t${i}`}>{tok}</span>); }
-  });
-  flushHe();
-  return nodes;
-}
-
-function renderInline(text, c, keyBase) {
-  return text.split(/(\*\*[^*]+\*\*)/).map((seg, i) => {
-    if (seg.startsWith("**") && seg.endsWith("**")) {
-      return (
-        <span key={`${keyBase}-b${i}`} className="font-bold text-gray-900">
-          {renderSegment(seg.slice(2, -2), c, `${keyBase}-b${i}`)}
-        </span>
-      );
-    }
-    return <span key={`${keyBase}-s${i}`}>{renderSegment(seg, c, `${keyBase}-s${i}`)}</span>;
-  });
-}
-
-// ── Блочный парсер: абзацы / callout / список ─────────────────────────────────
-function parseBlocks(raw = "") {
-  const blocks = [];
-  let bullets = null, callout = null;
-  const flush = () => {
-    if (bullets) { blocks.push({ type: "list", items: bullets }); bullets = null; }
-    if (callout) { blocks.push({ type: "callout", lines: callout }); callout = null; }
-  };
-  for (const line of raw.split("\n")) {
-    const t = line.trim();
-    if (!t) { flush(); continue; }
-    if (t.startsWith(">")) { if (bullets) flush(); (callout ||= []).push(t.replace(/^>\s?/, "")); }
-    else if (/^[-•]\s/.test(t)) { if (callout) flush(); (bullets ||= []).push(t.replace(/^[-•]\s+/, "")); }
-    else { flush(); blocks.push({ type: "p", text: t }); }
-  }
-  flush();
-  return blocks;
-}
-
-function RichText({ text, c }) {
-  const blocks = useMemo(() => parseBlocks(text), [text]);
-  return (
-    <div className="flex flex-col gap-3">
-      {blocks.map((b, i) => {
-        if (b.type === "callout") {
-          const m = b.lines[0].match(/^([^:]{1,20}):\s+(.+)$/);
-          const label = (m ? m[1] : "суть").trim().toLowerCase();
-          const body = m ? [m[2], ...b.lines.slice(1)] : b.lines;
-          const icon = LABEL_ICON[label] || "💡";
-          return (
-            <div key={i} className={`flex gap-3 rounded-xl p-3.5 ${c.soft}`}>
-              <div className={`w-1 rounded-full flex-shrink-0 ${c.bar}`} />
-              <div className="flex-1">
-                <div className={`text-[11px] font-bold uppercase tracking-wide mb-1 ${c.text}`}>{icon} {label}</div>
-                {body.map((ln, j) => (
-                  <p key={j} className="text-[15px] leading-relaxed text-gray-800">{renderInline(ln, c, `c${i}-${j}`)}</p>
-                ))}
-              </div>
-            </div>
-          );
-        }
-        if (b.type === "list") return (
-          <ul key={i} className="flex flex-col gap-1.5 pl-1">
-            {b.items.map((it, j) => (
-              <li key={j} className={`flex gap-2.5 ${TYPO.ruleText} text-gray-800`}>
-                <span className={`mt-2 w-1.5 h-1.5 rounded-full flex-shrink-0 ${c.bar}`} />
-                <span className="flex-1">{renderInline(it, c, `l${i}-${j}`)}</span>
-              </li>
-            ))}
-          </ul>
-        );
-        return (
-          <p key={i} className={`${TYPO.ruleText} text-gray-800`}>{renderInline(b.text, c, `p${i}`)}</p>
-        );
-      })}
-    </div>
   );
 }
 
@@ -240,7 +142,7 @@ export default function LessonScreen({ lesson, onBack, onOpenReading }) {
     <div className="pb-24 px-4 pt-4 max-w-md mx-auto">
       {header}
       <StepDots total={stepTotal} idx={sceneIdx} c={c} />
-      <div className="rounded-2xl p-5 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+      <div className="rounded-2xl p-5 bg-white border border-gray-100">
         <RichText text={lesson.rule} c={c} />
       </div>
       {lesson.notes && (

@@ -27,13 +27,13 @@ function metaFor(blockId) {
   return BLOCK_META.lesson;
 }
 
+// Показывать транслит под словом-вопросом в квизе «что значит?».
+// false — иврит голый (сама проверка чтения); true — транслит-подсказка везде.
+const SHOW_TRANSLIT_IN_QUIZ = false;
+
 function playAudio(filename) {
   if (!filename) return;
-  const a = new Audio(`/reading/${filename}`);
-  a.play().catch(() => {
-    const b = new Audio(`/words499/${filename}`);
-    b.play().catch(() => {});
-  });
+  new Audio(`/reading/${filename}`).play().catch(() => {});
 }
 
 // Единая проверка «читаемо по буквам» — helpers/vocab.js
@@ -235,6 +235,9 @@ function LearnMode({ items, pool, blockN, dark, onBack, onAnswer }) {
         ${dark?"bg-gray-800":"bg-white border border-gray-100 shadow-sm"}`}>
         <span style={{fontFamily:"serif", fontSize:46, direction:"rtl"}}
           className={dark?"text-white":"text-gray-900"}>{current?.hebrew}</span>
+        {SHOW_TRANSLIT_IN_QUIZ && current?.transliteration && (
+          <span className={`text-sm mt-1 ${dark?"text-gray-400":"text-gray-500"}`}>{current.transliteration}</span>
+        )}
         {current?.audio && (
           <button onClick={() => playAudio(current.audio)}
             className="text-xl mt-1 active:scale-95">🔊</button>
@@ -448,8 +451,16 @@ function DictView({ stats, dark, onOpen }) {
           return (
             <div key={i.id} className="flex items-center gap-3 px-4 py-2.5">
               <span className={`w-2 h-2 rounded-full shrink-0 ${st.dot}`} title={st.label}/>
-              <span className={`text-lg font-bold shrink-0 ${dark?"text-white":"text-gray-900"}`} dir="rtl">{i.hebrew}</span>
-              <span className={`text-sm truncate flex-1 text-left ${dark?"text-gray-400":"text-gray-500"}`}>{i.translation}</span>
+              <span className={`text-lg font-bold shrink-0 w-24 ${dark?"text-white":"text-gray-900"}`} dir="rtl">{i.hebrew}</span>
+              <div className="min-w-0 flex-1 text-left">
+                <p className={`text-sm truncate ${dark?"text-gray-300":"text-gray-700"}`}>{i.translation}</p>
+                {i.transliteration && (
+                  <p className="text-[11px] text-gray-400 truncate">{i.transliteration}</p>
+                )}
+              </div>
+              {i.audio && (
+                <button onClick={() => playAudio(i.audio)} className="text-base shrink-0 active:scale-95" aria-label="Озвучить">🔊</button>
+              )}
               {i.lesson && <span className="text-[10px] text-gray-400 shrink-0">{i.lesson}</span>}
             </div>
           );

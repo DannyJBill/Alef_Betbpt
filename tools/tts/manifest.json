@@ -1,5 +1,23 @@
 [
  {
+  "id": "rw_10",
+  "text": "אַבָּא",
+  "file": "rw_10.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_12",
+  "text": "אַהֲבָה",
+  "file": "rw_12.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rw_45",
+  "text": "בָּאָה",
+  "file": "rw_45.mp3",
+  "gender": "f"
+ },
+ {
   "id": "rv_d01",
   "text": "דָּג",
   "file": "rv_d01.mp3",
@@ -10,6 +28,546 @@
   "text": "גַּג",
   "file": "rv_d02.mp3",
   "gender": "m"
+ },
+ {
+  "id": "rw_07",
+  "text": "הִיא",
+  "file": "rw_07.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rw_11",
+  "text": "חָלָב",
+  "file": "rw_11.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_54",
+  "text": "חַג",
+  "file": "rw_54.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_55",
+  "text": "טִיוּל",
+  "file": "rw_55.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_56",
+  "text": "אוּלַי",
+  "file": "rw_56.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_57",
+  "text": "אַז",
+  "file": "rw_57.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_01",
+  "text": "אִימָא",
+  "file": "rw_01.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_02",
+  "text": "יַיִן",
+  "file": "rw_02.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_03",
+  "text": "מַיִם",
+  "file": "rw_03.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_04",
+  "text": "אֲנִי",
+  "file": "rw_04.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_13",
+  "text": "חַם",
+  "file": "rw_13.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_19",
+  "text": "מִי",
+  "file": "rp_19.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_20",
+  "text": "מַה",
+  "file": "rp_20.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_16",
+  "text": "כַּמָּה",
+  "file": "rp_16.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_18",
+  "text": "לָמָה",
+  "file": "rp_18.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rp_33",
+  "text": "חוּמוּס",
+  "file": "rp_33.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_34",
+  "text": "בָּלָאגָן",
+  "file": "rp_34.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_33",
+  "text": "עוּגָה",
+  "file": "rw_33.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rw_39",
+  "text": "טָעִים",
+  "file": "rw_39.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_30",
+  "text": "עֲלִייָּה",
+  "file": "rp_30.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_09",
+  "text": "לֶחֶם",
+  "file": "rw_09.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_25",
+  "text": "הֵם",
+  "file": "rp_25.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_16",
+  "text": "יֶלֶד",
+  "file": "rw_16.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_18",
+  "text": "זֶה",
+  "file": "rw_18.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_20",
+  "text": "כֵּן",
+  "file": "rw_20.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_23",
+  "text": "כֶּלֶב",
+  "file": "rw_23.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_25",
+  "text": "מֶלֶך",
+  "file": "rw_25.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rp_15",
+  "text": "אֵיך",
+  "file": "rp_15.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_32",
+  "text": "פָלָאפֶל",
+  "file": "rp_32.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_34",
+  "text": "יָפֶה",
+  "file": "rw_34.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_38",
+  "text": "כֵּיף",
+  "file": "rw_38.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_11",
+  "text": "אֵין בַּעַד מָה",
+  "file": "rp_11.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rp_39",
+  "text": "יַם הַמֶלַח",
+  "file": "rp_39.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_05",
+  "text": "אַת",
+  "file": "rw_05.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rw_06",
+  "text": "אַתָה",
+  "file": "rw_06.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_22",
+  "text": "עֶרֶב",
+  "file": "rp_22.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_15",
+  "text": "אִישָּׁה",
+  "file": "rw_15.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_21",
+  "text": "גֶּבֶר",
+  "file": "rw_21.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_24",
+  "text": "שָׂמֵחַ",
+  "file": "rw_24.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_26",
+  "text": "מַשָּׂאִית",
+  "file": "rw_26.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rp_17",
+  "text": "מָתַי",
+  "file": "rp_17.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_29",
+  "text": "מִיץ",
+  "file": "rw_29.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_30",
+  "text": "תַּפּוּז",
+  "file": "rw_30.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_31",
+  "text": "סֵפֶר",
+  "file": "rw_31.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_35",
+  "text": "חָמוּץ",
+  "file": "rw_35.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_37",
+  "text": "עָצוּב",
+  "file": "rw_37.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_40",
+  "text": "רַע",
+  "file": "rw_40.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_41",
+  "text": "תַּפּוּחַ",
+  "file": "rw_41.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_31",
+  "text": "קִיבּוּץ",
+  "file": "rp_31.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_08",
+  "text": "לֹא",
+  "file": "rw_08.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_14",
+  "text": "יוֹנָה",
+  "file": "rw_14.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rw_46",
+  "text": "אוֹהֵב",
+  "file": "rw_46.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_01",
+  "text": "שָׁלוֹם",
+  "file": "rp_01.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_02",
+  "text": "תּוֹדָה",
+  "file": "rp_02.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rp_21",
+  "text": "בּוֹקֶר",
+  "file": "rp_21.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_19",
+  "text": "זֹאת",
+  "file": "rw_19.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_27",
+  "text": "אֱגוֹז",
+  "file": "rw_27.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_28",
+  "text": "אוֹרֶז",
+  "file": "rw_28.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_48",
+  "text": "אוֹכֵל",
+  "file": "rw_48.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_49",
+  "text": "רוֹאֶה",
+  "file": "rw_49.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_50",
+  "text": "שׁוֹתֶה",
+  "file": "rw_50.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_10",
+  "text": "תוֹדָה רָבָּה",
+  "file": "rp_10.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_14",
+  "text": "אֵיפֹה",
+  "file": "rp_14.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_35",
+  "text": "מַה קוֹרֶה?",
+  "file": "rp_35.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_32",
+  "text": "טוֹב",
+  "file": "rw_32.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_36",
+  "text": "מָתוֹק",
+  "file": "rw_36.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_42",
+  "text": "עוֹף",
+  "file": "rw_42.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_43",
+  "text": "עִיתּוֹן",
+  "file": "rw_43.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_51",
+  "text": "קוֹרֵא",
+  "file": "rw_51.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_52",
+  "text": "רוֹצֶה",
+  "file": "rw_52.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_13",
+  "text": "מַזָּל טוֹב",
+  "file": "rp_13.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_29",
+  "text": "עוֹלֶה חָדָשׁ",
+  "file": "rp_29.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_38",
+  "text": "הַיָּם הָאָדוֹם",
+  "file": "rp_38.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_23",
+  "text": "לַיְלָה",
+  "file": "rp_23.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rp_24",
+  "text": "אֲנַחְנוּ",
+  "file": "rp_24.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_17",
+  "text": "יַלְדָה",
+  "file": "rw_17.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rw_22",
+  "text": "דֶּרֶךְ",
+  "file": "rw_22.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rw_47",
+  "text": "הוֹלֵךְ",
+  "file": "rw_47.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_03",
+  "text": "בְּבַקָשָׁה",
+  "file": "rp_03.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_04",
+  "text": "סְלִיחָה",
+  "file": "rp_04.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rp_05",
+  "text": "בְּסֵדֶר",
+  "file": "rp_05.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_06",
+  "text": "מַה שְׁלוֹמְךָ?",
+  "file": "rp_06.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_08",
+  "text": "בָּרוּךְ הַבָּא",
+  "file": "rp_08.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_09",
+  "text": "מַה נִשְׁמַע?",
+  "file": "rp_09.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_27",
+  "text": "עִבְרִית",
+  "file": "rp_27.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rp_36",
+  "text": "לְהִתְרָאוֹת",
+  "file": "rp_36.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rw_44",
+  "text": "אֲפַרְסֵק",
+  "file": "rw_44.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_12",
+  "text": "בְּהַצְלָחָה",
+  "file": "rp_12.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "rp_28",
+  "text": "אוּלְפָּן",
+  "file": "rp_28.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "rp_37",
+  "text": "שַׁקְשׁוּקָה",
+  "file": "rp_37.mp3",
+  "gender": "f"
  },
  {
   "id": "r1_c0_01",
@@ -1029,30 +1587,6 @@
   "id": "pl_16",
   "text": "אֲנִי קוֹרֵא סֵפֶר",
   "file": "pl_16.mp3",
-  "gender": "m"
- },
- {
-  "id": "rw_54",
-  "text": "חַג",
-  "file": "reading_054b.mp3",
-  "gender": "m"
- },
- {
-  "id": "rw_55",
-  "text": "טִיוּל",
-  "file": "reading_054c.mp3",
-  "gender": "m"
- },
- {
-  "id": "rw_56",
-  "text": "אוּלַי",
-  "file": "reading_054d.mp3",
-  "gender": "m"
- },
- {
-  "id": "rw_57",
-  "text": "אַז",
-  "file": "reading_054e.mp3",
   "gender": "m"
  },
  {

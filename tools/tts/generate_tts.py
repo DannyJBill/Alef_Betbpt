@@ -155,7 +155,7 @@ def main():
     src = open(READING_JS, encoding="utf-8").read()
     patched = 0
     for it in done:
-        pattern = r'(\{ id:"%s",[^}]*?audio:)null' % re.escape(it["id"])
+        pattern = r'(id:"%s"[^{}]*?audio:)(?:null|"[^"]*")' % re.escape(it["id"])
         new_src, n = re.subn(pattern, r'\g<1>"%s"' % it["file"], src, count=1)
         if n:
             src = new_src

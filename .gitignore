@@ -3,3 +3,5 @@ dist
 .env
 .env.local
 .DS_Store
+tools/tts/.tts_state.json
+tools/tts/.tts_state.json

@@ -46,7 +46,7 @@ function getAvailableItems(blockItems, stats) {
 // ─── Карточки (флип) ──────────────────────────────────────────────────────────
 const CHUNK = 8; // размер серии карточек: порция — единица контента, серия — единица усилия
 
-function CardsMode({ items, blockN, dark, onBack, onSeen }) {
+function CardsMode({ items, blockN, dark, onBack, onReview }) {
   const m = metaFor(blockN);
   const queue = useRef(shuffle([...items]));
   const [idx, setIdx] = useState(0);
@@ -90,7 +90,7 @@ function CardsMode({ items, blockN, dark, onBack, onSeen }) {
   const item = queue.current[idx];
 
   function rate(q) {
-    onSeen(item.id);
+    onReview(item.id, q);
     setFlipped(false);
     setTimeout(() => {
       const next = idx + 1;
@@ -476,7 +476,7 @@ function DictView({ stats, dark, onOpen }) {
 // «Мой словарь» — накопитель всего введённого (карточки/квиз по всему словарю).
 export default function ReadingScreen({ onBack, initialBlock, dictOnly, soloBlock }) {
   const { dark } = useTheme();
-  const { stats, recordWordSeen, recordWordAnswer } = useStats();
+  const { stats, recordWordReview, recordWordAnswer } = useStats();
   const [tab, setTab] = useState(dictOnly ? 'dict' : 'feed'); // feed | dict
   const [activeMode, setActiveMode] = useState(null);
   const [activeBlock, setActiveBlock] = useState(null); // block id | 'dict'
@@ -502,7 +502,7 @@ export default function ReadingScreen({ onBack, initialBlock, dictOnly, soloBloc
         items={items}
         blockN={soloBlock}
         dark={dark}
-        onSeen={recordWordSeen}
+        onReview={recordWordReview}
         onBack={onBack}
       />
     );
@@ -532,7 +532,7 @@ export default function ReadingScreen({ onBack, initialBlock, dictOnly, soloBloc
       items, pool,
       blockN: activeBlock,
       dark,
-      onSeen: recordWordSeen,
+      onReview: recordWordReview,
       onAnswer: recordWordAnswer,
       onBack: () => { setActiveMode(null); setActiveBlock(null); },
     };

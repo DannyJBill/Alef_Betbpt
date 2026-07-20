@@ -2,6 +2,7 @@
  * Sync stats with server using Telegram initData as auth.
  * Falls back silently if not in Telegram or server unavailable.
  */
+import { foldToFacts, mergeFacts } from "./facts";
 
 const tg = window.Telegram?.WebApp;
 
@@ -37,42 +38,22 @@ export async function loadStatsFromServer(localStats = null) {
     if (!serverStats) return null;
 
     // Never let server data roll back local progress.
-    // Take the best of each field independently.
+    // v8: канон — facts. Сливаем ОДНИМ правилом (mergeFacts): по item, счётчики
+    // по максимуму, introduced по ИЛИ, sm2 — более продвинутая карта. Если одна
+    // из сторон ещё v7 (нет facts) — сворачиваем её на лету (foldToFacts).
     if (localStats) {
-      // scores (v7, единый факт прогресса): по-ключевой максимум —
-      // сервер никогда не откатывает локальный прогресс
-      const scores = { ...(serverStats.scores || {}) };
-      Object.entries(localStats.scores || {}).forEach(([k, v]) => {
-        scores[k] = Math.max(scores[k] ?? 0, v ?? 0);
-      });
-      // blockScores (игровые счётчики) — тоже по максимуму
-      const blockScores = { ...(serverStats.blockScores || {}) };
-      Object.entries(localStats.blockScores || {}).forEach(([k, v]) => {
-        blockScores[k] = Math.max(blockScores[k] ?? 0, v ?? 0);
-      });
-      // Словарь (сквозной поток слов): studied — объединение, words — по-полевой максимум
-      const srvRp = serverStats.readingProgress || {};
-      const locRp = localStats.readingProgress || {};
-      const studied = Array.from(new Set([...(srvRp.studied || []), ...(locRp.studied || [])]));
-      const words = { ...(srvRp.words || {}) };
-      Object.entries(locRp.words || {}).forEach(([id, w]) => {
-        const sv = words[id] || { seen: 0, correct: 0, wrong: 0 };
-        words[id] = {
-          seen:    Math.max(sv.seen    ?? 0, w.seen    ?? 0),
-          correct: Math.max(sv.correct ?? 0, w.correct ?? 0),
-          wrong:   Math.max(sv.wrong   ?? 0, w.wrong   ?? 0),
-        };
-      });
+      const srvFacts = serverStats.facts || foldToFacts(serverStats);
+      const locFacts = localStats.facts  || foldToFacts(localStats);
+      const facts = mergeFacts(srvFacts, locFacts);
       return {
         ...serverStats,
-        xp:        Math.max(serverStats.xp     ?? 0, localStats.xp     ?? 0),
-        coins:     Math.max(serverStats.coins   ?? 0, localStats.coins   ?? 0),
-        streak:    Math.max(serverStats.streak  ?? 0, localStats.streak  ?? 0),
-        scores,
-        blockScores,
-        readingProgress: { ...srvRp, studied, words },
+        facts,
+        xp:     Math.max(serverStats.xp     ?? 0, localStats.xp     ?? 0),
+        coins:  Math.max(serverStats.coins  ?? 0, localStats.coins  ?? 0),
+        streak: Math.max(serverStats.streak ?? 0, localStats.streak ?? 0),
         // Premium: once granted, never revoke on client side
         isPremium: serverStats.isPremium || localStats.isPremium || false,
+        // Зеркало (scores/blockScores/readingProgress/…) регенерируется в migrate().
       };
     }
 

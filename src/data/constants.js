@@ -56,7 +56,7 @@ export const INITIAL_LESSON_PROGRESS = {
 // data/curriculum.js при каждом изменении фактов и при загрузке (migrate).
 export const INITIAL_STATS = {
   // Мета
-  version: 7,
+  version: 8,
 
   // Геймификация
   xp: 0,
@@ -82,7 +82,14 @@ export const INITIAL_STATS = {
   premiumPurchasedAt: null,
   aiUsageToday:       { date: null, count: 0 },
 
-  // ── ФАКТЫ прогресса (v7) ──────────────────────────────────────────────────
+  // ── КАНОНИЧЕСКИЙ стор фактов (v8) ─────────────────────────────────────────
+  // Единственный источник правды. Всё ниже (scores/blockScores/readingProgress/
+  // cardReviews/vowelReviews/weakLetters/wordsStudied/wordsCorrect/progress) —
+  // read-only ЗЕРКАЛО, регенерируется из facts (factsToLegacyView) после каждого
+  // изменения. Экраны ещё читают зеркало; его удаление — этапы 3–4 перестройки.
+  facts: { nodes: {}, items: {} },
+
+  // ── Зеркало фактов (производное, не писать напрямую) ──────────────────────
   // Проценты тестов, ключи = id узлов curriculum.js:
   // 'L1.2': 85, 'N1.1': 90, 'C0': 85 (уроки без теста пишутся как 100)
   scores: {},

@@ -4,9 +4,21 @@ import { saveStatsToServer, loadStatsFromServer, resetStatsOnServer } from "../h
 import { LETTER_GROUPS, NIKUD_GROUPS } from "../data/alphabet";
 import { deriveProgress, blockKey, sectionBlockToId } from "../helpers/progressHelpers";
 import { Analytics } from "../helpers/analytics";
+import {
+  foldToFacts, factsToLegacyView,
+  setNodeScore, bumpNodeCounter, reviewLetter, reviewVowel,
+  seenWord, answerWord, reviewWord,
+} from "../helpers/facts";
 
 const STORAGE_KEY    = "hebrew-app-stats";
-const SCHEMA_VERSION = 7;
+const SCHEMA_VERSION = 8;
+
+// Легаси-зеркало фактов (производные поля) — НЕ персистятся: регенерируются из
+// facts на загрузке (migrate). Персистится только канон: facts + мета.
+const MIRROR_KEYS = [
+  "scores", "blockScores", "cardReviews", "vowelReviews", "weakLetters",
+  "wordsStudied", "wordsCorrect", "readingProgress", "progress",
+];
 
 const TGCloud = window.Telegram?.WebApp?.CloudStorage;
 function tgGet(k) { return new Promise((res,rej) => TGCloud.getItem(k,(e,v)=>e?rej(e):res(v))); }
@@ -179,11 +191,33 @@ function migrate(p) {
     });
   }
 
+  // v7 → v8: единый канонический стор фактов. Сворачиваем 8 раздроблённых полей
+  // (scores/blockScores/readingProgress.*/cardReviews/vowelReviews/weakLetters/
+  //  wordsStudied/wordsCorrect) в facts.{nodes,items}.
+  if (p.version < 8) {
+    p.facts = foldToFacts(p);
+    p.version = 8;
+  }
+  if (!p.facts) p.facts = { nodes: {}, items: {} };
+
+  // Канон = facts. Легаси-поля — read-only ЗЕРКАЛО, всегда регенерируются из
+  // facts (экраны ещё читают их напрямую; удаление — этапы 3–4).
+  Object.assign(p, factsToLegacyView(p.facts));
+
   // Статусы — всегда свежая деривация из фактов (curriculum мог измениться
   // между деплоями; хранимый progress — только кэш)
   p.progress = deriveProgress(p);
 
   return p;
+}
+
+// ─── Коммит фактов: единая точка записи ──────────────────────────────────────
+// Обновляет канон (facts), регенерирует зеркало для экранов и кэш статусов.
+// Все методы записи проходят через неё.
+function commit(prev, facts, extra = {}) {
+  const next = { ...prev, ...factsToLegacyView(facts), facts, ...extra };
+  next.progress = deriveProgress(next);
+  return next;
 }
 
 // ─── Хранилище ────────────────────────────────────────────────────────────────
@@ -202,26 +236,23 @@ async function loadFromStorage() {
   };
 }
 
+// Персистим только КАНОН: facts + мета. Зеркало (MIRROR_KEYS) регенерируется
+// на загрузке из facts — не храним дубль (важно для потолка CloudStorage 4КБ).
+function canonicalForStorage(stats) {
+  const c = { ...stats, version: SCHEMA_VERSION };
+  for (const k of MIRROR_KEYS) delete c[k];
+  return c;
+}
+
 async function saveToStorage(stats) {
-  const payload = JSON.stringify({ ...stats, version: SCHEMA_VERSION });
+  const payload = JSON.stringify(canonicalForStorage(stats));
   if (TGCloud) try { await tgSet(STORAGE_KEY, payload); } catch {}
   try { localStorage.setItem(STORAGE_KEY, payload); } catch {}
   try { sessionStorage.setItem(STORAGE_KEY, payload); } catch {}
 }
 
 // ─── SM-2 ─────────────────────────────────────────────────────────────────────
-function sm2(card = {}, quality) {
-  let { interval=1, repetitions=0, ef=2.5 } = card;
-  if (quality < 1) { interval=1; repetitions=0; }
-  else {
-    if (repetitions===0) interval=1;
-    else if (repetitions===1) interval=3;
-    else interval=Math.round(interval*ef);
-    repetitions+=1;
-    ef=Math.max(1.3, ef+0.1-(2-quality)*(0.08+(2-quality)*0.02));
-  }
-  return { interval, repetitions, ef, nextReview: Date.now()+interval*86400000 };
-}
+// Алгоритм вынесен в helpers/planner.js — единый для букв, огласовок и слов.
 
 function applyStreak(stats) {
   const today = new Date().toDateString();
@@ -327,16 +358,11 @@ export function StatsProvider({ children }) {
   const updateCardReview = useCallback((letterId, quality) => {
     setStats(prev => {
       Analytics.cardReview(letterId, quality);
-      const updated     = sm2(prev.cardReviews?.[letterId], quality);
-      const weakLetters = { ...prev.weakLetters };
-      if (quality===0) weakLetters[letterId] = (weakLetters[letterId]||0)+1;
-      const next = applyStreak({
-        ...prev,
-        cardReviews:    { ...prev.cardReviews, [letterId]: updated },
-        weakLetters,
+      const facts = reviewLetter(prev.facts, letterId, quality);
+      const next = applyStreak(commit(prev, facts, {
         totalAnswers:   (prev.totalAnswers||0)+1,
         correctAnswers: (prev.correctAnswers||0)+(quality>0?1:0),
-      });
+      }));
       scheduleSave(next);
       return next;
     });
@@ -348,21 +374,13 @@ export function StatsProvider({ children }) {
   // isCorrect: bool
   const recordGameAnswer = useCallback((section, blockN, isCorrect) => {
     setStats(prev => {
-      const key          = blockKey(section, blockN);
-      const oldScore     = prev.blockScores?.[key] || 0;
-      const newScore     = isCorrect ? oldScore + 1 : oldScore;
-      const newBlockScores = { ...prev.blockScores, [key]: newScore };
-
-      // Статусы всегда выводятся из фактов (v7)
-      const withFacts = { ...prev, blockScores: newBlockScores };
-
-      const next = applyStreak({
-        ...withFacts,
-        progress:       deriveProgress(withFacts),
+      const id    = sectionBlockToId(section, blockN);
+      const facts = (isCorrect && id) ? bumpNodeCounter(prev.facts, id, 1) : prev.facts;
+      const next  = applyStreak(commit(prev, facts, {
         totalAnswers:   (prev.totalAnswers||0)+1,
         correctAnswers: (prev.correctAnswers||0)+(isCorrect?1:0),
         xp:             (prev.xp||0)+(isCorrect?2:0),
-      });
+      }));
       scheduleSave(next);
       return next;
     });
@@ -375,18 +393,9 @@ export function StatsProvider({ children }) {
   const completeBlock = useCallback((section, blockN, testScore) => {
     setStats(prev => {
       const id = sectionBlockToId(section, blockN);
-      const newScores = {
-        ...(prev.scores || {}),
-        [id]: Math.max(prev.scores?.[id] ?? 0, testScore),
-      };
-
-      const withFacts = { ...prev, scores: newScores };
+      const facts = setNodeScore(prev.facts, id, testScore);
       const xpBonus = testScore >= 90 ? 80 : testScore >= 70 ? 50 : 10;
-      const next = {
-        ...withFacts,
-        progress: deriveProgress(withFacts),
-        xp:       (prev.xp||0) + xpBonus,
-      };
+      const next = commit(prev, facts, { xp: (prev.xp||0) + xpBonus });
 
       // Реферальный бонус при первом блоке
       if (section==='letters' && blockN===1 && testScore>=70 && !prev.referralRewarded && prev.referredBy) {
@@ -411,13 +420,11 @@ export function StatsProvider({ children }) {
    */
   const completeLesson = useCallback((lessonId, score) => {
     setStats(prev => {
-      const newScore = score == null ? 100 : Math.max(prev.scores?.[lessonId] ?? 0, score);
-      const withFacts = {
-        ...prev,
-        scores: { ...(prev.scores || {}), [lessonId]: newScore },
-      };
+      const target = score == null ? 100 : score;
+      const facts = setNodeScore(prev.facts, lessonId, target);
+      const newScore = facts.nodes[lessonId].score;
       const xpBonus = newScore >= 90 ? 80 : newScore >= 70 ? 50 : 10;
-      const next = { ...withFacts, progress: deriveProgress(withFacts), xp: (prev.xp || 0) + xpBonus };
+      const next = commit(prev, facts, { xp: (prev.xp || 0) + xpBonus });
       Analytics.lessonComplete(lessonId, newScore);
       scheduleSave(next);
       return next;
@@ -439,20 +446,8 @@ export function StatsProvider({ children }) {
   /** Слово показано (карточка перевёрнута / встречено впервые). +2 XP за новое. */
   const recordWordSeen = useCallback((id) => {
     setStats(prev => {
-      const rp = prev.readingProgress || { studied: [], words: {} };
-      const words = { ...(rp.words || {}) };
-      const isNew = !rp.studied?.includes(id);
-      const w = words[id] || { seen: 0, correct: 0, wrong: 0 };
-      words[id] = { ...w, seen: w.seen + 1 };
-      const next = {
-        ...prev,
-        readingProgress: {
-          ...rp,
-          studied: isNew ? [...(rp.studied || []), id] : rp.studied,
-          words,
-        },
-        xp: (prev.xp || 0) + (isNew ? 2 : 0),
-      };
+      const { facts, isNew } = seenWord(prev.facts, id);
+      const next = commit(prev, facts, { xp: (prev.xp || 0) + (isNew ? 2 : 0) });
       scheduleSave(next);
       return next;
     });
@@ -461,63 +456,56 @@ export function StatsProvider({ children }) {
   /** Ответ в квизе по слову. Правильный ответ также вводит слово в словарь. */
   const recordWordAnswer = useCallback((id, isCorrect) => {
     setStats(prev => {
-      const rp = prev.readingProgress || { studied: [], words: {} };
-      const words = { ...(rp.words || {}) };
-      const w = words[id] || { seen: 0, correct: 0, wrong: 0 };
-      words[id] = {
-        ...w,
-        correct: w.correct + (isCorrect ? 1 : 0),
-        wrong:   w.wrong   + (isCorrect ? 0 : 1),
-      };
-      const isNew = isCorrect && !rp.studied?.includes(id);
-      const next = {
-        ...prev,
-        readingProgress: {
-          ...rp,
-          studied: isNew ? [...(rp.studied || []), id] : rp.studied,
-          words,
-        },
-        xp: (prev.xp || 0) + (isNew ? 2 : 0),
-      };
+      const { facts, isNew } = answerWord(prev.facts, id, isCorrect);
+      const next = commit(prev, facts, { xp: (prev.xp || 0) + (isNew ? 2 : 0) });
       scheduleSave(next);
       return next;
     });
   }, [scheduleSave]);
+
+  /**
+   * Повтор карточки слова с оценкой (Снова=0 / Трудно=1 / Легко=2).
+   * Единый SM-2 (planner.sm2) — как у букв и огласовок. Планирует nextReview
+   * И питает статус словаря: Снова → wrong+1 (слабое), Трудно/Легко → correct+1.
+   * Первый показ вводит слово в словарь (studied + XP), как recordWordSeen.
+   */
+  const recordWordReview = useCallback((id, quality) => {
+    setStats(prev => {
+      const { facts, isNew } = reviewWord(prev.facts, id, quality);
+      const next = commit(prev, facts, { xp: (prev.xp || 0) + (isNew ? 2 : 0) });
+      scheduleSave(next);
+      return next;
+    });
+  }, [scheduleSave]);
+
+  /** Слова, которым пора на повтор (nextReview прошёл или ещё не начаты). */
+  const getDueWords = useCallback(() => {
+    const words = stats.readingProgress?.words || {};
+    const now = Date.now();
+    return Object.keys(words).filter(id => {
+      const c = words[id]?.sm2;
+      return !c || c.nextReview == null || c.nextReview <= now;
+    });
+  }, [stats]);
 
   const updateVowelReview = useCallback((key, quality) => {
     setStats(prev => {
-      const reviews = { ...(prev.vowelReviews || {}) };
-      reviews[key]  = sm2(reviews[key], quality);
-      const next    = { ...prev, vowelReviews: reviews };
+      const facts = reviewVowel(prev.facts, key, quality);
+      const next  = commit(prev, facts);
       scheduleSave(next);
       return next;
     });
   }, [scheduleSave]);
 
-  // ── Прогресс слов ──────────────────────────────────────────────────────────
+  // ── Прогресс слов (легаси-путь WordsScreen; осиротел) ──────────────────────
   const recordWordResult = useCallback((wordId, isCorrect) => {
     setStats(prev => {
-      const studied = prev.wordsStudied?.includes(wordId)
-        ? prev.wordsStudied
-        : [...(prev.wordsStudied || []), wordId];
-      const correct = { ...(prev.wordsCorrect || {}) };
-      if (isCorrect) correct[wordId] = (correct[wordId] || 0) + 1;
-
-      const next = applyStreak({
-        ...prev,
-        wordsStudied: studied,
-        wordsCorrect: correct,
+      const { facts } = answerWord(prev.facts, wordId, isCorrect);
+      const next = applyStreak(commit(prev, facts, {
         totalAnswers:   (prev.totalAnswers||0)+1,
         correctAnswers: (prev.correctAnswers||0)+(isCorrect?1:0),
         xp: (prev.xp||0)+(isCorrect?3:0),
-      });
-
-      // Записываем в матрицу — определяем блок слова
-      // (упрощённо: если слово изучено 2+ раза — считаем как правильный ответ в блоке)
-      if (isCorrect) {
-        // WordsScreen сам передаст blockN если захочет точности
-      }
-
+      }));
       scheduleSave(next);
       return next;
     });
@@ -616,8 +604,10 @@ export function StatsProvider({ children }) {
       updateVowelReview,
       recordWordSeen,
       recordWordAnswer,
+      recordWordReview,
       getDueCards,
       getDueVowelCards,
+      getDueWords,
       // Слова
       recordWordResult,
       // AI

@@ -9,6 +9,9 @@ import { GRAMMAR_LESSONS } from '../src/data/grammarLessons.js';
 import { READING_BLOCKS, READING_ITEMS, getBlockCards, PHRASE_LOCKS, getUnlockedPhraseLocks } from '../src/data/reading.js';
 import { getKnownLetters, isReadableByLetters } from '../src/helpers/vocab.js';
 import { ALPHABET, LETTER_GROUPS } from '../src/data/alphabet.js';
+import { sm2, isDue, dueKeys } from '../src/helpers/planner.js';
+import { foldToFacts, factsToLegacyView, itemKey, COUNTER_KEY_TO_NODE, NODE_TO_COUNTER_KEY,
+         setNodeScore, bumpNodeCounter, reviewLetter, reviewVowel, seenWord, answerWord, reviewWord, mergeFacts } from '../src/helpers/facts.js';
 
 let fails = 0;
 function check(name, cond) {
@@ -243,6 +246,211 @@ const dictMig = { readingProgress: { studied: ['rw_01', 'rw_02'] } };
 dictMig.readingProgress.words = {};
 dictMig.readingProgress.studied.forEach(id => { dictMig.readingProgress.words[id] = { seen: 1, correct: 0, wrong: 0 }; });
 check('словарь: words создан из studied', Object.keys(dictMig.readingProgress.words).length === 2 && dictMig.readingProgress.words['rw_01'].seen === 1);
+
+// ── 15. Единый планировщик SM-2 (helpers/planner.js) ──
+const NOW = 1_700_000_000_000;
+const DAY = 86400000;
+// Первый верный ответ (Легко): interval=1, repetitions=1, nextReview через 1 день
+const c1 = sm2({}, 2, NOW);
+check('планировщик: новая карта, quality=2 → interval 1, reps 1', c1.interval === 1 && c1.repetitions === 1);
+check('планировщик: nextReview = now + interval*день', c1.nextReview === NOW + 1 * DAY);
+// Второй верный: interval=3
+const c2 = sm2(c1, 2, NOW);
+check('планировщик: 2-й верный → interval 3, reps 2', c2.interval === 3 && c2.repetitions === 2);
+// Третий верный: interval = round(3 * ef)
+const c3 = sm2(c2, 2, NOW);
+check('планировщик: 3-й верный → interval растёт (>=3)', c3.interval >= 3 && c3.repetitions === 3);
+// «Снова» (quality 0) сбрасывает прогресс
+const cReset = sm2(c3, 0, NOW);
+check('планировщик: «Снова» (q=0) сбрасывает reps в 0 и interval в 1', cReset.repetitions === 0 && cReset.interval === 1);
+// ef не опускается ниже 1.3
+let ef = {};
+for (let i = 0; i < 10; i++) ef = sm2(ef, 1, NOW);
+check('планировщик: ef не ниже 1.3 после серии «Трудно»', ef.ef >= 1.3);
+// isDue: свежая карта due; запланированная на будущее — нет
+check('планировщик: карта без nextReview — due', isDue(undefined, NOW) && isDue({}, NOW));
+check('планировщик: карта на завтра — не due', !isDue(c1, NOW));
+check('планировщик: карта на завтра — due через 2 дня', isDue(c1, NOW + 2 * DAY));
+// dueKeys выбирает только просроченные
+const map = { a: { nextReview: NOW - DAY }, b: { nextReview: NOW + DAY }, c: {} };
+const due = dueKeys(map, NOW).sort();
+check('планировщик: dueKeys выбирает просроченные и новые', due.length === 2 && due.includes('a') && due.includes('c'));
+
+// ── 16. Факты v8: свёртка v7 → facts.{nodes,items} + обратная проекция ──
+function stable(x) {
+  if (Array.isArray(x)) return '[' + x.map(stable).join(',') + ']';
+  if (x && typeof x === 'object')
+    return '{' + Object.keys(x).sort().map(k => JSON.stringify(k) + ':' + stable(x[k])).join(',') + '}';
+  return JSON.stringify(x);
+}
+const deepEq = (a, b) => stable(a) === stable(b);
+
+// counterKey ⇄ node: карта покрывает ровно узлы со счётчиком
+const counterNodes = ['L1.1','L1.2','L1.3','L1.4','L1.5','N1.1','N1.2','N1.3','N1.4','N1.5','W1','W2','W3','W4','W5','P1','P2','P3','P4','P5'];
+check('facts: counterKey↔node карта покрывает все узлы со счётчиком',
+  counterNodes.every(id => NODE_TO_COUNTER_KEY[id] && COUNTER_KEY_TO_NODE[NODE_TO_COUNTER_KEY[id]] === id));
+
+// Населённая v7-фикстура (зона 0 пройдена + грамматика + атомы букв/огласовок/слов)
+const zoneCards = ['VL1.1','VL1.2','VL1.3','VL1.4','VN1.3','VN1.4','VN1.5']
+  .flatMap(bid => getBlockCards(READING_BLOCKS.find(b => b.id === bid)).map(i => i.id));
+const L = ALPHABET[0].id, L2 = ALPHABET[1].id;
+const sampleSm2 = { interval: 3, repetitions: 2, ef: 2.5, nextReview: 1700000000000 };
+const rich = {
+  scores: { 'L1.1':90,'L1.2':90,'L1.3':90,'L1.4':90,'L1.5':90,
+            'N1.1':90,'N1.2':90,'N1.3':90,'N1.4':90,'N1.5':90,
+            'C0':85,'M1.1':90,'M1.2':90,'M1.3':90,'M1.4':90 },
+  blockScores: { letters_1: 12 },
+  cardReviews: { [L]: sampleSm2 },
+  weakLetters: { [L2]: 3 },
+  vowelReviews: { patah: { interval: 1, repetitions: 1, ef: 2.5, nextReview: 1700000000001 } },
+  wordsStudied: [],
+  wordsCorrect: {},
+  readingProgress: {
+    studied: [...zoneCards, 'rw_seen'],
+    words: {
+      rw_seen:  { seen: 2, correct: 1, wrong: 0, sm2: sampleSm2 },
+      rw_wrong: { seen: 1, correct: 0, wrong: 2 },  // отвечено неверно, НЕ в studied
+    },
+  },
+};
+const F = foldToFacts(rich);
+
+// fold-placement: данные легли в правильные слоты facts
+check('facts.fold: score узла', F.nodes['L1.1'].score === 90 && F.nodes['C0'].score === 85);
+check('facts.fold: counter узла из blockScores', F.nodes['L1.1'].counter === 12);
+check('facts.fold: SM-2 буквы', deepEq(F.items[itemKey.letter(L)].sm2, sampleSm2));
+check('facts.fold: weakLetters → wrong элемента', F.items[itemKey.letter(L2)].wrong === 3);
+check('facts.fold: SM-2 огласовки', !!F.items[itemKey.vowel('patah')].sm2);
+check('facts.fold: introduced из studied', F.items[itemKey.word('rw_seen')].introduced === true);
+check('facts.fold: слово-«неверно» НЕ introduced (нет в studied)',
+  F.items[itemKey.word('rw_wrong')].introduced === undefined && F.items[itemKey.word('rw_wrong')].wrong === 2);
+
+// Обратная проекция: восстанавливает то, что читает deriveProgress
+const view = factsToLegacyView(F);
+check('facts.view: scores восстановлены', deepEq(view.scores, rich.scores));
+check('facts.view: blockScores восстановлены', view.blockScores.letters_1 === 12);
+check('facts.view: studied восстановлен как множество',
+  deepEq([...view.readingProgress.studied].sort(), [...rich.readingProgress.studied].sort()));
+check('facts.view: cardReviews/weakLetters/vowelReviews восстановлены',
+  deepEq(view.cardReviews, rich.cardReviews) && view.weakLetters[L2] === 3 && !!view.vowelReviews.patah);
+
+// ── ГЛАВНЫЙ ИНВАРИАНТ: миграция потерянулева по статусам ──
+// deriveProgress(v7) === deriveProgress(view(fold(v7))) для набора состояний.
+const realEmpty = { scores:{}, blockScores:{}, readingProgress:{ studied:[] } };
+const fixtures = [
+  ['новый (реальный дамп daniilusachev)', realEmpty],
+  ['зона 0 + грамматика (rich)', rich],
+  ['частичный: L1.1 done, слова не изучены', { scores:{'L1.1':80}, blockScores:{}, readingProgress:{studied:[]} }],
+  ['игровой путь: letters_1=10', { scores:{}, blockScores:{letters_1:10}, readingProgress:{studied:[]} }],
+];
+for (const [name, v7] of fixtures) {
+  const before = deriveProgress(v7);
+  const after  = deriveProgress(factsToLegacyView(foldToFacts(v7)));
+  check(`facts.invariant: deriveProgress совпадает — ${name}`, deepEq(before, after));
+}
+// И покомпонентно по статусам всех узлов (rich)
+const nodeIds = Object.keys(COUNTER_KEY_TO_NODE).map(ck => COUNTER_KEY_TO_NODE[ck])
+  .concat(['C0','M1.1','M1.2','M1.3','M1.4','C1','G1.1']);
+const richView = factsToLegacyView(foldToFacts(rich));
+check('facts.invariant: getNodeStatus совпадает по всем узлам (rich)',
+  nodeIds.every(id => getNodeStatus(id, rich) === getNodeStatus(id, richView)));
+
+// ── 17. Чистые мутаторы facts (их пишет StatsContext) ──
+const E = { nodes: {}, items: {} };
+// узлы
+check('mut: setNodeScore по максимуму',
+  setNodeScore(setNodeScore(E, 'L1.1', 70), 'L1.1', 55).nodes['L1.1'].score === 70);
+check('mut: bumpNodeCounter +1', bumpNodeCounter(bumpNodeCounter(E, 'W1'), 'W1').nodes['W1'].counter === 2);
+check('mut: counter → blockScores в зеркале',
+  factsToLegacyView(bumpNodeCounter(E, 'L1.1', 5)).blockScores.letters_1 === 5);
+// буква: «Снова» → weakLetters
+const fl = reviewLetter(E, '9', 0);
+check('mut: reviewLetter q=0 → sm2 сброшен + weakLetters',
+  fl.items['l:9'].sm2.repetitions === 0 && factsToLegacyView(fl).weakLetters['9'] === 1);
+// огласовка с двоеточием в ключе
+const fv = reviewVowel(E, 'shva:ב', 2);
+check('mut: reviewVowel ключ с двоеточием round-trip',
+  !!fv.items['v:shva:ב'].sm2 && !!factsToLegacyView(fv).vowelReviews['shva:ב']);
+// слово: показ / ответ / повтор
+const sw = seenWord(E, 'rw_01');
+check('mut: seenWord → introduced+seen, isNew', sw.isNew === true && sw.facts.items['w:rw_01'].seen === 1);
+const awWrong = answerWord(E, 'rw_x', false);
+check('mut: answerWord неверно → wrong, НЕ introduced, не new',
+  awWrong.facts.items['w:rw_x'].wrong === 1 && !awWrong.facts.items['w:rw_x'].introduced && awWrong.isNew === false);
+const rw = reviewWord(E, 'rw_02', 2);
+const rwView = factsToLegacyView(rw.facts);
+check('mut: reviewWord → SM-2 + studied + words в зеркале',
+  rw.isNew === true && !!rw.facts.items['w:rw_02'].sm2 &&
+  rwView.readingProgress.studied.includes('rw_02') && !!rwView.readingProgress.words.rw_02.sm2);
+
+// ── 18. mergeFacts (serverSync, одно правило) ──
+const fa = { nodes: { 'L1.1': { score: 70 } }, items: { 'w:a': { kind:'word', introduced:true, correct:2, sm2:{repetitions:1,nextReview:100} } } };
+const fb = { nodes: { 'L1.1': { score: 90 }, 'N1.1': { counter: 3 } }, items: { 'w:a': { kind:'word', correct:5, sm2:{repetitions:3,nextReview:50} }, 'w:b': { kind:'word', introduced:true } } };
+const mg = mergeFacts(fa, fb);
+check('merge: score по максимуму', mg.nodes['L1.1'].score === 90);
+check('merge: узел только у b сохранён', mg.nodes['N1.1'].counter === 3);
+check('merge: счётчики по максимуму', mg.items['w:a'].correct === 5);
+check('merge: sm2 берёт более продвинутую (больше repetitions)', mg.items['w:a'].sm2.repetitions === 3);
+check('merge: introduced по ИЛИ', mg.items['w:a'].introduced === true && mg.items['w:b'].introduced === true);
+
+// ── 19. Реальный населённый дамп (Huzpay) — миграция потерянулева ──
+// Обезличенный срез: непустые scores(48)/blockScores, cardReviews(числ. id),
+// weakLetters, vowelReviews с ключами-двоеточиями, легаси-словарь, readingProgress.words.
+const huzpay = {
+  scores: { C0:88,C1:88,C2:100,C3:100,C4:100,'D1.1':100,'D1.2':100,'D1.3':100,
+    'G1.1':100,'G1.2':100,'G1.3':100,'G1.4':88,'G1.5':100,'G1.6':100,
+    'G2.1':100,'G2.2':100,'G2.3':100,'G2.4':100,
+    'L1.1':100,'L1.2':70,'L1.3':70,'L1.4':70,'L1.5':70,
+    'M1.1':100,'M1.2':88,'M1.3':100,'M1.4':100,
+    'M2.1':75,'M2.2':100,'M2.3':100,'M2.4':88,'M2.5':100,'M2.6':100,'M2.7':100,'M2.8':100,'M2.9':100,
+    'N1.1':70,'N1.2':70,'N1.3':70,'N1.4':70,'N1.5':92,
+    'CH1.1':100,'CH1.2':100,'CH1.3':100,'CH1.4':100,'CH2.1':100,'SH1.1':100,'SH1.2':100 },
+  blockScores: { words_1:10, sounds_1:10, sounds_2:10, sounds_3:10, sounds_4:10, sounds_5:10,
+    letters_1:10, letters_2:10, letters_3:10, letters_4:10, letters_5:10 },
+  cardReviews: { '1':{ef:2.6,interval:1,nextReview:1782658842990,repetitions:1},
+                 '9':{ef:2.6,interval:1,nextReview:1782658871603,repetitions:0} },
+  weakLetters: { '9': 1 },
+  vowelReviews: { 'shva:ב':{ef:2.6,interval:1,nextReview:1782805811971,repetitions:1},
+                  'hirik:כ':{ef:3.2,interval:595,nextReview:1834127418259,repetitions:7} },
+  wordsStudied: ['1','95','328','24'],
+  wordsCorrect: { '1':1,'24':4,'95':3,'328':4 },
+  readingProgress: {
+    studied: [],
+    words: { rp_01:{seen:1,wrong:0,correct:0}, rp_17:{seen:3,wrong:0,correct:0} },
+  },
+};
+const hzView = factsToLegacyView(foldToFacts(huzpay));
+check('huzpay: deriveProgress миграции == оригинала',
+  deepEq(deriveProgress(huzpay), deriveProgress(hzView)));
+check('huzpay: ключ огласовки shva:ב восстановлен точно',
+  deepEq(hzView.vowelReviews['shva:ב'], huzpay.vowelReviews['shva:ב']));
+check('huzpay: cardReviews числовые id восстановлены',
+  deepEq(hzView.cardReviews, huzpay.cardReviews) && hzView.weakLetters['9'] === 1);
+check('huzpay: scores (48 узлов) восстановлены', deepEq(hzView.scores, huzpay.scores));
+check('huzpay: легаси-словарь свёрнут в studied',
+  hzView.readingProgress.studied.includes('1') && hzView.readingProgress.studied.includes('95'));
+
+// ── 20. Цикл персиста: v7 → fold → strip mirror → reload → regenerate ──
+// Имитируем сохранение (храним только facts+мета, зеркало стрипается) и загрузку
+// (зеркало регенерируется из facts). Прогресс не теряется на кругу.
+const MIRROR_KEYS = ['scores','blockScores','cardReviews','vowelReviews','weakLetters',
+                     'wordsStudied','wordsCorrect','readingProgress','progress'];
+function simulateSaveLoad(v7) {
+  const facts = foldToFacts(v7);                         // migrate v7→v8
+  const persisted = { facts, xp: v7.xp, version: 8 };    // strip mirror перед хранением
+  for (const k of MIRROR_KEYS) delete persisted[k];
+  // reload: version 8 → fold пропускается, зеркало регенерируется
+  const reloaded = { ...persisted, ...factsToLegacyView(persisted.facts) };
+  reloaded.progress = deriveProgress(reloaded);
+  return reloaded;
+}
+for (const [name, v7] of fixtures) {
+  const reloaded = simulateSaveLoad(v7);
+  check(`persist-cycle: статусы сохраняются на кругу — ${name}`,
+    deepEq(deriveProgress(v7), reloaded.progress));
+}
+check('persist-cycle: huzpay доезжает без потерь',
+  deepEq(deriveProgress(huzpay), simulateSaveLoad(huzpay).progress));
 
 console.log(fails === 0 ? '\n🎉 ВСЕ ПРОВЕРКИ ПРОЙДЕНЫ' : `\n💥 ПРОВАЛОВ: ${fails}`);
 process.exit(fails === 0 ? 0 : 1);

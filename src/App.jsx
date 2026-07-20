@@ -9,6 +9,7 @@ import StudyScreen from "./screens/StudyScreen";
 import GameScreen  from "./screens/GameScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import AIAssistant from "./screens/AIAssistant";
+import UpdatePopup from "./components/ui/UpdatePopup";
 
 const TABS = ["home", "study", "game"];
 
@@ -81,6 +82,7 @@ function AppShell() {
 
       <BottomNav tab={tab} setTab={handleSetTab} />
       <AIAssistant />
+      <UpdatePopup dark={dark} />
     </div>
   );
 }

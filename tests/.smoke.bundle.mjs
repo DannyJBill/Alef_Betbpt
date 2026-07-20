@@ -600,7 +600,7 @@ var INITIAL_LESSON_PROGRESS = {
 };
 var INITIAL_STATS = {
   // Мета
-  version: 7,
+  version: 8,
   // Геймификация
   xp: 0,
   coins: 0,
@@ -622,7 +622,13 @@ var INITIAL_STATS = {
   premiumType: null,
   premiumPurchasedAt: null,
   aiUsageToday: { date: null, count: 0 },
-  // ── ФАКТЫ прогресса (v7) ──────────────────────────────────────────────────
+  // ── КАНОНИЧЕСКИЙ стор фактов (v8) ─────────────────────────────────────────
+  // Единственный источник правды. Всё ниже (scores/blockScores/readingProgress/
+  // cardReviews/vowelReviews/weakLetters/wordsStudied/wordsCorrect/progress) —
+  // read-only ЗЕРКАЛО, регенерируется из facts (factsToLegacyView) после каждого
+  // изменения. Экраны ещё читают зеркало; его удаление — этапы 3–4 перестройки.
+  facts: { nodes: {}, items: {} },
+  // ── Зеркало фактов (производное, не писать напрямую) ──────────────────────
   // Проценты тестов, ключи = id узлов curriculum.js:
   // 'L1.2': 85, 'N1.1': 90, 'C0': 85 (уроки без теста пишутся как 100)
   scores: {},
@@ -7425,6 +7431,245 @@ var GRAMMAR_LESSONS = [
 ];
 var GRAMMAR_LESSONS_BY_ID = Object.fromEntries(GRAMMAR_LESSONS.map((l) => [l.id, l]));
 
+// src/helpers/planner.js
+var DAY_MS = 864e5;
+function sm2(card = {}, quality, now = Date.now()) {
+  let { interval = 1, repetitions = 0, ef: ef2 = 2.5 } = card;
+  if (quality < 1) {
+    interval = 1;
+    repetitions = 0;
+  } else {
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 3;
+    else interval = Math.round(interval * ef2);
+    repetitions += 1;
+    ef2 = Math.max(1.3, ef2 + 0.1 - (2 - quality) * (0.08 + (2 - quality) * 0.02));
+  }
+  return { interval, repetitions, ef: ef2, nextReview: now + interval * DAY_MS };
+}
+function isDue(card, now = Date.now()) {
+  if (!card || card.nextReview == null) return true;
+  return card.nextReview <= now;
+}
+function dueKeys(cardMap = {}, now = Date.now()) {
+  return Object.keys(cardMap).filter((id) => isDue(cardMap[id], now));
+}
+
+// src/helpers/facts.js
+var COUNTER_KEY_TO_NODE = {};
+var NODE_TO_COUNTER_KEY = {};
+for (const n of CURRICULUM) {
+  if (n.counterKey) {
+    COUNTER_KEY_TO_NODE[n.counterKey] = n.id;
+    NODE_TO_COUNTER_KEY[n.id] = n.counterKey;
+  }
+}
+var itemKey = {
+  letter: (id) => "l:" + id,
+  vowel: (id) => "v:" + id,
+  word: (id) => "w:" + id
+};
+function parseItemKey(key) {
+  const i = key.indexOf(":");
+  const p2 = key.slice(0, i);
+  const id = key.slice(i + 1);
+  const kind = p2 === "l" ? "letter" : p2 === "v" ? "vowel" : "word";
+  return { kind, id };
+}
+function foldToFacts(s = {}) {
+  const nodes = {};
+  const items = {};
+  const node = (id) => nodes[id] || (nodes[id] = {});
+  const item = (key) => items[key] || (items[key] = {});
+  for (const [id, pct] of Object.entries(s.scores || {})) {
+    if (pct != null) node(id).score = pct;
+  }
+  for (const [ck, cnt] of Object.entries(s.blockScores || {})) {
+    const id = COUNTER_KEY_TO_NODE[ck] || "#" + ck;
+    node(id).counter = cnt;
+  }
+  for (const [id, card] of Object.entries(s.cardReviews || {})) {
+    const it = item(itemKey.letter(id));
+    it.kind = "letter";
+    it.sm2 = card;
+  }
+  for (const [id, c] of Object.entries(s.weakLetters || {})) {
+    const it = item(itemKey.letter(id));
+    it.kind = "letter";
+    it.wrong = c;
+  }
+  for (const [k, card] of Object.entries(s.vowelReviews || {})) {
+    const it = item(itemKey.vowel(k));
+    it.kind = "vowel";
+    it.sm2 = card;
+  }
+  const rp = s.readingProgress || {};
+  for (const id of rp.studied || []) {
+    const it = item(itemKey.word(id));
+    it.kind = "word";
+    it.introduced = true;
+  }
+  for (const [id, w] of Object.entries(rp.words || {})) {
+    const it = item(itemKey.word(id));
+    it.kind = "word";
+    if (w.seen != null) it.seen = w.seen;
+    if (w.correct != null) it.correct = w.correct;
+    if (w.wrong != null) it.wrong = w.wrong;
+    if (w.sm2) it.sm2 = w.sm2;
+  }
+  for (const id of s.wordsStudied || []) {
+    const it = item(itemKey.word(String(id)));
+    it.kind = "word";
+    it.introduced = true;
+  }
+  for (const [id, c] of Object.entries(s.wordsCorrect || {})) {
+    const it = item(itemKey.word(String(id)));
+    it.kind = "word";
+    it.correct = Math.max(it.correct || 0, c || 0);
+  }
+  return { nodes, items };
+}
+function factsToLegacyView(facts = { nodes: {}, items: {} }) {
+  const scores2 = {};
+  const blockScores = {};
+  for (const [id, n] of Object.entries(facts.nodes || {})) {
+    if (n.score != null) scores2[id] = n.score;
+    if (n.counter != null) {
+      const ck = NODE_TO_COUNTER_KEY[id] || (id[0] === "#" ? id.slice(1) : null);
+      if (ck) blockScores[ck] = n.counter;
+    }
+  }
+  const studied = [];
+  const words = {};
+  const cardReviews = {};
+  const vowelReviews = {};
+  const weakLetters = {};
+  const wordsStudied = [];
+  const wordsCorrect = {};
+  for (const [key, it] of Object.entries(facts.items || {})) {
+    const { kind, id } = parseItemKey(key);
+    if (kind === "letter") {
+      if (it.sm2) cardReviews[id] = it.sm2;
+      if (it.wrong != null) weakLetters[id] = it.wrong;
+    } else if (kind === "vowel") {
+      if (it.sm2) vowelReviews[id] = it.sm2;
+    } else if (kind === "word") {
+      if (it.introduced) {
+        studied.push(id);
+        wordsStudied.push(id);
+      }
+      const w = {
+        seen: it.seen ?? 0,
+        correct: it.correct ?? 0,
+        wrong: it.wrong ?? 0
+      };
+      if (it.sm2) w.sm2 = it.sm2;
+      words[id] = w;
+      if (it.correct != null) wordsCorrect[id] = it.correct;
+    }
+  }
+  return {
+    scores: scores2,
+    blockScores,
+    readingProgress: { studied, words },
+    cardReviews,
+    vowelReviews,
+    weakLetters,
+    wordsStudied,
+    wordsCorrect
+  };
+}
+function withNode(facts, id, patch) {
+  return { ...facts, nodes: { ...facts.nodes, [id]: { ...facts.nodes?.[id], ...patch } } };
+}
+function withItem(facts, key, patch) {
+  return { ...facts, items: { ...facts.items, [key]: { ...facts.items?.[key], ...patch } } };
+}
+function setNodeScore(facts, id, score) {
+  const cur = facts.nodes?.[id]?.score ?? 0;
+  return withNode(facts, id, { score: Math.max(cur, score) });
+}
+function bumpNodeCounter(facts, id, by = 1) {
+  const cur = facts.nodes?.[id]?.counter ?? 0;
+  return withNode(facts, id, { counter: cur + by });
+}
+function reviewLetter(facts, letterId, quality) {
+  const key = itemKey.letter(letterId);
+  const it = facts.items?.[key] || {};
+  const patch = { kind: "letter", sm2: sm2(it.sm2, quality) };
+  if (quality === 0) patch.wrong = (it.wrong || 0) + 1;
+  return withItem(facts, key, patch);
+}
+function reviewVowel(facts, vowelKey, quality) {
+  const key = itemKey.vowel(vowelKey);
+  const it = facts.items?.[key] || {};
+  return withItem(facts, key, { kind: "vowel", sm2: sm2(it.sm2, quality) });
+}
+function seenWord(facts, id) {
+  const key = itemKey.word(id);
+  const it = facts.items?.[key] || {};
+  return {
+    facts: withItem(facts, key, { kind: "word", introduced: true, seen: (it.seen || 0) + 1 }),
+    isNew: !it.introduced
+  };
+}
+function answerWord(facts, id, ok) {
+  const key = itemKey.word(id);
+  const it = facts.items?.[key] || {};
+  const patch = {
+    kind: "word",
+    correct: (it.correct || 0) + (ok ? 1 : 0),
+    wrong: (it.wrong || 0) + (ok ? 0 : 1)
+  };
+  const isNew = ok && !it.introduced;
+  if (ok) patch.introduced = true;
+  return { facts: withItem(facts, key, patch), isNew };
+}
+function reviewWord(facts, id, quality) {
+  const key = itemKey.word(id);
+  const it = facts.items?.[key] || {};
+  const ok = quality >= 1;
+  const isNew = !it.introduced;
+  return {
+    facts: withItem(facts, key, {
+      kind: "word",
+      introduced: true,
+      seen: (it.seen || 0) + 1,
+      correct: (it.correct || 0) + (ok ? 1 : 0),
+      wrong: (it.wrong || 0) + (ok ? 0 : 1),
+      sm2: sm2(it.sm2, quality)
+    }),
+    isNew
+  };
+}
+function mergeFacts(a = { nodes: {}, items: {} }, b = { nodes: {}, items: {} }) {
+  const nodes = { ...a.nodes || {} };
+  for (const [id, n] of Object.entries(b.nodes || {})) {
+    const c = nodes[id] || {};
+    const m = {};
+    if (c.score != null || n.score != null) m.score = Math.max(c.score ?? 0, n.score ?? 0);
+    if (c.counter != null || n.counter != null) m.counter = Math.max(c.counter ?? 0, n.counter ?? 0);
+    nodes[id] = m;
+  }
+  const items = { ...a.items || {} };
+  for (const [k, it] of Object.entries(b.items || {})) {
+    const c = items[k] || {};
+    const m = { kind: c.kind || it.kind };
+    if (c.introduced || it.introduced) m.introduced = true;
+    const seen = Math.max(c.seen ?? 0, it.seen ?? 0);
+    if (seen) m.seen = seen;
+    const correct = Math.max(c.correct ?? 0, it.correct ?? 0);
+    if (correct) m.correct = correct;
+    const wrong = Math.max(c.wrong ?? 0, it.wrong ?? 0);
+    if (wrong) m.wrong = wrong;
+    const sa = c.sm2, sb = it.sm2;
+    const pick = !sa ? sb : !sb ? sa : sb.repetitions > sa.repetitions || sb.repetitions === sa.repetitions && (sb.nextReview || 0) > (sa.nextReview || 0) ? sb : sa;
+    if (pick) m.sm2 = pick;
+    items[k] = m;
+  }
+  return { nodes, items };
+}
+
 // tests/smoke_v7.mjs
 var fails = 0;
 function check(name, cond) {
@@ -7641,6 +7886,284 @@ dictMig.readingProgress.studied.forEach((id) => {
   dictMig.readingProgress.words[id] = { seen: 1, correct: 0, wrong: 0 };
 });
 check("\u0441\u043B\u043E\u0432\u0430\u0440\u044C: words \u0441\u043E\u0437\u0434\u0430\u043D \u0438\u0437 studied", Object.keys(dictMig.readingProgress.words).length === 2 && dictMig.readingProgress.words["rw_01"].seen === 1);
+var NOW = 17e11;
+var DAY = 864e5;
+var c1 = sm2({}, 2, NOW);
+check("\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0449\u0438\u043A: \u043D\u043E\u0432\u0430\u044F \u043A\u0430\u0440\u0442\u0430, quality=2 \u2192 interval 1, reps 1", c1.interval === 1 && c1.repetitions === 1);
+check("\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0449\u0438\u043A: nextReview = now + interval*\u0434\u0435\u043D\u044C", c1.nextReview === NOW + 1 * DAY);
+var c2 = sm2(c1, 2, NOW);
+check("\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0449\u0438\u043A: 2-\u0439 \u0432\u0435\u0440\u043D\u044B\u0439 \u2192 interval 3, reps 2", c2.interval === 3 && c2.repetitions === 2);
+var c3 = sm2(c2, 2, NOW);
+check("\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0449\u0438\u043A: 3-\u0439 \u0432\u0435\u0440\u043D\u044B\u0439 \u2192 interval \u0440\u0430\u0441\u0442\u0451\u0442 (>=3)", c3.interval >= 3 && c3.repetitions === 3);
+var cReset = sm2(c3, 0, NOW);
+check("\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0449\u0438\u043A: \xAB\u0421\u043D\u043E\u0432\u0430\xBB (q=0) \u0441\u0431\u0440\u0430\u0441\u044B\u0432\u0430\u0435\u0442 reps \u0432 0 \u0438 interval \u0432 1", cReset.repetitions === 0 && cReset.interval === 1);
+var ef = {};
+for (let i = 0; i < 10; i++) ef = sm2(ef, 1, NOW);
+check("\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0449\u0438\u043A: ef \u043D\u0435 \u043D\u0438\u0436\u0435 1.3 \u043F\u043E\u0441\u043B\u0435 \u0441\u0435\u0440\u0438\u0438 \xAB\u0422\u0440\u0443\u0434\u043D\u043E\xBB", ef.ef >= 1.3);
+check("\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0449\u0438\u043A: \u043A\u0430\u0440\u0442\u0430 \u0431\u0435\u0437 nextReview \u2014 due", isDue(void 0, NOW) && isDue({}, NOW));
+check("\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0449\u0438\u043A: \u043A\u0430\u0440\u0442\u0430 \u043D\u0430 \u0437\u0430\u0432\u0442\u0440\u0430 \u2014 \u043D\u0435 due", !isDue(c1, NOW));
+check("\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0449\u0438\u043A: \u043A\u0430\u0440\u0442\u0430 \u043D\u0430 \u0437\u0430\u0432\u0442\u0440\u0430 \u2014 due \u0447\u0435\u0440\u0435\u0437 2 \u0434\u043D\u044F", isDue(c1, NOW + 2 * DAY));
+var map = { a: { nextReview: NOW - DAY }, b: { nextReview: NOW + DAY }, c: {} };
+var due = dueKeys(map, NOW).sort();
+check("\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0449\u0438\u043A: dueKeys \u0432\u044B\u0431\u0438\u0440\u0430\u0435\u0442 \u043F\u0440\u043E\u0441\u0440\u043E\u0447\u0435\u043D\u043D\u044B\u0435 \u0438 \u043D\u043E\u0432\u044B\u0435", due.length === 2 && due.includes("a") && due.includes("c"));
+function stable(x) {
+  if (Array.isArray(x)) return "[" + x.map(stable).join(",") + "]";
+  if (x && typeof x === "object")
+    return "{" + Object.keys(x).sort().map((k) => JSON.stringify(k) + ":" + stable(x[k])).join(",") + "}";
+  return JSON.stringify(x);
+}
+var deepEq = (a, b) => stable(a) === stable(b);
+var counterNodes = ["L1.1", "L1.2", "L1.3", "L1.4", "L1.5", "N1.1", "N1.2", "N1.3", "N1.4", "N1.5", "W1", "W2", "W3", "W4", "W5", "P1", "P2", "P3", "P4", "P5"];
+check(
+  "facts: counterKey\u2194node \u043A\u0430\u0440\u0442\u0430 \u043F\u043E\u043A\u0440\u044B\u0432\u0430\u0435\u0442 \u0432\u0441\u0435 \u0443\u0437\u043B\u044B \u0441\u043E \u0441\u0447\u0451\u0442\u0447\u0438\u043A\u043E\u043C",
+  counterNodes.every((id) => NODE_TO_COUNTER_KEY[id] && COUNTER_KEY_TO_NODE[NODE_TO_COUNTER_KEY[id]] === id)
+);
+var zoneCards = ["VL1.1", "VL1.2", "VL1.3", "VL1.4", "VN1.3", "VN1.4", "VN1.5"].flatMap((bid) => getBlockCards(READING_BLOCKS.find((b) => b.id === bid)).map((i) => i.id));
+var L = ALPHABET[0].id;
+var L2 = ALPHABET[1].id;
+var sampleSm2 = { interval: 3, repetitions: 2, ef: 2.5, nextReview: 17e11 };
+var rich = {
+  scores: {
+    "L1.1": 90,
+    "L1.2": 90,
+    "L1.3": 90,
+    "L1.4": 90,
+    "L1.5": 90,
+    "N1.1": 90,
+    "N1.2": 90,
+    "N1.3": 90,
+    "N1.4": 90,
+    "N1.5": 90,
+    "C0": 85,
+    "M1.1": 90,
+    "M1.2": 90,
+    "M1.3": 90,
+    "M1.4": 90
+  },
+  blockScores: { letters_1: 12 },
+  cardReviews: { [L]: sampleSm2 },
+  weakLetters: { [L2]: 3 },
+  vowelReviews: { patah: { interval: 1, repetitions: 1, ef: 2.5, nextReview: 1700000000001 } },
+  wordsStudied: [],
+  wordsCorrect: {},
+  readingProgress: {
+    studied: [...zoneCards, "rw_seen"],
+    words: {
+      rw_seen: { seen: 2, correct: 1, wrong: 0, sm2: sampleSm2 },
+      rw_wrong: { seen: 1, correct: 0, wrong: 2 }
+      // отвечено неверно, НЕ в studied
+    }
+  }
+};
+var F = foldToFacts(rich);
+check("facts.fold: score \u0443\u0437\u043B\u0430", F.nodes["L1.1"].score === 90 && F.nodes["C0"].score === 85);
+check("facts.fold: counter \u0443\u0437\u043B\u0430 \u0438\u0437 blockScores", F.nodes["L1.1"].counter === 12);
+check("facts.fold: SM-2 \u0431\u0443\u043A\u0432\u044B", deepEq(F.items[itemKey.letter(L)].sm2, sampleSm2));
+check("facts.fold: weakLetters \u2192 wrong \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u0430", F.items[itemKey.letter(L2)].wrong === 3);
+check("facts.fold: SM-2 \u043E\u0433\u043B\u0430\u0441\u043E\u0432\u043A\u0438", !!F.items[itemKey.vowel("patah")].sm2);
+check("facts.fold: introduced \u0438\u0437 studied", F.items[itemKey.word("rw_seen")].introduced === true);
+check(
+  "facts.fold: \u0441\u043B\u043E\u0432\u043E-\xAB\u043D\u0435\u0432\u0435\u0440\u043D\u043E\xBB \u041D\u0415 introduced (\u043D\u0435\u0442 \u0432 studied)",
+  F.items[itemKey.word("rw_wrong")].introduced === void 0 && F.items[itemKey.word("rw_wrong")].wrong === 2
+);
+var view = factsToLegacyView(F);
+check("facts.view: scores \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B", deepEq(view.scores, rich.scores));
+check("facts.view: blockScores \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B", view.blockScores.letters_1 === 12);
+check(
+  "facts.view: studied \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D \u043A\u0430\u043A \u043C\u043D\u043E\u0436\u0435\u0441\u0442\u0432\u043E",
+  deepEq([...view.readingProgress.studied].sort(), [...rich.readingProgress.studied].sort())
+);
+check(
+  "facts.view: cardReviews/weakLetters/vowelReviews \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B",
+  deepEq(view.cardReviews, rich.cardReviews) && view.weakLetters[L2] === 3 && !!view.vowelReviews.patah
+);
+var realEmpty = { scores: {}, blockScores: {}, readingProgress: { studied: [] } };
+var fixtures = [
+  ["\u043D\u043E\u0432\u044B\u0439 (\u0440\u0435\u0430\u043B\u044C\u043D\u044B\u0439 \u0434\u0430\u043C\u043F daniilusachev)", realEmpty],
+  ["\u0437\u043E\u043D\u0430 0 + \u0433\u0440\u0430\u043C\u043C\u0430\u0442\u0438\u043A\u0430 (rich)", rich],
+  ["\u0447\u0430\u0441\u0442\u0438\u0447\u043D\u044B\u0439: L1.1 done, \u0441\u043B\u043E\u0432\u0430 \u043D\u0435 \u0438\u0437\u0443\u0447\u0435\u043D\u044B", { scores: { "L1.1": 80 }, blockScores: {}, readingProgress: { studied: [] } }],
+  ["\u0438\u0433\u0440\u043E\u0432\u043E\u0439 \u043F\u0443\u0442\u044C: letters_1=10", { scores: {}, blockScores: { letters_1: 10 }, readingProgress: { studied: [] } }]
+];
+for (const [name, v7] of fixtures) {
+  const before = deriveProgress(v7);
+  const after = deriveProgress(factsToLegacyView(foldToFacts(v7)));
+  check(`facts.invariant: deriveProgress \u0441\u043E\u0432\u043F\u0430\u0434\u0430\u0435\u0442 \u2014 ${name}`, deepEq(before, after));
+}
+var nodeIds = Object.keys(COUNTER_KEY_TO_NODE).map((ck) => COUNTER_KEY_TO_NODE[ck]).concat(["C0", "M1.1", "M1.2", "M1.3", "M1.4", "C1", "G1.1"]);
+var richView = factsToLegacyView(foldToFacts(rich));
+check(
+  "facts.invariant: getNodeStatus \u0441\u043E\u0432\u043F\u0430\u0434\u0430\u0435\u0442 \u043F\u043E \u0432\u0441\u0435\u043C \u0443\u0437\u043B\u0430\u043C (rich)",
+  nodeIds.every((id) => getNodeStatus(id, rich) === getNodeStatus(id, richView))
+);
+var E = { nodes: {}, items: {} };
+check(
+  "mut: setNodeScore \u043F\u043E \u043C\u0430\u043A\u0441\u0438\u043C\u0443\u043C\u0443",
+  setNodeScore(setNodeScore(E, "L1.1", 70), "L1.1", 55).nodes["L1.1"].score === 70
+);
+check("mut: bumpNodeCounter +1", bumpNodeCounter(bumpNodeCounter(E, "W1"), "W1").nodes["W1"].counter === 2);
+check(
+  "mut: counter \u2192 blockScores \u0432 \u0437\u0435\u0440\u043A\u0430\u043B\u0435",
+  factsToLegacyView(bumpNodeCounter(E, "L1.1", 5)).blockScores.letters_1 === 5
+);
+var fl = reviewLetter(E, "9", 0);
+check(
+  "mut: reviewLetter q=0 \u2192 sm2 \u0441\u0431\u0440\u043E\u0448\u0435\u043D + weakLetters",
+  fl.items["l:9"].sm2.repetitions === 0 && factsToLegacyView(fl).weakLetters["9"] === 1
+);
+var fv = reviewVowel(E, "shva:\u05D1", 2);
+check(
+  "mut: reviewVowel \u043A\u043B\u044E\u0447 \u0441 \u0434\u0432\u043E\u0435\u0442\u043E\u0447\u0438\u0435\u043C round-trip",
+  !!fv.items["v:shva:\u05D1"].sm2 && !!factsToLegacyView(fv).vowelReviews["shva:\u05D1"]
+);
+var sw = seenWord(E, "rw_01");
+check("mut: seenWord \u2192 introduced+seen, isNew", sw.isNew === true && sw.facts.items["w:rw_01"].seen === 1);
+var awWrong = answerWord(E, "rw_x", false);
+check(
+  "mut: answerWord \u043D\u0435\u0432\u0435\u0440\u043D\u043E \u2192 wrong, \u041D\u0415 introduced, \u043D\u0435 new",
+  awWrong.facts.items["w:rw_x"].wrong === 1 && !awWrong.facts.items["w:rw_x"].introduced && awWrong.isNew === false
+);
+var rw = reviewWord(E, "rw_02", 2);
+var rwView = factsToLegacyView(rw.facts);
+check(
+  "mut: reviewWord \u2192 SM-2 + studied + words \u0432 \u0437\u0435\u0440\u043A\u0430\u043B\u0435",
+  rw.isNew === true && !!rw.facts.items["w:rw_02"].sm2 && rwView.readingProgress.studied.includes("rw_02") && !!rwView.readingProgress.words.rw_02.sm2
+);
+var fa = { nodes: { "L1.1": { score: 70 } }, items: { "w:a": { kind: "word", introduced: true, correct: 2, sm2: { repetitions: 1, nextReview: 100 } } } };
+var fb = { nodes: { "L1.1": { score: 90 }, "N1.1": { counter: 3 } }, items: { "w:a": { kind: "word", correct: 5, sm2: { repetitions: 3, nextReview: 50 } }, "w:b": { kind: "word", introduced: true } } };
+var mg = mergeFacts(fa, fb);
+check("merge: score \u043F\u043E \u043C\u0430\u043A\u0441\u0438\u043C\u0443\u043C\u0443", mg.nodes["L1.1"].score === 90);
+check("merge: \u0443\u0437\u0435\u043B \u0442\u043E\u043B\u044C\u043A\u043E \u0443 b \u0441\u043E\u0445\u0440\u0430\u043D\u0451\u043D", mg.nodes["N1.1"].counter === 3);
+check("merge: \u0441\u0447\u0451\u0442\u0447\u0438\u043A\u0438 \u043F\u043E \u043C\u0430\u043A\u0441\u0438\u043C\u0443\u043C\u0443", mg.items["w:a"].correct === 5);
+check("merge: sm2 \u0431\u0435\u0440\u0451\u0442 \u0431\u043E\u043B\u0435\u0435 \u043F\u0440\u043E\u0434\u0432\u0438\u043D\u0443\u0442\u0443\u044E (\u0431\u043E\u043B\u044C\u0448\u0435 repetitions)", mg.items["w:a"].sm2.repetitions === 3);
+check("merge: introduced \u043F\u043E \u0418\u041B\u0418", mg.items["w:a"].introduced === true && mg.items["w:b"].introduced === true);
+var huzpay = {
+  scores: {
+    C0: 88,
+    C1: 88,
+    C2: 100,
+    C3: 100,
+    C4: 100,
+    "D1.1": 100,
+    "D1.2": 100,
+    "D1.3": 100,
+    "G1.1": 100,
+    "G1.2": 100,
+    "G1.3": 100,
+    "G1.4": 88,
+    "G1.5": 100,
+    "G1.6": 100,
+    "G2.1": 100,
+    "G2.2": 100,
+    "G2.3": 100,
+    "G2.4": 100,
+    "L1.1": 100,
+    "L1.2": 70,
+    "L1.3": 70,
+    "L1.4": 70,
+    "L1.5": 70,
+    "M1.1": 100,
+    "M1.2": 88,
+    "M1.3": 100,
+    "M1.4": 100,
+    "M2.1": 75,
+    "M2.2": 100,
+    "M2.3": 100,
+    "M2.4": 88,
+    "M2.5": 100,
+    "M2.6": 100,
+    "M2.7": 100,
+    "M2.8": 100,
+    "M2.9": 100,
+    "N1.1": 70,
+    "N1.2": 70,
+    "N1.3": 70,
+    "N1.4": 70,
+    "N1.5": 92,
+    "CH1.1": 100,
+    "CH1.2": 100,
+    "CH1.3": 100,
+    "CH1.4": 100,
+    "CH2.1": 100,
+    "SH1.1": 100,
+    "SH1.2": 100
+  },
+  blockScores: {
+    words_1: 10,
+    sounds_1: 10,
+    sounds_2: 10,
+    sounds_3: 10,
+    sounds_4: 10,
+    sounds_5: 10,
+    letters_1: 10,
+    letters_2: 10,
+    letters_3: 10,
+    letters_4: 10,
+    letters_5: 10
+  },
+  cardReviews: {
+    "1": { ef: 2.6, interval: 1, nextReview: 1782658842990, repetitions: 1 },
+    "9": { ef: 2.6, interval: 1, nextReview: 1782658871603, repetitions: 0 }
+  },
+  weakLetters: { "9": 1 },
+  vowelReviews: {
+    "shva:\u05D1": { ef: 2.6, interval: 1, nextReview: 1782805811971, repetitions: 1 },
+    "hirik:\u05DB": { ef: 3.2, interval: 595, nextReview: 1834127418259, repetitions: 7 }
+  },
+  wordsStudied: ["1", "95", "328", "24"],
+  wordsCorrect: { "1": 1, "24": 4, "95": 3, "328": 4 },
+  readingProgress: {
+    studied: [],
+    words: { rp_01: { seen: 1, wrong: 0, correct: 0 }, rp_17: { seen: 3, wrong: 0, correct: 0 } }
+  }
+};
+var hzView = factsToLegacyView(foldToFacts(huzpay));
+check(
+  "huzpay: deriveProgress \u043C\u0438\u0433\u0440\u0430\u0446\u0438\u0438 == \u043E\u0440\u0438\u0433\u0438\u043D\u0430\u043B\u0430",
+  deepEq(deriveProgress(huzpay), deriveProgress(hzView))
+);
+check(
+  "huzpay: \u043A\u043B\u044E\u0447 \u043E\u0433\u043B\u0430\u0441\u043E\u0432\u043A\u0438 shva:\u05D1 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D \u0442\u043E\u0447\u043D\u043E",
+  deepEq(hzView.vowelReviews["shva:\u05D1"], huzpay.vowelReviews["shva:\u05D1"])
+);
+check(
+  "huzpay: cardReviews \u0447\u0438\u0441\u043B\u043E\u0432\u044B\u0435 id \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B",
+  deepEq(hzView.cardReviews, huzpay.cardReviews) && hzView.weakLetters["9"] === 1
+);
+check("huzpay: scores (48 \u0443\u0437\u043B\u043E\u0432) \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B", deepEq(hzView.scores, huzpay.scores));
+check(
+  "huzpay: \u043B\u0435\u0433\u0430\u0441\u0438-\u0441\u043B\u043E\u0432\u0430\u0440\u044C \u0441\u0432\u0451\u0440\u043D\u0443\u0442 \u0432 studied",
+  hzView.readingProgress.studied.includes("1") && hzView.readingProgress.studied.includes("95")
+);
+var MIRROR_KEYS = [
+  "scores",
+  "blockScores",
+  "cardReviews",
+  "vowelReviews",
+  "weakLetters",
+  "wordsStudied",
+  "wordsCorrect",
+  "readingProgress",
+  "progress"
+];
+function simulateSaveLoad(v7) {
+  const facts = foldToFacts(v7);
+  const persisted = { facts, xp: v7.xp, version: 8 };
+  for (const k of MIRROR_KEYS) delete persisted[k];
+  const reloaded = { ...persisted, ...factsToLegacyView(persisted.facts) };
+  reloaded.progress = deriveProgress(reloaded);
+  return reloaded;
+}
+for (const [name, v7] of fixtures) {
+  const reloaded = simulateSaveLoad(v7);
+  check(
+    `persist-cycle: \u0441\u0442\u0430\u0442\u0443\u0441\u044B \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u044E\u0442\u0441\u044F \u043D\u0430 \u043A\u0440\u0443\u0433\u0443 \u2014 ${name}`,
+    deepEq(deriveProgress(v7), reloaded.progress)
+  );
+}
+check(
+  "persist-cycle: huzpay \u0434\u043E\u0435\u0437\u0436\u0430\u0435\u0442 \u0431\u0435\u0437 \u043F\u043E\u0442\u0435\u0440\u044C",
+  deepEq(deriveProgress(huzpay), simulateSaveLoad(huzpay).progress)
+);
 console.log(fails === 0 ? "\n\u{1F389} \u0412\u0421\u0415 \u041F\u0420\u041E\u0412\u0415\u0420\u041A\u0418 \u041F\u0420\u041E\u0419\u0414\u0415\u041D\u042B" : `
 \u{1F4A5} \u041F\u0420\u041E\u0412\u0410\u041B\u041E\u0412: ${fails}`);
 process.exit(fails === 0 ? 0 : 1);

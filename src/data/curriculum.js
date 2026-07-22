@@ -72,21 +72,11 @@ export const CURRICULUM = [
   { id: 'SH1.2', kind: 'grammar', module: 'phonetics', requires: ['SH1.1'], done: { type: 'score', threshold: 70 } },
   { id: 'D1.3',  kind: 'grammar', module: 'phonetics', requires: ['M1.1'],  done: { type: 'score', threshold: 70 } },
 
-  // ── Разговор (W1-5) — done через игровые счётчики (как раньше) ──
-  // 🟡 R1-конфликт (ранний словарь vs финал уровня 6) НЕ решён — условия
-  // сохранены как в действующем checkWordsUnlock. Менять здесь, когда решится.
-  { id: 'W1', kind: 'words', block: 1, requires: [{ id: 'L1.2', min: 90 }, { id: 'N1.2', min: 90 }],       done: { type: 'counter' }, counterKey: 'words_1' },
-  { id: 'W2', kind: 'words', block: 2, requires: ['W1', { id: 'L1.3', min: 90 }, { id: 'N1.2', min: 90 }], done: { type: 'counter' }, counterKey: 'words_2' },
-  { id: 'W3', kind: 'words', block: 3, requires: ['W2', { id: 'L1.4', min: 90 }, { id: 'N1.3', min: 90 }], done: { type: 'counter' }, counterKey: 'words_3' },
-  { id: 'W4', kind: 'words', block: 4, requires: ['W3', { id: 'L1.5', min: 90 }, { id: 'N1.4', min: 90 }], done: { type: 'counter' }, counterKey: 'words_4' },
-  { id: 'W5', kind: 'words', block: 5, requires: ['W4', { id: 'L1.5', min: 90 }, { id: 'N1.5', min: 90 }], done: { type: 'counter' }, counterKey: 'words_5' },
-
-  // ── Фразы (P1-5) ──
-  { id: 'P1', kind: 'phrases', block: 1, requires: ['W1'], done: { type: 'counter' }, counterKey: 'phrases_1' },
-  { id: 'P2', kind: 'phrases', block: 2, requires: ['P1'], done: { type: 'counter' }, counterKey: 'phrases_2' },
-  { id: 'P3', kind: 'phrases', block: 3, requires: ['P2'], done: { type: 'counter' }, counterKey: 'phrases_3' },
-  { id: 'P4', kind: 'phrases', block: 4, requires: ['P3'], done: { type: 'counter' }, counterKey: 'phrases_4' },
-  { id: 'P5', kind: 'phrases', block: 5, requires: ['P4'], done: { type: 'counter' }, counterKey: 'phrases_5' },
+  // ── W1-5/P1-5 УДАЛЕНЫ (этап 4, beta.V1.1.4) ──────────────────────────────
+  // Ранний «Разговор» конфликтовал с реестром (R1 = seq 102, уровень 6).
+  // Счётчики words_*/phrases_* существующих пользователей НЕ теряются:
+  // foldToFacts кладёт неизвестные counterKey под '#words_1' в facts.nodes.
+  // Имена W*/P* свободны; серия книги Коэн-Цедека переименована в SL заранее.
 
   // ── Грамматика — уровень 1 (перенесено из мастерской 01-02.07.2026) ──
   { id: 'C0',   kind: 'grammar', module: 'syntax',     requires: ['VL1.3'],  done: { type: 'score', threshold: 70 } },
@@ -132,6 +122,26 @@ export const CURRICULUM = [
   { id: 'G2.4', kind: 'grammar', module: 'verb', requires: ['G2.3'], done: { type: 'score', threshold: 90 } },
   { id: 'C4',   kind: 'grammar', module: 'syntax',   requires: ['M2.9', 'G2.2'], done: { type: 'score', threshold: 70 } },
   { id: 'CH2.1', kind: 'grammar', module: 'numbers', requires: ['CH1.4'], done: { type: 'score', threshold: 70 } },
+
+  // ── Уровень 4 · батч 1 (beta.V1.1.4): שֶׁל + SL-трек + вопросы ──
+  { id: 'M3.1',  kind: 'grammar', module: 'morphology', requires: ['C4'],    done: { type: 'score', threshold: 70 } },
+  { id: 'M3.2',  kind: 'grammar', module: 'morphology', requires: ['M3.1'],  done: { type: 'score', threshold: 70 } },
+  { id: 'M3.3',  kind: 'grammar', module: 'morphology', requires: ['M3.2'],  done: { type: 'score', threshold: 70 } },
+  { id: 'SL1.1', kind: 'grammar', module: 'wordsystem', requires: ['G1.6'],  done: { type: 'score', threshold: 70 } },
+  { id: 'SL1.2', kind: 'grammar', module: 'wordsystem', requires: ['SL1.1'], done: { type: 'score', threshold: 70 } },
+  { id: 'Q1.1',  kind: 'grammar', module: 'syntax',     requires: ['C2'],    done: { type: 'score', threshold: 70 } },
+  { id: 'Q1.2',  kind: 'grammar', module: 'syntax',     requires: ['Q1.1'],  done: { type: 'score', threshold: 70 } },
+  { id: 'CH3.1', kind: 'grammar', module: 'numbers',    requires: ['CH2.1'], done: { type: 'score', threshold: 70 } },
+  { id: 'CH3.2', kind: 'grammar', module: 'numbers',    requires: ['CH3.1'], done: { type: 'score', threshold: 70 } },
+  { id: 'SL1.3', kind: 'grammar', module: 'wordsystem', requires: ['SL1.2'], done: { type: 'score', threshold: 70 } },
+  { id: 'G3.1',  kind: 'grammar', module: 'verb',       requires: ['G2.4'],  done: { type: 'score', threshold: 70 } },
+  { id: 'G3.2',  kind: 'grammar', module: 'verb',       requires: ['G3.1'],  done: { type: 'score', threshold: 70 } },
+  { id: 'G3.3',  kind: 'grammar', module: 'verb',       requires: ['G3.2'],  done: { type: 'score', threshold: 70 } },
+  { id: 'G3.4',  kind: 'grammar', module: 'verb',       requires: ['G3.3'],  done: { type: 'score', threshold: 70 } },
+  { id: 'G3.5',  kind: 'grammar', module: 'verb',       requires: ['G3.4'],  done: { type: 'score', threshold: 90 } },
+  { id: 'G3.6',  kind: 'grammar', module: 'verb',       requires: ['G3.5'],  done: { type: 'score', threshold: 70 } },
+  { id: 'C5.1',  kind: 'grammar', module: 'syntax',     requires: ['G3.5'],  done: { type: 'score', threshold: 70 } },
+  { id: 'SL1.4', kind: 'grammar', module: 'wordsystem', requires: ['SL1.3'], done: { type: 'score', threshold: 70 } },
 ];
 
 export const CURRICULUM_BY_ID = Object.fromEntries(CURRICULUM.map(n => [n.id, n]));
@@ -330,6 +340,29 @@ export const COURSE_PATH = [
       { id: 'G2.4' }, { id: 'R1.50' },
       { id: 'C4' },   { id: 'R1.51' },
       { id: 'CH2.1' }, { id: 'R1.52' },
+    ],
+  },
+  {
+    chapter: 'Уровень 4 · Принадлежность и вопросы (начало)',
+    items: [
+      { id: 'M3.1' }, { id: 'R1.53' },
+      { id: 'M3.2' },
+      { id: 'M3.3' },
+      { id: 'SL1.1' },
+      { id: 'SL1.2' },
+      { id: 'Q1.1' },
+      { id: 'Q1.2' }, { id: 'R1.59' },
+      { id: 'CH3.1' }, { id: 'R1.60' },
+      { id: 'CH3.2' },
+      { id: 'SL1.3' },
+      { id: 'G3.1' }, { id: 'R1.63' },
+      { id: 'G3.2' },
+      { id: 'G3.3' },
+      { id: 'G3.4' },
+      { id: 'G3.5' },
+      { id: 'G3.6' }, { id: 'R1.68' },
+      { id: 'C5.1' },
+      { id: 'SL1.4' }, { id: 'R1.70' },
     ],
   },
 ];

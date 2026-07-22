@@ -14,7 +14,7 @@
  * getLockHint. Старые экраны-хабы (AlphabetScreen, GrammarScreen, ReadingScreen
  * feed) с этого экрана больше не открываются.
  */
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { LETTER_GROUPS, NIKUD_GROUPS } from "../data/alphabet";
@@ -27,6 +27,7 @@ import { GRAMMAR_LESSONS_BY_ID } from "../data/grammarLessons";
 
 import LearnScreen   from "./LearnScreen";
 import NikudScreen   from "./NikudScreen";
+import CardsScreen   from "./CardsScreen";
 import ReadingScreen from "./ReadingScreen";
 import LessonScreen  from "./LessonScreen";
 import CheatSheet    from "./CheatSheet";
@@ -91,15 +92,17 @@ function nodeView(item, stats) {
 
 // ─── Строка узла ──────────────────────────────────────────────────────────────
 
-function PathNode({ v, dark, isCurrent, lockHint, onOpen }) {
+function PathNode({ v, dark, isCurrent, lockHint, onOpen, nodeRef }) {
   const done = v.status === 'done';
   const locked = v.status === 'locked' || v.status === 'indev';
   const base = dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100";
 
   return (
     <button
+      ref={nodeRef}
       onClick={() => !locked && onOpen(v)}
       disabled={locked}
+      style={{ scrollMarginTop: 80, scrollMarginBottom: 120 }}
       className={`w-full text-left rounded-2xl border p-3.5 flex items-center gap-3 transition-all
         ${locked ? `opacity-55 ${base}` : base}
         ${isCurrent ? "ring-2 ring-emerald-400" : ""}`}
@@ -135,11 +138,26 @@ export default function StudyScreen({ initialSection }) {
   const { dark } = useTheme();
   const { stats } = useStats();
   const [tab, setTab] = useState(initialSection === 'reading' ? 'dict' : 'path');
-  // active: { type:'letters'|'sounds'|'portion'|'grammar'|'sheet', ... }
-  const [active, setActive] = useState(null);
+  // active: { type:'letters'|'sounds'|'portion'|'grammar'|'sheet'|'cards', ... }
+  // 'cards' — SM-2 колода букв (CardsScreen). Открывается из CheatSheet узла
+  // букв и из HomeScreen «⏰ Повторить буквы» (initialSection='cards').
+  const [active, setActive] = useState(
+    initialSection === 'cards' ? { type: 'cards' } : null
+  );
   const [readingTarget, setReadingTarget] = useState(null);
 
   const continueId = getContinueNode(stats);
+
+  // Автопрокрутка к текущему уроку при открытии таба «Путь» (и когда меняется
+  // текущий узел). Ждём кадр, чтобы список успел отрендериться.
+  const currentNodeRef = useRef(null);
+  useEffect(() => {
+    if (tab !== 'path' || active) return;
+    const id = requestAnimationFrame(() => {
+      currentNodeRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [tab, active, continueId]);
 
   // CTA «Изучить N новых слов» из результатов уроков → сразу в порцию
   function openReading(blockId) {
@@ -171,6 +189,8 @@ export default function StudyScreen({ initialSection }) {
     return <NikudScreen initialGroup={active.group} onBack={back} onOpenReading={openReading} />;
   if (active?.type === 'portion')
     return <ReadingScreen soloBlock={active.id} onBack={back} />;
+  if (active?.type === 'cards')
+    return <CardsScreen onBack={back} />;
   if (active?.type === 'grammar') {
     const lesson = GRAMMAR_LESSONS_BY_ID[active.id];
     return <LessonScreen lesson={lesson} onBack={back} onOpenReading={openReading} />;
@@ -182,6 +202,7 @@ export default function StudyScreen({ initialSection }) {
         nodeId={v.id} kind={v.kind} title={v.title} dark={dark}
         onBack={back}
         onRetake={() => startNode(v)}
+        onCards={v.kind === 'letters' ? () => setActive({ type: 'cards' }) : undefined}
       />
     );
   }
@@ -229,10 +250,16 @@ export default function StudyScreen({ initialSection }) {
             </button>
           )}
 
-          {COURSE_PATH.map(ch => (
-            <div key={ch.chapter}>
-              <p className={`text-xs font-bold uppercase tracking-wide mb-2 ${dark ? "text-gray-500" : "text-gray-400"}`}>
-                {ch.chapter}
+          {COURSE_PATH.map(ch => {
+            const isActiveChapter = ch.items.some(i => i.id === continueId);
+            return (
+            <div key={ch.chapter}
+              className={isActiveChapter
+                ? `rounded-2xl p-2 -m-2 ${dark ? "ring-1 ring-emerald-500/40 bg-emerald-500/5" : "ring-1 ring-emerald-300 bg-emerald-50/50"}`
+                : ""}>
+              <p className={`text-xs font-bold uppercase tracking-wide mb-2 flex items-center gap-1.5
+                ${isActiveChapter ? (dark ? "text-emerald-400" : "text-emerald-600") : (dark ? "text-gray-500" : "text-gray-400")}`}>
+                {isActiveChapter && <span>▸</span>}{ch.chapter}
               </p>
               <div className="flex flex-col gap-2">
                 {ch.items.map(item => {
@@ -240,16 +267,19 @@ export default function StudyScreen({ initialSection }) {
                   if (!v) return null;
                   const lockHint = v.status === 'locked' && CURRICULUM_BY_ID[v.id]
                     ? getLockHint(v.id, stats) : null;
+                  const isCur = v.id === continueId;
                   return (
                     <PathNode key={v.id} v={v} dark={dark}
-                      isCurrent={v.id === continueId}
+                      isCurrent={isCur}
+                      nodeRef={isCur ? currentNodeRef : null}
                       lockHint={lockHint}
                       onOpen={openNode} />
                   );
                 })}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

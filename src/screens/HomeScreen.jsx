@@ -1,18 +1,17 @@
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { ALPHABET, LETTER_GROUPS, NIKUD_GROUPS } from "../data/alphabet";
-import { WORD_CATEGORIES } from "../data/words";
-import { levelProgress, WORDS_UNLOCK_THRESHOLD } from "../data/constants";
-import { checkWordsUnlock, checkReadingUnlock } from "../helpers/progressHelpers";
+import { READING_ITEMS } from "../data/reading";
+import { levelProgress } from "../data/constants";
 import { ALL_LETTERS } from "../data/alphabet";
 
 // ── Путь обучения ─────────────────────────────────────────────────────────────
-// Каждый раздел: id, icon, title, color, как считать прогресс
+// Этап 4 (beta.V1.1.4): секция «Разговор» (легаси-узлы W1-5) удалена вместе с
+// узлами. «Словарь» считается из единого потока (readingProgress.studied).
 const PATH_SECTIONS = [
-  { id:"alphabet", icon:"🔤", label:"Буквы",      color:"indigo",  maxGroups:5 },
-  { id:"nikud",    icon:"📖", label:"Огласовки",  color:"blue",    maxGroups:5 },
-  { id:"reading",  icon:"📖", label:"Словарь",    color:"emerald", maxGroups:3 },
-  { id:"words",    icon:"💬", label:"Разговор",      color:"amber",   maxGroups:16 },
+  { id:"alphabet", icon:"🔤", label:"Буквы",     color:"indigo",  target:"alphabet" },
+  { id:"nikud",    icon:"🎵", label:"Огласовки", color:"blue",    target:"nikud"    },
+  { id:"reading",  icon:"📚", label:"Словарь",   color:"emerald", target:"reading"  },
 ];
 
 const SECTION_COLORS = {
@@ -29,18 +28,20 @@ function useSectionProgress(stats) {
     const done = [1,2,3,4,5].filter(n => sectionP?.[n] === "done").length;
     return Math.round((done / 5) * 100);
   };
-  const isDone   = (sectionP, n) => sectionP?.[n] === "done";
-  const isAvail  = (sectionP, n) => sectionP?.[n] === "available" || sectionP?.[n] === "done";
+  const isDone = (sectionP, n) => sectionP?.[n] === "done";
 
-  const totalWords   = WORD_CATEGORIES.reduce((s,c) => s + c.words.length, 0);
-  const learnedWords = Object.keys(stats.wordsCorrect || {}).filter(k => (stats.wordsCorrect[k] || 0) >= 2).length;
-  const wordsPct     = totalWords ? Math.round((learnedWords / totalWords) * 100) : 0;
+  // Словарь — единый поток слов (readingProgress), не легаси WORD_CATEGORIES
+  // Словарь — единый поток СЛОВ (не фраз), только реально существующие в контенте
+  const dictWords     = READING_ITEMS.filter(i => i.type !== 'phrase');
+  const studiedSet    = new Set(stats.readingProgress?.studied || []);
+  const studiedStream = dictWords.filter(i => studiedSet.has(i.id)).length;
+  const totalStream   = dictWords.length;
+  const readingPct    = totalStream ? Math.round((studiedStream / totalStream) * 100) : 0;
 
   return {
     alphabet: { pct: pct(p.letters), done: [1,2,3,4,5].filter(n=>isDone(p.letters,n)).length, total:5, unlocked: true },
     nikud:    { pct: pct(p.sounds),  done: [1,2,3,4,5].filter(n=>isDone(p.sounds,n)).length,  total:5, unlocked: isDone(p.letters,1) && isDone(p.letters,2) },
-    reading:  { pct: 0, done:0, total:3, unlocked: checkReadingUnlock(1, stats) },
-    words:    { pct: wordsPct, done: learnedWords, total: totalWords, unlocked: checkWordsUnlock(1, stats) },
+    reading:  { pct: readingPct, done: studiedStream, total: totalStream, unlocked: true },
   };
 }
 
@@ -94,7 +95,7 @@ export default function HomeScreen({ onOpenProfile, onNavigateStudy }) {
 
       {/* ── Быстрое действие ────────────────────────────────────────────────── */}
       {dueCount > 0 && (
-        <button onClick={() => onNavigateStudy("alphabet")}
+        <button onClick={() => onNavigateStudy("cards")}
           className={`rounded-2xl p-4 border flex items-center justify-between active:scale-[0.98] transition-all
             ${dark ? "bg-blue-900/30 border-blue-700/40" : "bg-blue-50 border-blue-200"}`}>
           <div>

@@ -2296,5 +2296,599 @@
   "text": "מַלְכָּה ↔ שְׁלֹשָׁה",
   "file": "ex_sh12_3.mp3",
   "gender": "f"
+ },
+ {
+  "id": "r1_m31_01",
+  "text": "אָח",
+  "file": "r1_m31_01.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_m31_02",
+  "text": "אָחוֹת",
+  "file": "r1_m31_02.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "r1_m31_03",
+  "text": "סַבָּא",
+  "file": "r1_m31_03.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_m31_04",
+  "text": "סַבְתָּא",
+  "file": "r1_m31_04.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "r1_m31_05",
+  "text": "מִשְׁפָּחָה",
+  "file": "r1_m31_05.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "r1_m31_06",
+  "text": "חָבֵר",
+  "file": "r1_m31_06.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_m31_07",
+  "text": "טֶלֶפוֹן",
+  "file": "r1_m31_07.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_m31_1",
+  "text": "הַסֵּפֶר שֶׁל אַבָּא",
+  "file": "ex_m31_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_m31_2",
+  "text": "הַכֶּלֶב שֶׁל תָּמָר",
+  "file": "ex_m31_2.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_m31_3",
+  "text": "הַבַּיִת שֶׁל הַמִּשְׁפָּחָה",
+  "file": "ex_m31_3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_m31_4",
+  "text": "הַטֶּלֶפוֹן שֶׁל מָיָה",
+  "file": "ex_m31_4.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_m32_1",
+  "text": "הַסֵּפֶר שֶׁלִּי",
+  "file": "ex_m32_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_m32_2",
+  "text": "הַכֶּלֶב שֶׁלְּךָ?",
+  "file": "ex_m32_2.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_m32_3",
+  "text": "הַטֶּלֶפוֹן שֶׁלָּךְ",
+  "file": "ex_m32_3.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_m32_4",
+  "text": "זֶה לֹא שֶׁלִּי",
+  "file": "ex_m32_4.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_m33_1",
+  "text": "הַבַּיִת שֶׁלָּנוּ",
+  "file": "ex_m33_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_m33_2",
+  "text": "הַכֶּלֶב שֶׁלָּהּ",
+  "file": "ex_m33_2.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_m33_3",
+  "text": "הַסֵּפֶר שֶׁלּוֹ",
+  "file": "ex_m33_3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_m33_4",
+  "text": "הַמִּשְׁפָּחָה שֶׁלָּהֶם",
+  "file": "ex_m33_4.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_q11_1",
+  "text": "מִי זֶה? — זֶה נֹעַם",
+  "file": "ex_q11_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_q11_2",
+  "text": "מָה זֶה? — זֶה טֶלֶפוֹן",
+  "file": "ex_q11_2.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_q11_3",
+  "text": "מִי גָּר בַּבַּיִת?",
+  "file": "ex_q11_3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_q11_4",
+  "text": "מָה תָּמָר אוֹהֶבֶת?",
+  "file": "ex_q11_4.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "r1_q12_04",
+  "text": "יוֹם",
+  "file": "r1_q12_04.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_q12_05",
+  "text": "אֶתְמוֹל",
+  "file": "r1_q12_05.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_q12_06",
+  "text": "עַכְשָׁיו",
+  "file": "r1_q12_06.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_q12_07",
+  "text": "חֲנוּת",
+  "file": "r1_q12_07.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "r1_q12_08",
+  "text": "רְחוֹב",
+  "file": "r1_q12_08.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_ch31_02",
+  "text": "שְׁלוֹשִׁים",
+  "file": "r1_ch31_02.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_ch31_03",
+  "text": "אַרְבָּעִים",
+  "file": "r1_ch31_03.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_ch31_04",
+  "text": "חֲמִשִּׁים",
+  "file": "r1_ch31_04.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_ch31_05",
+  "text": "שִׁשִּׁים",
+  "file": "r1_ch31_05.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_ch31_06",
+  "text": "שִׁבְעִים",
+  "file": "r1_ch31_06.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_ch31_07",
+  "text": "שְׁמוֹנִים",
+  "file": "r1_ch31_07.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_ch31_08",
+  "text": "תִּשְׁעִים",
+  "file": "r1_ch31_08.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_ch31_09",
+  "text": "מֵאָה",
+  "file": "r1_ch31_09.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "r1_g31_01",
+  "text": "כָּתַב",
+  "file": "r1_g31_01.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g31_02",
+  "text": "אָכַל",
+  "file": "r1_g31_02.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g31_03",
+  "text": "הָלַךְ",
+  "file": "r1_g31_03.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g31_04",
+  "text": "יָשַׁב",
+  "file": "r1_g31_04.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g31_05",
+  "text": "קָרָא",
+  "file": "r1_g31_05.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_q12_1",
+  "text": "אֵיפֹה הַכֶּלֶב?",
+  "file": "ex_q12_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_q12_2",
+  "text": "מָתַי? — בַּבֹּקֶר",
+  "file": "ex_q12_2.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_q12_3",
+  "text": "לָמָּה?",
+  "file": "ex_q12_3.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_q12_4",
+  "text": "כַּמָּה סְפָרִים?",
+  "file": "ex_q12_4.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_ch31_1",
+  "text": "עֶשְׂרִים",
+  "file": "ex_ch31_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_ch31_2",
+  "text": "אַרְבָּעִים",
+  "file": "ex_ch31_2.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_ch31_3",
+  "text": "שִׁבְעִים",
+  "file": "ex_ch31_3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_ch31_4",
+  "text": "מֵאָה",
+  "file": "ex_ch31_4.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_ch32_1",
+  "text": "עֶשְׂרִים וְאַחַת",
+  "file": "ex_ch32_1.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_ch32_2",
+  "text": "שְׁלוֹשִׁים וּשְׁתַּיִם",
+  "file": "ex_ch32_2.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_ch32_3",
+  "text": "אַרְבָּעִים וְחָמֵשׁ",
+  "file": "ex_ch32_3.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_ch32_4",
+  "text": "תִּשְׁעִים וְתֵשַׁע",
+  "file": "ex_ch32_4.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_sl13_1",
+  "text": "שׁוֹמֵר",
+  "file": "ex_sl13_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_sl13_3",
+  "text": "כּוֹתֵב",
+  "file": "ex_sl13_3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_sl13_4",
+  "text": "שׁוֹמֶרֶת",
+  "file": "ex_sl13_4.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_g31_1",
+  "text": "כּוֹתֵב → כָּתַב",
+  "file": "ex_g31_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g31_2",
+  "text": "אוֹכֵל → אָכַל",
+  "file": "ex_g31_2.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g31_3",
+  "text": "הוֹלֵךְ → הָלַךְ",
+  "file": "ex_g31_3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g31_4",
+  "text": "יוֹשֵׁב → יָשַׁב",
+  "file": "ex_g31_4.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g32_1",
+  "text": "כָּתַבְתִּי",
+  "file": "ex_g32_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g32_2",
+  "text": "אָכַלְתִּי",
+  "file": "ex_g32_2.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g32_3",
+  "text": "הָלַכְתָּ",
+  "file": "ex_g32_3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g32_4",
+  "text": "יָשַׁבְתְּ",
+  "file": "ex_g32_4.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "r1_g36_w1",
+  "text": "לָמַד",
+  "file": "r1_g36_w1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g36_w2",
+  "text": "עָבַד",
+  "file": "r1_g36_w2.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g36_w3",
+  "text": "רָאָה",
+  "file": "r1_g36_w3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g36_w4",
+  "text": "שָׁמַע",
+  "file": "r1_g36_w4.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g36_w5",
+  "text": "יָדַע",
+  "file": "r1_g36_w5.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g36_w6",
+  "text": "אָהַב",
+  "file": "r1_g36_w6.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_w1",
+  "text": "נַהָג",
+  "file": "r1_sl14_w1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_w2",
+  "text": "צַיָּר",
+  "file": "r1_sl14_w2.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_w3",
+  "text": "רוֹפֵא",
+  "file": "r1_sl14_w3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_w4",
+  "text": "מְהַנְדֵּס",
+  "file": "r1_sl14_w4.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_w5",
+  "text": "מַחְשֵׁב",
+  "file": "r1_sl14_w5.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_w6",
+  "text": "מַקְרֵר",
+  "file": "r1_sl14_w6.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_w7",
+  "text": "מַפְתֵּחַ",
+  "file": "r1_sl14_w7.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_w8",
+  "text": "מַעֲלִית",
+  "file": "r1_sl14_w8.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_g33_1",
+  "text": "הוּא כָּתַב · הִיא כָּתְבָה",
+  "file": "ex_g33_1.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_g33_2",
+  "text": "אָכְלָה",
+  "file": "ex_g33_2.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_g33_3",
+  "text": "הָלְכָה",
+  "file": "ex_g33_3.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_g33_4",
+  "text": "יָשְׁבָה",
+  "file": "ex_g33_4.mp3",
+  "gender": "f"
+ },
+ {
+  "id": "ex_g34_1",
+  "text": "כָּתַבְנוּ",
+  "file": "ex_g34_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g34_2",
+  "text": "הֵם כָּתְבוּ",
+  "file": "ex_g34_2.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g34_3",
+  "text": "אֲכַלְנוּ",
+  "file": "ex_g34_3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g34_4",
+  "text": "הָלְכוּ",
+  "file": "ex_g34_4.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_g35_1",
+  "text": "כָּתַבְנוּ · כְּתַבְתֶּם · כָּתְבוּ",
+  "file": "ex_g35_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g36_01",
+  "text": "לָמַד · לָמַדְתִּי",
+  "file": "r1_g36_01.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g36_02",
+  "text": "עָבַד",
+  "file": "r1_g36_02.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g36_03",
+  "text": "רָאָה",
+  "file": "r1_g36_03.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_g36_04",
+  "text": "שָׁמַע",
+  "file": "r1_g36_04.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_c51_1",
+  "text": "אֶתְמוֹל כָּתַבְתִּי",
+  "file": "ex_c51_1.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_c51_2",
+  "text": "הוּא לֹא כָּתַב",
+  "file": "ex_c51_2.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_c51_3",
+  "text": "הַיּוֹם כּוֹתֵב, אֶתְמוֹל כָּתַב",
+  "file": "ex_c51_3.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "ex_c51_4",
+  "text": "מָה עָשִׂיתָ אֶתְמוֹל?",
+  "file": "ex_c51_4.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_01",
+  "text": "נַהָג",
+  "file": "r1_sl14_01.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_02",
+  "text": "צַיָּר",
+  "file": "r1_sl14_02.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_03",
+  "text": "מַחְשֵׁב",
+  "file": "r1_sl14_03.mp3",
+  "gender": "m"
+ },
+ {
+  "id": "r1_sl14_04",
+  "text": "מַפְתֵּחַ",
+  "file": "r1_sl14_04.mp3",
+  "gender": "m"
  }
 ]

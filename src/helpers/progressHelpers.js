@@ -27,10 +27,7 @@ export function checkReadingUnlock() {
   return true;
 }
 
-/** Блок слов W1-5 разблокирован? (было: checkWordsUnlock(n, testScores)) */
-export function checkWordsUnlock(blockN, stats) {
-  return isNodeUnlocked(`W${blockN}`, stats);
-}
+// checkWordsUnlock УДАЛЁН (этап 4): узлы W1-5 снесены из графа.
 
 /** Статус грамматического урока: locked | available | done */
 export function getLessonStatus(lessonId, stats) {

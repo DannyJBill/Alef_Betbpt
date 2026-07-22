@@ -29,7 +29,7 @@ function playAudio(file) {
   try { new Audio(`/reading/${file}`).play(); } catch {}
 }
 
-export default function CheatSheet({ nodeId, kind, title, dark, onBack, onRetake }) {
+export default function CheatSheet({ nodeId, kind, title, dark, onBack, onRetake, onCards }) {
   return (
     <div className="pb-24 px-4 pt-4 max-w-md mx-auto">
       <button onClick={onBack}
@@ -47,8 +47,15 @@ export default function CheatSheet({ nodeId, kind, title, dark, onBack, onRetake
       {kind === 'reading' && <PortionSheet nodeId={nodeId} dark={dark} />}
       {kind === 'grammar' && <GrammarSheet nodeId={nodeId} dark={dark} />}
 
+      {onCards && (
+        <button onClick={onCards}
+          className={`mt-5 w-full py-3.5 rounded-2xl text-sm font-bold border-2
+            ${dark ? "border-indigo-500 text-indigo-300" : "border-indigo-400 text-indigo-600"}`}>
+          🃏 Карточки SM-2
+        </button>
+      )}
       <button onClick={onRetake}
-        className="mt-5 w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600">
+        className={`${onCards ? "mt-2" : "mt-5"} w-full py-3.5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600`}>
         🔄 Пройти заново
       </button>
     </div>

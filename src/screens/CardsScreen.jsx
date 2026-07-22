@@ -5,7 +5,7 @@ import { LETTER_GROUPS, ALL_LETTERS } from "../data/alphabet";
 import { getGroupLetters, isGroupUnlocked, GROUP_COLORS } from "../helpers/groupHelpers";
 import { speakLetter } from "../helpers/speak";
 
-export default function CardsScreen() {
+export default function CardsScreen({ onBack }) {
   const { dark } = useTheme();
   const { stats, updateCardReview, getDueCards } = useStats();
   const [phase, setPhase]   = useState('groupSelect'); // groupSelect|session|done
@@ -46,6 +46,12 @@ export default function CardsScreen() {
     const weakCount = UNLOCKED_LETTERS.filter(l=>(stats.weakLetters?.[l.id]||0)>0).length;
     return (
       <div className="pb-20 px-4 pt-4 max-w-md mx-auto flex flex-col gap-3">
+        {onBack && (
+          <button onClick={onBack}
+            className={`self-start text-sm font-medium ${dark?'text-indigo-400':'text-indigo-600'}`}>
+            ← Назад
+          </button>
+        )}
         <h2 className={`text-xl font-bold ${dark?'text-white':'text-gray-900'}`}>Карточки</h2>
         {allDue>0 ? (
           <button onClick={()=>startSession('all-due')}

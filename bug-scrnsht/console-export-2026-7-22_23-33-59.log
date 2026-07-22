@@ -1,0 +1,275 @@
+разблокировано узлов: 66 debugger eval code:19:11
+GET
+http://localhost:5173/
+[HTTP/1.1 304 Not Modified 4051ms]
+
+GET
+http://localhost:5173/@vite/client
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/main.jsx
+[HTTP/1.1 304 Not Modified 2ms]
+
+GET
+http://localhost:5173/@react-refresh
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+https://telegram.org/js/telegram-web-app.js
+[HTTP/2 200  0ms]
+
+[Telegram.WebView] > postEvent web_app_set_header_color 
+Object { color_key: "bg_color" }
+telegram-web-app.js:135:13
+[Telegram.WebView] > postEvent web_app_set_bottom_bar_color 
+Object { color: "#ffffff" }
+telegram-web-app.js:135:13
+[Telegram.WebView] > postEvent web_app_request_theme <empty string> telegram-web-app.js:135:13
+[Telegram.WebView] > postEvent web_app_request_viewport <empty string> telegram-web-app.js:135:13
+[Telegram.WebView] > postEvent web_app_request_safe_area <empty string> telegram-web-app.js:135:13
+[Telegram.WebView] > postEvent web_app_request_content_safe_area <empty string> telegram-web-app.js:135:13
+GET
+http://localhost:5173/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=2ade2607
+[HTTP/1.1 200 OK 0ms]
+
+GET
+http://localhost:5173/node_modules/.vite/deps/react.js?v=2ade2607
+[HTTP/1.1 200 OK 0ms]
+
+GET
+http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=1e5483db
+[HTTP/1.1 200 OK 0ms]
+
+GET
+http://localhost:5173/src/App.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/index.css
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/helpers/analytics.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/node_modules/vite/dist/client/env.mjs
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/node_modules/.vite/deps/chunk-REFQX4J5.js?v=621e8617
+[HTTP/1.1 200 OK 0ms]
+
+GET
+http://localhost:5173/node_modules/.vite/deps/chunk-373CG7ZK.js?v=621e8617
+[HTTP/1.1 200 OK 0ms]
+
+[vite] connecting... client:495:9
+GET
+http://localhost:5173/src/context/ThemeContext.jsx
+[HTTP/1.1 304 Not Modified 1ms]
+
+GET
+http://localhost:5173/src/context/StatsContext.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/components/layout/TopBar.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/components/layout/BottomNav.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/screens/HomeScreen.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/screens/StudyScreen.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/screens/GameScreen.jsx
+[HTTP/1.1 304 Not Modified 2ms]
+
+GET
+http://localhost:5173/src/screens/AIAssistant.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/screens/ProfileScreen.jsx
+[HTTP/1.1 304 Not Modified 1ms]
+
+GET
+http://localhost:5173/src/components/ui/UpdatePopup.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+ws://localhost:5173/?token=a4AcRu9y74zK
+[HTTP/1.1 101 Switching Protocols 2ms]
+
+GET
+http://localhost:5173/src/data/constants.js
+[HTTP/1.1 304 Not Modified 2ms]
+
+[vite] connected. client:618:15
+GET
+http://localhost:5173/src/helpers/serverSync.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/data/alphabet.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/helpers/progressHelpers.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/helpers/facts.js
+[HTTP/1.1 304 Not Modified 1ms]
+
+GET
+http://localhost:5173/src/data/curriculum.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/data/reading.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/data/grammarLessons.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/screens/LearnScreen.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/screens/NikudScreen.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/screens/CardsScreen.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/screens/LessonScreen.jsx
+[HTTP/1.1 304 Not Modified 1ms]
+
+GET
+http://localhost:5173/src/screens/ReadingScreen.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/screens/CheatSheet.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/data/words.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/helpers/utils.js
+[HTTP/1.1 304 Not Modified 1ms]
+
+GET
+http://localhost:5173/src/components/ui/LetterDisplay.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/components/ui/ProgressBar.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/components/ui/HebrewKeyboard.jsx
+[HTTP/1.1 304 Not Modified 1ms]
+
+GET
+http://localhost:5173/src/helpers/ai.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/helpers/vocab.js
+[HTTP/1.1 304 Not Modified 1ms]
+
+GET
+http://localhost:5173/src/helpers/planner.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/helpers/groupHelpers.js
+[HTTP/1.1 304 Not Modified 1ms]
+
+GET
+http://localhost:5173/src/helpers/speak.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/helpers/exercises.js
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/components/ui/ExerciseSession.jsx
+[HTTP/1.1 304 Not Modified 0ms]
+
+GET
+http://localhost:5173/src/helpers/richText.jsx
+[HTTP/1.1 304 Not Modified 1ms]
+
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools chunk-373CG7ZK.js:21549:25
+[Telegram.WebView] > postEvent web_app_expand <empty string> telegram-web-app.js:135:13
+[Telegram.WebView] > postEvent web_app_ready <empty string> telegram-web-app.js:135:13
+XHRPOST
+http://localhost:5173/api/events
+[HTTP/1.1 404 Not Found 1ms]
+
+[Telegram.WebApp] CloudStorage is not supported in version 6.0 telegram-web-app.js:1524:17
+[Telegram.WebApp] CloudStorage is not supported in version 6.0 telegram-web-app.js:1524:17
+GET
+http://localhost:5173/favicon.ico
+[HTTP/1.1 404 Not Found 0ms]
+
+Uncaught ReferenceError: statusOf is not defined
+    known ReadingScreen.jsx:262
+    DictView ReadingScreen.jsx:262
+    React 16
+    onClick StudyScreen.jsx:212
+    React 23
+    <anonymous> main.jsx:15
+ReadingScreen.jsx:572:42
+Uncaught ReferenceError: statusOf is not defined
+    known ReadingScreen.jsx:262
+    DictView ReadingScreen.jsx:262
+    React 17
+    onClick StudyScreen.jsx:212
+    React 23
+    <anonymous> main.jsx:15
+ReadingScreen.jsx:572:42
+The above error occurred in the <DictView> component:
+
+DictView@http://localhost:5173/src/screens/ReadingScreen.jsx:566:18
+div
+ReadingScreen@http://localhost:5173/src/screens/ReadingScreen.jsx:799:38
+div
+StudyScreen@http://localhost:5173/src/screens/StudyScreen.jsx:192:36
+div
+main
+div
+AppShell@http://localhost:5173/src/App.jsx:77:28
+StatsProvider@http://localhost:5173/src/context/StatsContext.jsx:258:30
+ThemeProvider@http://localhost:5173/src/context/ThemeContext.jsx:21:30
+App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. chunk-373CG7ZK.js:14030:23
+Uncaught ReferenceError: statusOf is not defined
+    known ReadingScreen.jsx:262
+    DictView ReadingScreen.jsx:262
+    React 14
+    onClick StudyScreen.jsx:212
+    React 23
+    <anonymous> main.jsx:15
+ReadingScreen.jsx:572:42

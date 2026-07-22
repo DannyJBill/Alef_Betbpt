@@ -44,7 +44,7 @@ function buildQuestionPool(stats, topics) {
   const doneNikudGroups = NIKUD_GROUPS.filter(g =>
     stats.progress?.sounds?.[g.id] === "done"
   );
-  const unlockedVowels = doneNikudGroups.flatMap(g => g.vowels.map(vid => NIKUD.find(v => v.id === vid)).filter(Boolean));
+  const unlockedVowels = doneNikudGroups.flatMap(g => (g.vowelIds || []).map(vid => NIKUD.find(v => v.id === vid)).filter(Boolean));
 
   if (topics.includes("nikud") && unlockedVowels.length >= 2) {
     const DEMO_LETTERS = ["מ","ב","ד","ל","כ","ש"];
@@ -57,8 +57,9 @@ function buildQuestionPool(stats, topics) {
 
   // Слова
   if (topics.includes("words")) {
-    const learnedWordIds = new Set(stats.wordsStudied || []);
-    const allWords = WORD_CATEGORIES.flatMap(c => c.words.filter(w => learnedWordIds.has(w.id)));
+    // wordsStudied хранит id строками, WORD_CATEGORIES — числами: нормализуем
+    const learnedWordIds = new Set((stats.wordsStudied || []).map(String));
+    const allWords = WORD_CATEGORIES.flatMap(c => c.words.filter(w => learnedWordIds.has(String(w.id))));
     if (allWords.length >= 4) {
       allWords.forEach(w => {
         questions.push({ type:"word-to-translation", word:w, distractors:allWords });
@@ -129,10 +130,16 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
   const [total, setTotal]         = useState(0);
   const [current, setCurrent]     = useState(null);
   const [flash, setFlash]         = useState(null); // "ok"|"err"
+  const [pickedId, setPickedId]   = useState(null); // выбранный вариант (для подсветки)
   const prevIdRef  = useRef(null);
   const xpSaved    = useRef(false);
   const timerRef   = useRef(null);
   const flashRef   = useRef(null);
+  // Актуальные значения для finish() — иначе таймерное замыкание берёт 0/0
+  const scoreRef = useRef(0), totalRef = useRef(0), bestRef = useRef(0);
+  useEffect(() => { scoreRef.current = score; }, [score]);
+  useEffect(() => { totalRef.current = total; }, [total]);
+  useEffect(() => { bestRef.current  = bestStreak; }, [bestStreak]);
 
   useEffect(() => {
     if (pool.length === 0) {
@@ -158,10 +165,10 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
     clearInterval(timerRef.current);
     if (!xpSaved.current) {
       xpSaved.current = true;
-      const xp = score * 5;
-      if (xp > 0) updateStats(s => ({ ...s, xp: s.xp + xp, coins: s.coins + Math.floor(score / 5) }));
+      const xp = scoreRef.current * 5;
+      if (xp > 0) updateStats(s => ({ ...s, xp: (s.xp || 0) + xp, coins: (s.coins || 0) + Math.floor(scoreRef.current / 5) }));
     }
-    onOver({ score, total, bestStreak });
+    onOver({ score: scoreRef.current, total: totalRef.current, bestStreak: bestRef.current });
   }
 
   function nextQ() {
@@ -175,6 +182,7 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
   function answer(choiceId) {
     if (!current || flash) return;
     setTotal(t => t + 1);
+    setPickedId(choiceId);
     const ok = choiceId === current.correctId;
     setFlash(ok ? "ok" : "err");
     if (ok) {
@@ -184,10 +192,12 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
       setStreak(0);
       if (current.letter) updateCardReview(current.letter.id, 0);
     }
+    // При ошибке задерживаемся дольше — показать правильный (зелёный) и выбор (красный)
     flashRef.current = setTimeout(() => {
       setFlash(null);
+      setPickedId(null);
       nextQ();
-    }, 280);
+    }, ok ? 500 : 1400);
   }
 
   if (!current) return null;
@@ -239,17 +249,28 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
 
       {/* Варианты */}
       <div className="grid grid-cols-2 gap-3">
-        {choices.map(ch => (
-          <button key={ch.id} onClick={() => answer(ch.id)}
-            style={ch.style}
-            className={`py-4 rounded-2xl font-bold text-base transition-all active:scale-95
-              ${dark
-                ? "bg-gray-800 text-white border border-gray-700 hover:border-indigo-500"
-                : "bg-white text-gray-800 border-2 border-gray-100 hover:border-indigo-400 shadow-sm"
-              }`}>
-            {ch.label}
-          </button>
-        ))}
+        {choices.map(ch => {
+          const revealed = flash !== null;
+          const isCorrect = ch.id === current.correctId;
+          const isPicked = ch.id === pickedId;
+          let stateCls = dark
+            ? "bg-gray-800 text-white border border-gray-700 hover:border-indigo-500"
+            : "bg-white text-gray-800 border-2 border-gray-100 hover:border-indigo-400 shadow-sm";
+          if (revealed && isCorrect)
+            stateCls = "bg-emerald-50 text-emerald-800 border-2 border-emerald-400";
+          else if (revealed && isPicked)
+            stateCls = "bg-rose-50 text-rose-800 border-2 border-rose-400";
+          else if (revealed)
+            stateCls = dark ? "bg-gray-800 text-gray-500 border border-gray-700 opacity-60"
+                            : "bg-white text-gray-400 border-2 border-gray-100 opacity-60";
+          return (
+            <button key={ch.id} onClick={() => answer(ch.id)} disabled={revealed}
+              style={ch.style}
+              className={`py-4 rounded-2xl font-bold text-base transition-all active:scale-95 ${stateCls}`}>
+              {ch.label}{revealed && isCorrect ? "  ✓" : revealed && isPicked ? "  ✗" : ""}
+            </button>
+          );
+        })}
       </div>
 
       {/* Кнопка стоп */}
@@ -283,9 +304,17 @@ function TrainingMenu({ stats, dark, onStart }) {
     words:    learnedWords  >= 4,
   };
 
+  const [startErr, setStartErr] = useState("");
+
   function handleStart() {
     const validTopics = topics.filter(t => topicAvail[t]);
     if (!validTopics.length) return;
+    // Не проваливаемся в пустую сессию «0/0» — проверяем, что вопросы есть
+    if (buildQuestionPool(stats, validTopics).length === 0) {
+      setStartErr("Для этих тем пока нет материала — выбери другие.");
+      return;
+    }
+    setStartErr("");
     onStart({ topics: validTopics, timeLimit: time, isRated: false });
   }
 
@@ -338,6 +367,9 @@ function TrainingMenu({ stats, dark, onStart }) {
         ))}
       </div>
 
+      {startErr && (
+        <p className="text-sm text-rose-500 mb-2 text-center">{startErr}</p>
+      )}
       <button onClick={handleStart}
         disabled={topics.filter(t => topicAvail[t]).length === 0}
         className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-4 rounded-2xl font-bold text-base disabled:opacity-40">

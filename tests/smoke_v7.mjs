@@ -3,15 +3,18 @@
 //   npx esbuild tests/smoke_v7.mjs --bundle --format=esm --outfile=tests/.smoke.bundle.mjs
 //   node tests/.smoke.bundle.mjs
 // Гонять после ЛЮБОГО изменения curriculum.js / reading.js / vocab.js / миграций.
-import { deriveProgress, getNodeStatus, isNodeDone, getReadingBlockStudiedPct, isReadingBlockUnlocked, getLockHint } from '../src/data/curriculum.js';
-import { checkReadingUnlock, checkWordsUnlock, getFreshPortions } from '../src/helpers/progressHelpers.js';
+import { CURRICULUM, deriveProgress, getNodeStatus, isNodeDone, getReadingBlockStudiedPct, isReadingBlockUnlocked, getLockHint } from '../src/data/curriculum.js';
+import { checkReadingUnlock, getFreshPortions } from '../src/helpers/progressHelpers.js';
 import { GRAMMAR_LESSONS } from '../src/data/grammarLessons.js';
 import { READING_BLOCKS, READING_ITEMS, getBlockCards, PHRASE_LOCKS, getUnlockedPhraseLocks } from '../src/data/reading.js';
 import { getKnownLetters, isReadableByLetters } from '../src/helpers/vocab.js';
 import { ALPHABET, LETTER_GROUPS } from '../src/data/alphabet.js';
+import { GRAMMAR_LESSONS_BY_ID } from '../src/data/grammarLessons.js';
 import { sm2, isDue, dueKeys } from '../src/helpers/planner.js';
 import { foldToFacts, factsToLegacyView, itemKey, COUNTER_KEY_TO_NODE, NODE_TO_COUNTER_KEY,
          setNodeScore, bumpNodeCounter, reviewLetter, reviewVowel, seenWord, answerWord, reviewWord, mergeFacts } from '../src/helpers/facts.js';
+import { migrate, migrateThroughV7 } from '../src/helpers/migrate.js';
+import { GENERATORS, buildQuestion, buildSession, stripNikud as exStrip, shuffleRnd } from '../src/helpers/exercises.js';
 
 let fails = 0;
 function check(name, cond) {
@@ -25,7 +28,7 @@ let p = deriveProgress(fresh);
 check('новый: letters[1] available', p.letters[1] === 'available');
 check('новый: letters[2] locked', p.letters[2] === 'locked');
 check('новый: sounds[1] locked', p.sounds[1] === 'locked');
-check('новый: words[1] locked', p.words[1] === 'locked');
+check('этап4: матрицы words нет в progress', p.words === undefined);
 check('новый: C0 locked', p.syntax.C0 === 'locked');
 
 // ── 2. Тест <70% НЕ даёт done; ≥70% даёт ──
@@ -61,9 +64,9 @@ check('с Н2: L1.3 available', getNodeStatus('L1.3', withN2) === 'available');
 
 // ── 5. Words: min:90 на зависимостях ──
 const w89 = { ...fresh, scores: { 'L1.1': 95, 'L1.2': 89, 'N1.1': 95, 'N1.2': 95 } };
-check('L1.2=89%: W1 locked (нужно ≥90)', !checkWordsUnlock(1, w89));
+check('этап4: getNodeStatus по снесённому W1 — locked (узла нет)', getNodeStatus('W1', w89) === 'locked');
 const w90 = { ...fresh, scores: { 'L1.1': 95, 'L1.2': 90, 'N1.1': 95, 'N1.2': 90 } };
-check('L1.2=90% & N1.2=90%: W1 unlocked', checkWordsUnlock(1, w90));
+check('этап4: W1 отсутствует и при выполненных старых условиях', getNodeStatus('W1', w90) === 'locked');
 
 // ── 6. Порция «done» = 100% доступных; C0 открывается после VL1.3 ──
 const rStats = { scores: { 'L1.1': 80, 'L1.2': 80, 'L1.3': 80, 'N1.1': 80, 'N1.2': 80 }, blockScores: {}, readingProgress: { studied: [], words: {} } };
@@ -285,10 +288,24 @@ function stable(x) {
 }
 const deepEq = (a, b) => stable(a) === stable(b);
 
-// counterKey ⇄ node: карта покрывает ровно узлы со счётчиком
-const counterNodes = ['L1.1','L1.2','L1.3','L1.4','L1.5','N1.1','N1.2','N1.3','N1.4','N1.5','W1','W2','W3','W4','W5','P1','P2','P3','P4','P5'];
+// counterKey ⇄ node: карта покрывает ровно узлы со счётчиком (W/P снесены, этап 4)
+const counterNodes = ['L1.1','L1.2','L1.3','L1.4','L1.5','N1.1','N1.2','N1.3','N1.4','N1.5'];
 check('facts: counterKey↔node карта покрывает все узлы со счётчиком',
   counterNodes.every(id => NODE_TO_COUNTER_KEY[id] && COUNTER_KEY_TO_NODE[NODE_TO_COUNTER_KEY[id]] === id));
+
+// ── Этап 4: узлы W1-5/P1-5 снесены, данные юзеров не теряются ──
+check('этап4: узлов W1-5/P1-5 нет в графе',
+  ['W1','W2','W3','W4','W5','P1','P2','P3','P4','P5'].every(id => !CURRICULUM.some(n => n.id === id)));
+check('этап4: deriveProgress не эмитит words/phrases',
+  (() => { const p = deriveProgress({ scores:{}, blockScores:{}, readingProgress:{studied:[]} });
+           return !p.words && !p.phrases; })());
+// счётчик words_1 старого юзера сворачивается в '#words_1' и переживает круг
+const legacyCounters = { scores:{}, blockScores:{ words_1: 10, letters_1: 5 }, readingProgress:{studied:[]} };
+const flc = foldToFacts(legacyCounters);
+check('этап4: неизвестный counterKey сохранён в facts (#-fallback)', flc.nodes['#words_1']?.counter === 10);
+check('этап4: известный counterKey живёт как узел', flc.nodes['L1.1']?.counter === 5);
+check('этап4: #-fallback разворачивается обратно в blockScores',
+  factsToLegacyView(flc).blockScores.words_1 === 10 && factsToLegacyView(flc).blockScores.letters_1 === 5);
 
 // Населённая v7-фикстура (зона 0 пройдена + грамматика + атомы букв/огласовок/слов)
 const zoneCards = ['VL1.1','VL1.2','VL1.3','VL1.4','VN1.3','VN1.4','VN1.5']
@@ -451,6 +468,256 @@ for (const [name, v7] of fixtures) {
 }
 check('persist-cycle: huzpay доезжает без потерь',
   deepEq(deriveProgress(huzpay), simulateSaveLoad(huzpay).progress));
+
+// ── 21. Полная миграция v1→v8 на РАЗНЫХ версиях схемы (живые юзеры на v1/v4/v5/v7) ──
+// Инвариант: шаг v8 не меняет выводимый прогресс против поведения ДО v8 (v1→v7).
+// migrate/migrateThroughV7 мутируют — клонируем вход.
+const clone = o => JSON.parse(JSON.stringify(o));
+const legacyFixtures = [
+  ['v1 (без version)', { xp: 10 }],
+  ['v4 (nikudProgress)', {
+    version: 4,
+    groupProgress: { 1:'completed', 2:'completed', 3:'available', 4:'locked', 5:'locked' },
+    cardReviews: { '1': { interval:3, repetitions:2, ef:2.6, nextReview:1800000000000 } },
+    weakLetters: { '3': 1 },
+    nikudProgress: {
+      groupProgress: { 1:'completed', 2:'available', 3:'locked', 4:'locked', 5:'locked' },
+      groupTestScores: {},
+      vowelReviews: { 'patah:ב': { interval:1, repetitions:1, ef:2.6, nextReview:1800000000001 } },
+      wordsStudied: ['5', '9'],
+      wordsCorrect: { '5': 2, '9': 1 },
+    },
+  }],
+  ['v5 (blockScores+testScores)', {
+    version: 5,
+    progress: { letters:{1:'done',2:'done',3:'available',4:'locked',5:'locked'},
+                sounds:{1:'available',2:'locked',3:'locked',4:'locked',5:'locked'},
+                words:{1:'locked',2:'locked',3:'locked',4:'locked',5:'locked'},
+                phrases:{1:'locked',2:'locked',3:'locked',4:'locked',5:'locked'} },
+    blockScores: { letters_1: 10, letters_2: 10 },
+    testScores: { 'letters_1': 85, 'sounds_1': 72 },
+    cardReviews: {}, weakLetters: {}, vowelReviews: {}, wordsStudied: [], wordsCorrect: {},
+  }],
+];
+for (const [name, blob] of legacyFixtures) {
+  const refProg = deriveProgress(migrateThroughV7(clone(blob)));
+  const mig = migrate(clone(blob));
+  check(`migrate v→v8: version 8 + facts — ${name}`, mig.version === 8 && !!mig.facts);
+  check(`migrate v→v8: статусы == поведение до v8 — ${name}`,
+    deepEq(refProg, deriveProgress(mig)));
+}
+// v4-словарь и SM-2 буквы реально доезжают в facts
+const migV4 = migrate(clone(legacyFixtures[1][1]));
+check('migrate v4→v8: SM-2 буквы и словарь в facts',
+  !!migV4.facts.items['l:1']?.sm2 && migV4.facts.items['w:5']?.introduced === true);
+
+// ── 22. Движок упражнений (этап 3): реестр генераторов, единый Question ──
+// Детерминированный rnd для воспроизводимости
+function seededRnd(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+const W = [
+  { id: 'w1', he: 'בַּיִת', ru: 'дом' },
+  { id: 'w2', he: 'כֶּלֶב', ru: 'собака' },
+  { id: 'w3', he: 'סֵפֶר', ru: 'книга' },
+  { id: 'w4', he: 'מַיִם', ru: 'вода' },
+  { id: 'w5', he: 'אור',  ru: 'свет' },   // без никуда — для проверки no_nikud null
+];
+
+// choice4 — авторский В4 как в уроках
+const b4 = buildQuestion('choice4', { prompt: 'Что значит «מַיָּה מוֹרָה»?',
+  options: ['Майя — учительница','Майя была','Майя будет','У Майи есть'], answer: 'Майя — учительница' }, [], seededRnd(1));
+check('движок: choice4 — 4 опции, answerId указывает на верную подпись',
+  b4.mode === 'choice' && b4.options.length === 4 &&
+  b4.options.find(o => o.id === b4.answerId)?.label === 'Майя — учительница' &&
+  new Set(b4.options.map(o => o.id)).size === 4);
+const b4dup = buildQuestion('choice4', { prompt:'x', options:['А','А','Б','В'], answer:'Б' }, [], seededRnd(9));
+check('движок: choice4 с дублями подписей — ключи уникальны, answer верен',
+  new Set(b4dup.options.map(o=>o.id)).size === 4 &&
+  b4dup.options.find(o=>o.id===b4dup.answerId)?.label === 'Б');
+
+// word_ru — как LearnMode: 1 верный + 3 дистрактора из пула
+const q1 = buildQuestion('word_ru', W[0], W, seededRnd(2));
+check('движок: word_ru — 4 варианта, верный в опциях, itemId для facts',
+  q1.options.length === 4 && q1.options.some(o => o.id === 'w1') && q1.answerId === 'w1' &&
+  q1.itemId === 'w1' && q1.hebrew === 'בַּיִת');
+check('движок: word_ru — дистракторы уникальны и не содержат дубль верного',
+  new Set(q1.options.map(o => o.id)).size === 4);
+
+// word_he — обратное направление
+const q2 = buildQuestion('word_he', W[1], W, seededRnd(3));
+check('движок: word_he — промпт с переводом, опции на иврите',
+  q2.prompt.includes('собака') && q2.options.every(o => o.labelHe) && q2.answerId === 'w2');
+
+// no_nikud — мутатор: снимает огласовки
+const q3 = buildQuestion('no_nikud', W[0], W, seededRnd(4));
+check('движок: no_nikud — иврит без огласовок', q3.hebrew === 'בית' && q3.answerId === 'w1');
+check('движок: no_nikud — null для слова без никуда (не дублирует word_ru)',
+  buildQuestion('no_nikud', W[4], W, seededRnd(5)) === null);
+check('движок: stripNikud снимает только никуд', exStrip('שָׁלוֹם') === 'שלום');
+
+// typing — эталон без огласовок
+const q4 = buildQuestion('typing', W[2], [], seededRnd(6));
+check('движок: typing — mode=typing, эталон без никуда', q4.mode === 'typing' && q4.answerId === 'ספר');
+
+// phrase_build
+const PH = [
+  { id: 'p1', he: 'מַה שְּׁלוֹמְךָ?', ru: 'как дела?' },
+  { id: 'p2', he: 'בּוֹקֶר טוֹב', ru: 'доброе утро' },
+  { id: 'p3', he: 'תּוֹדָה רַבָּה', ru: 'большое спасибо' },
+  { id: 'p4', he: 'לְהִתְרָאוֹת', ru: 'до встречи' },
+];
+const q5 = buildQuestion('phrase_build', PH[0], PH, seededRnd(7));
+check('движок: phrase_build — фраза по переводу', q5.answerId === 'p1' && q5.options.length === 4);
+
+// buildSession: слои + пропуск null
+const sess = buildSession([
+  { gen: 'word_ru',  sources: W.slice(0, 4), pool: W, take: 3 },
+  { gen: 'no_nikud', sources: W,             pool: W, take: 5 }, // w5 отвалится (null)
+], seededRnd(8));
+check('движок: buildSession собирает слои и пропускает null',
+  sess.length === 3 + 4 && sess.every(q => q.gen === 'word_ru' || q.gen === 'no_nikud'));
+
+// детерминизм: одинаковый seed → одинаковая сессия
+const sA = buildSession([{ gen: 'word_ru', sources: W, pool: W, take: 4 }], seededRnd(42));
+const sB = buildSession([{ gen: 'word_ru', sources: W, pool: W, take: 4 }], seededRnd(42));
+check('движок: детерминизм при одинаковом rnd', deepEq(sA, sB));
+
+// реестр целостен
+check('движок: реестр содержит 6 генераторов, id совпадают с ключами',
+  Object.keys(GENERATORS).length === 6 && Object.entries(GENERATORS).every(([k, g]) => g.id === k));
+
+// ── 23. Батч 1 уровня 4 (beta.V1.1.4): M3.1-3, SL1.1-2, Q1.1 + порция R1.53 ──
+const B1_IDS = ['M3.1','M3.2','M3.3','SL1.1','SL1.2','Q1.1'];
+check('батч1: все 6 узлов в графе', B1_IDS.every(id => CURRICULUM.some(n => n.id === id)));
+check('батч1: все 6 уроков в GRAMMAR_LESSONS', B1_IDS.every(id => !!GRAMMAR_LESSONS_BY_ID[id]));
+check('батч1: цепочка M3.1←C4, M3.2←M3.1, SL1.1←G1.6, Q1.1←C2',
+  (() => { const by = Object.fromEntries(CURRICULUM.map(n=>[n.id,n]));
+    return by['M3.1'].requires.includes('C4') && by['M3.2'].requires.includes('M3.1')
+        && by['M3.3'].requires.includes('M3.2') && by['SL1.1'].requires.includes('G1.6')
+        && by['SL1.2'].requires.includes('SL1.1') && by['Q1.1'].requires.includes('C2'); })());
+// прогресс-цепь: юзер с C4 done видит M3.1 available, M3.2 locked
+const doneThroughC4 = { scores: Object.fromEntries(
+  ['L1.1','L1.2','L1.3','L1.4','L1.5','N1.1','N1.2','N1.3','N1.4','N1.5',
+   'C0','M1.1','M1.2','M1.3','M1.4','C1','CH1.1','CH1.2','CH1.3',
+   'G1.1','G1.2','G1.3','G1.4','G1.5','G1.6','C2','CH1.4',
+   'M2.1','M2.2','M2.3','M2.4','M2.5','M2.6','C3','M2.7','M2.8','M2.9',
+   'G2.1','G2.2','G2.3','G2.4','C4','CH2.1'].map(id=>[id,95])),
+  blockScores:{}, readingProgress:{ studied: [...zoneCards] } };
+check('батч1: после C4 → M3.1 available', getNodeStatus('M3.1', doneThroughC4) === 'available');
+check('батч1: M3.2 заперт до M3.1', getNodeStatus('M3.2', doneThroughC4) === 'locked');
+check('батч1: SL1.1 available (G1.6 done), SL — надстройка',
+  getNodeStatus('SL1.1', doneThroughC4) === 'available');
+// порция R1.53
+const b53 = READING_BLOCKS.find(b => b.id === 'R1.53');
+check('батч1: порция R1.53 существует, lesson=M3.1, 7 слов',
+  !!b53 && b53.lesson === 'M3.1' && b53.items.length === 7);
+check('батч1: слова порции читаемы всеми буквами (все группы известны)',
+  (() => { const known = new Set('אבגדהוזחטיכלמנסעפצקרשתךםןףץ');
+    return b53.items.every(w => [...w.plain].every(ch => known.has(ch))); })());
+check('батч1: id слов порции уникальны против всего потока',
+  b53.items.every(w => READING_ITEMS.filter(i => i.id === w.id).length === 1));
+check('батч1: все новые слова помечены draft (на вычитку)',
+  b53.items.every(w => w.draft === true));
+check('батч1: review порции ссылается на существующие id',
+  b53.review.every(id => READING_ITEMS.some(i => i.id === id)));
+// секвенция: practiceItems M3.1 используют только слова ≤ урока (порция+знакомые)
+check('батч1: у каждого урока ≥6 practiceItems типа В4',
+  B1_IDS.every(id => (GRAMMAR_LESSONS_BY_ID[id].practiceItems||[]).length >= 6 &&
+    GRAMMAR_LESSONS_BY_ID[id].practiceItems.every(p => p.type === 'В4' && p.options.length === 4 && p.options.includes(p.answer))));
+check('батч1: SL-уроки без порций (работают на накопленном словаре)',
+  !READING_BLOCKS.some(b => b.lesson === 'SL1.1' || b.lesson === 'SL1.2'));
+
+// ── 24. Батч 2 уровня 4: Q1.2, CH3.1-2, SL1.3, G3.1-2 + порции из колод ──
+const B2_IDS = ['Q1.2','CH3.1','CH3.2','SL1.3','G3.1','G3.2'];
+check('батч2: все 6 узлов в графе', B2_IDS.every(id => CURRICULUM.some(n => n.id === id)));
+check('батч2: все 6 уроков в GRAMMAR_LESSONS', B2_IDS.every(id => !!GRAMMAR_LESSONS_BY_ID[id]));
+check('батч2: цепочка requires верна',
+  (() => { const by = Object.fromEntries(CURRICULUM.map(n=>[n.id,n]));
+    return by['Q1.2'].requires.includes('Q1.1') && by['CH3.1'].requires.includes('CH2.1')
+        && by['CH3.2'].requires.includes('CH3.1') && by['SL1.3'].requires.includes('SL1.2')
+        && by['G3.1'].requires.includes('G2.4') && by['G3.2'].requires.includes('G3.1'); })());
+// прогресс: батч1 пройден → батч2 первые доступны
+const b2ready = { scores: Object.fromEntries(
+  ['L1.1','L1.2','L1.3','L1.4','L1.5','N1.1','N1.2','N1.3','N1.4','N1.5',
+   'C0','M1.1','M1.2','M1.3','M1.4','C1','CH1.1','CH1.2','CH1.3',
+   'G1.1','G1.2','G1.3','G1.4','G1.5','G1.6','C2','CH1.4',
+   'M2.1','M2.2','M2.3','M2.4','M2.5','M2.6','C3','M2.7','M2.8','M2.9',
+   'G2.1','G2.2','G2.3','G2.4','C4','CH2.1',
+   'M3.1','M3.2','M3.3','SL1.1','SL1.2','Q1.1'].map(id=>[id,95])),
+  blockScores:{}, readingProgress:{ studied:[...zoneCards] } };
+check('батч2: Q1.2/CH3.1/G3.1/SL1.3 available после батча1',
+  ['Q1.2','CH3.1','G3.1','SL1.3'].every(id => getNodeStatus(id, b2ready) === 'available'));
+check('батч2: G3.2 заперт до G3.1', getNodeStatus('G3.2', b2ready) === 'locked');
+// порции
+const b2blocks = ['R1.59','R1.60','R1.63'];
+check('батч2: 3 порции существуют с верными lesson',
+  (() => { const m = { 'R1.59':'Q1.2','R1.60':'CH3.1','R1.63':'G3.1' };
+    return b2blocks.every(id => { const b = READING_BLOCKS.find(x=>x.id===id); return b && b.lesson===m[id]; }); })());
+check('батч2: все слова порций читаемы известными буквами',
+  (() => { const known = new Set('אבגדהוזחטיכלמנסעפצקרשתךםןףץ');
+    return b2blocks.every(id => READING_BLOCKS.find(b=>b.id===id).items
+      .every(w => [...w.plain].every(ch => known.has(ch)))); })());
+check('батч2: все новые слова draft', 
+  b2blocks.every(id => READING_BLOCKS.find(b=>b.id===id).items.every(w => w.draft === true)));
+check('батч2: слова из колоды — числа-десятки на месте',
+  (() => { const b = READING_BLOCKS.find(x=>x.id==='R1.60');
+    return ['אַרְבָּעִים','שִׁשִּׁים','מֵאָה'].every(h => b.items.some(w=>w.hebrew===h)) && b.items.length === 8; })());
+check('батч2: практика — 6×В4 с валидным answer у каждого урока',
+  B2_IDS.every(id => { const P = GRAMMAR_LESSONS_BY_ID[id].practiceItems;
+    return P.length >= 6 && P.every(p => p.options.length === 4 && p.options.includes(p.answer)); }));
+check('батч2: SL1.3 без порции', !READING_BLOCKS.some(b => b.lesson === 'SL1.3'));
+check('батч2: id новых слов уникальны в потоке',
+  b2blocks.flatMap(id => READING_BLOCKS.find(b=>b.id===id).items).every(w => READING_ITEMS.filter(i=>i.id===w.id).length === 1));
+
+// ── 25. Батч 3: G3.3-6 (прошедшее полно), C5.1, SL1.4 ──
+const B3_IDS = ['G3.3','G3.4','G3.5','G3.6','C5.1','SL1.4'];
+check('батч3: все 6 узлов в графе', B3_IDS.every(id => CURRICULUM.some(n => n.id === id)));
+check('батч3: все 6 уроков в GRAMMAR_LESSONS', B3_IDS.every(id => !!GRAMMAR_LESSONS_BY_ID[id]));
+check('батч3: G3.5 — синтез с порогом 90',
+  (() => { const n = CURRICULUM.find(x=>x.id==='G3.5'); const l = GRAMMAR_LESSONS_BY_ID['G3.5'];
+    return n.done.threshold === 90 && l.threshold === 90 && l.isSynthesis === true; })());
+check('батч3: цепочка G3.3←G3.2 … C5.1←G3.5, SL1.4←SL1.3',
+  (() => { const by = Object.fromEntries(CURRICULUM.map(n=>[n.id,n]));
+    return by['G3.3'].requires.includes('G3.2') && by['G3.5'].requires.includes('G3.4')
+        && by['C5.1'].requires.includes('G3.5') && by['SL1.4'].requires.includes('SL1.3'); })());
+// прогресс: весь батч2 done → G3.3/C5.1(после G3.5?)/SL1.4
+const b3ready = { scores: Object.fromEntries(
+  [...Object.keys(b2ready.scores),'M3.1','M3.2','M3.3','SL1.1','SL1.2','Q1.1',
+   'Q1.2','CH3.1','CH3.2','SL1.3','G3.1','G3.2'].map(id=>[id,95])),
+  blockScores:{}, readingProgress:{ studied:[...zoneCards] } };
+check('батч3: G3.3 и SL1.4 available после батча2',
+  getNodeStatus('G3.3', b3ready) === 'available' && getNodeStatus('SL1.4', b3ready) === 'available');
+check('батч3: C5.1 заперт (нужен G3.5)', getNodeStatus('C5.1', b3ready) === 'locked');
+// порции
+const b3blocks = ['R1.68','R1.70'];
+check('батч3: порции R1.68(G3.6)/R1.70(SL1.4) с верными lesson',
+  (() => { const m={'R1.68':'G3.6','R1.70':'SL1.4'};
+    return b3blocks.every(id => { const b=READING_BLOCKS.find(x=>x.id===id); return b && b.lesson===m[id]; }); })());
+check('батч3: глаголы прошедшего из колоды в R1.68',
+  (() => { const b=READING_BLOCKS.find(x=>x.id==='R1.68');
+    return ['לָמַד','עָבַד','שָׁמַע'].every(h=>b.items.some(w=>w.hebrew===h)); })());
+check('батч3: профессии/приборы в R1.70',
+  (() => { const b=READING_BLOCKS.find(x=>x.id==='R1.70');
+    return ['נַהָג','מַחְשֵׁב','מַפְתֵּחַ'].every(h=>b.items.some(w=>w.hebrew===h)); })());
+check('батч3: новые слова draft + читаемы + уникальны',
+  (() => { const known=new Set('אבגדהוזחטיכלמנסעפצקרשתךםןףץ');
+    const items=b3blocks.flatMap(id=>READING_BLOCKS.find(b=>b.id===id).items);
+    return items.every(w=>w.draft===true) && items.every(w=>[...w.plain].every(ch=>known.has(ch)))
+        && items.every(w=>READING_ITEMS.filter(i=>i.id===w.id).length===1); })());
+check('батч3: практика — валидные В4 у всех 6 уроков (G3.5 — 8 вопросов)',
+  B3_IDS.every(id => { const P=GRAMMAR_LESSONS_BY_ID[id].practiceItems;
+    return P.length>=6 && P.every(p=>p.options.length===4 && p.options.includes(p.answer)); }));
+
+// ── 26. Чистота типов словаря: type:"phrase" — только настоящие (многословные) ──
+const allPhrases = READING_ITEMS.filter(i => i.type === 'phrase');
+check('типы: каждая type:"phrase" — многословная (нет слов под ярлыком фразы)',
+  allPhrases.every(p => (p.plain || '').trim().includes(' ')));
+check('типы: счётчики бьются — 216 слов, 73 фразы',
+  READING_ITEMS.filter(i => i.type !== 'phrase').length === 216 &&
+  allPhrases.length === 73);
+check('типы: бывшие псевдо-фразы стали словами (מי pronoun, חומוס noun, שלום noun)',
+  READING_ITEMS.find(i=>i.id==='rp_19')?.type === 'pronoun' &&
+  READING_ITEMS.find(i=>i.id==='rp_33')?.type === 'noun' &&
+  READING_ITEMS.find(i=>i.id==='rp_01')?.type === 'noun');
 
 console.log(fails === 0 ? '\n🎉 ВСЕ ПРОВЕРКИ ПРОЙДЕНЫ' : `\n💥 ПРОВАЛОВ: ${fails}`);
 process.exit(fails === 0 ? 0 : 1);

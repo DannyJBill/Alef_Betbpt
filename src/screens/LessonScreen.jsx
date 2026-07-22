@@ -26,7 +26,7 @@ import { ALPHABET, LETTER_GROUPS } from "../data/alphabet";
 import { useState, useMemo } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
-import { shuffle } from "../helpers/utils";
+import { buildSession } from "../helpers/exercises";
 import { RichText, renderInline } from "../helpers/richText";
 
 const MODULE_COLORS = {
@@ -98,8 +98,13 @@ export default function LessonScreen({ lesson, onBack, onOpenReading }) {
   const [dlgIdx, setDlgIdx] = useState(0);
   const [dlgFlipped, setDlgFlipped] = useState(false);
 
+  // Вопросы урока — через ДВИЖОК УПРАЖНЕНИЙ (генератор choice4).
+  // Формат авторского practiceItem не меняется; движок шафлит опции и даёт
+  // единый Question {prompt, options:[{id,label}], answerId}.
   const questions = useMemo(
-    () => (hasPractice ? shuffle([...lesson.practiceItems]) : []),
+    () => (hasPractice
+      ? buildSession([{ gen: 'choice4', sources: lesson.practiceItems }])
+      : []),
     [lesson.id] // eslint-disable-line
   );
   const [qIdx, setQIdx] = useState(0);
@@ -251,18 +256,18 @@ export default function LessonScreen({ lesson, onBack, onOpenReading }) {
         </div>
         <div className="flex flex-col gap-2.5">
           {q.options.map(opt => {
-            const isPicked = picked === opt;
-            const isRight = opt === q.answer;
+            const isPicked = picked === opt.id;
+            const isRight = opt.id === q.answerId;
             let cls = dark ? "border-gray-700 bg-gray-800 text-gray-200" : "border-gray-200 bg-white text-gray-800";
             let mark = null;
             if (answered && isRight) { cls = "border-emerald-400 bg-emerald-50 text-emerald-800"; mark = "✓"; }
             else if (answered && isPicked) { cls = "border-rose-400 bg-rose-50 text-rose-800"; mark = "✗"; }
             return (
-              <button key={opt} disabled={answered}
-                onClick={() => { setPicked(opt); if (opt === q.answer) setCorrect(n => n + 1); }}
+              <button key={opt.id} disabled={answered}
+                onClick={() => { setPicked(opt.id); if (opt.id === q.answerId) setCorrect(n => n + 1); }}
                 className={`rounded-xl border-2 p-4 min-h-[52px] flex items-center justify-between gap-3 text-left transition-all ${TYPO.option} ${cls}`}
                 dir="auto">
-                <span className="flex-1" style={HE.test(opt) ? HEB_FONT : undefined}>{opt}</span>
+                <span className="flex-1" style={HE.test(opt.label) ? HEB_FONT : undefined}>{opt.label}</span>
                 {mark && <span className="text-lg font-bold flex-shrink-0">{mark}</span>}
               </button>
             );

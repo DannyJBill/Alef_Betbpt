@@ -9,7 +9,10 @@ import { READING_BLOCKS, READING_ITEMS, PHRASE_LOCKS, getUnlockedPhraseLocks, ge
 import { ALPHABET, LETTER_GROUPS } from "../data/alphabet";
 import { isReadingBlockUnlocked } from "../data/curriculum";
 import { getKnownLetters, filterReadable } from "../helpers/vocab";
+import { getFreshPortions } from "../helpers/progressHelpers";
 import { shuffle } from "../helpers/utils";
+import { buildSession, fromReadingItem } from "../helpers/exercises";
+import ExerciseSession from "../components/ui/ExerciseSession";
 
 const BLOCK_META = {
   1: { label:"Блок 1", gradient:"from-emerald-500 to-teal-600",   fill:"bg-emerald-500", border:"border-emerald-200", bg:"bg-emerald-50", text:"text-emerald-700" },
@@ -171,190 +174,36 @@ function CardsMode({ items, blockN, dark, onBack, onReview }) {
   );
 }
 
-// ─── Учиться (quiz) ───────────────────────────────────────────────────────────
-function LearnMode({ items, pool, blockN, dark, onBack, onAnswer }) {
+// ─── Учиться (quiz) — через ДВИЖОК УПРАЖНЕНИЙ ────────────────────────────────
+// Генерация вопросов: helpers/exercises.js (word_ru), рендер: ExerciseSession.
+// Экран больше не содержит логики построения вопросов.
+// ─── Проверка — единый комплексный квиз (бывшие «Проверить» + «Тренажёр») ────
+// Смешанная сессия из всех генераторов движка: узнавание (word_ru), активное
+// припоминание (word_he), чтение без огласовок (no_nikud), печать (typing).
+function QuizMode({ items, pool, blockN, dark, onBack, onAnswer }) {
   const m = metaFor(blockN);
-  const SESSION = Math.min(items.length, 10);
-  const queue = useRef(shuffle([...items]).slice(0, SESSION));
-  const [idx, setIdx] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  const timer = useRef(null);
-
-  if (done) {
-    const pct = Math.round((score/SESSION)*100);
-    return (
-      <div className="pb-24 px-4 pt-12 max-w-md mx-auto text-center">
-        <div className="text-5xl mb-3">{pct>=80?"🎉":"💪"}</div>
-        <h2 className={`text-xl font-bold mb-1 ${dark?"text-white":"text-gray-900"}`}>{pct>=80?"Отлично!":"Продолжай!"}</h2>
-        <p className={`text-4xl font-black mb-1 ${dark?"text-indigo-400":"text-indigo-600"}`}>{pct}%</p>
-        <p className={`text-sm mb-6 ${dark?"text-gray-400":"text-gray-500"}`}>{score}/{SESSION} правильных</p>
-        <button onClick={onBack}
-          className={`w-full py-4 rounded-2xl font-bold text-white bg-gradient-to-r ${m.gradient}`}>
-          Назад
-        </button>
-      </div>
-    );
-  }
-
-  const current = queue.current[idx];
-  // Дистракторы — из общего пула (весь словарь), не только из порции
-  const distractorSource = (pool && pool.length >= 4) ? pool : items;
-  const distractors = shuffle(distractorSource.filter(w => w.id !== current?.id)).slice(0, 3);
-  const choices = current ? shuffle([current, ...distractors]) : [];
-
-  function answer(ch) {
-    if (selected !== null) return;
-    setSelected(ch.id);
-    const ok = ch.id === current.id;
-    if (ok) setScore(s => s+1);
-    onAnswer(current.id, ok);
-    timer.current = setTimeout(() => {
-      setSelected(null);
-      if (idx+1 >= SESSION) setDone(true);
-      else setIdx(i => i+1);
-    }, 600);
-  }
-
+  const src = items.map(fromReadingItem);
+  const pl  = pool.map(fromReadingItem);
+  const questions = useRef(buildSession([
+    { gen: 'word_ru',  sources: src, pool: pl, take: 4 },
+    { gen: 'word_he',  sources: src, pool: pl, take: 3 },
+    { gen: 'no_nikud', sources: src, pool: pl, take: 3 },
+    { gen: 'typing',   sources: src, pool: pl, take: 2 },
+  ])).current;
   return (
-    <div className="pb-4 px-4 pt-4 max-w-md mx-auto">
-      <div className="flex items-center justify-between mb-2">
-        <button onClick={onBack} className={`text-sm ${dark?"text-gray-400":"text-gray-500"}`}>← Назад</button>
-        <span className={`text-xs ${dark?"text-gray-400":"text-gray-500"}`}>{idx+1}/{SESSION}</span>
-        <span className={`text-sm font-bold ${dark?"text-yellow-400":"text-yellow-600"}`}>⚡{score}</span>
-      </div>
-      <div className={`h-1.5 rounded-full mb-4 ${dark?"bg-gray-700":"bg-gray-200"}`}>
-        <div className={`h-full rounded-full ${m.fill} transition-all`}
-          style={{width:`${Math.round(((idx+1)/SESSION)*100)}%`}}/>
-      </div>
-
-      <p className={`text-xs text-center mb-3 font-medium ${dark?"text-gray-500":"text-gray-400"}`}>Что значит?</p>
-
-      <div className={`rounded-3xl flex flex-col items-center justify-center mb-5 min-h-[110px]
-        ${dark?"bg-gray-800":"bg-white border border-gray-100 shadow-sm"}`}>
-        <span style={{fontFamily:"serif", fontSize:46, direction:"rtl"}}
-          className={dark?"text-white":"text-gray-900"}>{current?.hebrew}</span>
-        {SHOW_TRANSLIT_IN_QUIZ && current?.transliteration && (
-          <span className={`text-sm mt-1 ${dark?"text-gray-400":"text-gray-500"}`}>{current.transliteration}</span>
-        )}
-        {current?.audio && (
-          <button onClick={() => playAudio(current.audio)}
-            className="text-xl mt-1 active:scale-95">🔊</button>
-        )}
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        {choices.map(ch => {
-          const isSel = selected === ch.id;
-          const isOk = ch.id === current?.id;
-          let cls = dark
-            ? "bg-gray-800 text-white border border-gray-700"
-            : "bg-white text-gray-800 border-2 border-gray-100 shadow-sm";
-          if (selected !== null) {
-            if (isOk) cls = "bg-emerald-500 text-white border-emerald-500";
-            else if (isSel) cls = "bg-red-400 text-white border-red-400";
-          }
-          return (
-            <button key={ch.id} onClick={() => answer(ch)}
-              className={`py-4 px-2 rounded-2xl font-medium text-sm transition-all active:scale-95 ${cls}`}>
-              {ch.translation}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <ExerciseSession
+      questions={questions} dark={dark}
+      title="Проверка"
+      accent={{ grad: m.gradient, fill: m.fill }}
+      onAnswer={(id, ok) => id && onAnswer(id, ok)}
+      onFinish={() => {}}
+      onBack={onBack}
+    />
   );
 }
 
-// ─── Лента «Новое» — единый поток порций слов через весь курс ────────────────
-// Порция = блок чтения. Открывается этапом курса (группа букв/огласовок или урок).
-// Слова из порции падают в накопительный словарь и дальше живут в «Мой словарь».
-function FeedList({ stats, dark, readingStudied, onOpen }) {
-  const portions = [...READING_BLOCKS]
-    .sort((a, b) => (a.seq ?? 999) - (b.seq ?? 999))
-    .map((block) => {
-    const unlocked = isReadingBlockUnlocked(block, stats);
-    const cards = getBlockCards(block);
-    const available = unlocked ? getAvailableItems(cards, stats) : [];
-    const studied = available.filter(w => readingStudied.includes(w.id)).length;
-    const pct = available.length ? Math.round((studied / available.length) * 100) : 0;
-    const m = metaFor(block.id);
-    const title = block.lesson ? `Урок ${block.lesson} · ${block.title}` : block.title;
-    const sub = block.lesson ? `после урока ${block.lesson}` : block.unlockLabel;
-    return { block, m, title, sub, unlocked, available, studied, pct };
-  });
+// ─── Лента «Новое» УДАЛЕНА (этап 4): дублировала «Путь». ────────────────────
 
-  return (
-    <div className="px-4 flex flex-col gap-3">
-      {portions.map(({ block, m, title, sub, unlocked, available, studied, pct }) => {
-        const complete = unlocked && available.length > 0 && studied >= available.length;
-        if (!unlocked) {
-          return (
-            <div key={block.id}
-              className={`rounded-2xl border p-4 opacity-60 ${dark?"bg-gray-800 border-gray-700":"bg-gray-50 border-gray-200"}`}>
-              <div className="flex items-center gap-3">
-                <span className="text-xl">🔒</span>
-                <div className="min-w-0">
-                  <p className={`font-bold text-sm truncate ${dark?"text-gray-300":"text-gray-600"}`}>{title}</p>
-                  <p className="text-xs text-gray-400">Откроется: {sub} · {block.items.length} слов</p>
-                </div>
-              </div>
-            </div>
-          );
-        }
-        return (
-          <div key={block.id} className={`rounded-2xl border p-4 ${m.bg} ${m.border}`}>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3 min-w-0">
-                <span className="text-2xl">{complete ? "✅" : "📖"}</span>
-                <div className="min-w-0">
-                  <p className={`font-bold text-sm truncate ${m.text}`}>{title}</p>
-                  <p className="text-xs text-gray-400">
-                    {available.length} слов · {studied} изучено
-                    {block.review?.length > 0 && ` · 🔄 ${block.review.length} на повторение`}
-                  </p>
-                  {block.mode === 'preview' && (
-                    <p className="text-[10px] text-gray-400 mt-0.5">🔊 на слух: транслит и звук ведут — никуд впереди</p>
-                  )}
-                  {!block.lesson && !complete && (
-                    <p className="text-[10px] font-medium text-amber-600 mt-0.5">⭐ обязательная — откроет следующий урок</p>
-                  )}
-                </div>
-              </div>
-              {complete && <span className="text-xs font-bold text-emerald-600 shrink-0">100%</span>}
-            </div>
-            <div className={`h-1.5 rounded-full mb-3 ${dark?"bg-gray-700":"bg-white/70"}`}>
-              <div className={`h-full rounded-full ${m.fill} transition-all`} style={{width:`${pct}%`}}/>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => onOpen(block.id, 'cards')}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r ${m.gradient}`}>
-                🃏 Карточки
-              </button>
-              <button onClick={() => onOpen(block.id, 'learn')}
-                disabled={available.length < 4}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 disabled:opacity-40
-                  ${dark?"border-gray-600 text-gray-200":"border-gray-300 text-gray-700"}`}>
-                📝 Учиться
-              </button>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── «Мой словарь» — накопитель всех введённых слов ──────────────────────────
-function statusOf(w) {
-  if (!w) return { dot: "bg-gray-300", label: "новое" };
-  if ((w.correct || 0) >= 2 && (w.correct || 0) > (w.wrong || 0)) return { dot: "bg-emerald-500", label: "знаю" };
-  if ((w.wrong || 0) > (w.correct || 0)) return { dot: "bg-rose-400", label: "слабое" };
-  return { dot: "bg-amber-400", label: "учу" };
-}
-
-// «Ты уже можешь сказать» — фразы-замки зоны 0, собранные из изученных слов.
 function PhraseLocksSection({ studied, dark }) {
   const unlocked = getUnlockedPhraseLocks(studied);
   const lockedCount = PHRASE_LOCKS.length - unlocked.length;
@@ -387,14 +236,28 @@ function PhraseLocksSection({ studied, dark }) {
   );
 }
 
+// Статус слова в словаре по его прогрессу (для точки-индикатора и счётчиков).
+// Восстановлено в этапе 3-fix: жил в снесённом FeedList.
+function statusOf(w) {
+  if (!w) return { label: "новое", dot: "bg-gray-300" };
+  const reps = w.sm2?.repetitions || 0;
+  const correct = w.correct || 0, wrong = w.wrong || 0;
+  if (reps >= 2 || correct >= 3) return { label: "знаю", dot: "bg-emerald-500" };
+  if (wrong > 0 && wrong >= correct) return { label: "слабое", dot: "bg-rose-500" };
+  return { label: "изучается", dot: "bg-amber-400" };
+}
+
 function DictView({ stats, dark, onOpen }) {
   const [q, setQ] = useState("");
   const wordsMap = stats.readingProgress?.words || {};
   const studied = stats.readingProgress?.studied || [];
-  const introduced = READING_ITEMS.filter(i => studied.includes(i.id));
+  // Только слова (фразы — в разделе «Ты уже можешь сказать»), только реально
+  // существующие в контенте. Совпадает с базой заголовка «в словаре».
+  const introduced = READING_ITEMS.filter(i => i.type !== 'phrase' && studied.includes(i.id));
 
   const known = introduced.filter(i => statusOf(wordsMap[i.id]).label === "знаю").length;
   const weak  = introduced.filter(i => statusOf(wordsMap[i.id]).label === "слабое").length;
+  const nextFresh = getFreshPortions(stats)[0] || null; // следующая порция с новыми словами
 
   const shown = q.trim()
     ? introduced.filter(i =>
@@ -407,7 +270,7 @@ function DictView({ stats, dark, onOpen }) {
       <div className="px-4 pt-8 text-center">
         <p className="text-4xl mb-3">📚</p>
         <p className={`text-sm ${dark?"text-gray-400":"text-gray-500"}`}>
-          Словарь пока пуст. Открой порцию во вкладке «Новое» — изученные слова накапливаются здесь.
+          Словарь пока пуст. Проходи уроки — новые слова из порций накапливаются здесь.
         </p>
       </div>
     );
@@ -427,11 +290,18 @@ function DictView({ stats, dark, onOpen }) {
             className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600">
             🃏 Повторить
           </button>
-          <button onClick={() => onOpen('dict', 'learn')}
+          <button onClick={() => onOpen('dict', 'quiz')}
             disabled={introduced.length < 4}
             className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 disabled:opacity-40
               ${dark?"border-gray-600 text-gray-200":"border-gray-300 text-gray-700"}`}>
-            📝 Проверить
+            ✅ Проверить
+          </button>
+          <button onClick={() => nextFresh && onOpen(nextFresh.block.id, 'cards')}
+            disabled={!nextFresh}
+            title={nextFresh ? `Новых слов: ${nextFresh.freshCount}` : "Новые слова появятся после следующих уроков"}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 disabled:opacity-40
+              ${dark?"border-indigo-500 text-indigo-400":"border-indigo-400 text-indigo-600"}`}>
+            ➕ Ещё слова
           </button>
         </div>
       </div>
@@ -474,10 +344,9 @@ function DictView({ stats, dark, onOpen }) {
 // ─── Главный экран: Словарь ───────────────────────────────────────────────────
 // Единый поток слов через весь курс: «Новое» — лента порций по порядку курса,
 // «Мой словарь» — накопитель всего введённого (карточки/квиз по всему словарю).
-export default function ReadingScreen({ onBack, initialBlock, dictOnly, soloBlock }) {
+export default function ReadingScreen({ onBack, dictOnly, soloBlock }) {
   const { dark } = useTheme();
   const { stats, recordWordReview, recordWordAnswer } = useStats();
-  const [tab, setTab] = useState(dictOnly ? 'dict' : 'feed'); // feed | dict
   const [activeMode, setActiveMode] = useState(null);
   const [activeBlock, setActiveBlock] = useState(null); // block id | 'dict'
 
@@ -485,12 +354,7 @@ export default function ReadingScreen({ onBack, initialBlock, dictOnly, soloBloc
   const wordsMap = stats.readingProgress?.words || {};
 
   // Прямой переход из урока: «Изучить N новых слов»
-  useEffect(() => {
-    if (initialBlock && READING_BLOCKS.some(b => b.id === initialBlock)) {
-      setActiveBlock(initialBlock);
-      setActiveMode('cards');
-    }
-  }, [initialBlock]);
+  // initialBlock-эффект удалён (этап 4): лента снесена, порции открывает Путь.
 
   // Solo-порция (экран «Путь»): сразу карточки, выход — в Путь
   if (soloBlock) {
@@ -539,18 +403,20 @@ export default function ReadingScreen({ onBack, initialBlock, dictOnly, soloBloc
 
     return activeMode === 'cards'
       ? <CardsMode {...props} />
-      : <LearnMode {...props} />;
+      : <QuizMode {...props} />;
   }
 
-  const introducedCount = readingStudied.length;
-  const totalAvail = getAvailableItems(
-    READING_BLOCKS.filter(b => isReadingBlockUnlocked(b, stats)).flatMap(b => b.items), stats
+  // Только СЛОВА (не фразы — у них свой раздел), и только те, что реально есть
+  // в контенте (фильтр по READING_ITEMS отсекает фантомные id из прогресса).
+  const dictWords = READING_ITEMS.filter(i => i.type !== 'phrase');
+  const introducedCount = dictWords.filter(i => readingStudied.includes(i.id)).length;
+  const availWords = getAvailableItems(
+    READING_BLOCKS.filter(b => isReadingBlockUnlocked(b, stats))
+      .flatMap(b => b.items).filter(i => i.type !== 'phrase'),
+    stats
   ).length;
 
-  const TABS = [
-    { id:'feed', icon:'✨', label:'Новое' },
-    { id:'dict', icon:'📚', label:'Мой словарь' },
-  ];
+
 
   return (
     <div className="pb-24 max-w-md mx-auto">
@@ -563,35 +429,13 @@ export default function ReadingScreen({ onBack, initialBlock, dictOnly, soloBloc
         )}
         <h2 className={`text-xl font-bold ${dark?"text-white":"text-gray-900"}`}>Словарь</h2>
         <p className={`text-sm mt-0.5 ${dark?"text-gray-400":"text-gray-500"}`}>
-          {introducedCount} слов накоплено · {Math.max(totalAvail - introducedCount, 0)} новых доступно
+          {introducedCount} слов в словаре · {Math.max(availWords - introducedCount, 0)} новых доступно
         </p>
       </div>
 
-      {/* Табы */}
-      {!dictOnly && (
-      <div className="px-4 mb-4">
-        <div className={`flex rounded-2xl p-1 ${dark?"bg-gray-800":"bg-gray-100"}`}>
-          {TABS.map(t => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-1.5
-                ${tab === t.id
-                  ? dark ? "bg-gray-700 text-white shadow" : "bg-white text-gray-900 shadow"
-                  : dark ? "text-gray-400" : "text-gray-500"}`}
-            >
-              <span>{t.icon}</span><span>{t.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-      )}
-
-      {tab === 'feed'
-        ? <FeedList stats={stats} dark={dark} readingStudied={readingStudied}
-            onOpen={(blockId, mode) => { setActiveBlock(blockId); setActiveMode(mode); }} />
-        : <DictView stats={stats} dark={dark}
-            onOpen={(blockId, mode) => { setActiveBlock(blockId); setActiveMode(mode); }} />}
+      {/* Единственный вид — «Мой словарь» (лента «Новое» снесена, этап 4) */}
+      <DictView stats={stats} dark={dark}
+        onOpen={(blockId, mode) => { setActiveBlock(blockId); setActiveMode(mode); }} />
     </div>
   );
 }

@@ -11,7 +11,7 @@ import { buildSession } from "../helpers/exercises";
 import ExerciseSession from "../components/ui/ExerciseSession";
 
 // Приведение слова колоды к формату движка (fromReadingItem-совместимо)
-const toItem = w => ({ id: w.id, he: w.hebrew, plain: w.plain, translation: w.translation, translit: w.transliteration || "" });
+const toItem = w => ({ id: w.id, he: w.hebrew, ru: w.translation, plain: w.plain, type: 'word' });
 
 export default function DecksScreen({ onBack }) {
   const { dark } = useTheme();
@@ -61,7 +61,7 @@ export default function DecksScreen({ onBack }) {
       : [{ gen: 'word_ru', sources: src, pool: src, take: Math.ceil(words.length / 2) },
          { gen: 'word_he', sources: src, pool: src, take: Math.floor(words.length / 2) }];
     return <ChunkSession words={words} plan={plan} dark={dark}
-      title={`${DECKS_BY_ID[deckId].title} · пачка ${active.chunkIdx + 1}`}
+      title={`${DECKS_BY_ID[deckId].title} · группа ${active.chunkIdx + 1}`}
       onDone={(res) => { commitResults(words, res); setActive(null); }}
       onBack={() => setActive(null)} />;
   }
@@ -83,7 +83,7 @@ export default function DecksScreen({ onBack }) {
               return (
                 <div key={i} className={`rounded-2xl border p-3.5 ${dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100"}`}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className={`font-bold text-sm ${dark ? "text-white" : "text-gray-900"}`}>Пачка {i + 1}</span>
+                    <span className={`font-bold text-sm ${dark ? "text-white" : "text-gray-900"}`}>Группа {i + 1}</span>
                     <span className="text-xs text-gray-400">{done}/{ch.words.length}</span>
                   </div>
                   <div className="flex gap-2">

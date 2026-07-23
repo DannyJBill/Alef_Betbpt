@@ -22,6 +22,7 @@ import {
   NIKUD_GROUPS,
   ALPHABET,
 } from "../data/alphabet";
+import { getFreshPortions } from "../helpers/progressHelpers";
 
 // ─── Константы ────────────────────────────────────────────────────────────────
 const PREORDER_PRICE = 99;

@@ -1,6 +1,8 @@
 // src/data/decks.js — тематические колоды (этап 5). Метаданные в бандле,
 // слова и прогресс — из Supabase через api/decks. Гейт после узла ниже.
-export const DECKS_UNLOCK_NODE = 'G3.6'; // открываются после уровня 4
+// null — колоды доступны всем сразу. Поставить id узла (напр. 'G3.6'), чтобы
+// снова закрыть за прогрессом.
+export const DECKS_UNLOCK_NODE = null;
 
 export const DECKS = [
   { id: 'family',    icon: '👨‍👩‍👧', title: 'Семья',       wordCount: 19,  chunkCount: 3  },

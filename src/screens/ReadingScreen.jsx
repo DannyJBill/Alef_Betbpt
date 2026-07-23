@@ -353,7 +353,7 @@ export default function ReadingScreen({ onBack, dictOnly, soloBlock }) {
   const [activeMode, setActiveMode] = useState(null);
   const [activeBlock, setActiveBlock] = useState(null); // block id | 'dict'
   const [showDecks, setShowDecks] = useState(false);
-  const decksUnlocked = getNodeStatus(DECKS_UNLOCK_NODE, stats) === 'done';
+  const decksUnlocked = !DECKS_UNLOCK_NODE || getNodeStatus(DECKS_UNLOCK_NODE, stats) === 'done';
 
   const readingStudied = stats.readingProgress?.studied || [];
   const wordsMap = stats.readingProgress?.words || {};

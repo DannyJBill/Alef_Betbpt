@@ -78,6 +78,14 @@ export default function UpdatePopup({ dark }) {
           Помоги нам стать лучше — залетай в чат ранних пользователей 👇
         </div>
 
+        <div className={`mt-4 pt-3 border-t ${soft} text-xs leading-relaxed`}
+          style={{ borderColor: "rgba(127,127,127,0.25)" }}>
+          🛠 <b>Багфиксы 23.07.2026:</b> белый экран после теста огласовок · краш
+          словаря и игры · счёт в игре не сохранялся · пустая тема «Слова» ·
+          кривая отметка ответа в уроках · квадратики вместо букв в моделях ·
+          разные цифры в словаре.
+        </div>
+
         <button
           onClick={joinChat}
           className="mt-4 w-full rounded-2xl bg-indigo-500 hover:bg-indigo-600 active:scale-[0.99] transition text-white font-semibold py-3"

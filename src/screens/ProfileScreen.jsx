@@ -3,13 +3,16 @@ import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { levelProgress } from "../data/constants";
 import ProgressBar from "../components/ui/ProgressBar";
+import DevPanel from "../components/ui/DevPanel";
 
 const BOT_USERNAME = "alef_betbot"; // поменяй на своего бота
 const APP_SHORT    = "learn";
 
 export default function ProfileScreen({ onBack }) {
   const { dark } = useTheme();
-  const { stats, resetStats } = useStats();
+  const { stats, resetStats, updateStats } = useStats();
+  const [devTaps, setDevTaps] = useState(0);
+  const devOn = devTaps >= 5 || localStorage.getItem("ab_dev") === "1";
   const [copied, setCopied] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -74,7 +77,8 @@ export default function ProfileScreen({ onBack }) {
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-3xl mb-3">
           😊
         </div>
-        <h2 className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>Мой профиль</h2>
+        <h2 onClick={() => setDevTaps(t => { const n = t + 1; if (n >= 5) localStorage.setItem("ab_dev", "1"); return n; })}
+          className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>Мой профиль</h2>
         <div className={`text-sm mb-2 ${dark ? "text-gray-400" : "text-gray-500"}`}>Уровень {level}</div>
         <div className="w-40 mb-1">
           <ProgressBar pct={levelPct} color="bg-indigo-500" height="h-2" />
@@ -157,6 +161,8 @@ export default function ProfileScreen({ onBack }) {
           }`}>
           💬 Написать в поддержку
         </button>
+
+        {devOn && <DevPanel stats={stats} updateStats={updateStats} dark={dark} />}
 
         {/* Reset */}
         <button

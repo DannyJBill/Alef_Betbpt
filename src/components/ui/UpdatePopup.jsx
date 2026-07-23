@@ -11,7 +11,7 @@ import { useState } from "react";
  *   «Круто» — закрыть на этот раз (покажется при следующем открытии);
  *   «Не показывать снова» — пометить и больше не показывать никогда.
  */
-const ANNOUNCE_ID  = "v1";
+const ANNOUNCE_ID  = "v2";
 const ANNOUNCE_KEY = `hebrew-app-announce-${ANNOUNCE_ID}`;
 const CHAT_URL     = "https://t.me/+acN50m9_IjhjM2I0";
 
@@ -55,16 +55,22 @@ export default function UpdatePopup({ dark }) {
         onClick={e => e.stopPropagation()}
       >
         <div className="text-center">
-          <div style={{ fontSize: 52, lineHeight: 1 }}>🎉</div>
-          <h2 className="mt-3 text-xl font-bold">Большое обновление!</h2>
+          <div style={{ fontSize: 52, lineHeight: 1 }}>🚀</div>
+          <h2 className="mt-3 text-xl font-bold">Большой апдейт!</h2>
+          <p className={`mt-1 text-sm ${sub}`}>Теперь в Alef Bet есть:</p>
         </div>
 
         <div className={`mt-4 text-[15px] leading-relaxed ${sub}`}>
-          Мы перестроили движок приложения:
-          <ul className="mt-2 space-y-1.5">
-            <li>🧠 умное повторение слов — интервальные карточки в словаре</li>
-            <li>⚡ прогресс стал надёжнее и быстрее синхронизируется</li>
-            <li>📚 единый словарь: слова из уроков копятся в одном месте</li>
+          <ul className="space-y-2">
+            <li>🔤 <b>Алфавит и огласовки</b> — 22 буквы, 5 групп, финальные формы</li>
+            <li>🔊 <b>Фонетика</b> — дагеш и шва</li>
+            <li>📖 <b>58 уроков грамматики</b> — от «это дом» до прошедшего времени</li>
+            <li>🧬 <b>Система слова</b> — корень и модель: понимай незнакомое без словаря</li>
+            <li>📚 <b>Словарь</b> — 216 слов и 73 фразы, умное повторение</li>
+            <li>📦 <b>Колоды</b> — ещё 460 слов по 15 темам</li>
+            <li>✨ <b>«Ты уже можешь сказать»</b> — фразы из выученных слов</li>
+            <li>⚡ <b>Игра</b> — на скорость, рейтинг и тренировка</li>
+            <li>🤖 <b>ИИ-помощник</b> — спроси что угодно на иврите</li>
           </ul>
         </div>
 

@@ -74,7 +74,7 @@ export const READING_BLOCKS = [
       { id:"rp_32", hebrew:"פָלָאפֶל", plain:"פלאפל", transliteration:"фалафель", translation:"фалафель", english:"falafel", type:"noun", audio:"rp_32.mp3" },
       { id:"rw_34", hebrew:"יָפֶה", plain:"יפה", transliteration:"яфэ", translation:"красивый", english:"beautiful", type:"adj", audio:"rw_34.mp3" },
       { id:"rw_38", hebrew:"כֵּיף", plain:"כיף", transliteration:"кейф", translation:"кайф / весело", english:"fun", type:"noun", audio:"rw_38.mp3" },
-      { id:"rp_11", hebrew:"אֵין בַּעַד מָה", plain:"אין בעד מה", transliteration:"эйн баад ма", translation:"не за что", english:"you're welcome", type:"phrase", audio:"rp_11.mp3" },
+      { id:"rp_11", hebrew:"אֵין בְּעַד מָה", plain:"אין בעד מה", transliteration:"эйн бэад ма", translation:"не за что", english:"you're welcome", type:"phrase", audio:"rp_11.mp3" },
       { id:"rp_39", hebrew:"יַם הַמֶלַח", plain:"ים המלח", transliteration:"ям hамелах", translation:"Мёртвое море", english:"the Dead Sea", type:"phrase", audio:"rp_39.mp3" },
     ],
     review: [],

@@ -36,7 +36,14 @@ function renderSegment(text, c, keyBase) {
     buf = [];
   };
   tokens.forEach((tok, i) => {
-    if (tok.trim() === "") { buf.length ? buf.push(tok) : nodes.push(tok); }
+    if (tok.trim() === "") {
+      // Пробел уходит ВНУТРЬ ивритского спана только между ивритскими словами:
+      // иначе он схлопывается в RTL-контексте и текст слипается
+      // («מוֹרָה.Важно:» вместо «מוֹרָה. Важно:»).
+      const next = tokens[i + 1];
+      if (buf.length && next && HE.test(next)) buf.push(tok);
+      else { flushHe(); nodes.push(tok); }
+    }
     else if (HE.test(tok)) { buf.push(tok); }
     else { flushHe(); nodes.push(<span key={`${keyBase}-t${i}`}>{tok}</span>); }
   });

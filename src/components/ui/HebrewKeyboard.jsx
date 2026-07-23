@@ -1,79 +1,88 @@
 /**
- * HebrewKeyboard — виртуальная ивритская клавиатура
+ * HebrewKeyboard — виртуальная ивритская клавиатура.
+ *
+ * Раскладка — СТАНДАРТНАЯ ивритская (как на телефоне и на физической
+ * клавиатуре): ряды ק־פ / ש־ף / ז־ץ. Финальные формы стоят на своих привычных
+ * местах (ן ם сверху, ך ף в среднем ряду, ץ снизу), а не отдельной строкой —
+ * чтобы мышечная память переносилась на реальный ввод.
+ *
  * Props:
  *   onKey(symbol)   — нажатие буквы
  *   onDelete()      — удалить последний символ
  *   onSubmit()      — подтвердить ответ
  *   disabled        — заблокировать после ответа
- *   letters         — массив букв из availableLetters (только разблокированные)
+ *   highlightSymbol — подсветить клавишу (подсказка)
  */
 
-import { ALPHABET, FINAL_FORMS } from "../../data/alphabet";
 import { useTheme } from "../../context/ThemeContext";
 
-// Раскладка иврита построчно (как на физической клавиатуре)
-const KEYBOARD_ROWS = [
-  ["פ","ו","ט","א","ר","ק"],
-  ["ל","ח","י","כ","ע","נ","מ"],
-  ["ת","צ","ז","ג","ד","ש","ב","ה","ס"],
-  ["ף","ץ","ך","ם","ן"],   // финальные формы
-];
+// Стандартная ивритская раскладка (контейнер RTL ставит ק справа сверху).
+// Спокойный современный гротеск — как на системной клавиатуре Android/iOS
+const KEY_FONT = '"Noto Sans Hebrew", "Arial Hebrew", "Segoe UI", Roboto, system-ui, -apple-system, sans-serif';
 
-const ALL_SYMBOLS = new Set([...ALPHABET, ...FINAL_FORMS].map(l => l.symbol));
+const KEYBOARD_ROWS = [
+  ["ק", "ר", "א", "ט", "ו", "ן", "ם", "פ"],
+  ["ש", "ד", "ג", "כ", "ע", "י", "ח", "ל", "ך", "ף"],
+  ["ז", "ס", "ב", "ה", "נ", "מ", "צ", "ת", "ץ"],
+];
 
 export default function HebrewKeyboard({ onKey, onDelete, onSubmit, disabled = false, highlightSymbol = null }) {
   const { dark } = useTheme();
 
-  return (
-    <div className="flex flex-col gap-1.5 w-full">
-      {KEYBOARD_ROWS.map((row, ri) => (
-        <div key={ri} className="flex gap-1 justify-center">
-          {row.map(sym => {
-            const isHighlight = sym === highlightSymbol;
-            return (
-              <button
-                key={sym}
-                onClick={() => !disabled && onKey(sym)}
-                disabled={disabled}
-                className={`
-                  flex-1 max-w-[48px] h-12 rounded-xl font-bold text-xl
-                  transition-all active:scale-90 select-none
-                  ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
-                  ${isHighlight
-                    ? "bg-emerald-500 text-white shadow-lg scale-105"
-                    : dark
-                      ? "bg-gray-700 text-white border border-gray-600 active:bg-gray-600"
-                      : "bg-white text-gray-800 border border-gray-200 shadow-sm active:bg-gray-100"
-                  }
-                `}
-                style={{ fontFamily: "serif", direction: "rtl" }}
-              >
-                {sym}
-              </button>
-            );
-          })}
-        </div>
-      ))}
+  const keyBase = dark
+    ? "bg-[#4a4a4e] text-white active:bg-[#5c5c61]"
+    : "bg-white text-gray-900 active:bg-gray-200";
+  const shadow = dark ? "0 1px 0 rgba(0,0,0,0.5)" : "0 1px 0 rgba(0,0,0,0.28)";
 
-      {/* Delete + Submit */}
-      <div className="flex gap-2 mt-1">
-        <button
-          onClick={() => !disabled && onDelete()}
-          disabled={disabled}
-          className={`flex-1 h-11 rounded-xl font-semibold text-sm transition-all active:scale-95
-            ${disabled ? "opacity-40" : ""}
-            ${dark ? "bg-gray-700 text-gray-300 border border-gray-600" : "bg-gray-100 text-gray-600 border border-gray-200"}`}
-        >
-          ⌫ Удалить
-        </button>
-        <button
-          onClick={() => !disabled && onSubmit()}
-          disabled={disabled}
-          className={`flex-[2] h-11 rounded-xl font-bold text-sm text-white transition-all active:scale-95
-            ${disabled ? "opacity-40 bg-gray-400" : "bg-indigo-500 active:bg-indigo-600"}`}
-        >
-          Проверить ✓
-        </button>
+  return (
+    <div
+      className={`w-full rounded-xl px-1.5 py-2 select-none ${dark ? "bg-[#2c2c2e]" : "bg-[#d1d4da]"}`}
+      style={{ direction: "rtl" }}
+    >
+      <div className="flex flex-col gap-[6px]">
+        {KEYBOARD_ROWS.map((row, ri) => (
+          <div key={ri} className="flex gap-[4px] justify-center">
+            {row.map(sym => {
+              const isHighlight = sym === highlightSymbol;
+              return (
+                <button
+                  key={sym}
+                  onClick={() => !disabled && onKey(sym)}
+                  disabled={disabled}
+                  className={`flex-1 min-w-0 h-11 rounded-[6px] text-[21px] leading-none transition-colors duration-75
+                    ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}
+                    ${isHighlight ? "bg-emerald-500 text-white" : keyBase}`}
+                  style={{ fontFamily: KEY_FONT, fontWeight: 400, boxShadow: shadow }}
+                >
+                  {sym}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+
+        {/* Служебный ряд */}
+        <div className="flex gap-[4px] mt-[2px]">
+          <button
+            onClick={() => !disabled && onDelete()}
+            disabled={disabled}
+            className={`w-[28%] h-11 rounded-[6px] text-lg transition-colors duration-75
+              ${disabled ? "opacity-40" : ""}
+              ${dark ? "bg-[#3a3a3e] text-gray-200 active:bg-[#4a4a4e]" : "bg-[#adb3bd] text-gray-900 active:bg-[#9aa1ac]"}`}
+            style={{ boxShadow: shadow }}
+          >
+            ⌫
+          </button>
+          <button
+            onClick={() => !disabled && onSubmit()}
+            disabled={disabled}
+            className={`flex-1 h-11 rounded-[6px] font-semibold text-[15px] text-white transition-colors duration-75
+              ${disabled ? "opacity-40 bg-gray-400" : "bg-indigo-500 active:bg-indigo-600"}`}
+            style={{ boxShadow: shadow }}
+          >
+            Проверить
+          </button>
+        </div>
       </div>
     </div>
   );

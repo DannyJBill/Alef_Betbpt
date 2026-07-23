@@ -4,6 +4,7 @@ import { useStats } from "../context/StatsContext";
 import { levelProgress } from "../data/constants";
 import ProgressBar from "../components/ui/ProgressBar";
 import DevPanel from "../components/ui/DevPanel";
+import AdminScreen from "./AdminScreen";
 
 const ADMIN_TELEGRAM_ID = "5675751402";
 
@@ -14,6 +15,7 @@ export default function ProfileScreen({ onBack }) {
   const { dark } = useTheme();
   const { stats, resetStats, updateStats } = useStats();
   const [devTaps, setDevTaps] = useState(0);
+  const [showAdmin, setShowAdmin] = useState(false);
   const devOn = devTaps >= 5 || localStorage.getItem("ab_dev") === "1";
   const [copied, setCopied] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -64,6 +66,8 @@ export default function ProfileScreen({ onBack }) {
     { icon: "💰", val: stats.coins,    label: "Монет" },
     { icon: "📖", val: stats.dailyDone,label: "Уроков" },
   ];
+
+  if (showAdmin) return <AdminScreen onBack={() => setShowAdmin(false)} />;
 
   return (
     <div className="pb-20 px-4 pt-6 max-w-md mx-auto">
@@ -169,17 +173,7 @@ export default function ProfileScreen({ onBack }) {
         {/* Админка — только владелец. Секрет не хранится в бандле:
             спрашиваем один раз и держим в localStorage этого устройства. */}
         {String(stats.telegramId) === ADMIN_TELEGRAM_ID && (
-          <button
-            onClick={() => {
-              let s = localStorage.getItem("ab_admin_secret");
-              if (!s) {
-                s = window.prompt("ADMIN_SECRET:");
-                if (!s) return;
-                localStorage.setItem("ab_admin_secret", s);
-              }
-              const url = `${window.location.origin}/api/admin?view=1&secret=${encodeURIComponent(s)}`;
-              window.Telegram?.WebApp?.openLink ? window.Telegram.WebApp.openLink(url) : window.open(url, "_blank");
-            }}
+          <button onClick={() => setShowAdmin(true)}
             className={`w-full rounded-2xl border p-4 mb-3 text-left font-bold text-sm
               ${dark ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-800"}`}>
             🛠 Админ-панель

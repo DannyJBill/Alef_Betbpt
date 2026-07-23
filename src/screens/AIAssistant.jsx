@@ -6,7 +6,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
-import { askAI } from "../helpers/ai";
+import { askAI, AI_ENABLED } from "../helpers/ai";
 import { AI_HISTORY_LIMIT } from "../data/constants";
 
 const WELCOME    = "Шалом! 🇮🇱 Я помогу вам выучить алфавит иврита. Спрашивайте всё, что непонятно!";
@@ -53,14 +53,14 @@ export default function AIAssistant() {
 
   async function send() {
     if (!input.trim() || loading) return;
-    if (!canAsk()) { setShowLimit(true); return; }
+    if (AI_ENABLED && !canAsk()) { setShowLimit(true); return; }
 
     const userMsg   = input.trim();
     setInput("");
     const userEntry = { id: nextId.current++, role: "user", text: userMsg };
     setMsgs(m => [...m, userEntry]);
     setLoading(true);
-    incrementUsage();
+    if (AI_ENABLED) incrementUsage(); // заглушка не тратит дневной лимит
 
     try {
       const history = [...msgs, userEntry]

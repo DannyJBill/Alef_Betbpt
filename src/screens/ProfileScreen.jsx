@@ -5,6 +5,8 @@ import { levelProgress } from "../data/constants";
 import ProgressBar from "../components/ui/ProgressBar";
 import DevPanel from "../components/ui/DevPanel";
 
+const ADMIN_TELEGRAM_ID = "5675751402";
+
 const BOT_USERNAME = "alef_betbot"; // поменяй на своего бота
 const APP_SHORT    = "learn";
 
@@ -163,6 +165,29 @@ export default function ProfileScreen({ onBack }) {
         </button>
 
         {devOn && <DevPanel stats={stats} updateStats={updateStats} dark={dark} />}
+
+        {/* Админка — только владелец. Секрет не хранится в бандле:
+            спрашиваем один раз и держим в localStorage этого устройства. */}
+        {String(stats.telegramId) === ADMIN_TELEGRAM_ID && (
+          <button
+            onClick={() => {
+              let s = localStorage.getItem("ab_admin_secret");
+              if (!s) {
+                s = window.prompt("ADMIN_SECRET:");
+                if (!s) return;
+                localStorage.setItem("ab_admin_secret", s);
+              }
+              const url = `${window.location.origin}/api/admin?view=1&secret=${encodeURIComponent(s)}`;
+              window.Telegram?.WebApp?.openLink ? window.Telegram.WebApp.openLink(url) : window.open(url, "_blank");
+            }}
+            className={`w-full rounded-2xl border p-4 mb-3 text-left font-bold text-sm
+              ${dark ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-800"}`}>
+            🛠 Админ-панель
+            <span className={`block text-xs font-normal mt-0.5 ${dark ? "text-gray-500" : "text-gray-400"}`}>
+              метрики, пользователи, рассылки
+            </span>
+          </button>
+        )}
 
         {/* Reset */}
         <button

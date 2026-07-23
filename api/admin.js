@@ -1,459 +1,515 @@
 /**
- * GET  /api/admin?view=1&secret=X  — HTML дашборд
- * GET  /api/admin?secret=X          — JSON данные
- * POST /api/admin?secret=X          — отправить сообщение пользователю
- *   body: { telegram_id, message }
+ * api/admin.js — админ-панель Alef Bet (плоский, самодостаточный файл).
+ *
+ * GET  ?secret=…&view=1   → HTML-дашборд
+ * GET  ?secret=…          → JSON тех же данных
+ * POST { action, … }      → действия (см. handler)
+ *
+ * ВАЖНО о схеме: прогресс хранится либо в v8 (stats.facts.{nodes,items}),
+ * либо в старом зеркале (stats.scores / stats.readingProgress). Все выборки
+ * ниже читают ОБА формата — иначе цифры врут (старая админка считала по
+ * stats.groupProgress, которого в v8 нет вовсе, и показывала нули).
  */
-import { createClient } from "@supabase/supabase-js";
+
+const PASS_SCORE = 70;
 
 function getSupabase() {
-  return createClient(
-    process.env.SUPABASE_URL?.trim().replace(/\/$/, ""),
-    process.env.SUPABASE_SERVICE_KEY?.trim()
-  );
+  const { createClient } = require("@supabase/supabase-js");
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 }
 
-const BOT_API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
-
 async function sendMessage(chatId, text) {
-  const r = await fetch(`${BOT_API}/sendMessage`, {
+  const r = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" }),
+    body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
   });
   return r.json();
 }
 
+// ── Чтение прогресса из обеих схем ────────────────────────────────────────────
+function nodesDone(st) {
+  if (!st) return 0;
+  if (st.facts?.nodes) {
+    return Object.values(st.facts.nodes).filter(n => (n?.score || 0) >= PASS_SCORE).length;
+  }
+  return Object.values(st.scores || {}).filter(v => (v || 0) >= PASS_SCORE).length;
+}
+function wordsKnown(st) {
+  if (!st) return 0;
+  if (st.facts?.items) {
+    return Object.entries(st.facts.items)
+      .filter(([k, v]) => k.startsWith("w:") && v?.introduced).length;
+  }
+  return (st.readingProgress?.studied || []).length;
+}
+function schemaVer(st) { return st?.facts ? 8 : (st?.version || 1); }
+
+// ── Сбор данных ───────────────────────────────────────────────────────────────
 async function getData(supabase) {
-  const now       = new Date();
-  const today     = now.toISOString().split("T")[0];
-  const week_ago  = new Date(now - 7  * 86400000).toISOString().split("T")[0];
-  const month_ago = new Date(now - 30 * 86400000).toISOString().split("T")[0];
+  const now = Date.now();
+  const dayAgo   = d => new Date(now - d * 86400000).toISOString().split("T")[0];
+  const today    = dayAgo(0);
 
   const [
-    { count: total },
-    { count: dau },
-    { count: wau },
-    { count: mau },
-    { data: all_rows },
-    { data: events7d },
-    { data: sessions14d },
-    { count: referrals_total },
+    { data: rows },
+    { data: sessions },
+    { data: events },
+    { data: refs },
+    { data: deckProg },
   ] = await Promise.all([
-    supabase.from("user_stats").select("*", { count: "exact", head: true }),
-    supabase.from("daily_sessions").select("*", { count: "exact", head: true }).eq("date", today),
-    supabase.from("daily_sessions").select("telegram_id", { count: "exact", head: true }).gte("date", week_ago),
-    supabase.from("daily_sessions").select("telegram_id", { count: "exact", head: true }).gte("date", month_ago),
-    supabase.from("user_stats").select("telegram_id, first_name, username, last_seen_at, is_premium, language_code, stats").order("last_seen_at", { ascending: false }),
-    supabase.from("events").select("event_type").gte("created_at", new Date(now - 7 * 86400000).toISOString()),
-    supabase.from("daily_sessions").select("date, telegram_id").gte("date", new Date(now - 14 * 86400000).toISOString().split("T")[0]).order("date"),
-    supabase.from("referrals").select("*", { count: "exact", head: true }),
+    supabase.from("user_stats").select("telegram_id, first_name, username, last_seen_at, is_premium, language_code, updated_at, stats"),
+    supabase.from("daily_sessions").select("telegram_id, date").gte("date", dayAgo(60)),
+    supabase.from("events").select("telegram_id, event_type, created_at").gte("created_at", new Date(now - 30 * 86400000).toISOString()),
+    supabase.from("referrals").select("referrer_id, referee_id, created_at"),
+    supabase.from("user_word_progress").select("telegram_id, introduced"),
   ]);
 
-  const stats_list = (all_rows || []).map(r => r.stats).filter(Boolean);
-  const avg_xp     = stats_list.length ? Math.round(stats_list.reduce((s,r)=>s+(r.xp||0),0)/stats_list.length) : 0;
-  const avg_streak = stats_list.length ? (stats_list.reduce((s,r)=>s+(r.streak||0),0)/stats_list.length).toFixed(1) : 0;
-  const premium    = (all_rows||[]).filter(r=>r.is_premium).length;
+  const all = rows || [];
+  const sess = sessions || [];
+  const evts = events || [];
 
-  const group_funnel = [1,2,3,4,5].map(gid => ({
-    id: gid,
-    completed: stats_list.filter(r=>r.groupProgress?.[gid]==="completed").length,
-  }));
+  // Активность по дням
+  const byDate = {};
+  sess.forEach(s => { (byDate[s.date] ||= new Set()).add(s.telegram_id); });
+  const activeSince = days => {
+    const from = dayAgo(days);
+    const set = new Set();
+    sess.forEach(s => { if (s.date >= from) set.add(s.telegram_id); });
+    return set;
+  };
+  const dau = (byDate[today] || new Set()).size;
+  const wau = activeSince(7).size;
+  const mau = activeSince(30).size;
 
-  const event_counts = {};
-  (events7d||[]).forEach(e => { event_counts[e.event_type] = (event_counts[e.event_type]||0)+1; });
-
-  const dau_map = {};
-  (sessions14d||[]).forEach(r => {
-    if (!dau_map[r.date]) dau_map[r.date] = new Set();
-    dau_map[r.date].add(r.telegram_id);
+  // Первое появление — из событий (в user_stats нет created_at)
+  const firstSeen = {};
+  evts.forEach(e => {
+    if (!e.telegram_id) return;
+    const t = new Date(e.created_at).getTime();
+    if (!firstSeen[e.telegram_id] || t < firstSeen[e.telegram_id]) firstSeen[e.telegram_id] = t;
   });
-  const dau_chart = Object.entries(dau_map)
-    .map(([date, set]) => ({ date: date.slice(5), count: set.size }))
-    .sort((a,b) => a.date.localeCompare(b.date));
+  const newIn = days => Object.values(firstSeen).filter(t => t > now - days * 86400000).length;
 
-  // Полный список юзеров
-  const users = (all_rows||[]).map(r => ({
-    telegram_id: r.telegram_id,
-    name:        r.first_name || "—",
-    username:    r.username ? `@${r.username}` : "—",
-    xp:          r.stats?.xp || 0,
-    streak:      r.stats?.streak || 0,
-    groups:      Object.values(r.stats?.groupProgress||{}).filter(v=>v==="completed").length,
-    premium:     r.is_premium ? "✓" : "",
-    lang:        r.language_code || "—",
-    last_seen:   r.last_seen_at ? new Date(r.last_seen_at).toLocaleString("ru") : "—",
-  }));
+  // Колоды
+  const deckUsers = new Set();
+  let deckWordsLearned = 0;
+  (deckProg || []).forEach(p => { deckUsers.add(p.telegram_id); if (p.introduced) deckWordsLearned++; });
 
-  const top10 = [...users].sort((a,b)=>b.xp-a.xp).slice(0,10);
+  // Пользователи
+  const users = all.map(r => {
+    const st = r.stats || {};
+    const last = r.last_seen_at ? new Date(r.last_seen_at).getTime() : null;
+    return {
+      telegram_id: r.telegram_id,
+      name: r.first_name || "—",
+      username: r.username ? "@" + r.username : "",
+      xp: st.xp || 0,
+      level: st.level || 0,
+      streak: st.streak || 0,
+      lessons: nodesDone(st),
+      words: wordsKnown(st),
+      premium: !!r.is_premium,
+      premium_type: st.premiumType || "",
+      lang: r.language_code || "—",
+      schema: schemaVer(st),
+      first_seen: firstSeen[r.telegram_id] || null,
+      last_seen: last,
+      idle_days: last ? Math.floor((now - last) / 86400000) : null,
+    };
+  }).sort((a, b) => (b.last_seen || 0) - (a.last_seen || 0));
 
-  return { total, dau, wau, mau, avg_xp, avg_streak, premium,
-           group_funnel, event_counts, dau_chart, top10, users,
-           referrals_total, generated_at: now.toISOString() };
+  const premium = users.filter(u => u.premium).length;
+  const avg = (arr, f) => arr.length ? Math.round(arr.reduce((s, x) => s + f(x), 0) / arr.length) : 0;
+
+  // Воронка курса: сколько пользователей дошли до N уроков
+  const marks = [1, 5, 10, 20, 30, 40, 50, 58];
+  const funnel = marks.map(m => ({ mark: m, count: users.filter(u => u.lessons >= m).length }));
+
+  // Отток
+  const churn = {
+    active7:  users.filter(u => u.idle_days !== null && u.idle_days <= 7).length,
+    idle7_14: users.filter(u => u.idle_days > 7 && u.idle_days <= 14).length,
+    idle14_30:users.filter(u => u.idle_days > 14 && u.idle_days <= 30).length,
+    idle30:   users.filter(u => u.idle_days > 30).length,
+    never:    users.filter(u => u.idle_days === null).length,
+  };
+
+  // События за 7 дней
+  const ev7 = {};
+  evts.filter(e => new Date(e.created_at).getTime() > now - 7 * 86400000)
+      .forEach(e => { ev7[e.event_type] = (ev7[e.event_type] || 0) + 1; });
+
+  // График DAU 30 дней
+  const chart = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = dayAgo(i);
+    chart.push({ date: d.slice(5), count: (byDate[d] || new Set()).size });
+  }
+
+  // Языки
+  const langs = {};
+  users.forEach(u => { langs[u.lang] = (langs[u.lang] || 0) + 1; });
+
+  // Рефералы
+  const refCount = {};
+  (refs || []).forEach(r => { refCount[r.referrer_id] = (refCount[r.referrer_id] || 0) + 1; });
+  const topRefs = Object.entries(refCount).sort((a, b) => b[1] - a[1]).slice(0, 5)
+    .map(([id, n]) => ({ id, n, name: users.find(u => String(u.telegram_id) === String(id))?.name || id }));
+
+  return {
+    kpi: {
+      total: users.length, dau, wau, mau, premium,
+      premium_pct: users.length ? Math.round(premium / users.length * 100) : 0,
+      new7: newIn(7), new30: newIn(30),
+      avg_xp: avg(users, u => u.xp), avg_lessons: avg(users, u => u.lessons),
+      avg_words: avg(users, u => u.words),
+      streak_alive: users.filter(u => u.streak > 0).length,
+      referrals: (refs || []).length,
+      deck_users: deckUsers.size, deck_words: deckWordsLearned,
+    },
+    funnel, churn, ev7, chart, langs, topRefs, users,
+    generated_at: new Date().toISOString(),
+  };
 }
+
+// ── Сегменты для рассылки ─────────────────────────────────────────────────────
+const SEGMENTS = {
+  all:       { label: "Все пользователи",        fn: u => true },
+  active7:   { label: "Активные (7 дней)",       fn: u => u.idle_days !== null && u.idle_days <= 7 },
+  idle7:     { label: "Уснувшие (7–30 дней)",    fn: u => u.idle_days > 7 && u.idle_days <= 30 },
+  churned:   { label: "Ушедшие (30+ дней)",      fn: u => u.idle_days > 30 },
+  premium:   { label: "С Premium",               fn: u => u.premium },
+  free:      { label: "Без Premium",             fn: u => !u.premium },
+  starters:  { label: "Начали, но <5 уроков",    fn: u => u.lessons < 5 },
+  advanced:  { label: "Прошли 20+ уроков",       fn: u => u.lessons >= 20 },
+  streak:    { label: "С активной серией",       fn: u => u.streak > 0 },
+};
 
 function renderHTML(d, secret) {
-  const bar = (val, max, color="#6366f1") =>
-    `<div style="background:#e5e7eb;border-radius:4px;height:8px;margin-top:4px">
-       <div style="background:${color};height:8px;border-radius:4px;width:${Math.round((val/Math.max(max,1))*100)}%"></div>
-     </div>`;
-  const maxDau = Math.max(...d.dau_chart.map(r=>r.count), 1);
-
-  return `<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
+  const j = JSON.stringify;
+  const segOpts = Object.entries(SEGMENTS)
+    .map(([k, v]) => '<option value="' + k + '">' + v.label + '</option>').join("");
+  return `<!doctype html><html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Alef Bet — Admin</title>
+<title>Alef Bet · админка</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,sans-serif;background:#f8fafc;color:#1e293b;padding:20px}
-  h1{font-size:22px;font-weight:800;margin-bottom:4px}
-  .sub{color:#64748b;font-size:13px;margin-bottom:20px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:20px}
-  .card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-  .card .val{font-size:26px;font-weight:800;color:#6366f1}
-  .card .lbl{font-size:11px;color:#64748b;margin-top:2px}
-  .section{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:14px}
-  .section h2{font-size:14px;font-weight:700;margin-bottom:12px;color:#475569}
-  .chart{display:flex;align-items:flex-end;gap:3px;height:60px}
-  .bar-wrap{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0}
-  .bar-fill{background:#6366f1;border-radius:3px 3px 0 0;width:100%;min-height:2px}
-  .bar-lbl{font-size:8px;color:#94a3b8;margin-top:2px;white-space:nowrap}
-  table{width:100%;border-collapse:collapse;font-size:12px}
-  th{text-align:left;color:#94a3b8;font-weight:600;padding:6px 6px;border-bottom:2px solid #f1f5f9;white-space:nowrap}
-  td{padding:5px 6px;border-bottom:1px solid #f8fafc;vertical-align:middle}
-  tr:hover td{background:#f8fafc}
-  .tag{display:inline-block;background:#ede9fe;color:#7c3aed;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:600}
-  .btn{background:#6366f1;color:#fff;border:none;border-radius:7px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap}
-  .btn:hover{background:#4f46e5}
-  .btn-sm{background:#10b981;font-size:11px;padding:3px 8px}
-  .refresh{position:fixed;top:16px;right:16px;background:#6366f1;color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:600;z-index:100}
-  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
-  .modal.show{display:flex}
-  .modal-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:420px}
-  .modal-box h3{font-size:16px;font-weight:700;margin-bottom:4px}
-  .modal-box .uid{font-size:12px;color:#64748b;margin-bottom:12px}
-  textarea{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:13px;resize:vertical;min-height:80px;outline:none;font-family:inherit}
-  textarea:focus{border-color:#6366f1}
-  .modal-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
-  .btn-cancel{background:#f1f5f9;color:#64748b}
-  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:300;display:none}
-  input[type=text]{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:13px;outline:none;margin-bottom:10px}
-  input[type=text]:focus{border-color:#6366f1}
-  .users-count{font-size:12px;color:#64748b;margin-bottom:8px}
-</style>
-</head>
-<body>
-<button class="refresh" onclick="location.reload()">↻ Обновить</button>
-<h1>📊 Alef Bet — Админка</h1>
-<div class="sub">Обновлено: ${new Date(d.generated_at).toLocaleString("ru")}</div>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;background:#0f1115;color:#e6e8ec;padding:16px}
+h1{font-size:20px;margin-bottom:4px}.muted{color:#8b93a7;font-size:12px}
+.tabs{display:flex;gap:6px;margin:16px 0}
+.tab{padding:8px 14px;border-radius:10px;background:#1a1d24;cursor:pointer;font-weight:600;font-size:13px}
+.tab.on{background:#4f46e5}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.card{background:#1a1d24;border-radius:12px;padding:12px}
+.card .v{font-size:22px;font-weight:800}.card .l{font-size:11px;color:#8b93a7;margin-top:2px}
+.panel{background:#1a1d24;border-radius:12px;padding:14px;margin-bottom:14px}
+.panel h3{font-size:13px;margin-bottom:10px;color:#b9c0d0}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:7px 6px;text-align:left;border-bottom:1px solid #262a33;white-space:nowrap}
+th{color:#8b93a7;font-weight:600;cursor:pointer;user-select:none}
+tr:hover td{background:#20242c}
+input,select,textarea{background:#0f1115;border:1px solid #2c313c;color:#e6e8ec;border-radius:8px;padding:8px 10px;font:inherit;width:100%}
+textarea{min-height:90px;resize:vertical}
+button{background:#4f46e5;color:#fff;border:0;border-radius:8px;padding:9px 14px;font-weight:600;cursor:pointer;font-size:13px}
+button.ghost{background:#262a33}button.danger{background:#b91c1c}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bar{height:8px;background:#262a33;border-radius:4px;overflow:hidden}
+.bar>i{display:block;height:100%;background:#4f46e5}
+.chart{display:flex;align-items:flex-end;gap:2px;height:90px}
+.chart>i{flex:1;background:#4f46e5;border-radius:2px 2px 0 0;min-height:2px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:16px;z-index:9}
+.modal.on{display:flex}
+.modal .box{background:#1a1d24;border-radius:14px;padding:18px;max-width:520px;width:100%;max-height:90vh;overflow:auto}
+.pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;background:#262a33}
+.pill.gold{background:#7c5e10;color:#ffd76e}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#22c55e;color:#04210f;padding:10px 18px;border-radius:10px;font-weight:700;display:none}
+</style></head><body>
 
-<!-- Метрики -->
-<div class="grid">
-  <div class="card"><div class="val">${d.total}</div><div class="lbl">Всего пользователей</div></div>
-  <div class="card"><div class="val" style="color:#10b981">${d.dau}</div><div class="lbl">DAU (сегодня)</div></div>
-  <div class="card"><div class="val" style="color:#3b82f6">${d.wau}</div><div class="lbl">WAU (7 дней)</div></div>
-  <div class="card"><div class="val" style="color:#8b5cf6">${d.mau}</div><div class="lbl">MAU (30 дней)</div></div>
-  <div class="card"><div class="val" style="color:#f59e0b">${d.avg_xp}</div><div class="lbl">Средний XP</div></div>
-  <div class="card"><div class="val" style="color:#ef4444">${d.avg_streak}</div><div class="lbl">Средний стрик</div></div>
-  <div class="card"><div class="val" style="color:#06b6d4">${d.referrals_total}</div><div class="lbl">Рефералов</div></div>
-  <div class="card"><div class="val" style="color:#84cc16">${d.premium}</div><div class="lbl">TG Premium</div></div>
+<h1>Alef Bet · админка</h1>
+<div class="muted">обновлено ${new Date(d.generated_at).toLocaleString("ru")}</div>
+
+<div class="tabs">
+  <div class="tab on" data-t="over">📊 Обзор</div>
+  <div class="tab" data-t="users">👥 Пользователи</div>
+  <div class="tab" data-t="mkt">📣 Маркетинг</div>
 </div>
 
-<!-- DAU chart -->
-<div class="section">
-  <h2>📈 DAU — последние 14 дней</h2>
-  <div class="chart">
-    ${d.dau_chart.map(r=>`
-      <div class="bar-wrap">
-        <div class="bar-fill" style="height:${Math.round((r.count/maxDau)*56)+4}px"></div>
-        <div class="bar-lbl">${r.date}</div>
-      </div>`).join("")}
+<!-- ОБЗОР -->
+<div id="over">
+  <div class="grid">
+    ${[
+      ["Всего", d.kpi.total], ["DAU", d.kpi.dau], ["WAU", d.kpi.wau], ["MAU", d.kpi.mau],
+      ["Новых за 7д", d.kpi.new7], ["Новых за 30д", d.kpi.new30],
+      ["Premium", d.kpi.premium + " (" + d.kpi.premium_pct + "%)"],
+      ["Серия жива", d.kpi.streak_alive],
+      ["Ср. XP", d.kpi.avg_xp], ["Ср. уроков", d.kpi.avg_lessons], ["Ср. слов", d.kpi.avg_words],
+      ["Рефералов", d.kpi.referrals],
+      ["Юзеров колод", d.kpi.deck_users], ["Слов в колодах", d.kpi.deck_words],
+    ].map(([l, v]) => '<div class="card"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>').join("")}
+  </div>
+
+  <div class="panel"><h3>Активность за 30 дней</h3>
+    <div class="chart">${d.chart.map(c => '<i style="height:' + Math.max(2, c.count / Math.max(1, Math.max(...d.chart.map(x => x.count))) * 100) + '%" title="' + c.date + ": " + c.count + '"></i>').join("")}</div>
+  </div>
+
+  <div class="panel"><h3>Воронка курса — дошли до N уроков</h3>
+    ${d.funnel.map(f => {
+      const pct = d.kpi.total ? Math.round(f.count / d.kpi.total * 100) : 0;
+      return '<div style="margin-bottom:8px"><div class="row" style="justify-content:space-between"><span>' + f.mark + '+ уроков</span><span class="muted">' + f.count + ' · ' + pct + '%</span></div><div class="bar"><i style="width:' + pct + '%"></i></div></div>';
+    }).join("")}
+  </div>
+
+  <div class="panel"><h3>Удержание</h3>
+    <div class="row">
+      ${[["Активны ≤7д", d.churn.active7], ["Спят 7–14д", d.churn.idle7_14], ["Спят 14–30д", d.churn.idle14_30], ["Ушли 30+д", d.churn.idle30], ["Ни разу", d.churn.never]]
+        .map(([l, v]) => '<div class="card" style="flex:1"><div class="v">' + v + '</div><div class="l">' + l + '</div></div>').join("")}
+    </div>
+  </div>
+
+  <div class="panel"><h3>События за 7 дней</h3>
+    ${Object.entries(d.ev7).sort((a,b)=>b[1]-a[1]).map(([k,v]) => '<div class="row" style="justify-content:space-between;border-bottom:1px solid #262a33;padding:5px 0"><span>' + k + '</span><b>' + v + '</b></div>').join("") || '<div class="muted">нет данных</div>'}
+  </div>
+
+  <div class="panel"><h3>Топ рефереров</h3>
+    ${d.topRefs.map(r => '<div class="row" style="justify-content:space-between;padding:4px 0"><span>' + r.name + '</span><b>' + r.n + '</b></div>').join("") || '<div class="muted">пока никого</div>'}
   </div>
 </div>
 
-<!-- Воронка -->
-<div class="section">
-  <h2>🏆 Воронка по группам</h2>
-  ${["Первые шаги","Звуки и формы","Похожие буквы","Редкие буквы","Финальные формы"].map((name,i)=>{
-    const g = d.group_funnel[i];
-    const pct = d.total > 0 ? Math.round((g.completed/d.total)*100) : 0;
-    return `<div style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;font-size:13px">
-        <span>${i+1}. ${name}</span>
-        <span style="font-weight:700;color:#6366f1">${g.completed} (${pct}%)</span>
-      </div>${bar(g.completed, d.total)}</div>`;
-  }).join("")}
-</div>
-
-<!-- События -->
-<div class="section">
-  <h2>⚡ События за 7 дней</h2>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-    ${Object.entries(d.event_counts).map(([k,v])=>`
-      <div style="display:flex;justify-content:space-between;padding:8px;background:#f8fafc;border-radius:8px;font-size:13px">
-        <span>${k}</span><span class="tag">${v}</span>
-      </div>`).join("")}
-  </div>
-</div>
-
-<!-- Все пользователи -->
-<div class="section">
-  <h2>👥 Все пользователи</h2>
-  <input type="text" id="search" placeholder="🔍 Поиск по имени, @username или ID..." oninput="filterUsers()">
-  <div class="users-count" id="usersCount">Показано: ${d.users.length} из ${d.users.length}</div>
-  <div style="overflow-x:auto">
-  <table id="usersTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Имя</th>
-        <th>Username</th>
-        <th>XP</th>
-        <th>Стрик</th>
-        <th>Групп</th>
-        <th>Язык</th>
-        <th>Premium</th>
-        <th>Последний вход</th>
-        <th>Действия</th>
-      </tr>
-    </thead>
-    <tbody id="usersBody">
-    ${d.users.map(u=>`
-      <tr data-search="${(u.name+u.username+u.telegram_id).toLowerCase()}">
-        <td style="font-family:monospace;color:#64748b;font-size:11px">${u.telegram_id}</td>
-        <td><b>${u.name}</b></td>
-        <td style="color:#6366f1">${u.username}</td>
-        <td><b>${u.xp}</b></td>
-        <td>${u.streak > 0 ? "🔥"+u.streak : "—"}</td>
-        <td>${u.groups}/5</td>
-        <td>${u.lang}</td>
-        <td style="text-align:center">${u.premium}</td>
-        <td style="color:#94a3b8;font-size:11px">${u.last_seen}</td>
-        <td style="white-space:nowrap"><button class="btn btn-sm" onclick="openMsg('${u.telegram_id}','${u.name}')">✉️</button> <button class="btn btn-sm" style="background:${u.premium?'#10b981':'#f59e0b'}" onclick="openPremium('${u.telegram_id}','${u.name}',${u.premium?'true':'false'})">⭐</button></td>
-      </tr>`).join("")}
-    </tbody>
-  </table>
-  </div>
-</div>
-
-<!-- Модальное окно -->
-<div class="modal" id="msgModal">
-  <div class="modal-box">
-    <h3>✉️ Сообщение пользователю</h3>
-    <div class="uid" id="msgTarget">—</div>
-    <textarea id="msgText" placeholder="Текст сообщения (поддерживается HTML: <b>, <i>, <a>)..."></textarea>
-    <div class="modal-actions">
-      <button class="btn btn-cancel" onclick="closeMsg()">Отмена</button>
-      <button class="btn" onclick="sendMsg()">Отправить →</button>
+<!-- ПОЛЬЗОВАТЕЛИ -->
+<div id="users" style="display:none">
+  <div class="panel">
+    <div class="row" style="margin-bottom:10px">
+      <input id="q" placeholder="поиск: имя, @username, id" style="flex:2" oninput="draw()">
+      <select id="seg" style="flex:1" onchange="draw()">
+        ${segOpts}
+      </select>
+      <button class="ghost" onclick="exportCsv()">⤓ CSV</button>
+    </div>
+    <div class="muted" id="cnt"></div>
+    <div style="overflow:auto;max-height:70vh">
+      <table><thead><tr>
+        ${["name","username","xp","lessons","words","streak","premium","lang","idle_days"]
+          .map(c => '<th onclick="sortBy(&#39;' + c + '&#39;)">' + ({name:"Имя",username:"Username",xp:"XP",lessons:"Уроки",words:"Слова",streak:"Серия",premium:"Prem",lang:"Яз",idle_days:"Не был, дн"})[c] + '</th>').join("")}
+      </tr></thead><tbody id="tb"></tbody></table>
     </div>
   </div>
 </div>
 
-
-<!-- Premium modal -->
-<div class="modal" id="premiumModal">
-  <div class="modal-box">
-    <h3>⭐ Управление Premium</h3>
-    <div class="uid" id="premiumTarget">—</div>
-    <div style="margin-bottom:10px">
-      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">Тип доступа:</label>
-      <div style="display:flex;gap:8px">
-        <button id="btnLifetime" class="btn" onclick="setPremiumType('lifetime')" style="flex:1">Навсегда ♾️</button>
-        <button id="btnDays" class="btn btn-cancel" onclick="setPremiumType('days')" style="flex:1;color:#1e293b">На дни 📅</button>
-      </div>
+<!-- МАРКЕТИНГ -->
+<div id="mkt" style="display:none">
+  <div class="panel"><h3>Рассылка по сегменту</h3>
+    <div class="row" style="margin-bottom:8px">
+      <select id="bseg" onchange="segCount()" style="flex:1">
+        ${segOpts}
+      </select>
+      <span class="pill" id="bcount">—</span>
     </div>
-    <div id="daysInput" style="display:none;margin-bottom:10px">
-      <input type="number" id="premiumDays" min="1" max="3650" value="30" placeholder="Кол-во дней" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;font-size:13px;outline:none">
-    </div>
-    <div id="revokeSection" style="display:none;margin-bottom:10px">
-      <button class="btn" style="width:100%;background:#ef4444" onclick="grantPremium('revoke')">🚫 Отозвать Premium</button>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-cancel" onclick="closePremium()">Отмена</button>
-      <button class="btn" id="premiumGrantBtn" onclick="grantPremium()">Выдать ⭐</button>
+    <textarea id="btext" placeholder="Текст рассылки (HTML: &lt;b&gt;жирный&lt;/b&gt;, &lt;i&gt;курсив&lt;/i&gt;)"></textarea>
+    <div class="row" style="margin-top:10px;justify-content:space-between">
+      <span class="muted">Отправляется пачками, ~20 сообщений/сек</span>
+      <button onclick="broadcast()">📣 Отправить</button>
     </div>
   </div>
+
+  <div class="panel"><h3>Deep-link с меткой источника</h3>
+    <div class="row">
+      <input id="utm" placeholder="метка: instagram, chat, blog…" style="flex:1">
+      <button class="ghost" onclick="makeLink()">Собрать</button>
+    </div>
+    <div id="linkout" class="muted" style="margin-top:8px"></div>
+  </div>
+
+  <div class="panel"><h3>Языки аудитории</h3>
+    ${Object.entries(d.langs).sort((a,b)=>b[1]-a[1]).map(([k,v]) => '<div class="row" style="justify-content:space-between;padding:3px 0"><span>' + k + '</span><b>' + v + '</b></div>').join("")}
+  </div>
 </div>
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+
+<!-- МОДАЛКА ЮЗЕРА -->
+<div class="modal" id="um"><div class="box">
+  <div class="row" style="justify-content:space-between;margin-bottom:10px">
+    <h3 id="uname"></h3><button class="ghost" onclick="closeU()">✕</button>
+  </div>
+  <div id="ubody" class="muted" style="margin-bottom:12px"></div>
+  <textarea id="umsg" placeholder="Личное сообщение…"></textarea>
+  <div class="row" style="margin-top:10px">
+    <button onclick="sendOne()">✉️ Отправить</button>
+    <button class="ghost" onclick="prem('lifetime')">⭐ Premium навсегда</button>
+    <button class="ghost" onclick="prem('days',30)">30 дней</button>
+    <button class="danger" onclick="prem('revoke')">Отозвать</button>
+  </div>
+</div></div>
+
+<div id="toast"></div>
 
 <script>
-  let currentUserId = null;
-  const SECRET = "${secret}";
+var SECRET = ${j(secret)};
+var USERS  = ${j(d.users)};
+var SEGF = {
+  all:       function(u){return true},
+  active7:   function(u){return u.idle_days!==null&&u.idle_days<=7},
+  idle7:     function(u){return u.idle_days>7&&u.idle_days<=30},
+  churned:   function(u){return u.idle_days>30},
+  premium:   function(u){return u.premium},
+  free:      function(u){return !u.premium},
+  starters:  function(u){return u.lessons<5},
+  advanced:  function(u){return u.lessons>=20},
+  streak:    function(u){return u.streak>0}
+};
+var sortKey='last_seen', sortDir=-1, cur=null;
 
-  function openMsg(id, name) {
-    currentUserId = id;
-    document.getElementById('msgTarget').textContent = name + ' · ID: ' + id;
-    document.getElementById('msgText').value = '';
-    document.getElementById('msgModal').classList.add('show');
-    document.getElementById('msgText').focus();
-  }
+document.querySelectorAll('.tab').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
+    t.classList.add('on');
+    ['over','users','mkt'].forEach(function(id){ document.getElementById(id).style.display='none'; });
+    document.getElementById(t.dataset.t).style.display='';
+  };
+});
 
-  function closeMsg() {
-    document.getElementById('msgModal').classList.remove('show');
-    currentUserId = null;
-  }
-
-  function showToast(msg, ok = true) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.display = 'block';
-    t.style.background = ok ? '#1e293b' : '#ef4444';
-    setTimeout(() => { t.style.display = 'none'; }, 3000);
-  }
-
-  async function sendMsg() {
-    const text = document.getElementById('msgText').value.trim();
-    if (!text || !currentUserId) return;
-    try {
-      const r = await fetch('/api/admin?secret=' + SECRET, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telegram_id: currentUserId, message: text })
-      });
-      const data = await r.json();
-      if (data.ok) {
-        showToast('✅ Сообщение отправлено!');
-        closeMsg();
-      } else {
-        showToast('❌ Ошибка: ' + (data.error || 'неизвестно'), false);
-      }
-    } catch(e) {
-      showToast('❌ Ошибка соединения', false);
-    }
-  }
-
-  function filterUsers() {
-    const q = document.getElementById('search').value.toLowerCase();
-    const rows = document.querySelectorAll('#usersBody tr');
-    let visible = 0;
-    rows.forEach(row => {
-      const match = !q || row.dataset.search.includes(q);
-      row.style.display = match ? '' : 'none';
-      if (match) visible++;
-    });
-    document.getElementById('usersCount').textContent =
-      'Показано: ' + visible + ' из ' + rows.length;
-  }
-
-
-  let currentPremiumId = null;
-  let premiumType = 'lifetime';
-
-  function openPremium(id, name, hasPremium) {
-    currentPremiumId = id;
-    document.getElementById('premiumTarget').textContent = name + ' · ID: ' + id;
-    document.getElementById('revokeSection').style.display = hasPremium === 'true' ? 'block' : 'none';
-    setPremiumType('lifetime');
-    document.getElementById('premiumModal').classList.add('show');
-  }
-
-  function closePremium() {
-    document.getElementById('premiumModal').classList.remove('show');
-    currentPremiumId = null;
-  }
-
-  function setPremiumType(type) {
-    premiumType = type;
-    document.getElementById('daysInput').style.display = type === 'days' ? 'block' : 'none';
-    document.getElementById('btnLifetime').className = 'btn' + (type === 'lifetime' ? '' : ' btn-cancel');
-    document.getElementById('btnDays').className = 'btn' + (type === 'days' ? '' : ' btn-cancel');
-    document.getElementById('btnLifetime').style.color = type === 'lifetime' ? '' : '#1e293b';
-    document.getElementById('btnDays').style.color = type === 'days' ? '' : '#1e293b';
-  }
-
-  async function grantPremium(action) {
-    if (!currentPremiumId) return;
-    const days = premiumType === 'days' ? parseInt(document.getElementById('premiumDays').value) : null;
-    if (premiumType === 'days' && (!days || days < 1)) { showToast('Укажи кол-во дней', false); return; }
-
-    try {
-      const r = await fetch('/api/admin?secret=' + SECRET, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'grant_premium',
-          telegram_id: currentPremiumId,
-          premium_type: action === 'revoke' ? 'revoke' : premiumType,
-          days: days
-        })
-      });
-      const data = await r.json();
-      if (data.ok) {
-        showToast(action === 'revoke' ? '🚫 Premium отозван' : '⭐ Premium выдан!');
-        closePremium();
-        setTimeout(() => location.reload(), 1500);
-      } else {
-        showToast('❌ Ошибка: ' + (data.error || 'неизвестно'), false);
-      }
-    } catch(e) {
-      showToast('❌ Ошибка соединения', false);
-    }
-  }
-
-  document.getElementById('premiumModal').addEventListener('click', function(e) {
-    if (e.target === this) closePremium();
+function filtered(){
+  var q=(document.getElementById('q').value||'').toLowerCase();
+  var seg=document.getElementById('seg').value;
+  return USERS.filter(SEGF[seg]).filter(function(u){
+    if(!q) return true;
+    return (u.name+' '+u.username+' '+u.telegram_id).toLowerCase().indexOf(q)>=0;
   });
-  // Закрыть модал по клику на фон
-  document.getElementById('msgModal').addEventListener('click', function(e) {
-    if (e.target === this) closeMsg();
+}
+function sortBy(k){ sortDir = (sortKey===k)? -sortDir : -1; sortKey=k; draw(); }
+function draw(){
+  var list=filtered().slice().sort(function(a,b){
+    var x=a[sortKey], y=b[sortKey];
+    if(typeof x==='string') return sortDir*String(y).localeCompare(String(x));
+    return sortDir*(((y===null?-1:y))-((x===null?-1:x)));
   });
+  document.getElementById('cnt').textContent='показано: '+list.length+' из '+USERS.length;
+  document.getElementById('tb').innerHTML=list.map(function(u){
+    return '<tr onclick="openU('+u.telegram_id+')">'+
+      '<td>'+u.name+'</td><td>'+(u.username||'—')+'</td><td>'+u.xp+'</td>'+
+      '<td>'+u.lessons+'</td><td>'+u.words+'</td><td>'+u.streak+'</td>'+
+      '<td>'+(u.premium?'<span class="pill gold">'+(u.premium_type||'prem')+'</span>':'')+'</td>'+
+      '<td>'+u.lang+'</td><td>'+(u.idle_days===null?'—':u.idle_days)+'</td></tr>';
+  }).join('');
+}
+function openU(id){
+  cur=USERS.filter(function(u){return u.telegram_id===id})[0];
+  document.getElementById('uname').textContent=cur.name+' '+(cur.username||'');
+  document.getElementById('ubody').innerHTML=
+    'ID: '+cur.telegram_id+' · схема v'+cur.schema+'<br>'+
+    'XP '+cur.xp+' · уровень '+cur.level+' · серия '+cur.streak+'<br>'+
+    'уроков пройдено: '+cur.lessons+' · слов в словаре: '+cur.words+'<br>'+
+    'первый заход: '+(cur.first_seen?new Date(cur.first_seen).toLocaleDateString('ru'):'—')+
+    ' · последний: '+(cur.last_seen?new Date(cur.last_seen).toLocaleString('ru'):'—');
+  document.getElementById('um').classList.add('on');
+}
+function closeU(){ document.getElementById('um').classList.remove('on'); }
+function toast(m,ok){ var t=document.getElementById('toast'); t.textContent=m;
+  t.style.background=ok===false?'#ef4444':'#22c55e'; t.style.display='block';
+  setTimeout(function(){t.style.display='none'},2500); }
 
-  // Отправить по Ctrl+Enter
-  document.getElementById('msgText').addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key === 'Enter') sendMsg();
-  });
-</script>
-</body>
-</html>`;
+async function api(body){
+  var r=await fetch('/api/admin?secret='+encodeURIComponent(SECRET),{
+    method:'POST',headers:{'Content-Type':'application/json','x-admin-secret':SECRET},
+    body:JSON.stringify(body)});
+  return r.json();
+}
+async function sendOne(){
+  var m=document.getElementById('umsg').value.trim(); if(!m||!cur) return;
+  var r=await api({action:'message',telegram_id:cur.telegram_id,message:m});
+  if(r.ok){ toast('Отправлено'); document.getElementById('umsg').value=''; closeU(); }
+  else toast(r.error||'Ошибка',false);
+}
+async function prem(type,days){
+  if(!cur) return;
+  var r=await api({action:'grant_premium',telegram_id:cur.telegram_id,premium_type:type,days:days});
+  if(r.ok){ toast(type==='revoke'?'Premium отозван':'Premium выдан'); closeU(); }
+  else toast(r.error||'Ошибка',false);
+}
+function segCount(){
+  var s=document.getElementById('bseg').value;
+  document.getElementById('bcount').textContent=USERS.filter(SEGF[s]).length+' чел.';
+}
+segCount();
+async function broadcast(){
+  var seg=document.getElementById('bseg').value;
+  var text=document.getElementById('btext').value.trim();
+  if(!text) return toast('Пустой текст',false);
+  var n=USERS.filter(SEGF[seg]).length;
+  if(!confirm('Отправить '+n+' пользователям?')) return;
+  toast('Отправляю…');
+  var r=await api({action:'broadcast',segment:seg,message:text});
+  if(r.ok) toast('Доставлено: '+r.sent+' / ошибок: '+r.failed);
+  else toast(r.error||'Ошибка',false);
+}
+function makeLink(){
+  var u=(document.getElementById('utm').value||'src').replace(/[^a-zA-Z0-9_]/g,'');
+  document.getElementById('linkout').innerHTML=
+    'https://t.me/AlefBetBot?start='+u+'<br><span class="muted">Метка придёт боту в /start — по ней считаем источник.</span>';
+}
+function exportCsv(){
+  var rows=[['id','name','username','xp','level','lessons','words','streak','premium','lang','idle_days']];
+  filtered().forEach(function(u){ rows.push([u.telegram_id,u.name,u.username,u.xp,u.level,u.lessons,u.words,u.streak,u.premium?1:0,u.lang,u.idle_days]); });
+  var csv=rows.map(function(r){return r.join(',')}).join('\\n');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='alefbet_users.csv'; a.click();
+}
+draw();
+</script></body></html>`;
 }
 
+// ── Handler ───────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   const secret = req.headers["x-admin-secret"] || req.query.secret;
-  if (secret !== process.env.ADMIN_SECRET) {
-    return res.status(401).send("Unauthorized");
-  }
+  if (secret !== process.env.ADMIN_SECRET) return res.status(401).send("Unauthorized");
 
   const supabase = getSupabase();
 
-  // ── POST ───────────────────────────────────────────────────────────────────
   if (req.method === "POST") {
-    const { action, telegram_id, message, premium_type, days } = req.body || {};
+    const { action, telegram_id, message, premium_type, days, segment } = req.body || {};
 
-    // Grant / revoke premium
+    // Рассылка по сегменту
+    if (action === "broadcast") {
+      if (!message || !segment) return res.status(400).json({ error: "segment + message required" });
+      const seg = SEGMENTS[segment];
+      if (!seg) return res.status(400).json({ error: "unknown segment" });
+
+      const data = await getData(supabase);
+      const targets = data.users.filter(seg.fn);
+      let sent = 0, failed = 0;
+      for (const u of targets) {
+        const r = await sendMessage(u.telegram_id, message);
+        r?.ok ? sent++ : failed++;
+        await new Promise(r => setTimeout(r, 55)); // ~18 msg/s, лимит Telegram 30
+      }
+      await supabase.from("events").insert({
+        telegram_id: null, event_type: "admin_broadcast",
+        payload: { segment, sent, failed, preview: message.slice(0, 60) },
+      });
+      return res.status(200).json({ ok: true, sent, failed });
+    }
+
+    // Premium
     if (action === "grant_premium") {
       if (!telegram_id) return res.status(400).json({ error: "telegram_id required" });
-
-      const { data: row } = await supabase
-        .from("user_stats").select("stats")
-        .eq("telegram_id", telegram_id).maybeSingle();
+      const { data: row } = await supabase.from("user_stats").select("stats").eq("telegram_id", telegram_id).maybeSingle();
       const existing = row?.stats || {};
-
-      let updatedStats;
+      let updated;
       if (premium_type === "revoke") {
-        updatedStats = { ...existing, isPremium: false, premiumPurchasedAt: null, premiumType: null, premiumExpiresAt: null };
+        updated = { ...existing, isPremium: false, premiumPurchasedAt: null, premiumType: null, premiumExpiresAt: null };
       } else if (premium_type === "lifetime") {
-        updatedStats = { ...existing, isPremium: true, premiumPurchasedAt: Date.now(), premiumType: "lifetime", premiumExpiresAt: null };
+        updated = { ...existing, isPremium: true, premiumPurchasedAt: Date.now(), premiumType: "lifetime", premiumExpiresAt: null };
       } else if (premium_type === "days") {
-        const expiresAt = Date.now() + (days * 86400000);
-        updatedStats = { ...existing, isPremium: true, premiumPurchasedAt: Date.now(), premiumType: "days", premiumExpiresAt: expiresAt };
-      } else {
-        return res.status(400).json({ error: "Invalid premium_type" });
-      }
+        updated = { ...existing, isPremium: true, premiumPurchasedAt: Date.now(), premiumType: "days", premiumExpiresAt: Date.now() + days * 86400000 };
+      } else return res.status(400).json({ error: "bad premium_type" });
 
       const { error } = await supabase.from("user_stats")
-        .upsert({ telegram_id, stats: updatedStats }, { onConflict: "telegram_id" });
+        .upsert({ telegram_id, stats: updated, is_premium: premium_type !== "revoke" }, { onConflict: "telegram_id" });
       if (error) return res.status(500).json({ error: error.message });
 
-      const notifyText = premium_type === "revoke"
-        ? "\u2139\uFE0F Ваш Premium-доступ был отозван администратором."
-        : premium_type === "lifetime"
-          ? "\uD83C\uDF89 Вам выдан <b>Premium-доступ навсегда</b>!\n\n\u2B50 Безлимитный AI и ранний доступ к огласовкам."
-          : "\uD83C\uDF89 Вам выдан <b>Premium на " + days + " дней</b>!\n\n\u2B50 Безлимитный AI и ранний доступ к огласовкам.";
-
-      await sendMessage(telegram_id, notifyText);
+      await sendMessage(telegram_id, premium_type === "revoke"
+        ? "ℹ️ Ваш Premium-доступ был отозван администратором."
+        : "🎉 Вам выдан <b>Premium</b>!\n\n⭐ Спасибо, что вы с нами.");
       await supabase.from("events").insert({
         telegram_id: null, event_type: "admin_grant_premium",
         payload: { to: telegram_id, premium_type, days: days || null },
@@ -461,26 +517,27 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
-    // Send message
-    if (!telegram_id || !message) return res.status(400).json({ error: "telegram_id and message required" });
-    const result = await sendMessage(telegram_id, message);
-    if (!result.ok) return res.status(500).json({ error: result.description || "Telegram error" });
-    await supabase.from("events").insert({
-      telegram_id: null, event_type: "admin_message",
-      payload: { to: telegram_id, preview: message.slice(0, 50) },
-    });
-    return res.status(200).json({ ok: true });
+    // Личное сообщение
+    if (action === "message" || (telegram_id && message)) {
+      if (!telegram_id || !message) return res.status(400).json({ error: "telegram_id + message required" });
+      const r = await sendMessage(telegram_id, message);
+      if (!r.ok) return res.status(500).json({ error: r.description || "Telegram error" });
+      await supabase.from("events").insert({
+        telegram_id: null, event_type: "admin_message",
+        payload: { to: telegram_id, preview: message.slice(0, 50) },
+      });
+      return res.status(200).json({ ok: true });
+    }
+
+    return res.status(400).json({ error: "unknown action" });
   }
 
-  // ── GET ──────────────────────────────────────────────────────────────────────
   if (req.method !== "GET") return res.status(405).end();
 
   const data = await getData(supabase);
-
   if (req.query.view === "1") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     return res.status(200).send(renderHTML(data, secret));
   }
-
   return res.status(200).json(data);
 }

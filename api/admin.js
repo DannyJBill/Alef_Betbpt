@@ -11,7 +11,40 @@
  * stats.groupProgress, которого в v8 нет вовсе, и показывала нули).
  */
 
+import { createHmac } from "crypto";
+
 const PASS_SCORE = 70;
+const ADMIN_TELEGRAM_ID = "5675751402"; // владелец — доступ без пароля
+
+// Подпись Telegram WebApp: пускаем владельца по initData, без ADMIN_SECRET.
+function verifyTelegramData(initData, botToken) {
+  try {
+    const params = new URLSearchParams(initData);
+    const hash = params.get("hash");
+    if (!hash) return null;
+    params.delete("hash");
+    const dataCheckString = [...params.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => `${k}=${v}`)
+      .join("\n");
+    const secretKey = createHmac("sha256", "WebAppData").update(botToken).digest();
+    const expected  = createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
+    if (expected !== hash) return null;
+    return JSON.parse(params.get("user"));
+  } catch { return null; }
+}
+
+/** Доступ: либо верный ADMIN_SECRET, либо подпись Telegram владельца. */
+function authorize(req) {
+  const secret = req.headers["x-admin-secret"] || req.query?.secret;
+  if (secret && secret === process.env.ADMIN_SECRET) return true;
+  const initData = req.headers["x-telegram-initdata"] || req.body?.initData;
+  if (initData) {
+    const user = verifyTelegramData(initData, process.env.BOT_TOKEN);
+    if (user && String(user.id) === ADMIN_TELEGRAM_ID) return true;
+  }
+  return false;
+}
 
 function getSupabase() {
   const { createClient } = require("@supabase/supabase-js");
@@ -460,8 +493,8 @@ draw();
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
-  const secret = req.headers["x-admin-secret"] || req.query.secret;
-  if (secret !== process.env.ADMIN_SECRET) return res.status(401).send("Unauthorized");
+  if (!authorize(req)) return res.status(401).send("Unauthorized");
+  const secret = req.headers["x-admin-secret"] || req.query.secret || "";
 
   const supabase = getSupabase();
 

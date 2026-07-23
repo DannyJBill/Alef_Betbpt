@@ -12,7 +12,10 @@ const SECRET_KEY = "ab_admin_secret";
 
 export default function AdminScreen({ onBack }) {
   const { dark } = useTheme();
-  const [secret, setSecret] = useState(() => localStorage.getItem(SECRET_KEY) || "");
+  const initData = window.Telegram?.WebApp?.initData || "";
+  // Основной путь — подпись Telegram (сервер сверяет, что это владелец).
+  // Секрет остаётся запасным: для десктопа/локалки, где подписи нет.
+  const [secret, setSecret] = useState(() => localStorage.getItem(SECRET_KEY) || (initData ? "tg" : ""));
   const [input, setInput]   = useState("");
   const [data, setData]     = useState(null);
   const [err, setErr]       = useState("");
@@ -33,8 +36,12 @@ export default function AdminScreen({ onBack }) {
   async function load(s) {
     setErr("");
     try {
-      const r = await fetch(`/api/admin?secret=${encodeURIComponent(s)}`);
-      if (r.status === 401) { setErr("Неверный секрет"); localStorage.removeItem(SECRET_KEY); setSecret(""); return; }
+      const r = await fetch(`/api/admin?secret=${encodeURIComponent(s === "tg" ? "" : s)}`,
+        { headers: initData ? { "x-telegram-initdata": initData } : {} });
+      if (r.status === 401) {
+        setErr(initData ? "Доступ запрещён: этот аккаунт не владелец" : "Неверный секрет");
+        localStorage.removeItem(SECRET_KEY); setSecret(""); return;
+      }
       setData(await r.json());
     } catch (e) { setErr("Сеть недоступна"); }
   }
@@ -42,9 +49,13 @@ export default function AdminScreen({ onBack }) {
   async function api(body) {
     setBusy(true);
     try {
-      const r = await fetch(`/api/admin?secret=${encodeURIComponent(secret)}`, {
+      const r = await fetch(`/api/admin?secret=${encodeURIComponent(secret === "tg" ? "" : secret)}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-admin-secret": secret },
+        headers: {
+          "Content-Type": "application/json",
+          ...(secret && secret !== "tg" ? { "x-admin-secret": secret } : {}),
+          ...(initData ? { "x-telegram-initdata": initData } : {}),
+        },
         body: JSON.stringify(body),
       });
       return await r.json();
@@ -60,7 +71,7 @@ export default function AdminScreen({ onBack }) {
         <button onClick={onBack} className={`text-sm mb-4 ${soft}`}>← Профиль</button>
         <h2 className={`text-xl font-bold mb-3 ${txt}`}>🛠 Админ-панель</h2>
         <input type="password" value={input} onChange={e => setInput(e.target.value)}
-          placeholder="ADMIN_SECRET"
+          placeholder="ADMIN_SECRET (если не из Telegram)"
           className={`w-full rounded-xl border p-3 mb-2 ${card} ${txt}`} />
         {err && <p className="text-sm text-rose-500 mb-2">{err}</p>}
         <button onClick={() => { localStorage.setItem(SECRET_KEY, input); setSecret(input); }}

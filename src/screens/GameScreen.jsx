@@ -121,7 +121,7 @@ const TIME_OPTIONS = [
 ];
 
 // ─── Игровой процесс ─────────────────────────────────────────────────────────
-function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
+function PlayingGame({ pool, timeLimit, isRated, answerMode = "choice", dark, onOver }) {
   const { updateStats, updateCardReview } = useStats();
   const [timeLeft, setTimeLeft]   = useState(timeLimit || 999);
   const [score, setScore]         = useState(0);
@@ -131,6 +131,7 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
   const [current, setCurrent]     = useState(null);
   const [flash, setFlash]         = useState(null); // "ok"|"err"
   const [pickedId, setPickedId]   = useState(null); // выбранный вариант (для подсветки)
+  const [typed, setTyped]         = useState("");   // набранное с клавиатуры
   const prevIdRef  = useRef(null);
   const xpSaved    = useRef(false);
   const timerRef   = useRef(null);
@@ -196,6 +197,7 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
     flashRef.current = setTimeout(() => {
       setFlash(null);
       setPickedId(null);
+      setTyped("");
       nextQ();
     }, ok ? 500 : 1400);
   }
@@ -204,6 +206,22 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
 
   const timerPct = timeLimit ? (timeLeft / timeLimit) * 100 : 100;
   const timerColor = !timeLimit ? "bg-indigo-500" : timeLeft > timeLimit*0.5 ? "bg-green-500" : timeLeft > timeLimit*0.2 ? "bg-yellow-500" : "bg-red-500";
+
+  // Ввод с клавиатуры: доступен там, где ответ — ивритский текст.
+  // Огласовки (звук) набрать нельзя — там всегда варианты.
+  const typable = current.type === "name-to-letter" || current.type === "word-to-translation";
+  const useKeyboard = typable && (
+    answerMode === "typing" || (answerMode === "mixed" && (total % 2 === 1))
+  );
+  const expected = current.type === "name-to-letter"
+    ? current.letter?.symbol
+    : (current.word?.plain || current.word?.hebrew || "");
+
+  function submitTyped() {
+    if (!typed.trim() || flash) return;
+    const ok = typed.trim() === String(expected).trim();
+    answer(ok ? current.correctId : "__wrong__");
+  }
 
   // Вопрос
   let prompt = null;
@@ -219,7 +237,9 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
     prompt = <span style={{ fontFamily:"serif", fontSize:52, direction:"rtl" }} className={dark?"text-white":"text-gray-900"}>{slug}</span>;
     choices = current.choices.map(c => ({ id:c.id, label:c.sound }));
   } else if (current.type === "word-to-translation") {
-    prompt = <span style={{ fontFamily:"serif", fontSize:36, direction:"rtl" }} className={dark?"text-white":"text-gray-900"}>{current.word.hebrew}</span>;
+    prompt = useKeyboard
+      ? <span className={`text-2xl font-bold text-center ${dark?"text-white":"text-gray-800"}`}>{current.word.translation}</span>
+      : <span style={{ fontFamily:"serif", fontSize:36, direction:"rtl" }} className={dark?"text-white":"text-gray-900"}>{current.word.hebrew}</span>;
     choices = current.choices.map(c => ({ id:c.id, label:c.translation }));
   }
 
@@ -247,7 +267,26 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
         {prompt}
       </div>
 
-      {/* Варианты */}
+      {/* Ввод с клавиатуры */}
+      {useKeyboard ? (
+        <div>
+          <div className={`h-14 mb-2 rounded-2xl flex items-center justify-center text-3xl
+            ${flash === "err" ? "bg-rose-50 text-rose-700" : flash === "ok" ? "bg-emerald-50 text-emerald-700"
+              : dark ? "bg-gray-800 text-white" : "bg-white text-gray-900 border-2 border-gray-100"}`}
+            style={{ direction:"rtl", fontFamily:'"Noto Sans Hebrew", "Arial Hebrew", sans-serif' }}>
+            {typed || <span className="text-base opacity-40">набери ответ…</span>}
+          </div>
+          {flash === "err" && (
+            <p className="text-center text-sm mb-2 text-emerald-600" style={{ direction:"rtl" }}>{expected}</p>
+          )}
+          <HebrewKeyboard
+            disabled={flash !== null}
+            onKey={sym => setTyped(t => t + sym)}
+            onDelete={() => setTyped(t => t.slice(0, -1))}
+            onSubmit={submitTyped}
+          />
+        </div>
+      ) : (
       <div className="grid grid-cols-2 gap-3">
         {choices.map(ch => {
           const revealed = flash !== null;
@@ -272,6 +311,7 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
           );
         })}
       </div>
+      )}
 
       {/* Кнопка стоп */}
       {!isRated && (
@@ -288,6 +328,7 @@ function PlayingGame({ pool, timeLimit, isRated, dark, onOver }) {
 function TrainingMenu({ stats, dark, onStart }) {
   const [topics, setTopics] = useState(["alphabet"]);
   const [time, setTime]     = useState(60);
+  const [answerMode, setAnswerMode] = useState("choice"); // choice | typing | mixed
 
   function toggleTopic(id) {
     setTopics(prev => prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]);
@@ -315,7 +356,7 @@ function TrainingMenu({ stats, dark, onStart }) {
       return;
     }
     setStartErr("");
-    onStart({ topics: validTopics, timeLimit: time, isRated: false });
+    onStart({ topics: validTopics, timeLimit: time, isRated: false, answerMode });
   }
 
   return (
@@ -366,6 +407,22 @@ function TrainingMenu({ stats, dark, onStart }) {
           </button>
         ))}
       </div>
+
+      <p className={`text-sm font-bold mt-5 mb-2 ${dark?"text-white":"text-gray-800"}`}>Как отвечать</p>
+      <div className="flex gap-2 mb-1">
+        {[["choice","🔘","Варианты"],["typing","⌨️","С клавиатуры"],["mixed","🔀","Вперемешку"]].map(([id,icon,label]) => (
+          <button key={id} onClick={() => setAnswerMode(id)}
+            className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold transition-all
+              ${answerMode===id
+                ? dark ? "bg-indigo-900/40 border-indigo-500 text-white" : "bg-indigo-50 border-indigo-400 text-indigo-700"
+                : dark ? "bg-gray-800 border-gray-700 text-gray-300" : "bg-white border-gray-200 text-gray-700"}`}>
+            <span className="block text-base leading-none mb-1">{icon}</span>{label}
+          </button>
+        ))}
+      </div>
+      <p className={`text-[11px] mb-4 ${dark?"text-gray-500":"text-gray-400"}`}>
+        С клавиатуры — набираешь ответ на иврите. Для огласовок остаются варианты.
+      </p>
 
       {startErr && (
         <p className="text-sm text-rose-500 mb-2 text-center">{startErr}</p>
@@ -423,6 +480,7 @@ export default function GameScreen() {
       pool={pool}
       timeLimit={config.timeLimit}
       isRated={config.isRated}
+      answerMode={config.answerMode || "choice"}
       dark={dark}
       onOver={handleOver}
     />;

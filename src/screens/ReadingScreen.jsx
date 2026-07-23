@@ -10,6 +10,9 @@ import { ALPHABET, LETTER_GROUPS } from "../data/alphabet";
 import { isReadingBlockUnlocked } from "../data/curriculum";
 import { getKnownLetters, filterReadable } from "../helpers/vocab";
 import { getFreshPortions } from "../helpers/progressHelpers";
+import { getNodeStatus } from "../data/curriculum";
+import { DECKS_UNLOCK_NODE } from "../data/decks";
+import DecksScreen from "./DecksScreen";
 import { shuffle } from "../helpers/utils";
 import { buildSession, fromReadingItem } from "../helpers/exercises";
 import ExerciseSession from "../components/ui/ExerciseSession";
@@ -247,7 +250,7 @@ function statusOf(w) {
   return { label: "изучается", dot: "bg-amber-400" };
 }
 
-function DictView({ stats, dark, onOpen }) {
+function DictView({ stats, dark, onOpen, onOpenDecks, decksUnlocked }) {
   const [q, setQ] = useState("");
   const wordsMap = stats.readingProgress?.words || {};
   const studied = stats.readingProgress?.studied || [];
@@ -296,12 +299,12 @@ function DictView({ stats, dark, onOpen }) {
               ${dark?"border-gray-600 text-gray-200":"border-gray-300 text-gray-700"}`}>
             ✅ Проверить
           </button>
-          <button onClick={() => nextFresh && onOpen(nextFresh.block.id, 'cards')}
-            disabled={!nextFresh}
-            title={nextFresh ? `Новых слов: ${nextFresh.freshCount}` : "Новые слова появятся после следующих уроков"}
+          <button onClick={() => decksUnlocked && onOpenDecks()}
+            disabled={!decksUnlocked}
+            title={decksUnlocked ? "Тематические колоды" : "Откроется после уровня 4"}
             className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 disabled:opacity-40
               ${dark?"border-indigo-500 text-indigo-400":"border-indigo-400 text-indigo-600"}`}>
-            ➕ Ещё слова
+            {decksUnlocked ? "➕ Ещё слова" : "🔒 Ещё слова"}
           </button>
         </div>
       </div>
@@ -349,12 +352,17 @@ export default function ReadingScreen({ onBack, dictOnly, soloBlock }) {
   const { stats, recordWordReview, recordWordAnswer } = useStats();
   const [activeMode, setActiveMode] = useState(null);
   const [activeBlock, setActiveBlock] = useState(null); // block id | 'dict'
+  const [showDecks, setShowDecks] = useState(false);
+  const decksUnlocked = getNodeStatus(DECKS_UNLOCK_NODE, stats) === 'done';
 
   const readingStudied = stats.readingProgress?.studied || [];
   const wordsMap = stats.readingProgress?.words || {};
 
   // Прямой переход из урока: «Изучить N новых слов»
   // initialBlock-эффект удалён (этап 4): лента снесена, порции открывает Путь.
+
+  // Тематические колоды (этап 5) — вход по кнопке «Ещё слова»
+  if (showDecks) return <DecksScreen onBack={() => setShowDecks(false)} />;
 
   // Solo-порция (экран «Путь»): сразу карточки, выход — в Путь
   if (soloBlock) {
@@ -435,6 +443,8 @@ export default function ReadingScreen({ onBack, dictOnly, soloBlock }) {
 
       {/* Единственный вид — «Мой словарь» (лента «Новое» снесена, этап 4) */}
       <DictView stats={stats} dark={dark}
+        decksUnlocked={decksUnlocked}
+        onOpenDecks={() => setShowDecks(true)}
         onOpen={(blockId, mode) => { setActiveBlock(blockId); setActiveMode(mode); }} />
     </div>
   );

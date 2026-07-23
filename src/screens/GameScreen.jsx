@@ -472,7 +472,15 @@ export default function GameScreen() {
     setShowTraining(false);
   }
 
-  const pool = config ? buildQuestionPool(stats, config.topics) : [];
+  const rawPool = config ? buildQuestionPool(stats, config.topics) : [];
+  // В режиме «с клавиатуры» оставляем только вопросы, ответ на которые набирается
+  // на иврите (буква по названию, слово по переводу). Если таких не осталось
+  // (например выбраны одни огласовки) — откатываемся на полный пул с вариантами.
+  const TYPABLE = new Set(["name-to-letter", "word-to-translation"]);
+  const typedOnly = rawPool.filter(q => TYPABLE.has(q.type));
+  const pool = config?.answerMode === "typing" && typedOnly.length
+    ? typedOnly
+    : rawPool;
 
   // ── Игра ───────────────────────────────────────────────────────────────────
   if (phase === "playing" && config) {

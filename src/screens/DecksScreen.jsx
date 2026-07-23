@@ -13,7 +13,7 @@ import ExerciseSession from "../components/ui/ExerciseSession";
 // Приведение слова колоды к формату движка (fromReadingItem-совместимо)
 const toItem = w => ({ id: w.id, he: w.hebrew, ru: w.translation, plain: w.plain, type: 'word' });
 
-export default function DecksScreen({ onBack }) {
+export default function DecksScreen({ onBack, CardsMode }) {
   const { dark } = useTheme();
   const { stats, updateStats } = useStats();
   const tgId = stats.telegramId;
@@ -52,17 +52,27 @@ export default function DecksScreen({ onBack }) {
     });
   }
 
-  // ── Сессия изучения/проверки чанка ──
+  // ── Сессия изучения/проверки группы ──
   if (active && chunks) {
     const words = chunks[active.chunkIdx].words;
     const src = words.map(toItem);
-    const plan = active.mode === 'cards'
-      ? [{ gen: 'word_ru', sources: src, pool: src, take: words.length }]
-      : [{ gen: 'word_ru', sources: src, pool: src, take: Math.ceil(words.length / 2) },
-         { gen: 'word_he', sources: src, pool: src, take: Math.floor(words.length / 2) }];
+    const title = `${DECKS_BY_ID[deckId].title} · группа ${active.chunkIdx + 1}`;
+
+    // «Изучить»: сначала флип-карточки, затем проверка БЕЗ ЗАЧЁТА (тренировка)
+    if (active.mode === 'cards' && active.stage !== 'check') {
+      return <CardsMode items={words} blockN={deckId} dark={dark}
+        onReview={() => {}}
+        onBack={() => setActive({ ...active, stage: 'check' })} />;
+    }
+
+    const graded = active.mode === 'quiz';
+    const plan = [
+      { gen: 'word_ru', sources: src, pool: src, take: Math.ceil(words.length / 2) },
+      { gen: 'word_he', sources: src, pool: src, take: Math.floor(words.length / 2) },
+    ];
     return <ChunkSession words={words} plan={plan} dark={dark}
-      title={`${DECKS_BY_ID[deckId].title} · группа ${active.chunkIdx + 1}`}
-      onDone={(res) => { commitResults(words, res); setActive(null); }}
+      title={graded ? title : `${title} · тренировка`}
+      onDone={(res) => { commitResults(words, graded ? res : {}); setActive(null); }}
       onBack={() => setActive(null)} />;
   }
 

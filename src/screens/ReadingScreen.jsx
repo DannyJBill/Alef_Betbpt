@@ -52,7 +52,7 @@ function getAvailableItems(blockItems, stats) {
 // ─── Карточки (флип) ──────────────────────────────────────────────────────────
 const CHUNK = 8; // размер серии карточек: порция — единица контента, серия — единица усилия
 
-function CardsMode({ items, blockN, dark, onBack, onReview }) {
+export function CardsMode({ items, blockN, dark, onBack, onReview }) {
   const m = metaFor(blockN);
   const queue = useRef(shuffle([...items]));
   const [idx, setIdx] = useState(0);
@@ -362,7 +362,7 @@ export default function ReadingScreen({ onBack, dictOnly, soloBlock }) {
   // initialBlock-эффект удалён (этап 4): лента снесена, порции открывает Путь.
 
   // Тематические колоды (этап 5) — вход по кнопке «Ещё слова»
-  if (showDecks) return <DecksScreen onBack={() => setShowDecks(false)} />;
+  if (showDecks) return <DecksScreen onBack={() => setShowDecks(false)} CardsMode={CardsMode} />;
 
   // Solo-порция (экран «Путь»): сразу карточки, выход — в Путь
   if (soloBlock) {

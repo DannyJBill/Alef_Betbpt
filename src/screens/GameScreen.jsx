@@ -12,7 +12,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
-import { ALPHABET, LETTER_GROUPS, NIKUD, NIKUD_GROUPS } from "../data/alphabet";
+import { ALPHABET, FINAL_FORMS, LETTER_GROUPS, NIKUD, NIKUD_GROUPS } from "../data/alphabet";
 import { WORD_CATEGORIES } from "../data/words";
 import { shuffle, pick } from "../helpers/utils";
 import LetterDisplay from "../components/ui/LetterDisplay";
@@ -24,9 +24,12 @@ function buildQuestionPool(stats, topics) {
   const questions = [];
 
   // Доступные буквы — fallback на первые 6 если ничего не открыто
-  const unlockedLetters = ALPHABET.filter(l =>
-    LETTER_GROUPS.find(g => g.letterIds.includes(l.id) && stats.progress?.letters?.[g.id] !== "locked")
+  const isGroupOpen = l => LETTER_GROUPS.find(
+    g => g.letterIds.includes(l.id) && stats.progress?.letters?.[g.id] !== "locked"
   );
+  // ВАЖНО: финальные формы (софит) живут в FINAL_FORMS, а не в ALPHABET —
+  // без них софит-буквы никогда не попадали в игру.
+  const unlockedLetters = [...ALPHABET, ...FINAL_FORMS].filter(isGroupOpen);
   const gameLetters = unlockedLetters.length >= 4 ? unlockedLetters : ALPHABET.slice(0, 6);
 
   if (topics.includes("alphabet")) {
@@ -70,14 +73,18 @@ function buildQuestionPool(stats, topics) {
   return questions;
 }
 
-function makeQuestion(pool, prevId) {
+function makeQuestion(pool, prevId, idx = null) {
   if (!pool.length) return null;
   let q;
-  let attempts = 0;
-  do {
-    q = pool[Math.floor(Math.random() * pool.length)];
-    attempts++;
-  } while (attempts < 10 && q.letter?.id === prevId);
+  if (idx !== null && pool[idx]) {
+    q = pool[idx];                       // очередь: гарантирует покрытие всего пула
+  } else {
+    let attempts = 0;
+    do {
+      q = pool[Math.floor(Math.random() * pool.length)];
+      attempts++;
+    } while (attempts < 10 && q.letter?.id === prevId);
+  }
 
   // Собираем варианты
   if (q.type === "name-to-letter" || q.type === "letter-to-name") {
@@ -133,6 +140,7 @@ function PlayingGame({ pool, timeLimit, isRated, answerMode = "choice", dark, on
   const [pickedId, setPickedId]   = useState(null); // выбранный вариант (для подсветки)
   const [typed, setTyped]         = useState("");   // набранное с клавиатуры
   const prevIdRef  = useRef(null);
+  const queueRef   = useRef([]);
   const xpSaved    = useRef(false);
   const timerRef   = useRef(null);
   const flashRef   = useRef(null);
@@ -173,7 +181,11 @@ function PlayingGame({ pool, timeLimit, isRated, answerMode = "choice", dark, on
   }
 
   function nextQ() {
-    const q = makeQuestion(pool, prevIdRef.current);
+    // Идём по перемешанной очереди — так встречаются ВСЕ буквы/слова пула,
+    // а не случайная их часть. Кончилась очередь — перемешиваем заново.
+    if (!queueRef.current.length) queueRef.current = shuffle(pool.map((_, i) => i));
+    const idx = queueRef.current.shift();
+    const q = makeQuestion(pool, prevIdRef.current, idx);
     if (!q) { finish(); return; }
     if (q.letter) prevIdRef.current = q.letter.id;
     if (q.word)   prevIdRef.current = q.word.id;
@@ -250,6 +262,12 @@ function PlayingGame({ pool, timeLimit, isRated, answerMode = "choice", dark, on
         <span className={`font-black text-2xl ${timeLimit && timeLeft<=10?"text-red-500 animate-pulse":dark?"text-white":"text-gray-800"}`}>
           {timeLimit === 0 ? "∞" : `${timeLeft}с`}
         </span>
+        {!isRated && (
+          <button onClick={finish}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold border ${dark?"border-gray-700 text-gray-400":"border-gray-200 text-gray-500"}`}>
+            Завершить
+          </button>
+        )}
         <div className="flex items-center gap-2">
           {streak > 1 && <span className="text-orange-400 text-sm font-bold">🔥{streak}</span>}
         </div>
@@ -445,9 +463,12 @@ export default function GameScreen() {
   const [result, setResult] = useState(null);   // { score, total, bestStreak }
   const [showTraining, setShowTraining] = useState(false);
 
-  const unlockedLetters = ALPHABET.filter(l =>
-    LETTER_GROUPS.find(g => g.letterIds.includes(l.id) && stats.progress?.letters?.[g.id] !== "locked")
+  const isGroupOpen = l => LETTER_GROUPS.find(
+    g => g.letterIds.includes(l.id) && stats.progress?.letters?.[g.id] !== "locked"
   );
+  // ВАЖНО: финальные формы (софит) живут в FINAL_FORMS, а не в ALPHABET —
+  // без них софит-буквы никогда не попадали в игру.
+  const unlockedLetters = [...ALPHABET, ...FINAL_FORMS].filter(isGroupOpen);
   const hasEnoughForGame = unlockedLetters.length >= 4;
 
   function startRated() {

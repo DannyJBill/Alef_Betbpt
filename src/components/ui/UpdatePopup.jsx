@@ -45,12 +45,12 @@ export default function UpdatePopup({ dark }) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto px-4 py-8"
       style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(2px)", animation: "annFade .2s ease" }}
       onClick={close}
     >
       <div
-        className={`w-full max-w-sm rounded-3xl shadow-2xl p-6 ${card}`}
+        className={`w-full max-w-sm rounded-3xl shadow-2xl p-6 my-auto ${card}`}
         style={{ animation: "annPop .25s cubic-bezier(.2,.9,.3,1.2)" }}
         onClick={e => e.stopPropagation()}
       >

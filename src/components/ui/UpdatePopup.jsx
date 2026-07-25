@@ -13,7 +13,7 @@ import { useState } from "react";
  */
 const ANNOUNCE_ID  = "v2";
 const ANNOUNCE_KEY = `hebrew-app-announce-${ANNOUNCE_ID}`;
-const CHAT_URL     = "https://t.me/+acN50m9_IjhjM2I0";
+const CHAT_URL     = "https://t.me/alefbetchannel";
 
 function dismissedForever() {
   try { return localStorage.getItem(ANNOUNCE_KEY) === "off"; } catch { return false; }

@@ -246,9 +246,12 @@ function canonicalForStorage(stats) {
 
 async function saveToStorage(stats) {
   const payload = JSON.stringify(canonicalForStorage(stats));
-  if (TGCloud) try { await tgSet(STORAGE_KEY, payload); } catch {}
+  // localStorage/sessionStorage — синхронные вызовы, пишем их первыми и без
+  // ожидания: на выгрузке страницы (pagehide) любой await до них рискует не
+  // выполниться до уничтожения контекста. TGCloud — best-effort, после.
   try { localStorage.setItem(STORAGE_KEY, payload); } catch {}
   try { sessionStorage.setItem(STORAGE_KEY, payload); } catch {}
+  if (TGCloud) try { await tgSet(STORAGE_KEY, payload); } catch {}
 }
 
 // ─── SM-2 ─────────────────────────────────────────────────────────────────────
@@ -295,6 +298,10 @@ export function StatsProvider({ children }) {
   const saveRef             = useRef(null);
   const serverSaveRef       = useRef(null);
   const referralDoneRef     = useRef(false);
+  // Актуальный stats для флаша на выходе — pagehide/visibilitychange не могут
+  // ждать переотрисовку, поэтому читаем самое свежее значение через ref.
+  const statsRef            = useRef(stats);
+  useEffect(() => { statsRef.current = stats; }, [stats]);
 
   useEffect(() => {
     (async () => {
@@ -585,6 +592,30 @@ export function StatsProvider({ children }) {
   useEffect(() => () => {
     clearTimeout(saveRef.current);
     clearTimeout(serverSaveRef.current);
+  }, []);
+
+  // Принудительный флаш отложенного сохранения при уходе со страницы.
+  // scheduleSave дебаунсит локальное сохранение на 300мс и серверное на 30с —
+  // если пользователь закрывает мини-апп раньше, несохранённые данные
+  // терялись вместе с уничтожением WebView. pagehide/visibilitychange
+  // ловят и сворачивание, и закрытие; флашим сразу оба таймера.
+  useEffect(() => {
+    const flush = () => {
+      if (!saveRef.current && !serverSaveRef.current) return;
+      clearTimeout(saveRef.current);
+      clearTimeout(serverSaveRef.current);
+      saveRef.current = null;
+      serverSaveRef.current = null;
+      saveToStorage(statsRef.current);
+      saveStatsToServer(statsRef.current, { keepalive: true });
+    };
+    const onVisibility = () => { if (document.visibilityState === 'hidden') flush(); };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', flush);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', flush);
+    };
   }, []);
 
   return (

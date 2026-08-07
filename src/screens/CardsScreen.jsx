@@ -35,9 +35,13 @@ export default function CardsScreen({ onBack }) {
   const handleAnswer = useCallback((quality) => {
     updateCardReview(queue[current].id, quality);
     setSessionStats(s=>({...s, easy:s.easy+(quality===2?1:0), hard:s.hard+(quality===1?1:0), again:s.again+(quality===0?1:0)}));
-    // Сначала скрыть кнопки, потом перейти — чтобы не мелькала оборотная сторона
+    // Сначала скрыть кнопки, потом перейти — чтобы не мелькала оборотная сторона.
+    // Задержка должна быть >= длительности transform-transition карточки (0.45s),
+    // иначе новая карточка успевает подставиться в DOM ДО того, как переворот
+    // на 0deg закончится, и на долю секунды видна оборотная (ответная) грань
+    // следующей карточки поверх ещё не завершённой анимации.
     setFlipped(false);
-    setTimeout(() => setCurrent(c=>c+1), 350);
+    setTimeout(() => setCurrent(c=>c+1), 460);
   },[queue,current,updateCardReview]);
 
   // ── groupSelect ────────────────────────────────────────────────────────────

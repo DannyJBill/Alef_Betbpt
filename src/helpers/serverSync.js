@@ -10,7 +10,7 @@ export function getInitData() {
   return tg?.initData || null;
 }
 
-export async function saveStatsToServer(stats) {
+export async function saveStatsToServer(stats, opts = {}) {
   const initData = getInitData();
   if (!initData) return;
 
@@ -19,6 +19,10 @@ export async function saveStatsToServer(stats) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ initData, stats, action: "save" }),
+      // На уходе со страницы (pagehide/visibilitychange) обычный fetch может
+      // быть оборван браузером вместе с выгрузкой документа. keepalive
+      // позволяет запросу пережить unload — используем при экстренном флаше.
+      ...(opts.keepalive ? { keepalive: true } : {}),
     });
   } catch { /* silent fail — local storage is still the source of truth */ }
 }

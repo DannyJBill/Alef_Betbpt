@@ -11,12 +11,60 @@ import { useState } from "react";
  *   «Круто» — закрыть на этот раз (покажется при следующем открытии);
  *   «Не показывать снова» — пометить и больше не показывать никогда.
  */
-const ANNOUNCE_ID  = "v1.15";
+const ANNOUNCE_ID  = "v1.15.2";
 const ANNOUNCE_KEY = `hebrew-app-announce-${ANNOUNCE_ID}`;
 const CHAT_URL     = "https://t.me/alefbetchannel";
 
+// Багфикс-записи — новая сверху. Каждая скрыта за датой/названием и
+// разворачивается по клику (см. <ChangelogEntry> ниже).
+const CHANGELOG = [
+  {
+    version: "v1.15.2",
+    date: "08.08.2026",
+    text: `Диалоговые карточки во всех уроках уровней 1–4 теперь озвучены (кнопка 🔊
+      появляется у вопроса и ответа) · озвучены новые слова и примеры уровня 4 ·
+      озвучены все 462 слова тематических колод · карточки колод при просмотре
+      («Изучить») больше не показывают пустое слово и пустой перевод · починены
+      несколько фраз, где озвучка говорила не то слово, что написано на экране.`,
+  },
+  {
+    version: "v1.15",
+    date: "07.08.2026",
+    text: `на iPad приложение теперь открывается на весь экран · тема больше не
+      сбрасывается на тёмную при переключении окон · прогресс не теряется при
+      быстром выходе сразу после ответа · в карточках не мелькает ответ
+      следующей · числа 13–19 расписаны подробно с транскрипцией · варианты
+      ответов с ивритом и русским вперемешку больше не выглядят одинаково ·
+      опечатка в переводе слова «следующий».`,
+  },
+];
+
 function dismissedForever() {
   try { return localStorage.getItem(ANNOUNCE_KEY) === "off"; } catch { return false; }
+}
+
+function ChangelogEntry({ version, date, text, soft, border }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="border-t" style={{ borderColor: border }}>
+      <button
+        onClick={() => setExpanded(e => !e)}
+        className={`w-full py-3 flex items-center justify-between gap-2 text-xs font-semibold ${soft}`}
+      >
+        <span>🛠 Багфиксы {version} · {date}</span>
+        <span
+          style={{ transition: "transform .2s ease", transform: expanded ? "rotate(180deg)" : "none" }}
+        >
+          ▾
+        </span>
+      </button>
+      {expanded && (
+        <div className={`pb-3 text-xs leading-relaxed ${soft}`} style={{ animation: "annFade .15s ease" }}>
+          {text}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function UpdatePopup({ dark }) {
@@ -56,7 +104,7 @@ export default function UpdatePopup({ dark }) {
       >
         <div className="text-center">
           <div style={{ fontSize: 52, lineHeight: 1 }}>🚀</div>
-          <h2 className="mt-3 text-xl font-bold">Alef Bet v1.15</h2>
+          <h2 className="mt-3 text-xl font-bold">Alef Bet v1.15.2</h2>
           <p className={`mt-1 text-sm ${sub}`}>Всё, что уже умеет приложение:</p>
         </div>
 
@@ -78,15 +126,10 @@ export default function UpdatePopup({ dark }) {
           Помоги нам стать лучше — залетай в чат ранних пользователей 👇
         </div>
 
-        <div className={`mt-4 pt-3 border-t ${soft} text-xs leading-relaxed`}
-          style={{ borderColor: "rgba(127,127,127,0.25)" }}>
-          🛠 <b>Багфиксы 07.08.2026:</b> на iPad приложение теперь открывается на
-          весь экран · тема больше не сбрасывается на тёмную при переключении
-          окон · прогресс не теряется при быстром выходе сразу после ответа ·
-          в карточках не мелькает ответ следующей · числа 13–19 расписаны
-          подробно с транскрипцией · варианты ответов с ивритом и русским
-          вперемешку больше не выглядят одинаково · опечатка в переводе слова
-          «следующий».
+        <div className="mt-4">
+          {CHANGELOG.map(entry => (
+            <ChangelogEntry key={entry.version} {...entry} soft={soft} border="rgba(127,127,127,0.25)" />
+          ))}
         </div>
 
         <button

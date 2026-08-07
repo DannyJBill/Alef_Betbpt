@@ -10,8 +10,13 @@ import { DECKS, DECKS_BY_ID, loadDeckContent, loadWordProgress, syncWordProgress
 import { buildSession } from "../helpers/exercises";
 import ExerciseSession from "../components/ui/ExerciseSession";
 
-// Приведение слова колоды к формату движка (fromReadingItem-совместимо)
-const toItem = w => ({ id: w.id, he: w.hebrew, ru: w.translation, plain: w.plain, type: 'word' });
+// Приведение слова колоды к формату движка (fromReadingItem-совместимо).
+// he/ru — для генераторов упражнений (buildSession); hebrew/translation/transliteration/audio —
+// для CardsMode (флип-карточки), который читает именно эти имена полей.
+const toItem = w => ({
+  id: w.id, he: w.hebrew, ru: w.translation, plain: w.plain, type: 'word',
+  hebrew: w.hebrew, translation: w.translation, transliteration: w.transliteration, audio: w.audio,
+});
 
 export default function DecksScreen({ onBack, CardsMode }) {
   const { dark } = useTheme();

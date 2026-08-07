@@ -544,7 +544,7 @@ export const WORD_CATEGORIES = [
       { id:400, hebrew:"צה\"ל", transliteration:"цАхал", translation:"Вооруженные Силы Израиля", audio:"500words_tsahal.mp3" },
       { id:404, hebrew:"צפון", transliteration:"цафОн", translation:"север", audio:"500words_tsafon.mp3" },
       { id:405, hebrew:"קבוצה", transliteration:"квуцА", translation:"команда, группа", audio:"500words_kvutsa.mp3" },
-      { id:406, hebrew:"קבלה", transliteration:"кабалА", translation:"квитанция, \nрецепт, \nрасписка,\nчек", audio:"ankidroid_audiorec699113975.3gp" },
+      { id:406, hebrew:"קבלה", transliteration:"кабалА", translation:"квитанция, \nрецепт, \nрасписка,\nчек", audio:"500words_kabala.mp3" },
       { id:407, hebrew:"קטן", transliteration:"катАн", translation:"маленький", audio:"500words_katan.mp3" },
       { id:412, hebrew:"קל", transliteration:"каль", translation:"легкий", audio:"500words_kal.mp3" },
       { id:416, hebrew:"קצת", transliteration:"кцат", translation:"мало, немного", audio:"500words_ktsat.mp3" },

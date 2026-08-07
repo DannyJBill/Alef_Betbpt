@@ -117,7 +117,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "דָּנִיֵּאל אַבָּא?",
+        "questionRu": "Даниэль — папа?",
+        "answer": "כֵּן, דָּנִיֵּאל אַבָּא.",
+        "answerRu": "Да, Даниэль — папа.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_c0_1q.mp3",
+        "aAudio": "dlg_c0_1a.mp3"
+      },
+      {
+        "question": "הָרְחוֹב אָרֹךְ?",
+        "questionRu": "Улица длинная?",
+        "answer": "כֵּן, הָרְחוֹב אָרֹךְ.",
+        "answerRu": "Да, улица длинная.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_c0_2q.mp3",
+        "aAudio": "dlg_c0_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -206,6 +227,28 @@ export const GRAMMAR_LESSONS = [
           "הַבַּיִת גְּדוֹלָה"
         ],
         "answer": "הַבַּיִת גָּדוֹל"
+      },
+      {
+        "type": "В4",
+        "prompt": "Как сказать «Дом новый»?",
+        "options": [
+          "הַבַּיִת חָדָשׁ",
+          "הַבַּיִת הוּא חָדָשׁ",
+          "חָדָשׁ הַבַּיִת יֵשׁ",
+          "הַבַּיִת חֲדָשָׁה"
+        ],
+        "answer": "הַבַּיִת חָדָשׁ"
+      },
+      {
+        "type": "В4",
+        "prompt": "Что значит «שִׁמְעוֹן וּמַלְכָּה שְׁכֵנִים»?",
+        "options": [
+          "Шимон и Малка — соседи",
+          "Шимон — сосед Малки",
+          "У Шимона есть соседка Малка",
+          "Шимон и Малка были соседями"
+        ],
+        "answer": "Шимон и Малка — соседи"
       }
     ],
     "readingBlock": [
@@ -350,7 +393,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "הַמּוֹרָה טוֹבָה?",
+        "questionRu": "Учительница добрая?",
+        "answer": "כֵּן, הַמּוֹרָה טוֹבָה.",
+        "answerRu": "Да, учительница добрая.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_m11_1q.mp3",
+        "aAudio": "dlg_m11_1a.mp3"
+      },
+      {
+        "question": "הַשֻּׁלְחָן גָּדוֹל?",
+        "questionRu": "Стол большой?",
+        "answer": "כֵּן, הַשֻּׁלְחָן גָּדוֹל.",
+        "answerRu": "Да, стол большой.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m11_2q.mp3",
+        "aAudio": "dlg_m11_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {"type": "В4", "prompt": "Ноам зовёт Рекса: «Рекс — ___!» Добавь артикль к слову כֶּלֶב (собака).", "options": ["הַכֶּלֶב", "כֶּלֶב", "הַבַּיִת", "כֶּלֶב הַ"], "answer": "הַכֶּלֶב"},
       {"type": "В4", "prompt": "Даниэль показывает: «Вот ___!» Добавь артикль к слову בַּיִת (дом).", "options": ["הַבַּיִת", "בַּיִת", "בַּיִת הַ", "הַכֶּלֶב"], "answer": "הַבַּיִת"},
@@ -553,7 +617,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "כֵּן, יֵשׁ לִי כֶּלֶב!",
         "answerRu": "Да, у меня есть собака! (Рекс!)",
         "qGender": "m",
-        "aGender": "m"
+        "aGender": "m",
+        "qAudio": "dlg_c1_1q.mp3",
+        "aAudio": "dlg_c1_1a.mp3"
       },
       {
         "question": "יֵשׁ לָךְ בַּיִת גָּדוֹל?",
@@ -561,7 +627,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "כֵּן, יֵשׁ לִי בַּיִת גָּדוֹל.",
         "answerRu": "Да, у меня большой дом.",
         "qGender": "f",
-        "aGender": "f"
+        "aGender": "f",
+        "qAudio": "dlg_c1_2q.mp3",
+        "aAudio": "dlg_c1_2a.mp3"
       },
       {
         "question": "יֵשׁ לוֹ יַלְדָּה?",
@@ -569,7 +637,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "כֵּן, יֵשׁ לוֹ יַלְדָּה — תָּמָר.",
         "answerRu": "Да, у него есть девочка — Тамар.",
         "qGender": "m",
-        "aGender": "f"
+        "aGender": "f",
+        "qAudio": "dlg_c1_3q.mp3",
+        "aAudio": "dlg_c1_3a.mp3"
       },
       {
         "question": "יֵשׁ לָהּ כֶּלֶב?",
@@ -577,7 +647,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "לֹא, אֵין לָהּ כֶּלֶב.",
         "answerRu": "Нет, у неё нет собаки.",
         "qGender": "m",
-        "aGender": "m"
+        "aGender": "m",
+        "qAudio": "dlg_c1_4q.mp3",
+        "aAudio": "dlg_c1_4a.mp3"
       }
     ],
     "practiceItems": [
@@ -825,7 +897,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "f"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "הָאֵם בַּבַּיִת?",
+        "questionRu": "Мама дома?",
+        "answer": "כֵּן, הָאֵם בַּבַּיִת.",
+        "answerRu": "Да, мама дома.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_m12_1q.mp3",
+        "aAudio": "dlg_m12_1a.mp3"
+      },
+      {
+        "question": "הֶחָלָב עַל הַשֻּׁלְחָן?",
+        "questionRu": "Молоко на столе?",
+        "answer": "כֵּן, הֶחָלָב עַל הַשֻּׁלְחָן.",
+        "answerRu": "Да, молоко на столе.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m12_2q.mp3",
+        "aAudio": "dlg_m12_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {"type": "В4", "prompt": "Добавь артикль к слову אֵם (мама). Перед א — какая форма?", "options": ["הָאֵם (камац)", "הַאֵם (патах)", "הֶאֵם (сеголь)", "אֵם הַ"], "answer": "הָאֵם (камац)"},
       {"type": "В4", "prompt": "Добавь артикль к слову אִישׁ (мужчина).", "options": ["הָאִישׁ (камац)", "הַאִישׁ (патах)", "הֶאִישׁ (сеголь)", "אִישׁ הָ"], "answer": "הָאִישׁ (камац)"},
@@ -854,7 +947,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "א, ה, ח, ע"
       },
       {"type": "В4", "prompt": "Выбери слово с ПРАВИЛЬНЫМ артиклем.", "options": ["הָאָב (папа) (камац)", "הַאָב (патах)", "הֶאָב (сеголь)", "אָב הַ"], "answer": "הָאָב (папа) (камац)"},
-      {"type": "В4", "prompt": "А перед обычной буквой? Добавь артикль к כֶּלֶב.", "options": ["הַכֶּלֶב (патах)", "הָכֶּלֶב (камац)", "הֶכֶּלֶב (сеголь)", "כֶּלֶב הַ"], "answer": "הַכֶּלֶב (патах)"}
+      {"type": "В4", "prompt": "А перед обычной буквой? Добавь артикль к כֶּלֶב.", "options": ["הַכֶּלֶב (патах)", "הָכֶּלֶב (камац)", "הֶכֶּלֶב (сеголь)", "כֶּלֶב הַ"], "answer": "הַכֶּלֶב (патах)"},
+      {"type": "В4", "prompt": "Добавь артикль к слову עִיר (город, огласовка חִירִיק под ע, не камац).", "options": ["הָעִיר (камац)", "הֶעִיר (сеголь)", "הַעִיר (патах)", "עִיר הָ"], "answer": "הָעִיר (камац)"},
+      {"type": "В4", "prompt": "Когда перед ע ставится הֶ (сеголь), а когда הָ (камац)?", "options": ["הֶ — если под ע камац (עָ); הָ — если другая огласовка", "всегда הֶ перед ע", "всегда הָ перед ע", "это выбирается случайно"], "answer": "הֶ — если под ע камац (עָ); הָ — если другая огласовка"}
     ],
     "readingBlock": [
       {
@@ -883,9 +978,9 @@ export const GRAMMAR_LESSONS = [
       },
       {
         "kind": "word",
-        "hebrew": "הֶעִיר",
-        "translit": "хе-ир",
-        "ru": "город (с артиклем). Тель-Авив — הֶעִיר. Перед ע артикль הֶ.",
+        "hebrew": "הָעִיר",
+        "translit": "ха-ир",
+        "ru": "город (с артиклем). Тель-Авив — הָעִיר. Перед עִ (не камац) артикль הָ.",
         "letter_group": 4,
         "nikud_group": 3
       },
@@ -978,7 +1073,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "תָּמָר יַלְדָּה?",
+        "questionRu": "Тамар — девочка?",
+        "answer": "כֵּן, תָּמָר יַלְדָּה.",
+        "answerRu": "Да, Тамар — девочка.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_m13_1q.mp3",
+        "aAudio": "dlg_m13_1a.mp3"
+      },
+      {
+        "question": "תֵּל אָבִיב הִיא עִיר?",
+        "questionRu": "Тель-Авив — город?",
+        "answer": "כֵּן, תֵּל אָבִיב הִיא עִיר.",
+        "answerRu": "Да, Тель-Авив — город.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_m13_2q.mp3",
+        "aAudio": "dlg_m13_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -1067,6 +1183,50 @@ export const GRAMMAR_LESSONS = [
           "עִיר הוּא תֵּל אָבִיב"
         ],
         "answer": "תֵּל אָבִיב הִיא עִיר"
+      },
+      {
+        "type": "В4",
+        "prompt": "Сколько слов-исключений (женский род без ה/ת) встретилось в этом уроке?",
+        "options": [
+          "Два — דֶּרֶךְ и עִיר",
+          "Одно",
+          "Три",
+          "Ни одного"
+        ],
+        "answer": "Два — דֶּרֶךְ и עִיר"
+      },
+      {
+        "type": "В4",
+        "prompt": "Чаще всего женский род в иврите маркируется…",
+        "options": [
+          "окончанием ה или ת",
+          "окончанием ד",
+          "удвоением буквы",
+          "артиклем הַ"
+        ],
+        "answer": "окончанием ה или ת"
+      },
+      {
+        "type": "В4",
+        "prompt": "Что показывает пара יֶלֶד — יַלְדָּה?",
+        "options": [
+          "как окончание ־ָה превращает мужской род в женский",
+          "прошедшее время",
+          "множественное число",
+          "вопросительную форму"
+        ],
+        "answer": "как окончание ־ָה превращает мужской род в женский"
+      },
+      {
+        "type": "В4",
+        "prompt": "דֶּרֶךְ и עִיר — какого рода оба слова?",
+        "options": [
+          "оба женского — исключения без ה/ת",
+          "оба мужского",
+          "דֶּרֶךְ мужского, עִיר женского",
+          "עִיר мужского, דֶּרֶךְ женского"
+        ],
+        "answer": "оба женского — исключения без ה/ת"
       }
     ],
     "readingBlock": [
@@ -1187,7 +1347,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "הַכֶּלֶב הַגָּדוֹל שֶׁלָּנוּ?",
+        "questionRu": "Это наша большая собака?",
+        "answer": "כֵּן, זֶה הַכֶּלֶב הַגָּדוֹל שֶׁלָּנוּ — רֶקְס.",
+        "answerRu": "Да, это наша большая собака — Рекс.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m14_1q.mp3",
+        "aAudio": "dlg_m14_1a.mp3"
+      },
+      {
+        "question": "הַיַּלְדָּה הַגְּדוֹלָה — זֹאת תָּמָר?",
+        "questionRu": "Та большая девочка — это Тамар?",
+        "answer": "כֵּן, זֹאת תָּמָר.",
+        "answerRu": "Да, это Тамар.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_m14_2q.mp3",
+        "aAudio": "dlg_m14_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -1372,7 +1553,28 @@ export const GRAMMAR_LESSONS = [
         "audio": "r1_ch11_07.mp3"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "יֶלֶד אֶחָד?",
+        "questionRu": "Один мальчик?",
+        "answer": "כֵּן, יֶלֶד אֶחָד — נֹעַם.",
+        "answerRu": "Да, один мальчик — Ноам.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_ch11_1q.mp3",
+        "aAudio": "dlg_ch11_1a.mp3"
+      },
+      {
+        "question": "כֶּלֶב אֶחָד?",
+        "questionRu": "Одна собака?",
+        "answer": "כֵּן, כֶּלֶב אֶחָד — רֶקְס.",
+        "answerRu": "Да, одна собака — Рекс.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_ch11_2q.mp3",
+        "aAudio": "dlg_ch11_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -1534,7 +1736,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "יַלְדָּה אַחַת?",
+        "questionRu": "Одна девочка?",
+        "answer": "כֵּן, יַלְדָּה אַחַת — תָּמָר.",
+        "answerRu": "Да, одна девочка — Тамар.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_ch12_1q.mp3",
+        "aAudio": "dlg_ch12_1a.mp3"
+      },
+      {
+        "question": "מוֹרָה אַחַת בַּבַּיִת?",
+        "questionRu": "Одна учительница дома?",
+        "answer": "כֵּן, מוֹרָה אַחַת בַּבַּיִת.",
+        "answerRu": "Да, одна учительница дома.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_ch12_2q.mp3",
+        "aAudio": "dlg_ch12_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -1681,7 +1904,28 @@ export const GRAMMAR_LESSONS = [
         "audio": "r1_ch13_05.mp3"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "שִׁשָּׁה, שִׁבְעָה, שְׁמֹנָה?",
+        "questionRu": "Шесть, семь, восемь? (Тамар считает по порядку)",
+        "answer": "כֵּן! שִׁשָּׁה, שִׁבְעָה, שְׁמֹנָה, תִּשְׁעָה, עֲשָׂרָה!",
+        "answerRu": "Да! Шесть, семь, восемь, девять, десять!",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_ch13_1q.mp3",
+        "aAudio": "dlg_ch13_1a.mp3"
+      },
+      {
+        "question": "תִּשְׁעָה, עֲשָׂרָה?",
+        "questionRu": "Девять, десять?",
+        "answer": "כֵּן, תִּשְׁעָה, עֲשָׂרָה.",
+        "answerRu": "Да, девять, десять.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_ch13_2q.mp3",
+        "aAudio": "dlg_ch13_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -1825,7 +2069,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "נֹעַם הוֹלֵךְ?",
+        "questionRu": "Ноам идёт?",
+        "answer": "כֵּן, נֹעַם הוֹלֵךְ.",
+        "answerRu": "Да, Ноам идёт.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g11_1q.mp3",
+        "aAudio": "dlg_g11_1a.mp3"
+      },
+      {
+        "question": "דָּנִיֵּאל שׁוֹתֶה קָפֶה?",
+        "questionRu": "Даниэль пьёт кофе?",
+        "answer": "כֵּן, דָּנִיֵּאל שׁוֹתֶה קָפֶה.",
+        "answerRu": "Да, Даниэль пьёт кофе.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g11_2q.mp3",
+        "aAudio": "dlg_g11_2a.mp3"
+      }
+    ],
     "practiceItems": [],
     "readingBlock": [],
     "notes": "Урок-концепция, без теста (score=null→100)."
@@ -1895,7 +2160,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אַתָּה יוֹשֵׁב?",
+        "questionRu": "Ты сидишь?",
+        "answer": "כֵּן, אֲנִי יוֹשֵׁב.",
+        "answerRu": "Да, я сижу.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g12_1q.mp3",
+        "aAudio": "dlg_g12_1a.mp3"
+      },
+      {
+        "question": "הוּא גָּר בַּבַּיִת?",
+        "questionRu": "Он живёт в доме?",
+        "answer": "כֵּן, הוּא גָּר בַּבַּיִת.",
+        "answerRu": "Да, он живёт в доме.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g12_2q.mp3",
+        "aAudio": "dlg_g12_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -2054,7 +2340,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "f"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אַתְּ יוֹשֶׁבֶת?",
+        "questionRu": "Ты сидишь? (женщине)",
+        "answer": "כֵּן, אֲנִי יוֹשֶׁבֶת.",
+        "answerRu": "Да, я сижу.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_g13_1q.mp3",
+        "aAudio": "dlg_g13_1a.mp3"
+      },
+      {
+        "question": "הִיא רוֹצָה עוּגָה?",
+        "questionRu": "Она хочет торт?",
+        "answer": "כֵּן, הִיא רוֹצָה עוּגָה.",
+        "answerRu": "Да, она хочет торт.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_g13_2q.mp3",
+        "aAudio": "dlg_g13_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -2211,7 +2518,28 @@ export const GRAMMAR_LESSONS = [
         "audio": "r1_g14_05.mp3"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אַתָּה קוֹרֵא סֵפֶר?",
+        "questionRu": "Ты читаешь книгу?",
+        "answer": "כֵּן, אֲנִי קוֹרֵא סֵפֶר.",
+        "answerRu": "Да, я читаю книгу.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g14_1q.mp3",
+        "aAudio": "dlg_g14_1a.mp3"
+      },
+      {
+        "question": "הוּא רוֹאֶה כֶּלֶב?",
+        "questionRu": "Он видит собаку?",
+        "answer": "כֵּן, הוּא רוֹאֶה כֶּלֶב — רֶקְס.",
+        "answerRu": "Да, он видит собаку — Рекса.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g14_2q.mp3",
+        "aAudio": "dlg_g14_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -2367,7 +2695,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "לֹא, אֲנִי לֹא רוֹצֶה עוֹף.",
         "answerRu": "Нет, я не хочу курицу.",
         "qGender": "f",
-        "aGender": "m"
+        "aGender": "m",
+        "qAudio": "dlg_g15_1q.mp3",
+        "aAudio": "dlg_g15_1a.mp3"
       },
       {
         "question": "אַתְּ הוֹלֶכֶת?",
@@ -2375,7 +2705,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "לֹא, אֲנִי לֹא הוֹלֶכֶת.",
         "answerRu": "Нет, я не иду.",
         "qGender": "f",
-        "aGender": "f"
+        "aGender": "f",
+        "qAudio": "dlg_g15_2q.mp3",
+        "aAudio": "dlg_g15_2a.mp3"
       },
       {
         "question": "אַתָּה יוֹדֵעַ?",
@@ -2383,7 +2715,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "אֲנִי לֹא יוֹדֵעַ...",
         "answerRu": "Я не знаю…",
         "qGender": "f",
-        "aGender": "m"
+        "aGender": "m",
+        "qAudio": "dlg_g15_3q.mp3",
+        "aAudio": "dlg_g15_3a.mp3"
       }
     ],
     "practiceItems": [
@@ -2544,7 +2878,28 @@ export const GRAMMAR_LESSONS = [
         "audio": "r1_g16_04.mp3"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אַתָּה יוֹדֵעַ עִבְרִית?",
+        "questionRu": "Ты знаешь иврит?",
+        "answer": "כֵּן, אֲנִי יוֹדֵעַ עִבְרִית!",
+        "answerRu": "Да, я знаю иврит!",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g16_1q.mp3",
+        "aAudio": "dlg_g16_1a.mp3"
+      },
+      {
+        "question": "הִיא אוֹהֶבֶת כֶּלֶב?",
+        "questionRu": "Она любит собаку?",
+        "answer": "כֵּן, הִיא אוֹהֶבֶת כֶּלֶב.",
+        "answerRu": "Да, она любит собаку.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_g16_2q.mp3",
+        "aAudio": "dlg_g16_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -2719,7 +3074,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "כֵּן, אֲנִי אוֹכֵל.",
         "answerRu": "Да, я ем.",
         "qGender": "f",
-        "aGender": "m"
+        "aGender": "m",
+        "qAudio": "dlg_c2_1q.mp3",
+        "aAudio": "dlg_c2_1a.mp3"
       },
       {
         "question": "אַתְּ רוֹצָה עוּגָה?",
@@ -2727,7 +3084,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "כֵּן, אֲנִי רוֹצָה!",
         "answerRu": "Да, я хочу!",
         "qGender": "m",
-        "aGender": "f"
+        "aGender": "f",
+        "qAudio": "dlg_c2_2q.mp3",
+        "aAudio": "dlg_c2_2a.mp3"
       },
       {
         "question": "הוּא הוֹלֵךְ?",
@@ -2735,7 +3094,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "לֹא, הוּא לֹא הוֹלֵךְ.",
         "answerRu": "Нет, он не идёт.",
         "qGender": "m",
-        "aGender": "m"
+        "aGender": "m",
+        "qAudio": "dlg_c2_3q.mp3",
+        "aAudio": "dlg_c2_3a.mp3"
       },
       {
         "question": "יֵשׁ לְךָ מַיִם?",
@@ -2743,7 +3104,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "כֵּן, יֵשׁ לִי.",
         "answerRu": "Да, у меня есть.",
         "qGender": "m",
-        "aGender": "m"
+        "aGender": "m",
+        "qAudio": "dlg_c2_4q.mp3",
+        "aAudio": "dlg_c2_4a.mp3"
       }
     ],
     "practiceItems": [
@@ -2900,7 +3263,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "שֵׁשׁ, שֶׁבַע, שְׁמוֹנֶה?",
+        "questionRu": "Шесть, семь, восемь? (женский счёт)",
+        "answer": "כֵּן! שֵׁשׁ, שֶׁבַע, שְׁמוֹנֶה, תֵּשַׁע, עֶשֶׂר!",
+        "answerRu": "Да! Шесть, семь, восемь, девять, десять!",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_ch14_1q.mp3",
+        "aAudio": "dlg_ch14_1a.mp3"
+      },
+      {
+        "question": "עֶשֶׂר?",
+        "questionRu": "Десять?",
+        "answer": "כֵּן, עֶשֶׂר.",
+        "answerRu": "Да, десять.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_ch14_2q.mp3",
+        "aAudio": "dlg_ch14_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -3042,7 +3426,28 @@ export const GRAMMAR_LESSONS = [
         "isNew": true
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "כְּלָבִים?",
+        "questionRu": "Собаки? (Ноам показывает картинку)",
+        "answer": "כֵּן, כְּלָבִים!",
+        "answerRu": "Да, собаки!",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m21_1q.mp3",
+        "aAudio": "dlg_m21_1a.mp3"
+      },
+      {
+        "question": "סְפָרִים?",
+        "questionRu": "Книги?",
+        "answer": "כֵּן, סְפָרִים עַל הַשֻּׁלְחָן.",
+        "answerRu": "Да, книги на столе.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m21_2q.mp3",
+        "aAudio": "dlg_m21_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -3180,7 +3585,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "יְלָדוֹת?",
+        "questionRu": "Девочки?",
+        "answer": "כֵּן, יְלָדוֹת!",
+        "answerRu": "Да, девочки!",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_m22_1q.mp3",
+        "aAudio": "dlg_m22_1a.mp3"
+      },
+      {
+        "question": "עוּגוֹת עַל הַשֻּׁלְחָן?",
+        "questionRu": "Торты на столе?",
+        "answer": "כֵּן, עוּגוֹת עַל הַשֻּׁלְחָן.",
+        "answerRu": "Да, торты на столе.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_m22_2q.mp3",
+        "aAudio": "dlg_m22_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -3316,7 +3742,28 @@ export const GRAMMAR_LESSONS = [
         "isNew": false
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אֲנָשִׁים בָּרְחוֹב?",
+        "questionRu": "Люди на улице?",
+        "answer": "כֵּן, אֲנָשִׁים בָּרְחוֹב.",
+        "answerRu": "Да, люди на улице.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m23_1q.mp3",
+        "aAudio": "dlg_m23_1a.mp3"
+      },
+      {
+        "question": "עָרִים?",
+        "questionRu": "Города?",
+        "answer": "כֵּן, עָרִים!",
+        "answerRu": "Да, города!",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m23_2q.mp3",
+        "aAudio": "dlg_m23_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -3467,7 +3914,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "הַיְּלָדִים בַּבַּיִת?",
+        "questionRu": "Дети дома?",
+        "answer": "כֵּן, הַיְּלָדִים בַּבַּיִת.",
+        "answerRu": "Да, дети дома.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m24_1q.mp3",
+        "aAudio": "dlg_m24_1a.mp3"
+      },
+      {
+        "question": "הוּא גָּר בָּעִיר?",
+        "questionRu": "Он живёт в городе?",
+        "answer": "כֵּן, הוּא גָּר בָּעִיר.",
+        "answerRu": "Да, он живёт в городе.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m24_2q.mp3",
+        "aAudio": "dlg_m24_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -3617,7 +4085,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אַתָּה הוֹלֵךְ הַבַּיְתָה?",
+        "questionRu": "Ты идёшь домой?",
+        "answer": "כֵּן, אֲנִי הוֹלֵךְ הַבַּיְתָה.",
+        "answerRu": "Да, я иду домой.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m25_1q.mp3",
+        "aAudio": "dlg_m25_1a.mp3"
+      },
+      {
+        "question": "הִיא הוֹלֶכֶת לָעִיר?",
+        "questionRu": "Она идёт в город?",
+        "answer": "כֵּן, הִיא הוֹלֶכֶת לָעִיר.",
+        "answerRu": "Да, она идёт в город.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_m25_2q.mp3",
+        "aAudio": "dlg_m25_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -3766,7 +4255,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "לֹא, אֲנִי מֵרוּסְיָה.",
         "answerRu": "Нет, я из России.",
         "qGender": "m",
-        "aGender": "m"
+        "aGender": "m",
+        "qAudio": "dlg_m26_1q.mp3",
+        "aAudio": "dlg_m26_1a.mp3"
       }
     ],
     "practiceItems": [
@@ -3916,7 +4407,9 @@ export const GRAMMAR_LESSONS = [
         "answer": "כֵּן, יֵשׁ לָנוּ כֶּלֶב — רֶקְס!",
         "answerRu": "Да, у нас есть собака — Рекс!",
         "qGender": "m",
-        "aGender": "m"
+        "aGender": "m",
+        "qAudio": "dlg_c3_1q.mp3",
+        "aAudio": "dlg_c3_1a.mp3"
       }
     ],
     "practiceItems": [
@@ -4068,7 +4561,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "יַלְדָּה קְטַנָּה?",
+        "questionRu": "Маленькая девочка?",
+        "answer": "כֵּן, יַלְדָּה קְטַנָּה.",
+        "answerRu": "Да, маленькая девочка.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_m27_1q.mp3",
+        "aAudio": "dlg_m27_1a.mp3"
+      },
+      {
+        "question": "בָּתִּים גְּדוֹלִים?",
+        "questionRu": "Большие дома?",
+        "answer": "כֵּן, בָּתִּים גְּדוֹלִים.",
+        "answerRu": "Да, большие дома.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m27_2q.mp3",
+        "aAudio": "dlg_m27_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -4207,7 +4721,28 @@ export const GRAMMAR_LESSONS = [
         "audio": "r1_c0_05.mp3"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "הַכֶּלֶב הַגָּדוֹל — זֶה רֶקְס?",
+        "questionRu": "Та большая собака — это Рекс?",
+        "answer": "כֵּן, הַכֶּלֶב הַגָּדוֹל — זֶה רֶקְס.",
+        "answerRu": "Да, та большая собака — это Рекс.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m28_1q.mp3",
+        "aAudio": "dlg_m28_1a.mp3"
+      },
+      {
+        "question": "זֶה הַבַּיִת הַקָּטָן?",
+        "questionRu": "Это тот маленький дом?",
+        "answer": "כֵּן, זֶה הַבַּיִת הַקָּטָן.",
+        "answerRu": "Да, это тот маленький дом.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m28_2q.mp3",
+        "aAudio": "dlg_m28_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -4316,7 +4851,7 @@ export const GRAMMAR_LESSONS = [
     "isSynthesis": true,
     "generatesReading": true,
     "approved": true,
-    "rule": "Синтез модуля М2! Маленькое слово אֶת — маркер прямого дополнения, у него НЕТ перевода. Правило железное: אֶת ставится, только если дополнение ОПРЕДЕЛЁННОЕ (с артиклем или имя): אֲנִי אוֹכֵל לֶחֶם — я ем хлеб (какой-то, без את). אֲנִי אוֹכֵל אֶת הַלֶּחֶם — я ем ЭТОТ хлеб (את + артикль). הוּא רוֹאֶה אֶת תָּמָר — он видит Тамар (имя = определённое). Не путай с אַתְּ (ты, ж.р.) — огласовка другая! Тест строгий: 90%.",
+    "rule": "Синтез модуля М2! Маленькое слово אֶת — маркер прямого дополнения, у него НЕТ перевода. Правило железное: אֶת ставится, только если дополнение ОПРЕДЕЛЁННОЕ (с артиклем или имя): אֲנִי אוֹכֵל לֶחֶם — я ем хлеб (какой-то, без את). אֲנִי אוֹכֵל אֶת הַלֶּחֶם — я ем ЭТОТ хлеб (את + артикль). הוּא רוֹאֶה אֶת תָּמָר — он видит Тамар (имя = определённое). Не путай с אַתְּ (ты, ж.р.) — огласовка другая: אֶת (сэголь-под-алефом) — маркер, אַתְּ (патах-под-алефом) — местоимение «ты». Смихут (בֵּית סֵפֶר, «дом-книг» без артикля на первом слове) — отдельная тема, позже, в Бет: здесь только маркер את перед обычным определённым словом. Тест строгий: 90%.",
     "examples": [
       {
         "hebrew": "אֲנִי אוֹכֵל לֶחֶם",
@@ -4354,9 +4889,62 @@ export const GRAMMAR_LESSONS = [
         "isNew": false,
         "audio": "ex_m29_5.mp3",
         "gender": "m"
+      },
+      {
+        "hebrew": "אַתְּ אוֹכֶלֶת אֶת הַתַּפּוּחַ",
+        "translit": "ат охэлет эт hа-тапуах",
+        "ru": "ты (ж.р.) ешь это яблоко — אַתְּ и אֶת в одной фразе: первое «ты», второе — маркер",
+        "isNew": true,
+        "audio": "ex_m29_6.mp3",
+        "gender": "f"
+      },
+      {
+        "hebrew": "אַתְּ גָּרָה בְּתֵל אָבִיב",
+        "translit": "ат гара бе-Тель-Авив",
+        "ru": "ты (ж.р.) живёшь в Тель-Авиве — здесь אַתְּ просто местоимение, дополнения нет, את не нужен",
+        "isNew": true,
+        "audio": "ex_m29_7.mp3",
+        "gender": "f"
+      },
+      {
+        "hebrew": "אֲנִי קוֹרֵא אֶת הַסְּפָרִים",
+        "translit": "ани корэ эт hа-сфарим",
+        "ru": "я читаю эти книги — את работает и во множественном числе",
+        "isNew": true,
+        "audio": "ex_m29_8.mp3",
+        "gender": "m"
+      },
+      {
+        "hebrew": "הִיא לֹא רוֹאָה אֶת הַמּוֹרֶה",
+        "translit": "hи ло роа эт hа-морэ",
+        "ru": "она не видит этого учителя — לֹא встаёт перед глаголом, а את остаётся на своём месте перед дополнением",
+        "isNew": true,
+        "audio": "ex_m29_9.mp3",
+        "gender": "f"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אַתָּה רוֹאֶה אֶת הַכֶּלֶב?",
+        "questionRu": "Ты видишь эту собаку?",
+        "answer": "כֵּן, אֲנִי רוֹאֶה אֶת הַכֶּלֶב — רֶקְס.",
+        "answerRu": "Да, я вижу эту собаку — Рекса.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m29_1q.mp3",
+        "aAudio": "dlg_m29_1a.mp3"
+      },
+      {
+        "question": "הוּא רוֹאֶה אֶת תָּמָר?",
+        "questionRu": "Он видит Тамар?",
+        "answer": "כֵּן, הוּא רוֹאֶה אֶת תָּמָר.",
+        "answerRu": "Да, он видит Тамар.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_m29_2q.mp3",
+        "aAudio": "dlg_m29_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -4470,7 +5058,7 @@ export const GRAMMAR_LESSONS = [
       }
     ],
     "readingBlock": [],
-    "notes": "Синтез М2: порог 90."
+    "notes": "Синтез М2: порог 90. Смихут (בֵּית סֵפֶר) — позже, в Бет: здесь только маркер את перед определённым словом (не конструкция смихут)."
   },
   {
     "id": "G2.1",
@@ -4525,7 +5113,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אֲנַחְנוּ הוֹלְכִים לָעִיר?",
+        "questionRu": "Мы идём в город?",
+        "answer": "כֵּן, אֲנַחְנוּ הוֹלְכִים לָעִיר.",
+        "answerRu": "Да, мы идём в город.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g21_1q.mp3",
+        "aAudio": "dlg_g21_1a.mp3"
+      },
+      {
+        "question": "הַיְּלָדִים גָּרִים בָּעִיר?",
+        "questionRu": "Дети живут в городе?",
+        "answer": "כֵּן, הַיְּלָדִים גָּרִים בָּעִיר.",
+        "answerRu": "Да, дети живут в городе.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g21_2q.mp3",
+        "aAudio": "dlg_g21_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -4665,7 +5274,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "הֵן הוֹלְכוֹת לָעִיר?",
+        "questionRu": "Они (Майя и Тамар) идут в город?",
+        "answer": "כֵּן, הֵן הוֹלְכוֹת לָעִיר.",
+        "answerRu": "Да, они идут в город.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_g22_1q.mp3",
+        "aAudio": "dlg_g22_1a.mp3"
+      },
+      {
+        "question": "מוֹרוֹת אוֹכְלוֹת?",
+        "questionRu": "Учительницы едят?",
+        "answer": "כֵּן, מוֹרוֹת אוֹכְלוֹת.",
+        "answerRu": "Да, учительницы едят.",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_g22_2q.mp3",
+        "aAudio": "dlg_g22_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -4808,7 +5438,28 @@ export const GRAMMAR_LESSONS = [
         "audio": "r1_g23_03.mp3"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אֲנַחְנוּ רוֹצִים מַיִם?",
+        "questionRu": "Мы хотим воды?",
+        "answer": "כֵּן, אֲנַחְנוּ רוֹצִים מַיִם.",
+        "answerRu": "Да, мы хотим воды.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g23_1q.mp3",
+        "aAudio": "dlg_g23_1a.mp3"
+      },
+      {
+        "question": "הֵם שׁוֹתִים?",
+        "questionRu": "Они (мужчины) пьют?",
+        "answer": "כֵּן, הֵם שׁוֹתִים.",
+        "answerRu": "Да, они пьют.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g23_2q.mp3",
+        "aAudio": "dlg_g23_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -4950,7 +5601,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אֲנַחְנוּ אוֹהֲבִים אֶת הָעִיר?",
+        "questionRu": "Мы любим этот город?",
+        "answer": "כֵּן, אֲנַחְנוּ אוֹהֲבִים אֶת הָעִיר.",
+        "answerRu": "Да, мы любим этот город.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g24_1q.mp3",
+        "aAudio": "dlg_g24_1a.mp3"
+      },
+      {
+        "question": "הֵם יוֹדְעִים עִבְרִית?",
+        "questionRu": "Они знают иврит?",
+        "answer": "כֵּן, הֵם יוֹדְעִים עִבְרִית!",
+        "answerRu": "Да, они знают иврит!",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_g24_2q.mp3",
+        "aAudio": "dlg_g24_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -5113,7 +5785,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "זֶה הַכֶּלֶב שֶׁאַתָּה אוֹהֵב?",
+        "questionRu": "Это собака, которую ты любишь?",
+        "answer": "כֵּן, זֶה הַכֶּלֶב שֶׁאֲנִי אוֹהֵב.",
+        "answerRu": "Да, это собака, которую я люблю.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_c4_1q.mp3",
+        "aAudio": "dlg_c4_1a.mp3"
+      },
+      {
+        "question": "הָאִישׁ שֶׁקּוֹרֵא סֵפֶר — זֶה דָּנִיֵּאל?",
+        "questionRu": "Мужчина, который читает книгу, — это Даниэль?",
+        "answer": "כֵּן, זֶה דָּנִיֵּאל.",
+        "answerRu": "Да, это Даниэль.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_c4_2q.mp3",
+        "aAudio": "dlg_c4_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -5290,7 +5983,28 @@ export const GRAMMAR_LESSONS = [
         "audio": "r1_ch21_05.mp3"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "אַחַת עֶשְׂרֵה?",
+        "questionRu": "Одиннадцать? (день рождения Тамар)",
+        "answer": "כֵּן, תָּמָר — אַחַת עֶשְׂרֵה!",
+        "answerRu": "Да, Тамар — одиннадцать!",
+        "qGender": "f",
+        "aGender": "f",
+        "qAudio": "dlg_ch21_1q.mp3",
+        "aAudio": "dlg_ch21_1a.mp3"
+      },
+      {
+        "question": "עֶשְׂרִים?",
+        "questionRu": "Двадцать?",
+        "answer": "כֵּן, עֶשְׂרִים.",
+        "answerRu": "Да, двадцать.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_ch21_2q.mp3",
+        "aAudio": "dlg_ch21_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -5592,7 +6306,28 @@ export const GRAMMAR_LESSONS = [
         "gender": "m"
       }
     ],
-    "dialogueCards": [],
+    "dialogueCards": [
+      {
+        "question": "הַכֶּלֶב גָּדוֹל?",
+        "questionRu": "Собака большая?",
+        "answer": "כֵּן, הַכֶּלֶב גָּדוֹל.",
+        "answerRu": "Да, собака большая.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_d13_1q.mp3",
+        "aAudio": "dlg_d13_1a.mp3"
+      },
+      {
+        "question": "הַבַּיִת חָדָשׁ?",
+        "questionRu": "Дом новый?",
+        "answer": "כֵּן, הַבַּיִת חָדָשׁ וְגָדוֹל.",
+        "answerRu": "Да, дом новый и большой.",
+        "qGender": "m",
+        "aGender": "m",
+        "qAudio": "dlg_d13_2q.mp3",
+        "aAudio": "dlg_d13_2a.mp3"
+      }
+    ],
     "practiceItems": [
       {
         "type": "В4",
@@ -5889,24 +6624,24 @@ export const GRAMMAR_LESSONS = [
     "readingBlock": [],
     "notes": ""
   },
-  {"id": "M3.1", "seq": 53, "level": 4, "module": "morphology", "moduleName": "Морфология", "title": "שֶׁל — чья это вещь", "unlockCondition": "C4 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": false, "rule": "В иврите принадлежность выражается словом שֶׁל («принадлежащий»): הַסֵּפֶר שֶׁל אַבָּא — «книга папы» (дословно: та-книга принадлежащая папе). Порядок всегда один: сначала вещь С АРТИКЛЕМ, потом שֶׁל, потом владелец. Русского родительного падежа («книга папЫ») в иврите нет — всю работу делает שֶׁל.", "examples": [{"hebrew": "הַסֵּפֶר שֶׁל אַבָּא", "translit": "hа-сэфер шель аба", "ru": "книга папы. Вещь с артиклем → שֶׁל → владелец.", "isNew": true, "audio": "ex_m31_1.mp3", "gender": "m", "draft": true}, {"hebrew": "הַכֶּלֶב שֶׁל תָּמָר", "translit": "hа-келев шель Тамар", "ru": "собака Тамар. Рекс — её собака!", "isNew": true, "audio": "ex_m31_2.mp3", "gender": "m", "draft": true}, {"hebrew": "הַבַּיִת שֶׁל הַמִּשְׁפָּחָה", "translit": "hа-байт шель hа-мишпаха", "ru": "дом семьи. Владелец тоже может быть с артиклем.", "isNew": true, "audio": "ex_m31_3.mp3", "gender": "m", "draft": true}, {"hebrew": "הַטֶּלֶפוֹן שֶׁל מָיָה", "translit": "hа-телефон шель Майя", "ru": "телефон Майи.", "isNew": true, "audio": "ex_m31_4.mp3", "gender": "f", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Как сказать «книга папы»?", "options": ["הַסֵּפֶר שֶׁל אַבָּא", "סֵפֶר אַבָּא שֶׁל", "שֶׁל אַבָּא הַסֵּפֶר", "אַבָּא שֶׁל הַסֵּפֶר"], "answer": "הַסֵּפֶר שֶׁל אַבָּא"}, {"type": "В4", "prompt": "Что значит הַכֶּלֶב שֶׁל תָּמָר?", "options": ["собака Тамар", "собака и Тамар", "Тамар — собака", "у собаки есть Тамар"], "answer": "собака Тамар"}, {"type": "В4", "prompt": "Что делает слово שֶׁל?", "options": ["показывает принадлежность (чей)", "заменяет артикль", "делает множественное число", "отрицает"], "answer": "показывает принадлежность (чей)"}, {"type": "В4", "prompt": "Где стоит вещь в конструкции с שֶׁל?", "options": ["перед שֶׁל, с артиклем", "после владельца", "в конце", "где угодно"], "answer": "перед שֶׁל, с артиклем"}, {"type": "В4", "prompt": "«Дом семьи» — это…", "options": ["הַבַּיִת שֶׁל הַמִּשְׁפָּחָה", "הַמִּשְׁפָּחָה שֶׁל הַבַּיִת", "בַּיִת מִשְׁפָּחָה", "שֶׁל בַּיִת מִשְׁפָּחָה"], "answer": "הַבַּיִת שֶׁל הַמִּשְׁפָּחָה"}, {"type": "В4", "prompt": "Есть ли в иврите падеж «книга папЫ»?", "options": ["нет — принадлежность передаёт שֶׁל", "да, окончанием", "да, артиклем", "только у имён"], "answer": "нет — принадлежность передаёт שֶׁל"}], "readingBlock": "R1.53", "notes": "Смихут (בֵּית סֵפֶר) — позже, в Бет: здесь только конструкция с שֶׁל."},
-  {"id": "M3.2", "seq": 54, "level": 4, "module": "morphology", "moduleName": "Морфология", "title": "שֶׁלִּי, שֶׁלְּךָ — моё и твоё", "unlockCondition": "M3.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "שֶׁל склеивается с местоимением: שֶׁלִּי «мой/моя», שֶׁלְּךָ «твой» (говорим мужчине), שֶׁלָּךְ «твоя/твой» (говорим женщине). Заметь дагеш в ל — след слияния. Так семья говорит за столом: הַסֵּפֶר שֶׁלִּי! — «это моя книга!»", "examples": [{"hebrew": "הַסֵּפֶר שֶׁלִּי", "translit": "hа-сэфер шели", "ru": "моя книга. שֶׁל + אֲנִי = שֶׁלִּי.", "isNew": true, "audio": "ex_m32_1.mp3", "gender": "m", "draft": true}, {"hebrew": "הַכֶּלֶב שֶׁלְּךָ?", "translit": "hа-келев шельха?", "ru": "твоя собака? — спрашиваем Ноама (м.р.).", "isNew": true, "audio": "ex_m32_2.mp3", "gender": "m", "draft": true}, {"hebrew": "הַטֶּלֶפוֹן שֶׁלָּךְ", "translit": "hа-телефон шелах", "ru": "твой телефон — говорим Тамар (ж.р.).", "isNew": true, "audio": "ex_m32_3.mp3", "gender": "f", "draft": true}, {"hebrew": "זֶה לֹא שֶׁלִּי", "translit": "зэ ло шели", "ru": "это не моё. Отрицание לֹא — как обычно, перед словом.", "isNew": true, "audio": "ex_m32_4.mp3", "gender": "m", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Моя книга» — это…", "options": ["הַסֵּפֶר שֶׁלִּי", "הַסֵּפֶר שֶׁלְּךָ", "סֵפֶר אֲנִי", "שֶׁלִּי סֵפֶר"], "answer": "הַסֵּפֶר שֶׁלִּי"}, {"type": "В4", "prompt": "Говорим Ноаму (м.р.) «твоя собака»:", "options": ["הַכֶּלֶב שֶׁלְּךָ (патах)", "הַכֶּלֶב שֶׁלָּךְ (патах)", "הַכֶּלֶב שֶׁלִּי (патах)", "כֶּלֶב שֶׁל"], "answer": "הַכֶּלֶב שֶׁלְּךָ (патах)"}, {"type": "В4", "prompt": "Говорим Тамар (ж.р.) «твой телефон»:", "options": ["הַטֶּלֶפוֹן שֶׁלָּךְ (патах)", "הַטֶּלֶפוֹן שֶׁלְּךָ (патах)", "הַטֶּלֶפוֹן שֶׁלּוֹ (патах)", "טֶלֶפוֹן שֶׁלִּי"], "answer": "הַטֶּלֶפוֹן שֶׁלָּךְ (патах)"}, {"type": "В4", "prompt": "שֶׁלִּי — это שֶׁל + …", "options": ["אֲנִי (я)", "אַתָּה (ты)", "הוּא (он)", "הִיא (она)"], "answer": "אֲנִי (я)"}, {"type": "В4", "prompt": "«Это не моё»:", "options": ["זֶה לֹא שֶׁלִּי", "לֹא זֶה שֶׁלִּי", "זֶה שֶׁלִּי לֹא", "אֵין זֶה שֶׁלִּי"], "answer": "זֶה לֹא שֶׁלִּי"}, {"type": "В4", "prompt": "Чем שֶׁלְּךָ отличается от שֶׁלָּךְ?", "options": ["первое — мужчине, второе — женщине", "ничем", "первое — мн.ч.", "второе — вежливое"], "answer": "первое — мужчине, второе — женщине"}], "readingBlock": null, "notes": null},
-  {"id": "M3.3", "seq": 55, "level": 4, "module": "morphology", "moduleName": "Морфология", "title": "Вся таблица שֶׁל", "unlockCondition": "M3.2 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "Полный набор: שֶׁלִּי мой · שֶׁלְּךָ твой (м) · שֶׁלָּךְ твой (ж) · שֶׁלּוֹ его · שֶׁלָּהּ её · שֶׁלָּנוּ наш · שֶׁלָּכֶם ваш · שֶׁלָּהֶם их. Логика одна: שֶׁל + то же окончание, что у местоимения. Выучи как песенку — этот ряд повторится у предлогов много раз.", "examples": [{"hebrew": "הַבַּיִת שֶׁלָּנוּ", "translit": "hа-байт шелану", "ru": "наш дом — говорит вся семья.", "isNew": true, "audio": "ex_m33_1.mp3", "gender": "m", "draft": true}, {"hebrew": "הַכֶּלֶב שֶׁלָּהּ", "translit": "hа-келев шела", "ru": "её собака (Рекс — собака Тамар).", "isNew": true, "audio": "ex_m33_2.mp3", "gender": "f", "draft": true}, {"hebrew": "הַסֵּפֶר שֶׁלּוֹ", "translit": "hа-сэфер шело", "ru": "его книга (Ноама).", "isNew": true, "audio": "ex_m33_3.mp3", "gender": "m", "draft": true}, {"hebrew": "הַמִּשְׁפָּחָה שֶׁלָּהֶם", "translit": "hа-мишпаха шелаhем", "ru": "их семья.", "isNew": true, "audio": "ex_m33_4.mp3", "gender": "m", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Наш дом»:", "options": ["הַבַּיִת שֶׁלָּנוּ", "הַבַּיִת שֶׁלָּכֶם", "הַבַּיִת שֶׁלָּהֶם", "בַּיִת אֲנַחְנוּ"], "answer": "הַבַּיִת שֶׁלָּנוּ"}, {"type": "В4", "prompt": "«Её собака»:", "options": ["הַכֶּלֶב שֶׁלָּהּ", "הַכֶּלֶב שֶׁלּוֹ", "הַכֶּלֶב שֶׁלָּךְ", "הַכֶּלֶב שֶׁלִּי"], "answer": "הַכֶּלֶב שֶׁלָּהּ"}, {"type": "В4", "prompt": "«Его книга»:", "options": ["הַסֵּפֶר שֶׁלּוֹ", "הַסֵּפֶר שֶׁלָּהּ", "הַסֵּפֶר שֶׁלְּךָ", "סֵפֶר הוּא"], "answer": "הַסֵּפֶר שֶׁלּוֹ"}, {"type": "В4", "prompt": "שֶׁלָּכֶם — это…", "options": ["ваш (вы, мн.ч.)", "наш", "их", "твой (ж.р.)"], "answer": "ваш (вы, мн.ч.)"}, {"type": "В4", "prompt": "«Их семья»:", "options": ["הַמִּשְׁפָּחָה שֶׁלָּהֶם", "הַמִּשְׁפָּחָה שֶׁלָּנוּ", "הַמִּשְׁפָּחָה שֶׁלָּהּ", "מִשְׁפָּחָה הֵם"], "answer": "הַמִּשְׁפָּחָה שֶׁלָּהֶם"}, {"type": "В4", "prompt": "Почему ряд שֶׁל стоит выучить крепко?", "options": ["те же окончания будут у предлогов", "он единственный в иврите", "без него нет артикля", "он заменяет глагол «быть»"], "answer": "те же окончания будут у предлогов"}], "readingBlock": null, "notes": null},
-  {"id": "SL1.1", "seq": 56, "level": 4, "module": "wordsystem", "moduleName": "Система слова", "title": "Корень — три буквы смысла", "unlockCondition": "G1.6 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "Почти каждое слово иврита выросло из корня — трёх согласных, несущих идею. Ты уже знаешь это, не зная термина: אוֹהֵב «любит» и אַהֲבָה «любовь» — один корень א־ה־ב. Разные огласовки и добавки — разные слова, но смысл-сердцевина общий. Увидел три знакомые буквы в незнакомом слове — уже наполовину понял его.", "examples": [{"hebrew": "אוֹהֵב · אַהֲבָה", "translit": "оhев · аhава", "ru": "любит · любовь — корень א־ה־ב в двух знакомых словах.", "isNew": false, "audio": "rw_46.mp3"}, {"hebrew": "גָּר · גָּרָה", "translit": "гар · гара", "ru": "живёт (м) · живёт (ж) — корень ג־ו־ר.", "isNew": false, "audio": "r1_g12_05.mp3"}, {"hebrew": "אוֹכֵל · אוֹכֶלֶת", "translit": "охель · охелет", "ru": "ест (м/ж) — корень א־כ־ל. Скоро встретишь אֹכֶל «еда» — тот же корень!", "isNew": false, "audio": "rw_48.mp3"}, {"hebrew": "הוֹלֵךְ · הוֹלֶכֶת", "translit": "hолех · hолехет", "ru": "идёт (м/ж) — корень ה־ל־ך.", "isNew": false, "audio": "rw_47.mp3"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Что такое корень в иврите?", "options": ["три согласных, несущих общий смысл", "первая буква слова", "окончание", "артикль"], "answer": "три согласных, несущих общий смысл"}, {"type": "В4", "prompt": "Какой корень у אוֹהֵב и אַהֲבָה?", "options": ["א־ה־ב", "ה־ב־א", "א־ו־ה", "ב־ה־א"], "answer": "א־ה־ב"}, {"type": "В4", "prompt": "אוֹכֵל (ест) — корень…", "options": ["א־כ־ל", "ו־כ־ל", "א־ל־כ", "כ־ל־א"], "answer": "א־כ־ל"}, {"type": "В4", "prompt": "Зачем видеть корень в незнакомом слове?", "options": ["он подсказывает смысл", "он даёт ударение", "он определяет род", "он заменяет словарь целиком"], "answer": "он подсказывает смысл"}, {"type": "В4", "prompt": "גָּר и גָּרָה — это…", "options": ["один корень, мужская и женская формы", "два разных корня", "корень и артикль", "ошибка написания"], "answer": "один корень, мужская и женская формы"}, {"type": "В4", "prompt": "Корень — это буквы…", "options": ["согласные", "гласные", "любые три подряд", "только первые"], "answer": "согласные"}], "readingBlock": null, "notes": "Трек книги «О чём молчат в ульпане» (введение). Порции слов нет — работаем на накопленном словаре."},
-  {"id": "SL1.2", "seq": 57, "level": 4, "module": "wordsystem", "moduleName": "Система слова", "title": "Модель — форма смысла", "unlockCondition": "SL1.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "Второй секрет: слова строятся по моделям (מִשְׁקָל) — шаблонам огласовок вокруг корня. Смотри на знакомое: אוֹכֵל, הוֹלֵךְ, יוֹשֵׁב, קוֹרֵא — везде рисунок «о-э»: קוֹטֵל. Это модель «делающий»: тот, кто ест, идёт, сидит, читает. И מוֹרֶה «учитель» — та же модель: «тот, кто учит»! Корень даёт смысл, модель — роль. Вместе они собирают слово, как буквы собирают слог.", "examples": [{"hebrew": "אוֹכֵל · הוֹלֵךְ · יוֹשֵׁב", "translit": "охель · hолех · йошев", "ru": "ест · идёт · сидит — один рисунок огласовок קוֹטֵל: «делающий».", "isNew": false, "audio": "rw_48.mp3"}, {"hebrew": "קוֹרֵא", "translit": "корэ", "ru": "читает — та же модель. Даниэль קוֹרֵא עִיתּוֹן.", "isNew": false, "audio": "rw_51.mp3"}, {"hebrew": "מוֹרֶה · מוֹרָה", "translit": "морэ · мора", "ru": "учитель · учительница — «тот/та, кто учит». Модель превращает действие в человека!", "isNew": false, "audio": "r1_c0_03.mp3"}, {"hebrew": "אוֹכֶלֶת · הוֹלֶכֶת", "translit": "охелет · hолехет", "ru": "женская пара модели: קוֹטֶלֶת.", "isNew": false, "audio": "r1_g13_02.mp3"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Что такое модель (мишкаль)?", "options": ["шаблон огласовок вокруг корня", "список исключений", "вид артикля", "название буквы"], "answer": "шаблон огласовок вокруг корня"}, {"type": "В4", "prompt": "Что общего у אוֹכֵל, הוֹלֵךְ, יוֹשֵׁב?", "options": ["модель «делающий» קוֹטֵל", "корень", "перевод", "род"], "answer": "модель «делающий» קוֹטֵל"}, {"type": "В4", "prompt": "מוֹרֶה по модели значит…", "options": ["«тот, кто учит»", "«урок»", "«школа»", "«книга»"], "answer": "«тот, кто учит»"}, {"type": "В4", "prompt": "Корень даёт смысл, модель даёт…", "options": ["роль/форму слова", "ударение", "артикль", "число"], "answer": "роль/форму слова"}, {"type": "В4", "prompt": "Женская пара модели «делающий»:", "options": ["קוֹטֶלֶת (אוֹכֶלֶת)", "קָטָל", "הַקְטָלָה", "קִיל"], "answer": "קוֹטֶלֶת (אוֹכֶלֶת)"}, {"type": "В4", "prompt": "Зачем знать модели?", "options": ["понимать незнакомые слова без словаря", "красиво писать", "ставить дагеш", "считать слоги"], "answer": "понимать незнакомые слова без словаря"}], "readingBlock": null, "notes": "Книга, уроки 1–2 (начало). Названия «пааль/мишкаль» углубим в SL1.6."},
-  {"id": "Q1.1", "seq": 58, "level": 4, "module": "syntax", "moduleName": "Сквозные", "title": "Вопросы: מִי и מָה", "unlockCondition": "C2 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "Два главных вопросительных слова: מִי «кто» — про людей, מָה «что» — про всё остальное. Ставятся в начало, порядок слов не меняется: מִי זֶה? «кто это?» — זֶה נֹעַם. מָה זֶה? «что это?» — זֶה סֵפֶר. Отвечаешь тем же предложением без вопросительного слова.", "examples": [{"hebrew": "מִי זֶה? — זֶה נֹעַם", "translit": "ми зэ? — зэ Ноам", "ru": "Кто это? — Это Ноам. מִי — только про людей.", "isNew": true, "audio": "ex_q11_1.mp3", "gender": "m", "draft": true}, {"hebrew": "מָה זֶה? — זֶה טֶלֶפוֹן", "translit": "ма зэ? — зэ телефон", "ru": "Что это? — Это телефон.", "isNew": true, "audio": "ex_q11_2.mp3", "gender": "f", "draft": true}, {"hebrew": "מִי גָּר בַּבַּיִת?", "translit": "ми гар ба-байт?", "ru": "Кто живёт в доме? — вопросительное слово + обычный порядок.", "isNew": true, "audio": "ex_q11_3.mp3", "gender": "m", "draft": true}, {"hebrew": "מָה תָּמָר אוֹהֶבֶת?", "translit": "ма Тамар оhевет?", "ru": "Что любит Тамар? (Рекса, конечно.)", "isNew": true, "audio": "ex_q11_4.mp3", "gender": "f", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Кто это?» —", "options": ["מִי זֶה?", "מָה זֶה?", "זֶה מִי?", "הַאִם זֶה?"], "answer": "מִי זֶה?"}, {"type": "В4", "prompt": "«Что это?» —", "options": ["מָה זֶה?", "מִי זֶה?", "זֶה מָה?", "אֵיפֹה זֶה?"], "answer": "מָה זֶה?"}, {"type": "В4", "prompt": "מִי спрашивает про…", "options": ["людей", "предметы", "места", "время"], "answer": "людей"}, {"type": "В4", "prompt": "Меняется ли порядок слов после מִי/מָה?", "options": ["нет — обычный порядок", "да, глагол в конец", "да, подлежащее в конец", "только в женском роде"], "answer": "нет — обычный порядок"}, {"type": "В4", "prompt": "«Кто живёт в доме?» —", "options": ["מִי גָּר בַּבַּיִת?", "מָה גָּר בַּבַּיִת?", "גָּר מִי בַּבַּיִת?", "מִי בַּבַּיִת גָּר?"], "answer": "מִי גָּר בַּבַּיִת?"}, {"type": "В4", "prompt": "Ответ на מָה זֶה? про книгу:", "options": ["זֶה סֵפֶר", "זֶה נֹעַם", "מָה סֵפֶר", "סֵפֶר מָה"], "answer": "זֶה סֵפֶר"}], "readingBlock": null, "notes": "אֵיפֹה/מָתַי/לָמָּה/כַּמָּה — в Q1.2 (следующий батч)."},
-  {"id": "Q1.2", "seq": 59, "level": 4, "module": "syntax", "moduleName": "Сквозные", "title": "Вопросы: где, когда, почему, сколько", "unlockCondition": "Q1.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": false, "rule": "Ещё четыре вопросительных слова: אֵיפֹה «где», מָתַי «когда», לָמָּה «почему», כַּמָּה «сколько». Как מִי/מָה — ставятся в начало, порядок слов не меняется. אֵיפֹה הַכֶּלֶב? «Где собака?» · מָתַי? «Когда?» — утром (בֹּקֶר) или вечером (עֶרֶב). כַּמָּה сочетается с числами: כַּמָּה סְפָרִים? «Сколько книг?»", "examples": [{"hebrew": "אֵיפֹה הַכֶּלֶב?", "translit": "эйфо hа-келев?", "ru": "Где собака? — Рекс בַּבַּיִת (дома).", "isNew": true, "audio": "ex_q12_1.mp3", "gender": "m", "draft": true}, {"hebrew": "מָתַי? — בַּבֹּקֶר", "translit": "матай? — ба-бокер", "ru": "Когда? — утром. מָתַי спрашивает про время.", "isNew": true, "audio": "ex_q12_2.mp3", "gender": "f", "draft": true}, {"hebrew": "לָמָּה?", "translit": "лама?", "ru": "Почему? — самый частый вопрос детей.", "isNew": true, "audio": "ex_q12_3.mp3", "gender": "f", "draft": true}, {"hebrew": "כַּמָּה סְפָרִים?", "translit": "кама сфарим?", "ru": "Сколько книг? — כַּמָּה идёт с числом.", "isNew": true, "audio": "ex_q12_4.mp3", "gender": "m", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Где собака?» —", "options": ["אֵיפֹה הַכֶּלֶב?", "מָתַי הַכֶּלֶב?", "מִי הַכֶּלֶב?", "כַּמָּה הַכֶּלֶב?"], "answer": "אֵיפֹה הַכֶּלֶב?"}, {"type": "В4", "prompt": "מָתַי спрашивает про…", "options": ["время (когда)", "место", "причину", "количество"], "answer": "время (когда)"}, {"type": "В4", "prompt": "«Почему?» —", "options": ["לָמָּה?", "מָתַי?", "אֵיפֹה?", "מָה?"], "answer": "לָמָּה?"}, {"type": "В4", "prompt": "Какое слово идёт с числом («сколько»)?", "options": ["כַּמָּה", "אֵיפֹה", "לָמָּה", "מִי"], "answer": "כַּמָּה"}, {"type": "В4", "prompt": "«Где» на иврите —", "options": ["אֵיפֹה", "מָתַי", "לָמָּה", "מָה"], "answer": "אֵיפֹה"}, {"type": "В4", "prompt": "Меняется ли порядок слов после אֵיפֹה?", "options": ["нет, обычный порядок", "да, глагол в конец", "да, всегда", "только с числом"], "answer": "нет, обычный порядок"}], "readingBlock": "R1.59", "notes": "Порция R1.59: слова места и времени из колоды Bet. Огласовки — черновик на вычитку."},
-  {"id": "CH3.1", "seq": 60, "level": 4, "module": "numbers", "moduleName": "Числа", "title": "Десятки: 20, 30 … 100", "unlockCondition": "CH2.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": false, "rule": "После двадцати счёт идёт круглыми десятками: עֶשְׂרִים 20, שְׁלוֹשִׁים 30, אַרְבָּעִים 40, חֲמִשִּׁים 50, שִׁשִּׁים 60, שִׁבְעִים 70, שְׁמוֹנִים 80, תִּשְׁעִים 90, מֵאָה 100. Заметь: десятки оканчиваются на ־ִים (как множественное число!) — 30 это как «три-надцатки». У десятков одна форма для мужского и женского рода — проще, чем 1–10.", "examples": [{"hebrew": "עֶשְׂרִים", "translit": "эсрим", "ru": "20 — окончание ־ִים, как во множественном числе.", "isNew": true, "audio": "ex_ch31_1.mp3", "gender": "m", "draft": true}, {"hebrew": "אַרְבָּעִים", "translit": "арбаим", "ru": "40 — от אַרְבַּע (четыре) + ־ִים.", "isNew": true, "audio": "ex_ch31_2.mp3", "gender": "m", "draft": true}, {"hebrew": "שִׁבְעִים", "translit": "шивъим", "ru": "70 — от שֶׁבַע (семь).", "isNew": true, "audio": "ex_ch31_3.mp3", "gender": "m", "draft": true}, {"hebrew": "מֵאָה", "translit": "меа", "ru": "100 — новое слово, женского рода.", "isNew": true, "audio": "ex_ch31_4.mp3", "gender": "f", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "20 на иврите —", "options": ["עֶשְׂרִים", "עֲשָׂרָה", "שְׁתַּיִם", "מֵאָה"], "answer": "עֶשְׂרִים"}, {"type": "В4", "prompt": "Чем оканчиваются десятки?", "options": ["־ִים (как множественное)", "־וֹת", "־ָה", "артиклем"], "answer": "־ִים (как множественное)"}, {"type": "В4", "prompt": "40 —", "options": ["אַרְבָּעִים", "אַרְבַּע", "אַרְבָּעָה", "עֶשְׂרִים"], "answer": "אַרְבָּעִים"}, {"type": "В4", "prompt": "100 —", "options": ["מֵאָה", "תִּשְׁעִים", "עֶשְׂרִים", "אֶלֶף"], "answer": "מֵאָה"}, {"type": "В4", "prompt": "Сколько форм рода у десятков?", "options": ["одна (м. и ж. одинаково)", "две", "три", "зависит от числа"], "answer": "одна (м. и ж. одинаково)"}, {"type": "В4", "prompt": "70 —", "options": ["שִׁבְעִים", "שִׁשִּׁים", "שְׁמוֹנִים", "שֶׁבַע"], "answer": "שִׁבְעִים"}], "readingBlock": "R1.60", "notes": "Числа взяты из колоды Bet (ארבעים/שישים/שבעים/שמונים/מאה подтверждены)."},
-  {"id": "CH3.2", "seq": 61, "level": 4, "module": "numbers", "moduleName": "Числа", "title": "Составные числа: 21, 45, 99", "unlockCondition": "CH3.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "Составное число собирается просто: десяток + וְ («и») + единица. עֶשְׂרִים וְאַחַת «двадцать и один» = 21. אַרְבָּעִים וְחָמֵשׁ = 45. תִּשְׁעִים וְתֵשַׁע = 99. Единица согласуется с родом считаемого (как в 1–10), а десяток — нет. Порядок как в русском: сначала десяток, потом единица.", "examples": [{"hebrew": "עֶשְׂרִים וְאַחַת", "translit": "эсрим ве-ахат", "ru": "21 — десяток + וְ + единица.", "isNew": true, "audio": "ex_ch32_1.mp3", "gender": "f", "draft": true}, {"hebrew": "שְׁלוֹשִׁים וּשְׁתַּיִם", "translit": "шлошим у-штайим", "ru": "32 — перед שׁ союз звучит «у».", "isNew": true, "audio": "ex_ch32_2.mp3", "gender": "f", "draft": true}, {"hebrew": "אַרְבָּעִים וְחָמֵשׁ", "translit": "арбаим ве-хамеш", "ru": "45.", "isNew": true, "audio": "ex_ch32_3.mp3", "gender": "f", "draft": true}, {"hebrew": "תִּשְׁעִים וְתֵשַׁע", "translit": "тишъим ве-тэйша", "ru": "99 — почти сотня!", "isNew": true, "audio": "ex_ch32_4.mp3", "gender": "f", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Как собрать 21?", "options": ["עֶשְׂרִים וְאַחַת (десяток + и + единица)", "אַחַת עֶשְׂרִים", "וְעֶשְׂרִים אַחַת", "עֶשְׂרִים אֶחָד"], "answer": "עֶשְׂרִים וְאַחַת (десяток + и + единица)"}, {"type": "В4", "prompt": "Что стоит между десятком и единицей?", "options": ["וְ («и»)", "артикль", "של", "ничего"], "answer": "וְ («и»)"}, {"type": "В4", "prompt": "45 —", "options": ["אַרְבָּעִים וְחָמֵשׁ", "חָמֵשׁ אַרְבָּעִים", "אַרְבַּע חֲמִשִּׁים", "חֲמִשִּׁים אַרְבַּע"], "answer": "אַרְבָּעִים וְחָמֵשׁ"}, {"type": "В4", "prompt": "Что согласуется с родом считаемого?", "options": ["единица", "десяток", "союз וְ", "ничто"], "answer": "единица"}, {"type": "В4", "prompt": "Порядок в составном числе:", "options": ["десяток, потом единица", "единица, потом десяток", "любой", "только единица"], "answer": "десяток, потом единица"}, {"type": "В4", "prompt": "99 —", "options": ["תִּשְׁעִים וְתֵשַׁע", "תֵּשַׁע תִּשְׁעִים", "תִּשְׁעִים תֵּשַׁע", "מֵאָה"], "answer": "תִּשְׁעִים וְתֵשַׁע"}], "readingBlock": null, "notes": "Единица берёт форму рода из уроков CH1 (уже пройдено)."},
-  {"id": "SL1.3", "seq": 62, "level": 4, "module": "wordsystem", "moduleName": "Система слова", "title": "Деятель: модель КоТэЛь", "unlockCondition": "SL1.2 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "Модель «делающий» קוֹטֵל (её называют קוֹטֵל по образцу корня ק־ט־ל) даёт не только глаголы, но и людей по занятию. שׁוֹמֵר от ש־מ־ר (охранять) — «охранник, сторож». מוֹרֶה от י־ר־ה — «учитель». כּוֹתֵב «пишущий». Увидел рисунок о-э в трёх согласных — перед тобой «тот, кто делает это». Так из глагола рождается профессия.", "examples": [{"hebrew": "שׁוֹמֵר", "translit": "шомер", "ru": "сторож, охранник — «тот, кто охраняет» (ש־מ־ר).", "isNew": true, "audio": "ex_sl13_1.mp3", "gender": "m", "draft": true}, {"hebrew": "מוֹרֶה", "translit": "морэ", "ru": "учитель — та же модель, знакомое слово (Даниэль это уже знает).", "isNew": false, "audio": "r1_c0_03.mp3"}, {"hebrew": "כּוֹתֵב", "translit": "котэв", "ru": "пишущий, писарь — от כ־ת־ב.", "isNew": true, "audio": "ex_sl13_3.mp3", "gender": "m", "draft": true}, {"hebrew": "שׁוֹמֶרֶת", "translit": "шомэрет", "ru": "сторож (ж.р.) — женская пара קוֹטֶלֶת.", "isNew": true, "audio": "ex_sl13_4.mp3", "gender": "f", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Модель קוֹטֵל (о-э) обозначает…", "options": ["того, кто делает действие", "прошедшее время", "место", "множественное число"], "answer": "того, кто делает действие"}, {"type": "В4", "prompt": "שׁוֹמֵר значит…", "options": ["сторож («тот, кто охраняет»)", "охрана (место)", "охранял", "будет охранять"], "answer": "сторож («тот, кто охраняет»)"}, {"type": "В4", "prompt": "מוֹרֶה и שׁוֹמֵר — это…", "options": ["одна модель «делающий»", "разные модели", "глагол и существительное", "корень и приставка"], "answer": "одна модель «делающий»"}, {"type": "В4", "prompt": "Как называют модель «делающий»?", "options": ["קוֹטֵל", "מוֹרֶה", "שֶׁל", "דָּגֵשׁ"], "answer": "קוֹטֵל"}, {"type": "В4", "prompt": "Женская пара שׁוֹמֵר —", "options": ["שׁוֹמֶרֶת", "שׁוֹמְרָה", "שׁוֹמְרִים", "מִשְׁמָר"], "answer": "שׁוֹמֶרֶת"}, {"type": "В4", "prompt": "Зачем знать модель קוֹטֵל?", "options": ["узнавать профессию/деятеля в незнакомом слове", "считать", "ставить артикль", "определять время"], "answer": "узнавать профессию/деятеля в незнакомом слове"}], "readingBlock": null, "notes": "Книга Коэн-Цедека, урок 2 (от шомера до менаhеля). Порции нет — на накопленном словаре."},
-  {"id": "G3.1", "seq": 63, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "Прошедшее время: было и прошло", "unlockCondition": "G2.4 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": false, "rule": "До сих пор всё было в настоящем (אֲנִי כּוֹתֵב «я пишу»). Теперь — прошедшее (עָבָר). У глагола есть «голая» форма прошедшего для «он»: כָּתַב «(он) написал», אָכַל «(он) поел», הָלַךְ «(он) пошёл», יָשַׁב «(он) сидел». Это три согласные корня с огласовкой а-а — самая чистая форма глагола, от неё строится вся таблица прошедшего. Узнаёшь корень? כּוֹתֵב пишет → כָּתַב написал.", "examples": [{"hebrew": "כּוֹתֵב → כָּתַב", "translit": "котэв → катав", "ru": "пишет → (он) написал. Тот же корень כ־ת־ב, форма а-а.", "isNew": true, "audio": "ex_g31_1.mp3", "gender": "m", "draft": true}, {"hebrew": "אוֹכֵל → אָכַל", "translit": "охель → ахаль", "ru": "ест → (он) поел (א־כ־ל).", "isNew": true, "audio": "ex_g31_2.mp3", "gender": "m", "draft": true}, {"hebrew": "הוֹלֵךְ → הָלַךְ", "translit": "hолех → hалах", "ru": "идёт → (он) пошёл (ה־ל־ך).", "isNew": true, "audio": "ex_g31_3.mp3", "gender": "m", "draft": true}, {"hebrew": "יוֹשֵׁב → יָשַׁב", "translit": "йошев → яшав", "ru": "сидит → (он) сидел (י־ש־ב).", "isNew": true, "audio": "ex_g31_4.mp3", "gender": "m", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Прошедшее время на иврите —", "options": ["עָבָר", "עָתִיד", "הֹוֶה", "בֵּינוֹנִי"], "answer": "עָבָר"}, {"type": "В4", "prompt": "«(Он) написал» —", "options": ["כָּתַב", "כּוֹתֵב", "יִכְתֹּב", "כְּתִיבָה"], "answer": "כָּתַב"}, {"type": "В4", "prompt": "Какая огласовка у «голой» формы прошедшего (он)?", "options": ["а-а (כָּתַב)", "о-э", "и-и", "у-у"], "answer": "а-а (כָּתַב)"}, {"type": "В4", "prompt": "כּוֹתֵב относится к כָּתַב как…", "options": ["настоящее к прошедшему", "мужской к женскому", "число", "артикль"], "answer": "настоящее к прошедшему"}, {"type": "В4", "prompt": "«(Он) пошёл» —", "options": ["הָלַךְ", "הוֹלֵךְ", "יֵלֵךְ", "הֲלִיכָה"], "answer": "הָלַךְ"}, {"type": "В4", "prompt": "От чего строится вся таблица прошедшего?", "options": ["от формы «он» (3 согласных, а-а)", "от инфинитива", "от будущего", "от множественного"], "answer": "от формы «он» (3 согласных, а-а)"}], "readingBlock": "R1.63", "notes": "Порция R1.63: базовые формы прошедшего из знакомых корней. Огласовки — черновик."},
-  {"id": "G3.2", "seq": 64, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "Прошедшее: я, ты (окончания ־תִּי, ־תָּ, ־תְּ)", "unlockCondition": "G3.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "К форме «он» добавляем личные окончания. Я: ־תִּי → כָּתַבְתִּי «я написал(а)», אָכַלְתִּי «я поел(а)». Ты (м): ־תָּ → כָּתַבְתָּ. Ты (ж): ־תְּ → כָּתַבְתְּ. Одна форма «я» — и для мужчины, и для женщины (в отличие от настоящего!). Это огромное облегчение: в прошедшем род «я» не важен.", "examples": [{"hebrew": "כָּתַבְתִּי", "translit": "катавти", "ru": "я написал(а) — окончание ־תִּי, род не важен.", "isNew": true, "audio": "ex_g32_1.mp3", "gender": "m", "draft": true}, {"hebrew": "אָכַלְתִּי", "translit": "ахальти", "ru": "я поел(а).", "isNew": true, "audio": "ex_g32_2.mp3", "gender": "m", "draft": true}, {"hebrew": "הָלַכְתָּ", "translit": "hалахта", "ru": "ты пошёл (мужчине) — ־תָּ.", "isNew": true, "audio": "ex_g32_3.mp3", "gender": "m", "draft": true}, {"hebrew": "יָשַׁבְתְּ", "translit": "яшавт", "ru": "ты сидела (женщине) — ־תְּ.", "isNew": true, "audio": "ex_g32_4.mp3", "gender": "f", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Я написал(а)» —", "options": ["כָּתַבְתִּי", "כָּתַב", "כּוֹתֵב", "כָּתַבְתָּ"], "answer": "כָּתַבְתִּי"}, {"type": "В4", "prompt": "Окончание «я» в прошедшем —", "options": ["־תִּי", "־תָּ", "־תְּ", "־ִים"], "answer": "־תִּי"}, {"type": "В4", "prompt": "Зависит ли форма «я» в прошедшем от рода?", "options": ["нет — одна для м. и ж.", "да, две формы", "да, три", "только для глаголов еды"], "answer": "нет — одна для м. и ж."}, {"type": "В4", "prompt": "«Ты пошёл» (мужчине) —", "options": ["הָלַכְתָּ (камац)", "הָלַכְתְּ (камац)", "הָלַכְתִּי (камац)", "הָלַךְ (камац)"], "answer": "הָלַכְתָּ (камац)"}, {"type": "В4", "prompt": "«Ты сидела» (женщине) —", "options": ["יָשַׁבְתְּ", "יָשַׁבְתָּ", "יָשַׁבְתִּי", "יָשַׁב"], "answer": "יָשַׁבְתְּ"}, {"type": "В4", "prompt": "К чему добавляются окончания ־תִּי/־תָּ/־תְּ?", "options": ["к форме «он» (כָּתַב)", "к настоящему", "к инфинитиву", "к артиклю"], "answer": "к форме «он» (כָּתַב)"}], "readingBlock": null, "notes": "Формы строятся от базовых глаголов порции R1.63 (предыдущий урок)."},
-  {"id": "G3.3", "seq": 65, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "Прошедшее: он и она", "unlockCondition": "G3.2 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "Форма «он» ты уже знаешь: כָּתַב «(он) написал». Форма «она» добавляет окончание ־ָה и меняет огласовку: כָּתְבָה «(она) написала», אָכְלָה «(она) поела», הָלְכָה «(она) пошла». Сравни: הוּא כָּתַב · הִיא כָּתְבָה. В третьем лице род различается — как в настоящем, но окончания другие.", "examples": [{"hebrew": "הוּא כָּתַב · הִיא כָּתְבָה", "translit": "hу катав · hи катва", "ru": "он написал · она написала — окончание ־ָה для «она».", "isNew": true, "audio": "ex_g33_1.mp3", "gender": "f", "draft": true}, {"hebrew": "אָכְלָה", "translit": "ахла", "ru": "(она) поела — Майя אָכְלָה.", "isNew": true, "audio": "ex_g33_2.mp3", "gender": "f", "draft": true}, {"hebrew": "הָלְכָה", "translit": "hальха", "ru": "(она) пошла — Тамар הָלְכָה.", "isNew": true, "audio": "ex_g33_3.mp3", "gender": "f", "draft": true}, {"hebrew": "יָשְׁבָה", "translit": "яшва", "ru": "(она) сидела.", "isNew": true, "audio": "ex_g33_4.mp3", "gender": "f", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«(Она) написала» —", "options": ["כָּתְבָה", "כָּתַב", "כּוֹתֶבֶת", "כָּתַבְתִּי"], "answer": "כָּתְבָה"}, {"type": "В4", "prompt": "Окончание «она» в прошедшем —", "options": ["־ָה", "־תִּי", "־וּ", "־נוּ"], "answer": "־ָה"}, {"type": "В4", "prompt": "«Он поел» —", "options": ["אָכַל", "אָכְלָה", "אוֹכֵל", "אָכַלְתִּי"], "answer": "אָכַל"}, {"type": "В4", "prompt": "הִיא הָלְכָה значит…", "options": ["она пошла", "он пошёл", "она идёт", "ты пошла"], "answer": "она пошла"}, {"type": "В4", "prompt": "Различается ли род в 3-м лице прошедшего?", "options": ["да — он/она разные", "нет", "только у глаголов еды", "только во мн.ч."], "answer": "да — он/она разные"}, {"type": "В4", "prompt": "«(Она) сидела» —", "options": ["יָשְׁבָה", "יָשַׁב", "יוֹשֶׁבֶת", "יָשַׁבְתְּ"], "answer": "יָשְׁבָה"}], "readingBlock": null, "notes": "Спрягаем знакомые глаголы (порция R1.63). Новых слов нет — только формы."},
-  {"id": "G3.4", "seq": 66, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "Прошедшее: мы, вы, они", "unlockCondition": "G3.3 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "Множественное число прошедшего: мы ־נוּ → כָּתַבְנוּ «мы написали»; вы ־תֶּם → כְּתַבְתֶּם; они ־וּ → כָּתְבוּ «они написали». Окончание «они» ־וּ — одно для мужчин и женщин (в прошедшем род во мн.ч. не различается — снова проще, чем в настоящем!).", "examples": [{"hebrew": "כָּתַבְנוּ", "translit": "катавну", "ru": "мы написали — окончание ־נוּ.", "isNew": true, "audio": "ex_g34_1.mp3", "gender": "m", "draft": true}, {"hebrew": "הֵם כָּתְבוּ", "translit": "hэм катву", "ru": "они написали — ־וּ, род не важен.", "isNew": true, "audio": "ex_g34_2.mp3", "gender": "m", "draft": true}, {"hebrew": "אֲכַלְנוּ", "translit": "ахальну", "ru": "мы поели — вся семья.", "isNew": true, "audio": "ex_g34_3.mp3", "gender": "m", "draft": true}, {"hebrew": "הָלְכוּ", "translit": "hальху", "ru": "(они) пошли.", "isNew": true, "audio": "ex_g34_4.mp3", "gender": "m", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Мы написали» —", "options": ["כָּתַבְנוּ", "כָּתְבוּ", "כָּתַבְתִּי", "כָּתַב"], "answer": "כָּתַבְנוּ"}, {"type": "В4", "prompt": "Окончание «они» в прошедшем —", "options": ["־וּ", "־נוּ", "־תֶּם", "־ָה"], "answer": "־וּ"}, {"type": "В4", "prompt": "Различается ли род во мн.ч. прошедшего?", "options": ["нет — одна форма", "да, две", "да, три", "только у «вы»"], "answer": "нет — одна форма"}, {"type": "В4", "prompt": "«Они пошли» —", "options": ["הָלְכוּ", "הָלַכְנוּ", "הוֹלְכִים", "הָלְכָה"], "answer": "הָלְכוּ"}, {"type": "В4", "prompt": "«Мы поели» —", "options": ["אֲכַלְנוּ", "אָכְלוּ", "אָכַלְתִּי", "אוֹכְלִים"], "answer": "אֲכַלְנוּ"}, {"type": "В4", "prompt": "Окончание «мы» —", "options": ["־נוּ", "־וּ", "־תֶּם", "־תִּי"], "answer": "־נוּ"}], "readingBlock": null, "notes": "Спрягаем знакомые глаголы. Новых слов нет."},
-  {"id": "G3.5", "seq": 67, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "Вся таблица прошедшего (синтез)", "unlockCondition": "G3.4 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 90, "isSynthesis": true, "generatesReading": false, "approved": false, "rule": "Соберём всё: כָּתַבְתִּי я · כָּתַבְתָּ ты(м) · כָּתַבְתְּ ты(ж) · כָּתַב он · כָּתְבָה она · כָּתַבְנוּ мы · כְּתַבְתֶּם вы · כָּתְבוּ они. Один корень כ־ת־ב, восемь форм. Правило: голая форма «он» + личное окончание. Запомни рисунок — он повторится у любого глагола паАль.", "examples": [{"hebrew": "כָּתַבְתִּי · כָּתַבְתָּ · כָּתַבְתְּ", "translit": "катавти · катавта · катавт", "ru": "я · ты(м) · ты(ж) — единственное число.", "isNew": false, "audio": "ex_g32_1.mp3", "gender": "m"}, {"hebrew": "כָּתַב · כָּתְבָה", "translit": "катав · катва", "ru": "он · она.", "isNew": false, "audio": "ex_g33_1.mp3", "gender": "f"}, {"hebrew": "כָּתַבְנוּ · כְּתַבְתֶּם · כָּתְבוּ", "translit": "катавну · ктавтем · катву", "ru": "мы · вы · они.", "isNew": true, "audio": "ex_g35_1.mp3", "gender": "m", "draft": true}, {"hebrew": "הִיא הָלְכָה, הֵם הָלְכוּ", "translit": "hи hальха, hэм hальху", "ru": "она пошла, они пошли — тот же узор на другом глаголе.", "isNew": false, "audio": "ex_g33_3.mp3", "gender": "f"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Я написал(а)» —", "options": ["כָּתַבְתִּי", "כָּתַב", "כָּתְבָה", "כָּתַבְנוּ"], "answer": "כָּתַבְתִּי"}, {"type": "В4", "prompt": "«Они написали» —", "options": ["כָּתְבוּ", "כָּתַבְנוּ", "כְּתַבְתֶּם", "כָּתְבָה"], "answer": "כָּתְבוּ"}, {"type": "В4", "prompt": "«Она написала» —", "options": ["כָּתְבָה", "כָּתַב", "כָּתַבְתְּ", "כָּתְבוּ"], "answer": "כָּתְבָה"}, {"type": "В4", "prompt": "Из чего строится любая форма прошедшего?", "options": ["голая форма «он» + окончание", "из инфинитива", "из настоящего", "из будущего"], "answer": "голая форма «он» + окончание"}, {"type": "В4", "prompt": "«Мы написали» —", "options": ["כָּתַבְנוּ", "כָּתַבְתֶּם", "כָּתַבְתִּי", "כָּתְבוּ"], "answer": "כָּתַבְנוּ"}, {"type": "В4", "prompt": "Сколько личных форм в таблице прошедшего?", "options": ["восемь", "три", "пять", "двенадцать"], "answer": "восемь"}, {"type": "В4", "prompt": "«Ты написала» (ж) —", "options": ["כָּתַבְתְּ", "כָּתַבְתָּ", "כָּתְבָה", "כָּתַבְתִּי"], "answer": "כָּתַבְתְּ"}, {"type": "В4", "prompt": "Узор прошедшего повторяется…", "options": ["у любого глагола паАль", "только у כתב", "только во мн.ч.", "только в ед.ч."], "answer": "у любого глагола паАль"}], "readingBlock": null, "notes": "Синтез-урок: порог 90%. Новых слов нет — свод форм."},
-  {"id": "G3.6", "seq": 68, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "10 глаголов в прошедшем", "unlockCondition": "G3.5 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": false, "rule": "Теперь — запас частотных глаголов в прошедшем (форма «он»): לָמַד «учил», עָבַד «работал», רָאָה «видел», שָׁמַע «слышал», יָדַע «знал», אָהַב «любил». Каждый спрягается по знакомой таблице: לָמַדְתִּי «я учил», עָבַדְנוּ «мы работали». רָאָה оканчивается на ־ָה — у таких глаголов «она» будет רָאֲתָה (пока просто запомни базу).", "examples": [{"hebrew": "לָמַד · לָמַדְתִּי", "translit": "ламад · ламадти", "ru": "учил · я учил. Ноам לָמַד עִבְרִית.", "isNew": true, "audio": "r1_g36_01.mp3", "gender": "m", "draft": true}, {"hebrew": "עָבַד", "translit": "авад", "ru": "(он) работал. Даниэль עָבַד.", "isNew": true, "audio": "r1_g36_02.mp3", "gender": "m", "draft": true}, {"hebrew": "רָאָה", "translit": "раа", "ru": "(он) видел — оканчивается на ־ָה.", "isNew": true, "audio": "r1_g36_03.mp3", "gender": "m", "draft": true}, {"hebrew": "שָׁמַע", "translit": "шама", "ru": "(он) слышал.", "isNew": true, "audio": "r1_g36_04.mp3", "gender": "m", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«(Он) учил» —", "options": ["לָמַד", "לוֹמֵד", "לָמַדְתִּי", "יִלְמַד"], "answer": "לָמַד"}, {"type": "В4", "prompt": "«Я работал» —", "options": ["עָבַדְתִּי", "עָבַד", "עוֹבֵד", "עָבַדְנוּ"], "answer": "עָבַדְתִּי"}, {"type": "В4", "prompt": "«(Он) слышал» —", "options": ["שָׁמַע", "שׁוֹמֵעַ", "שָׁמַעְתִּי", "יִשְׁמַע"], "answer": "שָׁמַע"}, {"type": "В4", "prompt": "Как спрягаются эти глаголы?", "options": ["по той же таблице прошедшего", "по особым правилам", "не спрягаются", "только во мн.ч."], "answer": "по той же таблице прошедшего"}, {"type": "В4", "prompt": "«(Он) видел» —", "options": ["רָאָה", "רוֹאֶה", "רָאִיתִי", "יִרְאֶה"], "answer": "רָאָה"}, {"type": "В4", "prompt": "«(Он) знал» —", "options": ["יָדַע", "יוֹדֵעַ", "יָדַעְתִּי", "יֵדַע"], "answer": "יָדַע"}], "readingBlock": "R1.68", "notes": "Порция R1.68: частотные глаголы прошедшего из знакомых корней."},
-  {"id": "C5.1", "seq": 69, "level": 4, "module": "syntax", "moduleName": "Сквозные", "title": "Прошедшее в предложении; было и есть", "unlockCondition": "G3.5 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": false, "rule": "Прошедшее вплетается в предложение как настоящее, только глагол в форме עָבָר. Отрицание — то же לֹא, но перед глаголом прошедшего: הוּא לֹא כָּתַב «он не написал». Сравни времена: הַיּוֹם אֲנִי כּוֹתֵב, אֶתְמוֹל כָּתַבְתִּי «сегодня я пишу, вчера (я) написал». Слова времени (אֶתְמוֹל, הַיּוֹם) подсказывают, какое время выбрать.", "examples": [{"hebrew": "אֶתְמוֹל כָּתַבְתִּי", "translit": "этмоль катавти", "ru": "вчера я написал — слово אֶתְמוֹל требует прошедшего.", "isNew": true, "audio": "ex_c51_1.mp3", "gender": "m", "draft": true}, {"hebrew": "הוּא לֹא כָּתַב", "translit": "hу ло катав", "ru": "он не написал — לֹא перед глаголом прошедшего.", "isNew": true, "audio": "ex_c51_2.mp3", "gender": "m", "draft": true}, {"hebrew": "הַיּוֹם כּוֹתֵב, אֶתְמוֹל כָּתַב", "translit": "hайом котэв, этмоль катав", "ru": "сегодня пишет, вчера написал — два времени рядом.", "isNew": true, "audio": "ex_c51_3.mp3", "gender": "m", "draft": true}, {"hebrew": "מָה עָשִׂיתָ אֶתְמוֹל?", "translit": "ма асита этмоль?", "ru": "что ты делал вчера? — вопрос в прошедшем.", "isNew": true, "audio": "ex_c51_4.mp3", "gender": "m", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Вчера я написал» —", "options": ["אֶתְמוֹל כָּתַבְתִּי", "הַיּוֹם כָּתַבְתִּי", "אֶתְמוֹל כּוֹתֵב", "אֶתְמוֹל אֶכְתֹּב"], "answer": "אֶתְמוֹל כָּתַבְתִּי"}, {"type": "В4", "prompt": "Где стоит לֹא при отрицании прошедшего?", "options": ["перед глаголом", "после глагола", "в конце", "перед подлежащим"], "answer": "перед глаголом"}, {"type": "В4", "prompt": "Какое слово требует прошедшего времени?", "options": ["אֶתְמוֹל (вчера)", "הַיּוֹם (сегодня)", "עַכְשָׁיו (сейчас)", "מָחָר (завтра)"], "answer": "אֶתְמוֹל (вчера)"}, {"type": "В4", "prompt": "«Он не написал» —", "options": ["הוּא לֹא כָּתַב", "הוּא כָּתַב לֹא", "לֹא הוּא כָּתַב", "הוּא אֵין כָּתַב"], "answer": "הוּא לֹא כָּתַב"}, {"type": "В4", "prompt": "Что подсказывает выбор времени?", "options": ["слова времени (вчера/сегодня)", "артикль", "род", "число"], "answer": "слова времени (вчера/сегодня)"}, {"type": "В4", "prompt": "«Сегодня пишу, вчера написал»:", "options": ["הַיּוֹם כּוֹתֵב, אֶתְמוֹל כָּתַב", "הַיּוֹם כָּתַב, אֶתְמוֹל כּוֹתֵב", "two раза כּוֹתֵב", "two раза כָּתַב"], "answer": "הַיּוֹם כּוֹתֵב, אֶתְמוֹל כָּתַב"}], "readingBlock": null, "notes": "Использует знакомые глаголы и слова времени (אֶתְמוֹל из R1.59)."},
-  {"id": "SL1.4", "seq": 70, "level": 4, "module": "wordsystem", "moduleName": "Система слова", "title": "Профессии и приборы", "unlockCondition": "SL1.3 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 6, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": false, "rule": "Ещё две полезные модели. КаТаЛь (קַטָּל, с дагешем в средней) — постоянные занятия и профессии: נַהָג «водитель», צַיָּר «художник». маКТеЛь (מַקְטֵל) — приборы и инструменты, «то, чем делают»: מַחְשֵׁב «компьютер» (от חשב «думать» — «то, чем думают»!), מַפְתֵּחַ «ключ» (от פתח «открывать»). Увидел מ־ в начале и рисунок а-э — скорее всего прибор.", "examples": [{"hebrew": "נַהָג", "translit": "наhаг", "ru": "водитель — модель КаТаЛь, профессия (корень נ־ה־ג «вести»).", "isNew": true, "audio": "r1_sl14_01.mp3", "gender": "m", "draft": true}, {"hebrew": "צַיָּר", "translit": "цайяр", "ru": "художник — та же модель (צ־י־ר «рисовать»).", "isNew": true, "audio": "r1_sl14_02.mp3", "gender": "m", "draft": true}, {"hebrew": "מַחְשֵׁב", "translit": "махшев", "ru": "компьютер — маКТеЛь, «то, чем думают» (ח־ש־ב).", "isNew": true, "audio": "r1_sl14_03.mp3", "gender": "m", "draft": true}, {"hebrew": "מַפְתֵּחַ", "translit": "мафтэах", "ru": "ключ — «то, чем открывают» (פ־ת־ח).", "isNew": true, "audio": "r1_sl14_04.mp3", "gender": "m", "draft": true}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Модель КаТаЛь (נַהָג, צַיָּר) обозначает…", "options": ["профессию/постоянное занятие", "прибор", "прошедшее время", "место"], "answer": "профессию/постоянное занятие"}, {"type": "В4", "prompt": "מַחְשֵׁב «компьютер» — от корня…", "options": ["חשב (думать) → «то, чем думают»", "חדש (новый)", "שוב (снова)", "מחר (завтра)"], "answer": "חשב (думать) → «то, чем думают»"}, {"type": "В4", "prompt": "Модель маКТеЛь (с מ־ в начале) обычно —", "options": ["прибор, инструмент", "человек", "глагол", "число"], "answer": "прибор, инструмент"}, {"type": "В4", "prompt": "«Водитель» —", "options": ["נַהָג", "נָהַג", "מַנְהִיג", "נְהִיגָה"], "answer": "נַהָג"}, {"type": "В4", "prompt": "מַפְתֵּחַ «ключ» — «то, чем…»", "options": ["открывают (פתח)", "пишут", "едут", "считают"], "answer": "открывают (פתח)"}, {"type": "В4", "prompt": "Как узнать прибор по виду слова?", "options": ["מ־ в начале + рисунок а-э", "окончание ־ָה", "артикль הַ", "дагеш в конце"], "answer": "מ־ в начале + рисунок а-э"}], "readingBlock": "R1.70", "notes": "Книга Коэн-Цедека, урок 2–3 (отглагольные модели). Порция R1.70: профессии и приборы."},
+  {"id": "M3.1", "seq": 53, "level": 4, "module": "morphology", "moduleName": "Морфология", "title": "שֶׁל — чья это вещь", "unlockCondition": "C4 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": true, "rule": "В иврите принадлежность выражается словом שֶׁל («принадлежащий»): הַסֵּפֶר שֶׁל אַבָּא — «книга папы» (дословно: та-книга принадлежащая папе). Порядок всегда один: сначала вещь С АРТИКЛЕМ, потом שֶׁל, потом владелец. Русского родительного падежа («книга папЫ») в иврите нет — всю работу делает שֶׁל.", "examples": [{"hebrew": "הַסֵּפֶר שֶׁל אַבָּא", "translit": "hа-сэфер шель аба", "ru": "книга папы. Вещь с артиклем → שֶׁל → владелец.", "isNew": true, "audio": "ex_m31_1.mp3", "gender": "m"}, {"hebrew": "הַכֶּלֶב שֶׁל תָּמָר", "translit": "hа-келев шель Тамар", "ru": "собака Тамар. Рекс — её собака!", "isNew": true, "audio": "ex_m31_2.mp3", "gender": "m"}, {"hebrew": "הַבַּיִת שֶׁל הַמִּשְׁפָּחָה", "translit": "hа-байт шель hа-мишпаха", "ru": "дом семьи. Владелец тоже может быть с артиклем.", "isNew": true, "audio": "ex_m31_3.mp3", "gender": "m"}, {"hebrew": "הַטֶּלֶפוֹן שֶׁל מָיָה", "translit": "hа-телефон шель Майя", "ru": "телефон Майи.", "isNew": true, "audio": "ex_m31_4.mp3", "gender": "f"}, {"hebrew": "הַיֶּלֶד שֶׁל מַיָּה", "translit": "hа-йелед шель Майя", "ru": "мальчик (сын) Майи — Ноам её сын.", "isNew": true, "gender": "m"}, {"hebrew": "זֶה לֹא הַסֵּפֶר שֶׁל תָּמָר", "translit": "зэ ло hа-сэфер шель Тамар", "ru": "это не книга Тамар — отрицание לֹא не трогает שֶׁל.", "isNew": true, "gender": "m"}], "dialogueCards": [{"question": "הַכֶּלֶב שֶׁל תָּמָר?", "questionRu": "Это собака Тамар?", "answer": "כֵּן, הַכֶּלֶב שֶׁל תָּמָר — זֶה רֶקְס.", "answerRu": "Да, это собака Тамар — это Рекс.", "qGender": "f", "aGender": "f", "qAudio": "dlg_m31_1q.mp3", "aAudio": "dlg_m31_1a.mp3"}, {"question": "הַסֵּפֶר שֶׁל אַבָּא?", "questionRu": "Это книга папы? — спрашивает Ноам", "answer": "לֹא, הַסֵּפֶר שֶׁל אִמָּא.", "answerRu": "Нет, это книга мамы.", "qGender": "m", "aGender": "f", "qAudio": "dlg_m31_2q.mp3", "aAudio": "dlg_m31_2a.mp3"}, {"question": "הַבַּיִת שֶׁל הַמִּשְׁפָּחָה גָּדוֹל?", "questionRu": "Дом семьи большой?", "answer": "כֵּן, הַבַּיִת שֶׁל הַמִּשְׁפָּחָה גָּדוֹל.", "answerRu": "Да, дом семьи большой.", "qGender": "m", "aGender": "m", "qAudio": "dlg_m31_3q.mp3", "aAudio": "dlg_m31_3a.mp3"}], "practiceItems": [{"type": "В4", "prompt": "Как сказать «книга папы»?", "options": ["הַסֵּפֶר שֶׁל אַבָּא", "סֵפֶר אַבָּא שֶׁל", "שֶׁל אַבָּא הַסֵּפֶר", "אַבָּא שֶׁל הַסֵּפֶר"], "answer": "הַסֵּפֶר שֶׁל אַבָּא"}, {"type": "В4", "prompt": "Что значит הַכֶּלֶב שֶׁל תָּמָר?", "options": ["собака Тамар", "собака и Тамар", "Тамар — собака", "у собаки есть Тамар"], "answer": "собака Тамар"}, {"type": "В4", "prompt": "Что делает слово שֶׁל?", "options": ["показывает принадлежность (чей)", "заменяет артикль", "делает множественное число", "отрицает"], "answer": "показывает принадлежность (чей)"}, {"type": "В4", "prompt": "Где стоит вещь в конструкции с שֶׁל?", "options": ["перед שֶׁל, с артиклем", "после владельца", "в конце", "где угодно"], "answer": "перед שֶׁל, с артиклем"}, {"type": "В4", "prompt": "«Дом семьи» — это…", "options": ["הַבַּיִת שֶׁל הַמִּשְׁפָּחָה", "הַמִּשְׁפָּחָה שֶׁל הַבַּיִת", "בַּיִת מִשְׁפָּחָה", "שֶׁל בַּיִת מִשְׁפָּחָה"], "answer": "הַבַּיִת שֶׁל הַמִּשְׁפָּחָה"}, {"type": "В4", "prompt": "Есть ли в иврите падеж «книга папЫ»?", "options": ["нет — принадлежность передаёт שֶׁל", "да, окончанием", "да, артиклем", "только у имён"], "answer": "нет — принадлежность передаёт שֶׁל"}, {"type": "В4", "prompt": "«Телефон Майи» — это…", "options": ["הַטֶּלֶפוֹן שֶׁל מָיָה", "מָיָה שֶׁל הַטֶּלֶפוֹן", "טֶלֶפוֹן מָיָה שֶׁל", "שֶׁל מָיָה הַטֶּלֶפוֹן"], "answer": "הַטֶּלֶפוֹן שֶׁל מָיָה"}, {"type": "В4", "prompt": "«Это не книга Тамар»:", "options": ["זֶה לֹא הַסֵּפֶר שֶׁל תָּמָר", "זֶה הַסֵּפֶר לֹא שֶׁל תָּמָר", "לֹא זֶה הַסֵּפֶר שֶׁל תָּמָר", "הַסֵּפֶר שֶׁל תָּמָר לֹא"], "answer": "זֶה לֹא הַסֵּפֶר שֶׁל תָּמָר"}], "readingBlock": "R1.53", "notes": "Смихут (בֵּית סֵפֶר) — позже, в Бет: здесь только конструкция с שֶׁל."},
+  {"id": "M3.2", "seq": 54, "level": 4, "module": "morphology", "moduleName": "Морфология", "title": "שֶׁלִּי, שֶׁלְּךָ — моё и твоё", "unlockCondition": "M3.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "שֶׁל склеивается с местоимением: שֶׁלִּי «мой/моя», שֶׁלְּךָ «твой» (говорим мужчине), שֶׁלָּךְ «твоя/твой» (говорим женщине). Заметь дагеш в ל — след слияния. Так семья говорит за столом: הַסֵּפֶר שֶׁלִּי! — «это моя книга!»", "examples": [{"hebrew": "הַסֵּפֶר שֶׁלִּי", "translit": "hа-сэфер шели", "ru": "моя книга. שֶׁל + אֲנִי = שֶׁלִּי.", "isNew": true, "audio": "ex_m32_1.mp3", "gender": "m"}, {"hebrew": "הַכֶּלֶב שֶׁלְּךָ?", "translit": "hа-келев шельха?", "ru": "твоя собака? — спрашиваем Ноама (м.р.).", "isNew": true, "audio": "ex_m32_2.mp3", "gender": "m"}, {"hebrew": "הַטֶּלֶפוֹן שֶׁלָּךְ", "translit": "hа-телефон шелах", "ru": "твой телефон — говорим Тамар (ж.р.).", "isNew": true, "audio": "ex_m32_3.mp3", "gender": "f"}, {"hebrew": "זֶה לֹא שֶׁלִּי", "translit": "зэ ло шели", "ru": "это не моё. Отрицание לֹא — как обычно, перед словом.", "isNew": true, "audio": "ex_m32_4.mp3", "gender": "m"}, {"hebrew": "הַבַּיִת שֶׁלִּי", "translit": "hа-байт шели", "ru": "мой дом.", "isNew": true, "gender": "m"}, {"hebrew": "הַכֶּלֶב שֶׁלְּךָ, לֹא שֶׁלִּי", "translit": "hа-келев шельха, ло шели", "ru": "это твоя собака (мужчине), не моя.", "isNew": true, "gender": "m"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Моя книга» — это…", "options": ["הַסֵּפֶר שֶׁלִּי", "הַסֵּפֶר שֶׁלְּךָ", "סֵפֶר אֲנִי", "שֶׁלִּי סֵפֶר"], "answer": "הַסֵּפֶר שֶׁלִּי"}, {"type": "В4", "prompt": "Говорим Ноаму (м.р.) «твоя собака»:", "options": ["הַכֶּלֶב שֶׁלְּךָ (патах)", "הַכֶּלֶב שֶׁלָּךְ (патах)", "הַכֶּלֶב שֶׁלִּי (патах)", "כֶּלֶב שֶׁל"], "answer": "הַכֶּלֶב שֶׁלְּךָ (патах)"}, {"type": "В4", "prompt": "Говорим Тамар (ж.р.) «твой телефон»:", "options": ["הַטֶּלֶפוֹן שֶׁלָּךְ (патах)", "הַטֶּלֶפוֹן שֶׁלְּךָ (патах)", "הַטֶּלֶפוֹן שֶׁלּוֹ (патах)", "טֶלֶפוֹן שֶׁלִּי"], "answer": "הַטֶּלֶפוֹן שֶׁלָּךְ (патах)"}, {"type": "В4", "prompt": "שֶׁלִּי — это שֶׁל + …", "options": ["אֲנִי (я)", "אַתָּה (ты)", "הוּא (он)", "הִיא (она)"], "answer": "אֲנִי (я)"}, {"type": "В4", "prompt": "«Это не моё»:", "options": ["זֶה לֹא שֶׁלִּי", "לֹא זֶה שֶׁלִּי", "זֶה שֶׁלִּי לֹא", "אֵין זֶה שֶׁלִּי"], "answer": "זֶה לֹא שֶׁלִּי"}, {"type": "В4", "prompt": "Чем שֶׁלְּךָ отличается от שֶׁלָּךְ?", "options": ["первое — мужчине, второе — женщине", "ничем", "первое — мн.ч.", "второе — вежливое"], "answer": "первое — мужчине, второе — женщине"}, {"type": "В4", "prompt": "«Мой дом» —", "options": ["הַבַּיִת שֶׁלִּי", "הַבַּיִת שֶׁלְּךָ", "בַּיִת שֶׁל אֲנִי", "שֶׁלִּי בַּיִת"], "answer": "הַבַּיִת שֶׁלִּי"}, {"type": "В4", "prompt": "Что показывает дагеш в שֶׁלִּי/שֶׁלְּךָ?", "options": ["след слияния שֶׁל с местоимением", "множественное число", "артикль", "отрицание"], "answer": "след слияния שֶׁל с местоимением"}], "readingBlock": null, "notes": null},
+  {"id": "M3.3", "seq": 55, "level": 4, "module": "morphology", "moduleName": "Морфология", "title": "Вся таблица שֶׁל", "unlockCondition": "M3.2 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "Полный набор: שֶׁלִּי мой · שֶׁלְּךָ твой (м) · שֶׁלָּךְ твой (ж) · שֶׁלּוֹ его · שֶׁלָּהּ её · שֶׁלָּנוּ наш · שֶׁלָּכֶם ваш · שֶׁלָּהֶם их. Логика одна: שֶׁל + то же окончание, что у местоимения. Выучи как песенку — этот ряд повторится у предлогов много раз.", "examples": [{"hebrew": "הַבַּיִת שֶׁלָּנוּ", "translit": "hа-байт шелану", "ru": "наш дом — говорит вся семья.", "isNew": true, "audio": "ex_m33_1.mp3", "gender": "m"}, {"hebrew": "הַכֶּלֶב שֶׁלָּהּ", "translit": "hа-келев шела", "ru": "её собака (Рекс — собака Тамар).", "isNew": true, "audio": "ex_m33_2.mp3", "gender": "f"}, {"hebrew": "הַסֵּפֶר שֶׁלּוֹ", "translit": "hа-сэфер шело", "ru": "его книга (Ноама).", "isNew": true, "audio": "ex_m33_3.mp3", "gender": "m"}, {"hebrew": "הַמִּשְׁפָּחָה שֶׁלָּהֶם", "translit": "hа-мишпаха шелаhем", "ru": "их семья.", "isNew": true, "audio": "ex_m33_4.mp3", "gender": "m"}, {"hebrew": "הַבַּיִת שֶׁלָּכֶם גָּדוֹל?", "translit": "hа-байт шелахем гадоль?", "ru": "ваш дом большой? — спрашиваем группу людей.", "isNew": true, "gender": "m"}, {"hebrew": "זֶה לֹא שֶׁלָּנוּ, זֶה שֶׁלָּהֶם", "translit": "зэ ло шелану, зэ шелаhем", "ru": "это не наше, это их.", "isNew": true, "gender": "m"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Наш дом»:", "options": ["הַבַּיִת שֶׁלָּנוּ", "הַבַּיִת שֶׁלָּכֶם", "הַבַּיִת שֶׁלָּהֶם", "בַּיִת אֲנַחְנוּ"], "answer": "הַבַּיִת שֶׁלָּנוּ"}, {"type": "В4", "prompt": "«Её собака»:", "options": ["הַכֶּלֶב שֶׁלָּהּ", "הַכֶּלֶב שֶׁלּוֹ", "הַכֶּלֶב שֶׁלָּךְ", "הַכֶּלֶב שֶׁלִּי"], "answer": "הַכֶּלֶב שֶׁלָּהּ"}, {"type": "В4", "prompt": "«Его книга»:", "options": ["הַסֵּפֶר שֶׁלּוֹ", "הַסֵּפֶר שֶׁלָּהּ", "הַסֵּפֶר שֶׁלְּךָ", "סֵפֶר הוּא"], "answer": "הַסֵּפֶר שֶׁלּוֹ"}, {"type": "В4", "prompt": "שֶׁלָּכֶם — это…", "options": ["ваш (вы, мн.ч.)", "наш", "их", "твой (ж.р.)"], "answer": "ваш (вы, мн.ч.)"}, {"type": "В4", "prompt": "«Их семья»:", "options": ["הַמִּשְׁפָּחָה שֶׁלָּהֶם", "הַמִּשְׁפָּחָה שֶׁלָּנוּ", "הַמִּשְׁפָּחָה שֶׁלָּהּ", "מִשְׁפָּחָה הֵם"], "answer": "הַמִּשְׁפָּחָה שֶׁלָּהֶם"}, {"type": "В4", "prompt": "Почему ряд שֶׁל стоит выучить крепко?", "options": ["те же окончания будут у предлогов", "он единственный в иврите", "без него нет артикля", "он заменяет глагол «быть»"], "answer": "те же окончания будут у предлогов"}, {"type": "В4", "prompt": "«Ваш дом» (группе):", "options": ["הַבַּיִת שֶׁלָּכֶם", "הַבַּיִת שֶׁלָּנוּ", "הַבַּיִת שֶׁלָּהֶם", "בַּיִת אַתֶּם"], "answer": "הַבַּיִת שֶׁלָּכֶם"}, {"type": "В4", "prompt": "Логика всего ряда שֶׁל + местоимение:", "options": ["שֶׁל + то же окончание, что у местоимения", "разные корни для каждого", "только для мужского рода", "нет системы, всё запоминать отдельно"], "answer": "שֶׁל + то же окончание, что у местоимения"}], "readingBlock": null, "notes": null},
+  {"id": "SL1.1", "seq": 56, "level": 4, "module": "wordsystem", "moduleName": "Система слова", "title": "Корень — три буквы смысла", "unlockCondition": "G1.6 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "Почти каждое слово иврита выросло из корня — трёх согласных, несущих идею. Ты уже знаешь это, не зная термина: אוֹהֵב «любит» и אַהֲבָה «любовь» — один корень א־ה־ב. Разные огласовки и добавки — разные слова, но смысл-сердцевина общий. Увидел три знакомые буквы в незнакомом слове — уже наполовину понял его.", "examples": [{"hebrew": "אוֹהֵב · אַהֲבָה", "translit": "оhев · аhава", "ru": "любит · любовь — корень א־ה־ב в двух знакомых словах.", "isNew": false, "audio": "rw_46.mp3"}, {"hebrew": "גָּר · גָּרָה", "translit": "гар · гара", "ru": "живёт (м) · живёт (ж) — корень ג־ו־ר.", "isNew": false, "audio": "r1_g12_05.mp3"}, {"hebrew": "אוֹכֵל · אוֹכֶלֶת", "translit": "охель · охелет", "ru": "ест (м/ж) — корень א־כ־ל. Скоро встретишь אֹכֶל «еда» — тот же корень!", "isNew": false, "audio": "rw_48.mp3"}, {"hebrew": "הוֹלֵךְ · הוֹלֶכֶת", "translit": "hолех · hолехет", "ru": "идёт (м/ж) — корень ה־ל־ך.", "isNew": false, "audio": "rw_47.mp3"}, {"hebrew": "כּוֹתֵב · כְּתִיבָה", "translit": "котэв · ктива", "ru": "пишет · письмо/писание — корень כ־ת־ב. Скоро увидишь его в прошедшем времени: כָּתַב.", "isNew": false}, {"hebrew": "יוֹשֵׁב · יְשִׁיבָה", "translit": "йошев · йешива", "ru": "сидит · сидение/заседание — корень י־ש־ב, тот же во всех формах.", "isNew": false}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Что такое корень в иврите?", "options": ["три согласных, несущих общий смысл", "первая буква слова", "окончание", "артикль"], "answer": "три согласных, несущих общий смысл"}, {"type": "В4", "prompt": "Какой корень у אוֹהֵב и אַהֲבָה?", "options": ["א־ה־ב", "ה־ב־א", "א־ו־ה", "ב־ה־א"], "answer": "א־ה־ב"}, {"type": "В4", "prompt": "אוֹכֵל (ест) — корень…", "options": ["א־כ־ל", "ו־כ־ל", "א־ל־כ", "כ־ל־א"], "answer": "א־כ־ל"}, {"type": "В4", "prompt": "Зачем видеть корень в незнакомом слове?", "options": ["он подсказывает смысл", "он даёт ударение", "он определяет род", "он заменяет словарь целиком"], "answer": "он подсказывает смысл"}, {"type": "В4", "prompt": "גָּר и גָּרָה — это…", "options": ["один корень, мужская и женская формы", "два разных корня", "корень и артикль", "ошибка написания"], "answer": "один корень, мужская и женская формы"}, {"type": "В4", "prompt": "Корень — это буквы…", "options": ["согласные", "гласные", "любые три подряд", "только первые"], "answer": "согласные"}, {"type": "В4", "prompt": "Какой корень у כּוֹתֵב и כְּתִיבָה?", "options": ["כ־ת־ב", "כ־ת־כ", "ת־ב־כ", "ב־כ־ת"], "answer": "כ־ת־ב"}, {"type": "В4", "prompt": "Сколько согласных обычно составляют корень?", "options": ["три", "две", "четыре", "любое число"], "answer": "три"}], "readingBlock": null, "notes": "Трек книги «О чём молчат в ульпане» (введение). Порции слов нет — работаем на накопленном словаре."},
+  {"id": "SL1.2", "seq": 57, "level": 4, "module": "wordsystem", "moduleName": "Система слова", "title": "Модель — форма смысла", "unlockCondition": "SL1.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "Второй секрет: слова строятся по моделям (מִשְׁקָל) — шаблонам огласовок вокруг корня. Смотри на знакомое: אוֹכֵל, הוֹלֵךְ, יוֹשֵׁב, קוֹרֵא — везде рисунок «о-э»: קוֹטֵל. Это модель «делающий»: тот, кто ест, идёт, сидит, читает. И מוֹרֶה «учитель» — та же модель: «тот, кто учит»! Корень даёт смысл, модель — роль. Вместе они собирают слово, как буквы собирают слог.", "examples": [{"hebrew": "אוֹכֵל · הוֹלֵךְ · יוֹשֵׁב", "translit": "охель · hолех · йошев", "ru": "ест · идёт · сидит — один рисунок огласовок קוֹטֵל: «делающий».", "isNew": false, "audio": "rw_48.mp3"}, {"hebrew": "קוֹרֵא", "translit": "корэ", "ru": "читает — та же модель. Даниэль קוֹרֵא עִיתּוֹן.", "isNew": false, "audio": "rw_51.mp3"}, {"hebrew": "מוֹרֶה · מוֹרָה", "translit": "морэ · мора", "ru": "учитель · учительница — «тот/та, кто учит». Модель превращает действие в человека!", "isNew": false, "audio": "r1_c0_03.mp3"}, {"hebrew": "אוֹכֶלֶת · הוֹלֶכֶת", "translit": "охелет · hолехет", "ru": "женская пара модели: קוֹטֶלֶת.", "isNew": false, "audio": "r1_g13_02.mp3"}, {"hebrew": "שׁוֹמֵר", "translit": "шомер", "ru": "сторож — тот же рисунок о-э. Скоро увидишь: модель делает из глагола профессию.", "isNew": false}, {"hebrew": "כּוֹתֵב", "translit": "котэв", "ru": "пишущий — тоже קוֹטֵל: «тот, кто пишет».", "isNew": false}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Что такое модель (мишкаль)?", "options": ["шаблон огласовок вокруг корня", "список исключений", "вид артикля", "название буквы"], "answer": "шаблон огласовок вокруг корня"}, {"type": "В4", "prompt": "Что общего у אוֹכֵל, הוֹלֵךְ, יוֹשֵׁב?", "options": ["модель «делающий» קוֹטֵל", "корень", "перевод", "род"], "answer": "модель «делающий» קוֹטֵל"}, {"type": "В4", "prompt": "מוֹרֶה по модели значит…", "options": ["«тот, кто учит»", "«урок»", "«школа»", "«книга»"], "answer": "«тот, кто учит»"}, {"type": "В4", "prompt": "Корень даёт смысл, модель даёт…", "options": ["роль/форму слова", "ударение", "артикль", "число"], "answer": "роль/форму слова"}, {"type": "В4", "prompt": "Женская пара модели «делающий»:", "options": ["קוֹטֶלֶת (אוֹכֶלֶת)", "קָטָל", "הַקְטָלָה", "קִיל"], "answer": "קוֹטֶלֶת (אוֹכֶלֶת)"}, {"type": "В4", "prompt": "Зачем знать модели?", "options": ["понимать незнакомые слова без словаря", "красиво писать", "ставить дагеш", "считать слоги"], "answer": "понимать незнакомые слова без словаря"}, {"type": "В4", "prompt": "שׁוֹמֵר по модели קוֹטֵל значит…", "options": ["тот, кто охраняет", "охрана (место)", "прошедшее время", "множественное число"], "answer": "тот, кто охраняет"}, {"type": "В4", "prompt": "Модель קוֹטֵל — это рисунок…", "options": ["о-э вокруг трёх согласных корня", "а-а", "и-и", "у-у"], "answer": "о-э вокруг трёх согласных корня"}], "readingBlock": null, "notes": "Книга, уроки 1–2 (начало). Названия «пааль/мишкаль» углубим в SL1.6."},
+  {"id": "Q1.1", "seq": 58, "level": 4, "module": "syntax", "moduleName": "Сквозные", "title": "Вопросы: מִי и מָה", "unlockCondition": "C2 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "Два главных вопросительных слова: מִי «кто» — про людей, מָה «что» — про всё остальное. Ставятся в начало, порядок слов не меняется: מִי זֶה? «кто это?» — זֶה נֹעַם. מָה זֶה? «что это?» — זֶה סֵפֶר. Отвечаешь тем же предложением без вопросительного слова.", "examples": [{"hebrew": "מִי זֶה? — זֶה נֹעַם", "translit": "ми зэ? — зэ Ноам", "ru": "Кто это? — Это Ноам. מִי — только про людей.", "isNew": true, "audio": "ex_q11_1.mp3", "gender": "m"}, {"hebrew": "מָה זֶה? — זֶה טֶלֶפוֹן", "translit": "ма зэ? — зэ телефон", "ru": "Что это? — Это телефон.", "isNew": true, "audio": "ex_q11_2.mp3", "gender": "f"}, {"hebrew": "מִי גָּר בַּבַּיִת?", "translit": "ми гар ба-байт?", "ru": "Кто живёт в доме? — вопросительное слово + обычный порядок.", "isNew": true, "audio": "ex_q11_3.mp3", "gender": "m"}, {"hebrew": "מָה תָּמָר אוֹהֶבֶת?", "translit": "ма Тамар оhевет?", "ru": "Что любит Тамар? (Рекса, конечно.)", "isNew": true, "audio": "ex_q11_4.mp3", "gender": "f"}, {"hebrew": "מִי אוֹהֵב כְּלָבִים?", "translit": "ми оhев клавим?", "ru": "кто любит собак? — Тамар אוֹהֶבֶת!", "isNew": true, "gender": "f"}, {"hebrew": "מָה יֵשׁ בַּבַּיִת?", "translit": "ма йеш ба-байт?", "ru": "что есть в доме? — вопрос со знакомым יֵשׁ.", "isNew": true, "gender": "m"}], "dialogueCards": [{"question": "מִי זֶה?", "questionRu": "Кто это? — показывает на фото", "answer": "זֶה נֹעַם, הַיֶּלֶד שֶׁלָּנוּ.", "answerRu": "Это Ноам, наш мальчик.", "qGender": "m", "aGender": "m", "qAudio": "dlg_q11_1q.mp3", "aAudio": "dlg_q11_1a.mp3"}, {"question": "מָה זֶה?", "questionRu": "Что это? — Тамар показывает на предмет", "answer": "זֶה הַסֵּפֶר שֶׁלִּי.", "answerRu": "Это моя книга.", "qGender": "f", "aGender": "f", "qAudio": "dlg_q11_2q.mp3", "aAudio": "dlg_q11_2a.mp3"}, {"question": "מָה אוֹכֶלֶת תָּמָר?", "questionRu": "Что ест Тамар?", "answer": "הִיא אוֹכֶלֶת תַּפּוּחַ.", "answerRu": "Она ест яблоко.", "qGender": "f", "aGender": "f", "qAudio": "dlg_q11_3q.mp3", "aAudio": "dlg_q11_3a.mp3"}], "practiceItems": [{"type": "В4", "prompt": "«Кто это?» —", "options": ["מִי זֶה?", "מָה זֶה?", "זֶה מִי?", "הַאִם זֶה?"], "answer": "מִי זֶה?"}, {"type": "В4", "prompt": "«Что это?» —", "options": ["מָה זֶה?", "מִי זֶה?", "זֶה מָה?", "אֵיפֹה זֶה?"], "answer": "מָה זֶה?"}, {"type": "В4", "prompt": "מִי спрашивает про…", "options": ["людей", "предметы", "места", "время"], "answer": "людей"}, {"type": "В4", "prompt": "Меняется ли порядок слов после מִי/מָה?", "options": ["нет — обычный порядок", "да, глагол в конец", "да, подлежащее в конец", "только в женском роде"], "answer": "нет — обычный порядок"}, {"type": "В4", "prompt": "«Кто живёт в доме?» —", "options": ["מִי גָּר בַּבַּיִת?", "מָה גָּר בַּבַּיִת?", "גָּר מִי בַּבַּיִת?", "מִי בַּבַּיִת גָּר?"], "answer": "מִי גָּר בַּבַּיִת?"}, {"type": "В4", "prompt": "Ответ на מָה זֶה? про книгу:", "options": ["זֶה סֵפֶר", "זֶה נֹעַם", "מָה סֵפֶר", "סֵפֶר מָה"], "answer": "זֶה סֵפֶר"}, {"type": "В4", "prompt": "«Кто любит собак?» —", "options": ["מִי אוֹהֵב כְּלָבִים?", "מָה אוֹהֵב כְּלָבִים?", "כְּלָבִים אוֹהֵב מִי?", "אוֹהֵב מִי כְּלָבִים?"], "answer": "מִי אוֹהֵב כְּלָבִים?"}, {"type": "В4", "prompt": "«Что есть в доме?» —", "options": ["מָה יֵשׁ בַּבַּיִת?", "מִי יֵשׁ בַּבַּיִת?", "יֵשׁ מָה בַּבַּיִת?", "בַּבַּיִת יֵשׁ מִי?"], "answer": "מָה יֵשׁ בַּבַּיִת?"}], "readingBlock": null, "notes": "אֵיפֹה/מָתַי/לָמָּה/כַּמָּה — в Q1.2 (следующий батч)."},
+  {"id": "Q1.2", "seq": 59, "level": 4, "module": "syntax", "moduleName": "Сквозные", "title": "Вопросы: где, когда, почему, сколько", "unlockCondition": "Q1.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": true, "rule": "Ещё четыре вопросительных слова: אֵיפֹה «где», מָתַי «когда», לָמָּה «почему», כַּמָּה «сколько». Как מִי/מָה — ставятся в начало, порядок слов не меняется. אֵיפֹה הַכֶּלֶב? «Где собака?» · מָתַי? «Когда?» — утром (בֹּקֶר) или вечером (עֶרֶב). כַּמָּה сочетается с числами: כַּמָּה סְפָרִים? «Сколько книг?»", "examples": [{"hebrew": "אֵיפֹה הַכֶּלֶב?", "translit": "эйфо hа-келев?", "ru": "Где собака? — Рекс בַּבַּיִת (дома).", "isNew": true, "audio": "ex_q12_1.mp3", "gender": "m"}, {"hebrew": "מָתַי? — בַּבֹּקֶר", "translit": "матай? — ба-бокер", "ru": "Когда? — утром. מָתַי спрашивает про время.", "isNew": true, "audio": "ex_q12_2.mp3", "gender": "f"}, {"hebrew": "לָמָּה?", "translit": "лама?", "ru": "Почему? — самый частый вопрос детей.", "isNew": true, "audio": "ex_q12_3.mp3", "gender": "f"}, {"hebrew": "כַּמָּה סְפָרִים?", "translit": "кама сфарим?", "ru": "Сколько книг? — כַּמָּה идёт с числом.", "isNew": true, "audio": "ex_q12_4.mp3", "gender": "m"}, {"hebrew": "מָתַי? — בָּעֶרֶב", "translit": "матай? — ба-эрев", "ru": "когда? — вечером. Пара к בַּבֹּקֶר.", "isNew": true, "gender": "m"}, {"hebrew": "לָמָּה אַתָּה כָּאן?", "translit": "лама ата кан?", "ru": "почему ты здесь? — כָּאן «здесь».", "isNew": true, "gender": "m"}], "dialogueCards": [{"question": "אֵיפֹה הַכֶּלֶב?", "questionRu": "Где собака?", "answer": "הוּא בַּבַּיִת.", "answerRu": "Он дома.", "qGender": "m", "aGender": "m", "qAudio": "dlg_q12_1q.mp3", "aAudio": "dlg_q12_1a.mp3"}, {"question": "מָתַי?", "questionRu": "Когда? — про завтрак", "answer": "בַּבֹּקֶר.", "answerRu": "Утром.", "qGender": "f", "aGender": "f", "qAudio": "dlg_q12_2q.mp3", "aAudio": "dlg_q12_2a.mp3"}, {"question": "כַּמָּה יְלָדִים בַּמִּשְׁפָּחָה?", "questionRu": "Сколько детей в семье?", "answer": "שְׁנַיִם: נֹעַם וְתָמָר.", "answerRu": "Двое: Ноам и Тамар.", "qGender": "m", "aGender": "m", "qAudio": "dlg_q12_3q.mp3", "aAudio": "dlg_q12_3a.mp3"}], "practiceItems": [{"type": "В4", "prompt": "«Где собака?» —", "options": ["אֵיפֹה הַכֶּלֶב?", "מָתַי הַכֶּלֶב?", "מִי הַכֶּלֶב?", "כַּמָּה הַכֶּלֶב?"], "answer": "אֵיפֹה הַכֶּלֶב?"}, {"type": "В4", "prompt": "מָתַי спрашивает про…", "options": ["время (когда)", "место", "причину", "количество"], "answer": "время (когда)"}, {"type": "В4", "prompt": "«Почему?» —", "options": ["לָמָּה?", "מָתַי?", "אֵיפֹה?", "מָה?"], "answer": "לָמָּה?"}, {"type": "В4", "prompt": "Какое слово идёт с числом («сколько»)?", "options": ["כַּמָּה", "אֵיפֹה", "לָמָּה", "מִי"], "answer": "כַּמָּה"}, {"type": "В4", "prompt": "«Где» на иврите —", "options": ["אֵיפֹה", "מָתַי", "לָמָּה", "מָה"], "answer": "אֵיפֹה"}, {"type": "В4", "prompt": "Меняется ли порядок слов после אֵיפֹה?", "options": ["нет, обычный порядок", "да, глагол в конец", "да, всегда", "только с числом"], "answer": "нет, обычный порядок"}, {"type": "В4", "prompt": "«Когда? — Вечером» —", "options": ["מָתַי? — בָּעֶרֶב", "מָתַי? — בַּבֹּקֶר", "אֵיפֹה? — בָּעֶרֶב", "כַּמָּה? — בָּעֶרֶב"], "answer": "מָתַי? — בָּעֶרֶב"}, {"type": "В4", "prompt": "«Почему ты здесь?» —", "options": ["לָמָּה אַתָּה כָּאן?", "מָתַי אַתָּה כָּאן?", "אֵיפֹה אַתָּה?", "כַּמָּה אַתָּה כָּאן?"], "answer": "לָמָּה אַתָּה כָּאן?"}], "readingBlock": "R1.59", "notes": "Порция R1.59: слова места и времени из колоды Bet."},
+  {"id": "CH3.1", "seq": 60, "level": 4, "module": "numbers", "moduleName": "Числа", "title": "Десятки: 20, 30 … 100", "unlockCondition": "CH2.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": true, "rule": "После двадцати счёт идёт круглыми десятками: עֶשְׂרִים 20, שְׁלוֹשִׁים 30, אַרְבָּעִים 40, חֲמִשִּׁים 50, שִׁשִּׁים 60, שִׁבְעִים 70, שְׁמוֹנִים 80, תִּשְׁעִים 90, מֵאָה 100. Заметь: десятки оканчиваются на ־ִים (как множественное число!) — 30 это как «три-надцатки». У десятков одна форма для мужского и женского рода — проще, чем 1–10.", "examples": [{"hebrew": "עֶשְׂרִים", "translit": "эсрим", "ru": "20 — окончание ־ִים, как во множественном числе.", "isNew": true, "audio": "ex_ch31_1.mp3", "gender": "m"}, {"hebrew": "אַרְבָּעִים", "translit": "арбаим", "ru": "40 — от אַרְבַּע (четыре) + ־ִים.", "isNew": true, "audio": "ex_ch31_2.mp3", "gender": "m"}, {"hebrew": "שִׁבְעִים", "translit": "шивъим", "ru": "70 — от שֶׁבַע (семь).", "isNew": true, "audio": "ex_ch31_3.mp3", "gender": "m"}, {"hebrew": "מֵאָה", "translit": "меа", "ru": "100 — новое слово, женского рода.", "isNew": true, "audio": "ex_ch31_4.mp3", "gender": "f"}, {"hebrew": "שְׁלוֹשִׁים", "translit": "шлошим", "ru": "30 — от שָׁלוֹשׁ (три).", "isNew": true, "gender": "m"}, {"hebrew": "שִׁשִּׁים", "translit": "шишим", "ru": "60 — от שֵׁשׁ (шесть).", "isNew": true, "gender": "m"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "20 на иврите —", "options": ["עֶשְׂרִים", "עֲשָׂרָה", "שְׁתַּיִם", "מֵאָה"], "answer": "עֶשְׂרִים"}, {"type": "В4", "prompt": "Чем оканчиваются десятки?", "options": ["־ִים (как множественное)", "־וֹת", "־ָה", "артиклем"], "answer": "־ִים (как множественное)"}, {"type": "В4", "prompt": "40 —", "options": ["אַרְבָּעִים", "אַרְבַּע", "אַרְבָּעָה", "עֶשְׂרִים"], "answer": "אַרְבָּעִים"}, {"type": "В4", "prompt": "100 —", "options": ["מֵאָה", "תִּשְׁעִים", "עֶשְׂרִים", "אֶלֶף"], "answer": "מֵאָה"}, {"type": "В4", "prompt": "Сколько форм рода у десятков?", "options": ["одна (м. и ж. одинаково)", "две", "три", "зависит от числа"], "answer": "одна (м. и ж. одинаково)"}, {"type": "В4", "prompt": "70 —", "options": ["שִׁבְעִים", "שִׁשִּׁים", "שְׁמוֹנִים", "שֶׁבַע"], "answer": "שִׁבְעִים"}, {"type": "В4", "prompt": "30 —", "options": ["שְׁלוֹשִׁים", "שָׁלוֹשׁ", "שְׁלוֹשָׁה", "שִׁשִּׁים"], "answer": "שְׁלוֹשִׁים"}, {"type": "В4", "prompt": "60 —", "options": ["שִׁשִּׁים", "שֵׁשׁ", "שִׁשָּׁה", "שְׁלוֹשִׁים"], "answer": "שִׁשִּׁים"}], "readingBlock": "R1.60", "notes": "Числа взяты из колоды Bet (ארבעים/שישים/שבעים/שמונים/מאה подтверждены)."},
+  {"id": "CH3.2", "seq": 61, "level": 4, "module": "numbers", "moduleName": "Числа", "title": "Составные числа: 21, 45, 99", "unlockCondition": "CH3.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "Составное число собирается просто: десяток + וְ («и») + единица. עֶשְׂרִים וְאַחַת «двадцать и один» = 21. אַרְבָּעִים וְחָמֵשׁ = 45. תִּשְׁעִים וְתֵשַׁע = 99. Единица согласуется с родом считаемого (как в 1–10), а десяток — нет. Порядок как в русском: сначала десяток, потом единица.", "examples": [{"hebrew": "עֶשְׂרִים וְאַחַת", "translit": "эсрим ве-ахат", "ru": "21 — десяток + וְ + единица.", "isNew": true, "audio": "ex_ch32_1.mp3", "gender": "f"}, {"hebrew": "שְׁלוֹשִׁים וּשְׁתַּיִם", "translit": "шлошим у-штайим", "ru": "32 — перед שׁ союз звучит «у».", "isNew": true, "audio": "ex_ch32_2.mp3", "gender": "f"}, {"hebrew": "אַרְבָּעִים וְחָמֵשׁ", "translit": "арбаим ве-хамеш", "ru": "45.", "isNew": true, "audio": "ex_ch32_3.mp3", "gender": "f"}, {"hebrew": "תִּשְׁעִים וְתֵשַׁע", "translit": "тишъим ве-тэйша", "ru": "99 — почти сотня!", "isNew": true, "audio": "ex_ch32_4.mp3", "gender": "f"}, {"hebrew": "עֶשְׂרִים וְאֶחָד יְלָדִים", "translit": "эсрим ве-эхад йеладим", "ru": "21 мальчик — единица אֶחָד в мужском роде, потому что יֶלֶד мужского рода.", "isNew": true, "gender": "m"}, {"hebrew": "שְׁלוֹשִׁים וּשְׁנֵי סְפָרִים", "translit": "шлошим у-шней сфарим", "ru": "32 книги — единица тоже в мужской форме, как סֵפֶר.", "isNew": true, "gender": "m"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Как собрать 21?", "options": ["עֶשְׂרִים וְאַחַת (десяток + и + единица)", "אַחַת עֶשְׂרִים", "וְעֶשְׂרִים אַחַת", "עֶשְׂרִים אֶחָד"], "answer": "עֶשְׂרִים וְאַחַת (десяток + и + единица)"}, {"type": "В4", "prompt": "Что стоит между десятком и единицей?", "options": ["וְ («и»)", "артикль", "של", "ничего"], "answer": "וְ («и»)"}, {"type": "В4", "prompt": "45 —", "options": ["אַרְבָּעִים וְחָמֵשׁ", "חָמֵשׁ אַרְבָּעִים", "אַרְבַּע חֲמִשִּׁים", "חֲמִשִּׁים אַרְבַּע"], "answer": "אַרְבָּעִים וְחָמֵשׁ"}, {"type": "В4", "prompt": "Что согласуется с родом считаемого?", "options": ["единица", "десяток", "союз וְ", "ничто"], "answer": "единица"}, {"type": "В4", "prompt": "Порядок в составном числе:", "options": ["десяток, потом единица", "единица, потом десяток", "любой", "только единица"], "answer": "десяток, потом единица"}, {"type": "В4", "prompt": "99 —", "options": ["תִּשְׁעִים וְתֵשַׁע", "תֵּשַׁע תִּשְׁעִים", "תִּשְׁעִים תֵּשַׁע", "מֵאָה"], "answer": "תִּשְׁעִים וְתֵשַׁע"}, {"type": "В4", "prompt": "«21 мальчик» (יֶלֶד — м.р.):", "options": ["עֶשְׂרִים וְאֶחָד יְלָדִים", "עֶשְׂרִים וְאַחַת יְלָדִים", "אֶחָד וְעֶשְׂרִים יְלָדִים", "עֶשְׂרִים יֶלֶד וְאֶחָד"], "answer": "עֶשְׂרִים וְאֶחָד יְלָדִים"}, {"type": "В4", "prompt": "Почему в «21 мальчик» единица אֶחָד, а не אַחַת?", "options": ["יֶלֶד мужского рода — единица согласуется", "так короче", "всегда אֶחָד", "это ошибка"], "answer": "יֶלֶד мужского рода — единица согласуется"}], "readingBlock": null, "notes": "Единица берёт форму рода из уроков CH1 (уже пройдено)."},
+  {"id": "SL1.3", "seq": 62, "level": 4, "module": "wordsystem", "moduleName": "Система слова", "title": "Деятель: модель КоТэЛь", "unlockCondition": "SL1.2 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "Модель «делающий» קוֹטֵל (её называют קוֹטֵל по образцу корня ק־ט־ל) даёт не только глаголы, но и людей по занятию. שׁוֹמֵר от ש־מ־ר (охранять) — «охранник, сторож». מוֹרֶה от י־ר־ה — «учитель». כּוֹתֵב «пишущий». Увидел рисунок о-э в трёх согласных — перед тобой «тот, кто делает это». Так из глагола рождается профессия.", "examples": [{"hebrew": "שׁוֹמֵר", "translit": "шомер", "ru": "сторож, охранник — «тот, кто охраняет» (ש־מ־ר).", "isNew": true, "audio": "ex_sl13_1.mp3", "gender": "m"}, {"hebrew": "מוֹרֶה", "translit": "морэ", "ru": "учитель — та же модель, знакомое слово (Даниэль это уже знает).", "isNew": false, "audio": "r1_c0_03.mp3"}, {"hebrew": "כּוֹתֵב", "translit": "котэв", "ru": "пишущий, писарь — от כ־ת־ב.", "isNew": true, "audio": "ex_sl13_3.mp3", "gender": "m"}, {"hebrew": "שׁוֹמֶרֶת", "translit": "шомэрет", "ru": "сторож (ж.р.) — женская пара קוֹטֶלֶת.", "isNew": true, "audio": "ex_sl13_4.mp3", "gender": "f"}, {"hebrew": "עוֹבֵד", "translit": "овэд", "ru": "работник — «тот, кто работает» (ע־ב־ד).", "isNew": true, "gender": "m"}, {"hebrew": "לוֹמֵד", "translit": "ломэд", "ru": "учащийся, студент — «тот, кто учится» (ל־מ־ד).", "isNew": true, "gender": "m"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Модель קוֹטֵל (о-э) обозначает…", "options": ["того, кто делает действие", "прошедшее время", "место", "множественное число"], "answer": "того, кто делает действие"}, {"type": "В4", "prompt": "שׁוֹמֵר значит…", "options": ["сторож («тот, кто охраняет»)", "охрана (место)", "охранял", "будет охранять"], "answer": "сторож («тот, кто охраняет»)"}, {"type": "В4", "prompt": "מוֹרֶה и שׁוֹמֵר — это…", "options": ["одна модель «делающий»", "разные модели", "глагол и существительное", "корень и приставка"], "answer": "одна модель «делающий»"}, {"type": "В4", "prompt": "Как называют модель «делающий»?", "options": ["קוֹטֵל", "מוֹרֶה", "שֶׁל", "דָּגֵשׁ"], "answer": "קוֹטֵל"}, {"type": "В4", "prompt": "Женская пара שׁוֹמֵר —", "options": ["שׁוֹמֶרֶת", "שׁוֹמְרָה", "שׁוֹמְרִים", "מִשְׁמָר"], "answer": "שׁוֹמֶרֶת"}, {"type": "В4", "prompt": "Зачем знать модель קוֹטֵל?", "options": ["узнавать профессию/деятеля в незнакомом слове", "считать", "ставить артикль", "определять время"], "answer": "узнавать профессию/деятеля в незнакомом слове"}, {"type": "В4", "prompt": "עוֹבֵד значит…", "options": ["работник («тот, кто работает»)", "работа (место)", "работал", "будет работать"], "answer": "работник («тот, кто работает»)"}, {"type": "В4", "prompt": "לוֹמֵד — модель קוֹטֵל от корня…", "options": ["ל־מ־ד (учить)", "ל־ד־ם", "מ־ד־ל", "ד־ל־ם"], "answer": "ל־מ־ד (учить)"}], "readingBlock": null, "notes": "Книга Коэн-Цедека, урок 2 (от шомера до менаhеля). Порции нет — на накопленном словаре."},
+  {"id": "G3.1", "seq": 63, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "Прошедшее время: было и прошло", "unlockCondition": "G2.4 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": true, "rule": "До сих пор всё было в настоящем (אֲנִי כּוֹתֵב «я пишу»). Теперь — прошедшее (עָבָר). У глагола есть «голая» форма прошедшего для «он»: כָּתַב «(он) написал», אָכַל «(он) поел», הָלַךְ «(он) пошёл», יָשַׁב «(он) сидел». Это три согласные корня с огласовкой а-а — самая чистая форма глагола, от неё строится вся таблица прошедшего. Узнаёшь корень? כּוֹתֵב пишет → כָּתַב написал.", "examples": [{"hebrew": "כּוֹתֵב → כָּתַב", "translit": "котэв → катав", "ru": "пишет → (он) написал. Тот же корень כ־ת־ב, форма а-а.", "isNew": true, "audio": "ex_g31_1.mp3", "gender": "m"}, {"hebrew": "אוֹכֵל → אָכַל", "translit": "охель → ахаль", "ru": "ест → (он) поел (א־כ־ל).", "isNew": true, "audio": "ex_g31_2.mp3", "gender": "m"}, {"hebrew": "הוֹלֵךְ → הָלַךְ", "translit": "hолех → hалах", "ru": "идёт → (он) пошёл (ה־ל־ך).", "isNew": true, "audio": "ex_g31_3.mp3", "gender": "m"}, {"hebrew": "יוֹשֵׁב → יָשַׁב", "translit": "йошев → яшав", "ru": "сидит → (он) сидел (י־ש־ב).", "isNew": true, "audio": "ex_g31_4.mp3", "gender": "m"}, {"hebrew": "עוֹבֵד → עָבַד", "translit": "овэд → авад", "ru": "работает → (он) поработал/работал (ע־ב־ד) — тот же узор а-а.", "isNew": true, "gender": "m"}, {"hebrew": "לוֹמֵד → לָמַד", "translit": "ломэд → ламад", "ru": "учится → (он) учил(ся) (ל־מ־ד).", "isNew": true, "gender": "m"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Прошедшее время на иврите —", "options": ["עָבָר", "עָתִיד", "הֹוֶה", "בֵּינוֹנִי"], "answer": "עָבָר"}, {"type": "В4", "prompt": "«(Он) написал» —", "options": ["כָּתַב", "כּוֹתֵב", "יִכְתֹּב", "כְּתִיבָה"], "answer": "כָּתַב"}, {"type": "В4", "prompt": "Какая огласовка у «голой» формы прошедшего (он)?", "options": ["а-а (כָּתַב)", "о-э", "и-и", "у-у"], "answer": "а-а (כָּתַב)"}, {"type": "В4", "prompt": "כּוֹתֵב относится к כָּתַב как…", "options": ["настоящее к прошедшему", "мужской к женскому", "число", "артикль"], "answer": "настоящее к прошедшему"}, {"type": "В4", "prompt": "«(Он) пошёл» —", "options": ["הָלַךְ", "הוֹלֵךְ", "יֵלֵךְ", "הֲלִיכָה"], "answer": "הָלַךְ"}, {"type": "В4", "prompt": "От чего строится вся таблица прошедшего?", "options": ["от формы «он» (3 согласных, а-а)", "от инфинитива", "от будущего", "от множественного"], "answer": "от формы «он» (3 согласных, а-а)"}, {"type": "В4", "prompt": "«(Он) работал» —", "options": ["עָבַד", "עוֹבֵד", "עֲבוֹדָה", "יַעֲבֹד"], "answer": "עָבַד"}, {"type": "В4", "prompt": "«(Он) учил(ся)» —", "options": ["לָמַד", "לוֹמֵד", "לִמּוּד", "יִלְמַד"], "answer": "לָמַד"}], "readingBlock": "R1.63", "notes": "Порция R1.63: базовые формы прошедшего из знакомых корней."},
+  {"id": "G3.2", "seq": 64, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "Прошедшее: я, ты (окончания ־תִּי, ־תָּ, ־תְּ)", "unlockCondition": "G3.1 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "К форме «он» добавляем личные окончания. Я: ־תִּי → כָּתַבְתִּי «я написал(а)», אָכַלְתִּי «я поел(а)». Ты (м): ־תָּ → כָּתַבְתָּ. Ты (ж): ־תְּ → כָּתַבְתְּ. Одна форма «я» — и для мужчины, и для женщины (в отличие от настоящего!). Это огромное облегчение: в прошедшем род «я» не важен.", "examples": [{"hebrew": "כָּתַבְתִּי", "translit": "катавти", "ru": "я написал(а) — окончание ־תִּי, род не важен.", "isNew": true, "audio": "ex_g32_1.mp3", "gender": "m"}, {"hebrew": "אָכַלְתִּי", "translit": "ахальти", "ru": "я поел(а).", "isNew": true, "audio": "ex_g32_2.mp3", "gender": "m"}, {"hebrew": "הָלַכְתָּ", "translit": "hалахта", "ru": "ты пошёл (мужчине) — ־תָּ.", "isNew": true, "audio": "ex_g32_3.mp3", "gender": "m"}, {"hebrew": "יָשַׁבְתְּ", "translit": "яшавт", "ru": "ты сидела (женщине) — ־תְּ.", "isNew": true, "audio": "ex_g32_4.mp3", "gender": "f"}, {"hebrew": "עָבַדְתִּי", "translit": "авадти", "ru": "я работал(а).", "isNew": true, "gender": "m"}, {"hebrew": "לָמַדְתְּ", "translit": "ламадт", "ru": "ты училась (женщине) — ־תְּ.", "isNew": true, "gender": "f"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Я написал(а)» —", "options": ["כָּתַבְתִּי", "כָּתַב", "כּוֹתֵב", "כָּתַבְתָּ"], "answer": "כָּתַבְתִּי"}, {"type": "В4", "prompt": "Окончание «я» в прошедшем —", "options": ["־תִּי", "־תָּ", "־תְּ", "־ִים"], "answer": "־תִּי"}, {"type": "В4", "prompt": "Зависит ли форма «я» в прошедшем от рода?", "options": ["нет — одна для м. и ж.", "да, две формы", "да, три", "только для глаголов еды"], "answer": "нет — одна для м. и ж."}, {"type": "В4", "prompt": "«Ты пошёл» (мужчине) —", "options": ["הָלַכְתָּ (камац)", "הָלַכְתְּ (камац)", "הָלַכְתִּי (камац)", "הָלַךְ (камац)"], "answer": "הָלַכְתָּ (камац)"}, {"type": "В4", "prompt": "«Ты сидела» (женщине) —", "options": ["יָשַׁבְתְּ", "יָשַׁבְתָּ", "יָשַׁבְתִּי", "יָשַׁב"], "answer": "יָשַׁבְתְּ"}, {"type": "В4", "prompt": "К чему добавляются окончания ־תִּי/־תָּ/־תְּ?", "options": ["к форме «он» (כָּתַב)", "к настоящему", "к инфинитиву", "к артиклю"], "answer": "к форме «он» (כָּתַב)"}, {"type": "В4", "prompt": "«Я работал(а)» —", "options": ["עָבַדְתִּי", "עָבַד", "עוֹבֵד", "עָבַדְתָּ"], "answer": "עָבַדְתִּי"}, {"type": "В4", "prompt": "«Ты училась» (женщине) —", "options": ["לָמַדְתְּ", "לָמַדְתָּ", "לָמַדְתִּי", "לָמַד"], "answer": "לָמַדְתְּ"}], "readingBlock": null, "notes": "Формы строятся от базовых глаголов порции R1.63 (предыдущий урок)."},
+  {"id": "G3.3", "seq": 65, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "Прошедшее: он и она", "unlockCondition": "G3.2 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "Форма «он» ты уже знаешь: כָּתַב «(он) написал». Форма «она» добавляет окончание ־ָה и меняет огласовку: כָּתְבָה «(она) написала», אָכְלָה «(она) поела», הָלְכָה «(она) пошла». Сравни: הוּא כָּתַב · הִיא כָּתְבָה. В третьем лице род различается — как в настоящем, но окончания другие.", "examples": [{"hebrew": "הוּא כָּתַב · הִיא כָּתְבָה", "translit": "hу катав · hи катва", "ru": "он написал · она написала — окончание ־ָה для «она».", "isNew": true, "audio": "ex_g33_1.mp3", "gender": "f"}, {"hebrew": "אָכְלָה", "translit": "ахла", "ru": "(она) поела — Майя אָכְלָה.", "isNew": true, "audio": "ex_g33_2.mp3", "gender": "f"}, {"hebrew": "הָלְכָה", "translit": "hальха", "ru": "(она) пошла — Тамар הָלְכָה.", "isNew": true, "audio": "ex_g33_3.mp3", "gender": "f"}, {"hebrew": "יָשְׁבָה", "translit": "яшва", "ru": "(она) сидела.", "isNew": true, "audio": "ex_g33_4.mp3", "gender": "f"}, {"hebrew": "הוּא עָבַד · הִיא עָבְדָה", "translit": "hу авад · hи авда", "ru": "он работал · она работала.", "isNew": true, "gender": "f"}, {"hebrew": "לָמְדָה", "translit": "ламда", "ru": "(она) училась.", "isNew": true, "gender": "f"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«(Она) написала» —", "options": ["כָּתְבָה", "כָּתַב", "כּוֹתֶבֶת", "כָּתַבְתִּי"], "answer": "כָּתְבָה"}, {"type": "В4", "prompt": "Окончание «она» в прошедшем —", "options": ["־ָה", "־תִּי", "־וּ", "־נוּ"], "answer": "־ָה"}, {"type": "В4", "prompt": "«Он поел» —", "options": ["אָכַל", "אָכְלָה", "אוֹכֵל", "אָכַלְתִּי"], "answer": "אָכַל"}, {"type": "В4", "prompt": "הִיא הָלְכָה значит…", "options": ["она пошла", "он пошёл", "она идёт", "ты пошла"], "answer": "она пошла"}, {"type": "В4", "prompt": "Различается ли род в 3-м лице прошедшего?", "options": ["да — он/она разные", "нет", "только у глаголов еды", "только во мн.ч."], "answer": "да — он/она разные"}, {"type": "В4", "prompt": "«(Она) сидела» —", "options": ["יָשְׁבָה", "יָשַׁב", "יוֹשֶׁבֶת", "יָשַׁבְתְּ"], "answer": "יָשְׁבָה"}, {"type": "В4", "prompt": "«(Она) работала» —", "options": ["עָבְדָה", "עָבַד", "עוֹבֶדֶת", "עָבַדְתִּי"], "answer": "עָבְדָה"}, {"type": "В4", "prompt": "«(Она) училась» —", "options": ["לָמְדָה", "לָמַד", "לוֹמֶדֶת", "לָמַדְתְּ"], "answer": "לָמְדָה"}], "readingBlock": null, "notes": "Спрягаем знакомые глаголы (порция R1.63). Новых слов нет — только формы."},
+  {"id": "G3.4", "seq": 66, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "Прошедшее: мы, вы, они", "unlockCondition": "G3.3 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "Множественное число прошедшего: мы ־נוּ → כָּתַבְנוּ «мы написали»; вы ־תֶּם → כְּתַבְתֶּם; они ־וּ → כָּתְבוּ «они написали». Окончание «они» ־וּ — одно для мужчин и женщин (в прошедшем род во мн.ч. не различается — снова проще, чем в настоящем!).", "examples": [{"hebrew": "כָּתַבְנוּ", "translit": "катавну", "ru": "мы написали — окончание ־נוּ.", "isNew": true, "audio": "ex_g34_1.mp3", "gender": "m"}, {"hebrew": "הֵם כָּתְבוּ", "translit": "hэм катву", "ru": "они написали — ־וּ, род не важен.", "isNew": true, "audio": "ex_g34_2.mp3", "gender": "m"}, {"hebrew": "אֲכַלְנוּ", "translit": "ахальну", "ru": "мы поели — вся семья.", "isNew": true, "audio": "ex_g34_3.mp3", "gender": "m"}, {"hebrew": "הָלְכוּ", "translit": "hальху", "ru": "(они) пошли.", "isNew": true, "audio": "ex_g34_4.mp3", "gender": "m"}, {"hebrew": "כְּתַבְתֶּם", "translit": "ктавтем", "ru": "вы написали (группе) — окончание ־תֶּם, форма «вы».", "isNew": true, "gender": "m"}, {"hebrew": "עָבַדְנוּ", "translit": "авадну", "ru": "мы работали.", "isNew": true, "gender": "m"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Мы написали» —", "options": ["כָּתַבְנוּ", "כָּתְבוּ", "כָּתַבְתִּי", "כָּתַב"], "answer": "כָּתַבְנוּ"}, {"type": "В4", "prompt": "Окончание «они» в прошедшем —", "options": ["־וּ", "־נוּ", "־תֶּם", "־ָה"], "answer": "־וּ"}, {"type": "В4", "prompt": "Различается ли род во мн.ч. прошедшего?", "options": ["нет — одна форма", "да, две", "да, три", "только у «вы»"], "answer": "нет — одна форма"}, {"type": "В4", "prompt": "«Они пошли» —", "options": ["הָלְכוּ", "הָלַכְנוּ", "הוֹלְכִים", "הָלְכָה"], "answer": "הָלְכוּ"}, {"type": "В4", "prompt": "«Мы поели» —", "options": ["אֲכַלְנוּ", "אָכְלוּ", "אָכַלְתִּי", "אוֹכְלִים"], "answer": "אֲכַלְנוּ"}, {"type": "В4", "prompt": "Окончание «мы» —", "options": ["־נוּ", "־וּ", "־תֶּם", "־תִּי"], "answer": "־נוּ"}, {"type": "В4", "prompt": "«Вы написали» (группе) —", "options": ["כְּתַבְתֶּם", "כָּתַבְנוּ", "כָּתְבוּ", "כָּתַבְתִּי"], "answer": "כְּתַבְתֶּם"}, {"type": "В4", "prompt": "«Мы работали» —", "options": ["עָבַדְנוּ", "עָבְדוּ", "עָבַדְתֶּם", "עָבַדְתִּי"], "answer": "עָבַדְנוּ"}], "readingBlock": null, "notes": "Спрягаем знакомые глаголы. Новых слов нет."},
+  {"id": "G3.5", "seq": 67, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "Вся таблица прошедшего (синтез)", "unlockCondition": "G3.4 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 90, "isSynthesis": true, "generatesReading": false, "approved": true, "rule": "Соберём всё: כָּתַבְתִּי я · כָּתַבְתָּ ты(м) · כָּתַבְתְּ ты(ж) · כָּתַב он · כָּתְבָה она · כָּתַבְנוּ мы · כְּתַבְתֶּם вы · כָּתְבוּ они. Один корень כ־ת־ב, восемь форм. Правило: голая форма «он» + личное окончание. Запомни рисунок — он повторится у любого глагола паАль.", "examples": [{"hebrew": "כָּתַבְתִּי · כָּתַבְתָּ · כָּתַבְתְּ", "translit": "катавти · катавта · катавт", "ru": "я · ты(м) · ты(ж) — единственное число.", "isNew": false, "audio": "ex_g32_1.mp3", "gender": "m"}, {"hebrew": "כָּתַב · כָּתְבָה", "translit": "катав · катва", "ru": "он · она.", "isNew": false, "audio": "ex_g33_1.mp3", "gender": "f"}, {"hebrew": "כָּתַבְנוּ · כְּתַבְתֶּם · כָּתְבוּ", "translit": "катавну · ктавтем · катву", "ru": "мы · вы · они.", "isNew": true, "audio": "ex_g35_1.mp3", "gender": "m"}, {"hebrew": "הִיא הָלְכָה, הֵם הָלְכוּ", "translit": "hи hальха, hэм hальху", "ru": "она пошла, они пошли — тот же узор на другом глаголе.", "isNew": false, "audio": "ex_g33_3.mp3", "gender": "f"}, {"hebrew": "עָבַדְתִּי · עָבַדְנוּ · עָבְדוּ", "translit": "авадти · авадну · авду", "ru": "я работал · мы работали · они работали — тот же узор на глаголе עבד.", "isNew": false, "gender": "m"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«Я написал(а)» —", "options": ["כָּתַבְתִּי", "כָּתַב", "כָּתְבָה", "כָּתַבְנוּ"], "answer": "כָּתַבְתִּי"}, {"type": "В4", "prompt": "«Они написали» —", "options": ["כָּתְבוּ", "כָּתַבְנוּ", "כְּתַבְתֶּם", "כָּתְבָה"], "answer": "כָּתְבוּ"}, {"type": "В4", "prompt": "«Она написала» —", "options": ["כָּתְבָה", "כָּתַב", "כָּתַבְתְּ", "כָּתְבוּ"], "answer": "כָּתְבָה"}, {"type": "В4", "prompt": "Из чего строится любая форма прошедшего?", "options": ["голая форма «он» + окончание", "из инфинитива", "из настоящего", "из будущего"], "answer": "голая форма «он» + окончание"}, {"type": "В4", "prompt": "«Мы написали» —", "options": ["כָּתַבְנוּ", "כָּתַבְתֶּם", "כָּתַבְתִּי", "כָּתְבוּ"], "answer": "כָּתַבְנוּ"}, {"type": "В4", "prompt": "Сколько личных форм в таблице прошедшего?", "options": ["восемь", "три", "пять", "двенадцать"], "answer": "восемь"}, {"type": "В4", "prompt": "«Ты написала» (ж) —", "options": ["כָּתַבְתְּ", "כָּתַבְתָּ", "כָּתְבָה", "כָּתַבְתִּי"], "answer": "כָּתַבְתְּ"}, {"type": "В4", "prompt": "Узор прошедшего повторяется…", "options": ["у любого глагола паАль", "только у כתב", "только во мн.ч.", "только в ед.ч."], "answer": "у любого глагола паАль"}], "readingBlock": null, "notes": "Синтез-урок: порог 90%. Новых слов нет — свод форм."},
+  {"id": "G3.6", "seq": 68, "level": 4, "module": "verb", "moduleName": "Глагол", "title": "10 глаголов в прошедшем", "unlockCondition": "G3.5 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": true, "rule": "Теперь — запас частотных глаголов в прошедшем (форма «он»): לָמַד «учил», עָבַד «работал», רָאָה «видел», שָׁמַע «слышал», יָדַע «знал», אָהַב «любил». Каждый спрягается по знакомой таблице: לָמַדְתִּי «я учил», עָבַדְנוּ «мы работали». רָאָה оканчивается на ־ָה — у таких глаголов «она» будет רָאֲתָה (пока просто запомни базу).", "examples": [{"hebrew": "לָמַד · לָמַדְתִּי", "translit": "ламад · ламадти", "ru": "учил · я учил. Ноам לָמַד עִבְרִית.", "isNew": true, "audio": "r1_g36_01.mp3", "gender": "m"}, {"hebrew": "עָבַד", "translit": "авад", "ru": "(он) работал. Даниэль עָבַד.", "isNew": true, "audio": "r1_g36_02.mp3", "gender": "m"}, {"hebrew": "רָאָה", "translit": "раа", "ru": "(он) видел — оканчивается на ־ָה.", "isNew": true, "audio": "r1_g36_03.mp3", "gender": "m"}, {"hebrew": "שָׁמַע", "translit": "шама", "ru": "(он) слышал.", "isNew": true, "audio": "r1_g36_04.mp3", "gender": "m"}, {"hebrew": "אָהַב", "translit": "аhав", "ru": "(он) любил.", "isNew": true, "gender": "m"}, {"hebrew": "יָדַע", "translit": "ядА", "ru": "(он) знал.", "isNew": true, "gender": "m"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "«(Он) учил» —", "options": ["לָמַד", "לוֹמֵד", "לָמַדְתִּי", "יִלְמַד"], "answer": "לָמַד"}, {"type": "В4", "prompt": "«Я работал» —", "options": ["עָבַדְתִּי", "עָבַד", "עוֹבֵד", "עָבַדְנוּ"], "answer": "עָבַדְתִּי"}, {"type": "В4", "prompt": "«(Он) слышал» —", "options": ["שָׁמַע", "שׁוֹמֵעַ", "שָׁמַעְתִּי", "יִשְׁמַע"], "answer": "שָׁמַע"}, {"type": "В4", "prompt": "Как спрягаются эти глаголы?", "options": ["по той же таблице прошедшего", "по особым правилам", "не спрягаются", "только во мн.ч."], "answer": "по той же таблице прошедшего"}, {"type": "В4", "prompt": "«(Он) видел» —", "options": ["רָאָה", "רוֹאֶה", "רָאִיתִי", "יִרְאֶה"], "answer": "רָאָה"}, {"type": "В4", "prompt": "«(Он) знал» —", "options": ["יָדַע", "יוֹדֵעַ", "יָדַעְתִּי", "יֵדַע"], "answer": "יָדַע"}, {"type": "В4", "prompt": "«(Он) любил» —", "options": ["אָהַב", "אוֹהֵב", "אֲהוּב", "יֶאֱהַב"], "answer": "אָהַב"}, {"type": "В4", "prompt": "Какой из этих глаголов в форме «он» оканчивается на ־ָה (особый случай)?", "options": ["רָאָה (видел)", "לָמַד (учил)", "עָבַד (работал)", "שָׁמַע (слышал)"], "answer": "רָאָה (видел)"}], "readingBlock": "R1.68", "notes": "Порция R1.68: частотные глаголы прошедшего из знакомых корней."},
+  {"id": "C5.1", "seq": 69, "level": 4, "module": "syntax", "moduleName": "Сквозные", "title": "Прошедшее в предложении; было и есть", "unlockCondition": "G3.5 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": false, "approved": true, "rule": "Прошедшее вплетается в предложение как настоящее, только глагол в форме עָבָר. Отрицание — то же לֹא, но перед глаголом прошедшего: הוּא לֹא כָּתַב «он не написал». Сравни времена: הַיּוֹם אֲנִי כּוֹתֵב, אֶתְמוֹל כָּתַבְתִּי «сегодня я пишу, вчера (я) написал». Слова времени (אֶתְמוֹל, הַיּוֹם) подсказывают, какое время выбрать.", "examples": [{"hebrew": "אֶתְמוֹל כָּתַבְתִּי", "translit": "этмоль катавти", "ru": "вчера я написал — слово אֶתְמוֹל требует прошедшего.", "isNew": true, "audio": "ex_c51_1.mp3", "gender": "m"}, {"hebrew": "הוּא לֹא כָּתַב", "translit": "hу ло катав", "ru": "он не написал — לֹא перед глаголом прошедшего.", "isNew": true, "audio": "ex_c51_2.mp3", "gender": "m"}, {"hebrew": "הַיּוֹם כּוֹתֵב, אֶתְמוֹל כָּתַב", "translit": "hайом котэв, этмоль катав", "ru": "сегодня пишет, вчера написал — два времени рядом.", "isNew": true, "audio": "ex_c51_3.mp3", "gender": "m"}, {"hebrew": "מָה עָשִׂיתָ אֶתְמוֹל?", "translit": "ма асита этмоль?", "ru": "что ты делал вчера? — вопрос в прошедшем.", "isNew": true, "audio": "ex_c51_4.mp3", "gender": "m"}, {"hebrew": "עָבַדְתִּי אֶתְמוֹל, הַיּוֹם אֲנִי לֹא עוֹבֵד", "translit": "авадти этмоль, hайом ани ло овэд", "ru": "я работал вчера, сегодня я не работаю.", "isNew": true, "gender": "m"}, {"hebrew": "הִיא לֹא אָכְלָה", "translit": "hи ло ахла", "ru": "она не поела.", "isNew": true, "gender": "f"}], "dialogueCards": [{"question": "מָה עָשִׂיתָ אֶתְמוֹל?", "questionRu": "Что ты делал вчера? — мужчине", "answer": "עָבַדְתִּי וְלָמַדְתִּי עִבְרִית.", "answerRu": "Я работал и учил иврит.", "qGender": "m", "aGender": "m", "qAudio": "dlg_c51_1q.mp3", "aAudio": "dlg_c51_1a.mp3"}, {"question": "אָכַלְתָּ הַיּוֹם?", "questionRu": "Ты сегодня ел? — мужчине", "answer": "כֵּן, אָכַלְתִּי בַּבֹּקֶר.", "answerRu": "Да, я поел утром.", "qGender": "m", "aGender": "m", "qAudio": "dlg_c51_2q.mp3", "aAudio": "dlg_c51_2a.mp3"}, {"question": "הוּא כָּתַב אֶתְמוֹל?", "questionRu": "Он писал вчера?", "answer": "לֹא, הוּא לֹא כָּתַב.", "answerRu": "Нет, он не писал.", "qGender": "m", "aGender": "m", "qAudio": "dlg_c51_3q.mp3", "aAudio": "dlg_c51_3a.mp3"}], "practiceItems": [{"type": "В4", "prompt": "«Вчера я написал» —", "options": ["אֶתְמוֹל כָּתַבְתִּי", "הַיּוֹם כָּתַבְתִּי", "אֶתְמוֹל כּוֹתֵב", "אֶתְמוֹל אֶכְתֹּב"], "answer": "אֶתְמוֹל כָּתַבְתִּי"}, {"type": "В4", "prompt": "Где стоит לֹא при отрицании прошедшего?", "options": ["перед глаголом", "после глагола", "в конце", "перед подлежащим"], "answer": "перед глаголом"}, {"type": "В4", "prompt": "Какое слово требует прошедшего времени?", "options": ["אֶתְמוֹל (вчера)", "הַיּוֹם (сегодня)", "עַכְשָׁיו (сейчас)", "מָחָר (завтра)"], "answer": "אֶתְמוֹל (вчера)"}, {"type": "В4", "prompt": "«Он не написал» —", "options": ["הוּא לֹא כָּתַב", "הוּא כָּתַב לֹא", "לֹא הוּא כָּתַב", "הוּא אֵין כָּתַב"], "answer": "הוּא לֹא כָּתַב"}, {"type": "В4", "prompt": "Что подсказывает выбор времени?", "options": ["слова времени (вчера/сегодня)", "артикль", "род", "число"], "answer": "слова времени (вчера/сегодня)"}, {"type": "В4", "prompt": "«Сегодня пишу, вчера написал»:", "options": ["הַיּוֹם כּוֹתֵב, אֶתְמוֹל כָּתַב", "הַיּוֹם כָּתַב, אֶתְמוֹל כּוֹתֵב", "two раза כּוֹתֵב", "two раза כָּתַב"], "answer": "הַיּוֹם כּוֹתֵב, אֶתְמוֹל כָּתַב"}, {"type": "В4", "prompt": "«Она не поела»:", "options": ["הִיא לֹא אָכְלָה", "הִיא אָכְלָה לֹא", "לֹא הִיא אָכְלָה", "הִיא אֵין אָכְלָה"], "answer": "הִיא לֹא אָכְלָה"}, {"type": "В4", "prompt": "«Я работал вчера, сегодня не работаю»:", "options": ["עָבַדְתִּי אֶתְמוֹל, הַיּוֹם אֲנִי לֹא עוֹבֵד", "עוֹבֵד אֶתְמוֹל, עָבַדְתִּי הַיּוֹם", "אֶתְמוֹל לֹא עוֹבֵד, הַיּוֹם עָבַדְתִּי", "עָבַדְתִּי הַיּוֹם, אֶתְמוֹל לֹא עוֹבֵד"], "answer": "עָבַדְתִּי אֶתְמוֹל, הַיּוֹם אֲנִי לֹא עוֹבֵד"}], "readingBlock": null, "notes": "Использует знакомые глаголы и слова времени (אֶתְמוֹל из R1.59)."},
+  {"id": "SL1.4", "seq": 70, "level": 4, "module": "wordsystem", "moduleName": "Система слова", "title": "Профессии и приборы", "unlockCondition": "SL1.3 done", "presentation": "К+С", "practiceType": "В4", "practiceCount": 8, "threshold": 70, "isSynthesis": false, "generatesReading": true, "approved": true, "rule": "Ещё две полезные модели. КаТаЛь (קַטָּל, с дагешем в средней) — постоянные занятия и профессии: נַהָג «водитель», צַיָּר «художник». маКТеЛь (מַקְטֵל) — приборы и инструменты, «то, чем делают»: מַחְשֵׁב «компьютер» (от חשב «думать» — «то, чем думают»!), מַפְתֵּחַ «ключ» (от פתח «открывать»). Увидел מ־ в начале и рисунок а-э — скорее всего прибор.", "examples": [{"hebrew": "נַהָג", "translit": "наhаг", "ru": "водитель — модель КаТаЛь, профессия (корень נ־ה־ג «вести»).", "isNew": true, "audio": "r1_sl14_01.mp3", "gender": "m"}, {"hebrew": "צַיָּר", "translit": "цайяр", "ru": "художник — та же модель (צ־י־ר «рисовать»).", "isNew": true, "audio": "r1_sl14_02.mp3", "gender": "m"}, {"hebrew": "מַחְשֵׁב", "translit": "махшев", "ru": "компьютер — маКТеЛь, «то, чем думают» (ח־ש־ב).", "isNew": true, "audio": "r1_sl14_03.mp3", "gender": "m"}, {"hebrew": "מַפְתֵּחַ", "translit": "мафтэах", "ru": "ключ — «то, чем открывают» (פ־ת־ח).", "isNew": true, "audio": "r1_sl14_04.mp3", "gender": "m"}, {"hebrew": "טַבָּח", "translit": "табах", "ru": "повар — модель КаТаЛь, профессия (ט־ב־ח «готовить»).", "isNew": true, "gender": "m"}, {"hebrew": "מַסְמֵר", "translit": "масмер", "ru": "гвоздь — маКТеЛь, «то, чем/для чего забивают» (ס־מ־ר).", "isNew": true, "gender": "m"}], "dialogueCards": [], "practiceItems": [{"type": "В4", "prompt": "Модель КаТаЛь (נַהָג, צַיָּר) обозначает…", "options": ["профессию/постоянное занятие", "прибор", "прошедшее время", "место"], "answer": "профессию/постоянное занятие"}, {"type": "В4", "prompt": "מַחְשֵׁב «компьютер» — от корня…", "options": ["חשב (думать) → «то, чем думают»", "חדש (новый)", "שוב (снова)", "מחר (завтра)"], "answer": "חשב (думать) → «то, чем думают»"}, {"type": "В4", "prompt": "Модель маКТеЛь (с מ־ в начале) обычно —", "options": ["прибор, инструмент", "человек", "глагол", "число"], "answer": "прибор, инструмент"}, {"type": "В4", "prompt": "«Водитель» —", "options": ["נַהָג", "נָהַג", "מַנְהִיג", "נְהִיגָה"], "answer": "נַהָג"}, {"type": "В4", "prompt": "מַפְתֵּחַ «ключ» — «то, чем…»", "options": ["открывают (פתח)", "пишут", "едут", "считают"], "answer": "открывают (פתח)"}, {"type": "В4", "prompt": "Как узнать прибор по виду слова?", "options": ["מ־ в начале + рисунок а-э", "окончание ־ָה", "артикль הַ", "дагеш в конце"], "answer": "מ־ в начале + рисунок а-э"}, {"type": "В4", "prompt": "«Повар» (модель КаТаЛь) —", "options": ["טַבָּח", "טוֹבֵחַ", "טְבִיחָה", "מַטְבֵּחַ"], "answer": "טַבָּח"}, {"type": "В4", "prompt": "מַסְמֵר «гвоздь» — какая модель?", "options": ["маКТеЛь (прибор/инструмент)", "КаТаЛь (профессия)", "קוֹטֵל (делающий)", "нет модели"], "answer": "маКТеЛь (прибор/инструмент)"}], "readingBlock": "R1.70", "notes": "Книга Коэн-Цедека, урок 2–3 (отглагольные модели). Порция R1.70: профессии и приборы."},
 ];
 
 export const GRAMMAR_LESSONS_BY_ID = Object.fromEntries(GRAMMAR_LESSONS.map(l => [l.id, l]));

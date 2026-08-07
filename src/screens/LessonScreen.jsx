@@ -266,8 +266,16 @@ export default function LessonScreen({ lesson, onBack, onOpenReading }) {
               <button key={opt.id} disabled={answered}
                 onClick={() => { setPicked(opt.id); if (opt.id === q.answerId) setCorrect(n => n + 1); }}
                 className={`rounded-xl border-2 p-4 min-h-[52px] flex items-center justify-between gap-3 text-left transition-all ${TYPO.option} ${cls}`}
-                dir="auto">
-                <span className="flex-1" style={HE.test(opt.label) ? HEB_FONT : undefined}>{opt.label}</span>
+                // dir фиксирован (не "auto"): при смешанном рус/иврит тексте
+                // ("עֶשְׂרֵה + единица" vs "Единица + עֶשְׂרֵה") dir="auto" брал
+                // базовое направление от ПЕРВОГО сильного символа опции — из-за
+                // этого разные опции получали разную базу и bidi-алгоритм
+                // переставлял их визуально в один и тот же порядок (BUG-015,
+                // варианты становились неотличимы). renderInline ниже сам
+                // оборачивает ивритские куски в dir="rtl" — общая база должна
+                // быть постоянной, иначе это встраивание конфликтует с ней.
+                dir="ltr">
+                <span className="flex-1" style={HE.test(opt.label) ? HEB_FONT : undefined}>{renderInline(opt.label, c, opt.id)}</span>
                 {mark && <span className="text-lg font-bold flex-shrink-0">{mark}</span>}
               </button>
             );

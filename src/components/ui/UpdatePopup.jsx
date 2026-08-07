@@ -11,7 +11,7 @@ import { useState } from "react";
  *   «Круто» — закрыть на этот раз (покажется при следующем открытии);
  *   «Не показывать снова» — пометить и больше не показывать никогда.
  */
-const ANNOUNCE_ID  = "v2";
+const ANNOUNCE_ID  = "v1.15";
 const ANNOUNCE_KEY = `hebrew-app-announce-${ANNOUNCE_ID}`;
 const CHAT_URL     = "https://t.me/alefbetchannel";
 
@@ -56,8 +56,8 @@ export default function UpdatePopup({ dark }) {
       >
         <div className="text-center">
           <div style={{ fontSize: 52, lineHeight: 1 }}>🚀</div>
-          <h2 className="mt-3 text-xl font-bold">Большой апдейт!</h2>
-          <p className={`mt-1 text-sm ${sub}`}>Теперь в Alef Bet есть:</p>
+          <h2 className="mt-3 text-xl font-bold">Alef Bet v1.15</h2>
+          <p className={`mt-1 text-sm ${sub}`}>Всё, что уже умеет приложение:</p>
         </div>
 
         <div className={`mt-4 text-[15px] leading-relaxed ${sub}`}>
@@ -80,10 +80,13 @@ export default function UpdatePopup({ dark }) {
 
         <div className={`mt-4 pt-3 border-t ${soft} text-xs leading-relaxed`}
           style={{ borderColor: "rgba(127,127,127,0.25)" }}>
-          🛠 <b>Багфиксы 23.07.2026:</b> белый экран после теста огласовок · краш
-          словаря и игры · счёт в игре не сохранялся · пустая тема «Слова» ·
-          кривая отметка ответа в уроках · квадратики вместо букв в моделях ·
-          разные цифры в словаре.
+          🛠 <b>Багфиксы 07.08.2026:</b> на iPad приложение теперь открывается на
+          весь экран · тема больше не сбрасывается на тёмную при переключении
+          окон · прогресс не теряется при быстром выходе сразу после ответа ·
+          в карточках не мелькает ответ следующей · числа 13–19 расписаны
+          подробно с транскрипцией · варианты ответов с ивритом и русским
+          вперемешку больше не выглядят одинаково · опечатка в переводе слова
+          «следующий».
         </div>
 
         <button

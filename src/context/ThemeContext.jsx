@@ -1,6 +1,9 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 
 const THEME_KEY = "hebrew-app-theme";
+// Отдельный флаг: пользователь явно переключил тему вручную (через toggle()).
+// Пока он стоит, ресинки Telegram-события themeChanged не должны перетирать выбор.
+const THEME_MANUAL_KEY = "hebrew-app-theme-manual";
 
 const ThemeContext = createContext(null);
 
@@ -19,6 +22,13 @@ export function ThemeProvider({ children }) {
     } catch { /* ignore */ }
     return false;
   });
+  const [manual, setManual] = useState(() => {
+    try { return localStorage.getItem(THEME_MANUAL_KEY) === "1"; } catch { return false; }
+  });
+  // themeChanged-обработчик ниже навешивается один раз (пустой deps) — держим
+  // актуальное значение manual в ref, чтобы замыкание не видело устаревшее.
+  const manualRef = useRef(manual);
+  useEffect(() => { manualRef.current = manual; }, [manual]);
 
   // Persist whenever theme changes
   useEffect(() => {
@@ -27,16 +37,25 @@ export function ThemeProvider({ children }) {
     } catch { /* ignore */ }
   }, [dark]);
 
-  // Следим за сменой темы в Telegram
+  useEffect(() => {
+    try {
+      localStorage.setItem(THEME_MANUAL_KEY, manual ? "1" : "0");
+    } catch { /* ignore */ }
+  }, [manual]);
+
+  // Следим за сменой темы в Telegram — но только пока пользователь не выбрал тему вручную сам
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
-    const handler = () => setDark(tg.colorScheme === "dark");
+    const handler = () => {
+      if (manualRef.current) return;
+      setDark(tg.colorScheme === "dark");
+    };
     tg.onEvent?.("themeChanged", handler);
     return () => tg.offEvent?.("themeChanged", handler);
   }, []);
 
-  const toggle = () => setDark(d => !d);
+  const toggle = () => { setManual(true); setDark(d => !d); };
 
   return (
     <ThemeContext.Provider value={{ dark, toggle }}>

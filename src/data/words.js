@@ -458,7 +458,7 @@ export const WORD_CATEGORIES = [
       { id:125, hebrew:"דרום", transliteration:"дарОм", translation:"юг", audio:"500words_darom.mp3" },
       { id:126, hebrew:"דרכון", transliteration:"даркОн", translation:"паспорт", audio:"500words_darkon.mp3" },
       { id:127, hebrew:"דתי", transliteration:"датИ", translation:"религиозный, верующий", audio:"500words_dati.mp3" },
-      { id:129, hebrew:"הבא", transliteration:"haбА", translation:"следубщий", audio:"500words_haba.mp3" },
+      { id:129, hebrew:"הבא", transliteration:"haбА", translation:"следующий", audio:"500words_haba.mp3" },
       { id:130, hebrew:"הודו", transliteration:"hОду", translation:"Индия, индейка (птица)", audio:"500words_hodu.mp3" },
       { id:133, hebrew:"היא", transliteration:"hи", translation:"она", audio:"500words_hi.mp3" },
       { id:135, hebrew:"הם", transliteration:"hэм", translation:"они (м.р.)", audio:"500words_hem.mp3" },

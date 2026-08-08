@@ -25,7 +25,12 @@ async function sb(path, opts = {}) {
     const body = await res.text();
     throw new Error(`Supabase ${res.status}: ${body}`);
   }
-  return res.status === 204 ? null : res.json();
+  // Не полагаемся на конкретный статус-код (204 — не единственный случай пустого тела:
+  // POST-upsert с Prefer: resolution=merge-duplicates без явного return=representation
+  // отвечает 201 с ПУСТЫМ телом) — проверяем по факту наличия тела, иначе res.json()
+  // падает с "Unexpected end of JSON input" на успешном запросе (BUG-019).
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
 // PostgREST по умолчанию режет любой select() на 1000 строк (db-max-rows) —

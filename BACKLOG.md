@@ -33,16 +33,7 @@
 
 ## 🔴 Критично
 
-- [ ] **RLS отключён на всех 7 таблицах Supabase** (`user_stats`, `referrals`, `events`, `daily_sessions`, `deck_words`, `user_word_progress`, `payments`) — обнаружено 08.08.2026 через Supabase advisor при работе над озвучкой колод. Anon-ключ может читать/писать любую строку любой таблицы. Не включено намеренно — нужны продуманные policy-правила (доступ по `telegram_id` к своим строкам), просто `ENABLE ROW LEVEL SECURITY` без политик заблокирует и легитимные запросы. SQL для включения (без политик, только как заготовка):
-  ```sql
-  ALTER TABLE public.user_stats ENABLE ROW LEVEL SECURITY;
-  ALTER TABLE public.referrals ENABLE ROW LEVEL SECURITY;
-  ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
-  ALTER TABLE public.daily_sessions ENABLE ROW LEVEL SECURITY;
-  ALTER TABLE public.deck_words ENABLE ROW LEVEL SECURITY;
-  ALTER TABLE public.user_word_progress ENABLE ROW LEVEL SECURITY;
-  ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
-  ```
+- [x] **RLS отключён на всех 7 таблицах Supabase** — закрыто 08.08.2026 (`enable_rls_remaining_tables`). Проверено по коду: фронтенд нигде не обращается к Supabase напрямую (нет anon/publishable-ключа в `src/`), весь доступ — через `api/*.js` с `SUPABASE_SERVICE_KEY` (service role, RLS не касается) → RLS включён БЕЗ политик (deny-all для `anon`/`authenticated`) на `user_stats`, `referrals`, `events`, `daily_sessions`, `deck_words`, `user_word_progress`, `payments` — тот же паттерн, что уже был у `vocab_items`. Advisor подтвердил: ERROR-линты `rls_disabled_in_public` исчезли, остались только INFO `rls_enabled_no_policy` (ожидаемо и безопасно). Заодно поправлен WARN `function_search_path_mutable` на `update_updated_at`. Если в будущем понадобится прямой клиентский доступ (публичное чтение `deck_words`/`vocab_items` в обход Vercel-функций, realtime-лидерборд, standalone веб с Supabase Auth) — тогда добавлять точечные `CREATE POLICY` под конкретный сценарий, не раньше.
 - [ ] **`api/decks.js` — верификация initData** (как в `api/sync.js`) до широкого релиза — ⚠️ подтверждено по коду 07.08.2026: в файле прямым текстом `// initData не верифицируем здесь ради краткости примера — В ПРОДЕ добавить`
 - [ ] `premiumExpiresAt` — отзывать premium при истечении — ⚠️ подтверждено: `api/admin.js` умеет выставлять `premiumExpiresAt` (грант на N дней), но ни в `api/cron.js`, ни где-либо ещё нет проверки истечения — просроченный Premium никогда не гаснет сам
 - [ ] `colorScheme` из `Telegram.WebApp` (Android) + флаг ручного override — частично сделано: `ThemeContext.jsx` уже читает `tg.colorScheme` и подписывается на его смену; Android-специфичного обхода и флага ручного override всё ещё нет

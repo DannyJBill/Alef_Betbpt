@@ -28,6 +28,20 @@ async function sb(path, opts = {}) {
   return res.status === 204 ? null : res.json();
 }
 
+// PostgREST по умолчанию режет любой select() на 1000 строк (db-max-rows) —
+// колоды вроде g_nouns/g_adjectives давно за этим пределом, пагинируем
+// через Range-заголовок, пока страница не вернётся короче PAGE.
+async function sbAll(path) {
+  const PAGE = 1000;
+  const all = [];
+  for (let from = 0; ; from += PAGE) {
+    const page = await sb(path, { headers: { Range: `${from}-${from + PAGE - 1}` } });
+    all.push(...page);
+    if (page.length < PAGE) break;
+  }
+  return all;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
   const { action, telegram_id } = req.body || {};
@@ -36,7 +50,7 @@ export default async function handler(req, res) {
     if (action === 'content') {
       const { deck } = req.body;
       if (!deck) return res.status(400).json({ error: 'deck required' });
-      const rows = await sb(`deck_words?deck=eq.${encodeURIComponent(deck)}&order=chunk.asc,ord.asc`);
+      const rows = await sbAll(`deck_words?deck=eq.${encodeURIComponent(deck)}&order=chunk.asc,ord.asc`);
       return res.status(200).json({ deck, words: rows });
     }
 

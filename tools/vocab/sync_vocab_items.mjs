@@ -50,6 +50,7 @@ function readingRows() {
         deck: null, chunk: null, ord: null,
         source: 'core-course',
         draft: !!item.draft,
+        meta: null,
       });
     }
   }
@@ -57,11 +58,19 @@ function readingRows() {
 }
 
 async function deckWordsRows() {
-  const { data, error } = await supabase.from('deck_words').select('*');
-  if (error) throw error;
-  return data.map(w => ({
+  // Supabase/PostgREST caps a single select() at 1000 rows by default —
+  // deck_words давно перевалила за это, пагинируем через .range().
+  const PAGE = 1000;
+  const all = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase.from('deck_words').select('*').range(from, from + PAGE - 1);
+    if (error) throw error;
+    all.push(...data);
+    if (data.length < PAGE) break;
+  }
+  return all.map(w => ({
     id: w.id,
-    type: 'word',
+    type: w.deck === 'g_phrases' ? 'phrase' : 'word',
     pos: null,
     hebrew: w.hebrew,
     plain: w.plain,
@@ -74,6 +83,7 @@ async function deckWordsRows() {
     deck: w.deck, chunk: w.chunk, ord: w.ord,
     source: 'legacy-decks',
     draft: false,
+    meta: w.meta || null,
   }));
 }
 

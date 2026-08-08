@@ -18,8 +18,14 @@ export const DECKS = [
   { id: 'transport', icon: '🚌', title: 'Транспорт',     wordCount: 11,  chunkCount: 2  },
   { id: 'study',     icon: '📚', title: 'Учёба',         wordCount: 24,  chunkCount: 3  },
   { id: 'verbs',     icon: '🏃', title: 'Спорт',         wordCount: 7,   chunkCount: 1  },
-  { id: 'conj',      icon: '🔗', title: 'Служебные',     wordCount: 22,  chunkCount: 3  },
+  { id: 'conj',      icon: '🔗', title: 'Служебные',     wordCount: 613, chunkCount: 77 },
   { id: 'misc',      icon: '📦', title: 'Разное',        wordCount: 140, chunkCount: 18 },
+  // По частям речи (импорт Hebrew-Russian_Bet__Audio + 100 TeachMeHebrew, см. BACKLOG.md) —
+  // грамматический разрез поверх тематических колод выше, реальное аудио (не TTS).
+  { id: 'g_nouns',      icon: '📇', title: 'Существительные', wordCount: 1553, chunkCount: 195 },
+  { id: 'g_adjectives', icon: '🌈', title: 'Прилагательные',  wordCount: 1678, chunkCount: 210 },
+  { id: 'g_verbs',      icon: '🎬', title: 'Глаголы',          wordCount: 695,  chunkCount: 87  },
+  { id: 'g_phrases',    icon: '💬', title: 'Фразы',            wordCount: 101,  chunkCount: 13  },
 ];
 export const DECKS_BY_ID = Object.fromEntries(DECKS.map(d => [d.id, d]));
 

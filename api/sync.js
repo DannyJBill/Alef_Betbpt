@@ -34,9 +34,12 @@ export default async function handler(req, res) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN?.trim();
   if (!botToken) return res.status(500).json({ error: "Bot token not configured" });
 
-  // In development (no real initData) — skip verification
+  // Dev-обход ТОЛЬКО если явно включён переменной окружения, которая не задаётся в
+  // проде на Vercel (BUG-020: раньше `initData === "dev"` пропускал проверку подписи
+  // Telegram для ЛЮБОГО вызывающего боевой /api/sync — достаточно было прислать это
+  // слово, без ключа/токена вообще). Теперь одной строки "dev" недостаточно.
   let user;
-  if (process.env.NODE_ENV === "development" || initData === "dev") {
+  if (process.env.ALLOW_DEV_BYPASS === "1" && initData === "dev") {
     user = { id: 0, username: "dev", first_name: "Dev" };
   } else {
     user = verifyTelegramData(initData, botToken);

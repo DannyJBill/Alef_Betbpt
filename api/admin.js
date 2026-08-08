@@ -11,10 +11,22 @@
  * stats.groupProgress, которого в v8 нет вовсе, и показывала нули).
  */
 
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 
 const PASS_SCORE = 70;
 const ADMIN_TELEGRAM_ID = "5675751402"; // владелец — доступ без пароля
+
+// Сравнение без утечки по времени (BUG-021) — обычный `===` даёт атакующему
+// микроскопический, но измеримый сигнал по префиксному совпадению символов.
+// Само по себе это второстепенно по сравнению с энтропией секрета, но раз уж
+// правим ADMIN_SECRET — чиним и это заодно, задел на будущее.
+function safeEqual(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || !a || !b) return false;
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 // Подпись Telegram WebApp: пускаем владельца по initData, без ADMIN_SECRET.
 function verifyTelegramData(initData, botToken) {
@@ -37,7 +49,7 @@ function verifyTelegramData(initData, botToken) {
 /** Доступ: либо верный ADMIN_SECRET, либо подпись Telegram владельца. */
 function authorize(req) {
   const secret = req.headers["x-admin-secret"] || req.query?.secret;
-  if (secret && secret === process.env.ADMIN_SECRET) return true;
+  if (secret && process.env.ADMIN_SECRET && safeEqual(String(secret), process.env.ADMIN_SECRET)) return true;
   const initData = req.headers["x-telegram-initdata"] || req.body?.initData;
   if (initData) {
     const user = verifyTelegramData(initData, process.env.BOT_TOKEN);

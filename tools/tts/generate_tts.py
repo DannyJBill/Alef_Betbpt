@@ -1,35 +1,49 @@
 # -*- coding: utf-8 -*-
 """
-Озвучка порций через edge-tts (бесплатные нейроголоса Microsoft, есть иврит).
+Озвучка через edge-tts (бесплатные нейроголоса Microsoft, есть иврит).
+Два источника записей — одна и та же логика синтеза/идемпотентности:
+
+  1. manifest.json → public/reading/, патчит src/data/reading.js (курс,
+     курируется в гите). Режим по умолчанию, как раньше.
+  2. `vocab_items` в Supabase (--sync-vocab-items) → public/reading/, пишет
+     audio/audio_hash обратно в саму таблицу. Раньше это делал отдельный
+     one-off скрипт мимо этого файла (462 слова колод озвучены им один раз
+     без связи с manifest.json) — теперь тот же путь для любых новых слов
+     в vocab_items (декам, будущему импорту 10к и т.п.).
 
 ГОЛОС ПО РОДУ (v2):
   Каждая запись озвучивается мужским или женским голосом.
   Приоритет выбора рода:
-    1. поле "gender" в manifest.json ("m"/"f") — ручной оверрайд;
+    1. поле "gender" в manifest.json / vocab_items.gender — ручной оверрайд;
     2. иначе — авто-классификация по огласованной форме (classify_gender):
        местоимение (הוא/היא/אתה/את…) → суффикс 2 л. (־ָךְ/־ֵךְ) →
        мужские числа 3–10 → окончание (־ָה/־ֶת/־ית) → дефолт мужской.
   Классификатор — эвристика; «объектные» фразы (subject м.р. + fem-существительное
-  в конце) он может спутать. Поэтому есть режим сверки (--annotate).
+  в конце) он может спутать. Поэтому есть режим сверки (--annotate, только manifest).
+
+ИДЕМПОТЕНТНОСТЬ (v3): ключ — hash(text + gender + voice + rate), не просто
+  id+gender. Раньше правка текста записи без чистки состояния тихо оставляла
+  старое (неверное) аудио — ключ по одному только роду не видел изменения
+  текста. Теперь любое изменение текста меняет hash → файл перегенерируется
+  автоматически. Старое состояние .tts_state.json (значения "m"/"f") при
+  первом запуске после апгрейда конвертируется в hash-формат без форсированной
+  перегенерации всего архива ("дедушкина оговорка" — см. LEGACY_GENDER_VALUES).
 
 Запуск на Windows (по одной строке):
   pip install edge-tts
-  python tools/tts/generate_tts.py --annotate     # 1) записать gender в manifest, СВЕРИТЬ вручную
-  python tools/tts/generate_tts.py                 # 2) сгенерировать mp3 нужным голосом
-
-Что делает основной прогон:
-1. Читает tools/tts/manifest.json (id, text, file, gender?).
-2. Генерирует mp3 в public/reading/<id>.mp3 голосом по роду.
-3. Патчит src/data/reading.js: audio:null -> audio:"<id>.mp3" (только для созданных).
-4. Идемпотентно: пропускает файлы, уже сгенерированные ТЕМ ЖЕ голосом
-   (состояние в tools/tts/.tts_state.json). Если род записи изменился —
-   mp3 перегенерируется автоматически.
+  python tools/tts/generate_tts.py --annotate         # 1) записать gender в manifest, СВЕРИТЬ вручную
+  python tools/tts/generate_tts.py                     # 2) сгенерировать mp3 нужным голосом (manifest.json)
+  SUPABASE_URL=... SUPABASE_SERVICE_KEY=... python tools/tts/generate_tts.py --sync-vocab-items
+                                                         # 3) то же самое для vocab_items (колоды/будущий импорт)
 """
 import asyncio
+import hashlib
 import json
 import os
 import re
 import sys
+import urllib.error
+import urllib.request
 
 VOICES = {
     "m": "he-IL-AvriNeural",   # мужской
@@ -37,6 +51,7 @@ VOICES = {
 }
 DEFAULT_GENDER = "m"
 RATE = "-10%"                  # чуть медленнее для учебного темпа
+LEGACY_GENDER_VALUES = {"m", "f"}  # старый формат .tts_state.json (id -> gender)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
@@ -46,8 +61,8 @@ OUT_DIR = os.path.join(ROOT, "public", "reading")
 READING_JS = os.path.join(ROOT, "src", "data", "reading.js")
 
 # ── Классификатор рода по огласованной форме ──────────────────────────────────
-_NIKUD = re.compile(r"[\u0591-\u05C7]")
-_NONHEB = re.compile(r"[^\u05D0-\u05EA\u0591-\u05C7]")  # не ивр. буква и не никуд
+_NIKUD = re.compile(r"[֑-ׇ]")
+_NONHEB = re.compile(r"[^א-ת֑-ׇ]")  # не ивр. буква и не никуд
 _clean = lambda w: _NONHEB.sub("", w)                   # убрать пунктуацию/?/!
 _strip = lambda w: _NIKUD.sub("", _clean(w))            # + убрать никуд
 
@@ -60,14 +75,14 @@ _MASC_NAMES = {"דניאל", "נעם", "שמעון", "רקס"}
 _MASC_NUM = {"שלושה", "שלשה", "ארבעה", "חמישה", "חמשה", "שישה", "ששה",
              "שבעה", "שמונה", "שמנה", "תשעה", "עשרה", "שניים", "שנים", "אחד"}
 
-_FEM_2P = re.compile(r"[\u05B8\u05B6]\u05DA\u05B0?$")     # ...ָךְ/ֶךְ  (2 л. ж.р.)
-_KAMATZ_HE = re.compile(r"\u05B8\u05D4$")                 # ...ָה
-_TAV_FEM = re.compile(r"(\u05B6|\u05B7|\u05B4\u05D9|\u05D5)\u05EA$")  # ...ֶת/ַת/ית/ות
+_FEM_2P = re.compile(r"[ֶָ]ךְ?$")     # ...ָךְ/ֶךְ  (2 л. ж.р.)
+_KAMATZ_HE = re.compile(r"ָה$")                 # ...ָה
+_TAV_FEM = re.compile(r"(ֶ|ַ|ִי|ו)ת$")  # ...ֶת/ַת/ית/ות
 
 
 # Суффиксы 2 л. в ЛЮБОМ месте фразы (маркер сильнее окончания последнего слова):
-_SUF_FEM = re.compile(r"\u05B8\u05DA\u05B0")   # ...ָךְ  (kamatz+kaf+sheva) — «тебе/твой» ж.р.
-_SUF_MASC = re.compile(r"\u05DA\u05B8")          # ...ךָ   (kaf+kamatz)        — «тебе/твой» м.р.
+_SUF_FEM = re.compile(r"ָךְ")   # ...ָךְ  (kamatz+kaf+sheva) — «тебе/твой» ж.р.
+_SUF_MASC = re.compile(r"ךָ")          # ...ךָ   (kaf+kamatz)        — «тебе/твой» м.р.
 
 def classify_gender(text):
     words = [w for w in text.split() if _clean(w)]
@@ -94,6 +109,12 @@ def gender_of(it):
     return g if g in VOICES else classify_gender(it["text"])
 
 
+def audio_hash(text, gender, voice, rate):
+    """Ключ идемпотентности: меняется при любой правке текста/рода/голоса/темпа."""
+    raw = f"{text}|{gender}|{voice}|{rate}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+
+
 # ── Режим сверки: записать gender в manifest и показать список ─────────────────
 def annotate():
     items = json.load(open(MANIFEST, encoding="utf-8"))
@@ -118,11 +139,7 @@ async def synth(text, voice, path):
     await edge_tts.Communicate(text, voice, rate=RATE).save(path)
 
 
-def main():
-    if "--annotate" in sys.argv:
-        annotate()
-        return
-
+def run_manifest():
     try:
         import edge_tts  # noqa: F401
     except ImportError:
@@ -138,14 +155,21 @@ def main():
         g = gender_of(it)
         voice = VOICES[g]
         path = os.path.join(OUT_DIR, it["file"])
-        fresh = os.path.exists(path) and os.path.getsize(path) > 0 and state.get(it["id"]) == g
+        h = audio_hash(it["text"], g, voice, RATE)
+        stored = state.get(it["id"])
+        # "Дедушкина оговорка": старый формат состояния хранил только род.
+        # Если файл уже существует и род не поменялся — считаем актуальным
+        # и просто переходим на hash-формат, не тратя квоту TTS впустую.
+        grandfathered = stored in LEGACY_GENDER_VALUES and stored == g
+        fresh = os.path.exists(path) and os.path.getsize(path) > 0 and (stored == h or grandfathered)
         if fresh:
+            state[it["id"]] = h
             skipped.append(it["id"])
             done.append(it)
             continue
         try:
             asyncio.run(synth(it["text"], voice, path))
-            state[it["id"]] = g
+            state[it["id"]] = h
             print(f"✓ {it['id']}  [{g}]  {it['text']}")
             done.append(it)
         except Exception as e:  # noqa: BLE001
@@ -170,6 +194,86 @@ def main():
     if failed:
         print("Не сгенерировались:", ", ".join(failed))
     print("Дальше: прослушай выборочно, прогони смоук, закоммить mp3 + reading.js + manifest.json")
+
+
+# ── vocab_items (Supabase) ──────────────────────────────────────────────────
+def _sb_request(method, path, body=None):
+    sb_url = os.environ.get("SUPABASE_URL")
+    sb_key = os.environ.get("SUPABASE_SERVICE_KEY")
+    if not sb_url or not sb_key:
+        print("Нужны SUPABASE_URL и SUPABASE_SERVICE_KEY в окружении.")
+        sys.exit(1)
+    url = sb_url.rstrip("/") + "/rest/v1/" + path
+    headers = {
+        "apikey": sb_key,
+        "Authorization": f"Bearer {sb_key}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal" if method == "PATCH" else "return=representation",
+    }
+    data = json.dumps(body).encode("utf-8") if body is not None else None
+    req = urllib.request.Request(url, data=data, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req) as resp:
+            raw = resp.read()
+            return json.loads(raw) if raw else None
+    except urllib.error.HTTPError as e:
+        print("✗ Supabase HTTP", e.code, e.read().decode("utf-8", "replace"))
+        raise
+
+
+def run_vocab_items():
+    try:
+        import edge_tts  # noqa: F401
+    except ImportError:
+        print("Сначала установи: pip install edge-tts")
+        sys.exit(1)
+
+    os.makedirs(OUT_DIR, exist_ok=True)
+    rows = _sb_request("GET", "vocab_items?select=id,plain,gender,audio,audio_hash")
+
+    done = skipped = failed = 0
+    for row in rows:
+        g = row.get("gender") or DEFAULT_GENDER
+        if g not in VOICES:
+            g = DEFAULT_GENDER
+        voice = VOICES[g]
+        text = row["plain"]
+        h = audio_hash(text, g, voice, RATE)
+        filename = f"{row['id']}.mp3"
+        path = os.path.join(OUT_DIR, filename)
+
+        # "Дедушкина оговорка", как в run_manifest(): если audio уже стоит,
+        # а audio_hash ещё не считался (первый прогон после апгрейда) —
+        # не перегенерируем, просто проставляем hash задним числом.
+        if row.get("audio_hash") == h:
+            skipped += 1
+            continue
+        if row.get("audio") and not row.get("audio_hash") and os.path.exists(path):
+            _sb_request("PATCH", f"vocab_items?id=eq.{row['id']}", {"audio_hash": h})
+            skipped += 1
+            continue
+
+        try:
+            asyncio.run(synth(text, voice, path))
+            _sb_request("PATCH", f"vocab_items?id=eq.{row['id']}",
+                        {"audio": filename, "audio_hash": h})
+            print(f"✓ {row['id']}  [{g}]  {text}")
+            done += 1
+        except Exception as e:  # noqa: BLE001
+            print("✗", row["id"], e)
+            failed += 1
+
+    print(f"\nГотово: {done} новых/обновлённых файлов, {skipped} уже актуальны, ошибок: {failed}")
+
+
+def main():
+    if "--annotate" in sys.argv:
+        annotate()
+        return
+    if "--sync-vocab-items" in sys.argv:
+        run_vocab_items()
+        return
+    run_manifest()
 
 
 if __name__ == "__main__":

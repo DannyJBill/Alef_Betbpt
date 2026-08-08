@@ -13,7 +13,7 @@ import { useState, useEffect, useRef } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { ALPHABET, FINAL_FORMS, LETTER_GROUPS, NIKUD, NIKUD_GROUPS } from "../data/alphabet";
-import { WORD_CATEGORIES } from "../data/words";
+import { READING_WORDS } from "../data/reading";
 import { shuffle, pick } from "../helpers/utils";
 import LetterDisplay from "../components/ui/LetterDisplay";
 import ProgressBar   from "../components/ui/ProgressBar";
@@ -60,9 +60,14 @@ function buildQuestionPool(stats, topics) {
 
   // Слова
   if (topics.includes("words")) {
-    // wordsStudied хранит id строками, WORD_CATEGORIES — числами: нормализуем
-    const learnedWordIds = new Set((stats.wordsStudied || []).map(String));
-    const allWords = WORD_CATEGORIES.flatMap(c => c.words.filter(w => learnedWordIds.has(String(w.id))));
+    // Раньше здесь брался легаси WORD_CATEGORIES (src/data/words.js) по
+    // числовым id из stats.wordsStudied — но wordsStudied с v8 факта хранит
+    // id из readingProgress (rw_*/rp_*…), так что совпадений никогда не
+    // было и тема "Слова" молча producировала пустой пул. Источник слов —
+    // тот же READING_WORDS + readingProgress.studied, что и на HomeScreen/
+    // ReadingScreen (см. dictWords/introduced там же).
+    const studiedSet = new Set(stats.readingProgress?.studied || []);
+    const allWords = READING_WORDS.filter(w => studiedSet.has(w.id));
     if (allWords.length >= 4) {
       allWords.forEach(w => {
         questions.push({ type:"word-to-translation", word:w, distractors:allWords });

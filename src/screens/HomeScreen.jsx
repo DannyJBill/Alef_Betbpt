@@ -86,16 +86,19 @@ function buildTrail(stats) {
 // viewBox 300×500 = координатная система тропы; контейнер держит те же
 // пропорции через aspect-ratio, поэтому проценты = px-координата/300 или /500,
 // без искажений при любой ширине экрана.
-const TRAIL_VB = { w: 300, h: 500 };
+const TRAIL_VB = { w: 300, h: 350 };
 const xPct = px => `${(px / TRAIL_VB.w * 100).toFixed(3)}%`;
 const yPct = px => `${(px / TRAIL_VB.h * 100).toFixed(3)}%`;
 
+// Вертикальные зазоры между остановками сжаты ~на 30% относительно исходной
+// схемы (500→350 по высоте) — узлы стояли слишком далеко друг от друга.
+// Кружки те же (size не трогаем), меняются только cy и кривые пунктира ниже.
 const TRAIL_POS = {
   doneBadge:  { cx: 132, cy: 40,  size: 52 },
-  prev:       { cx: 88,  cy: 140, size: 54 },
-  current:    { cx: 206, cy: 258, size: 80 },
-  next:       { cx: 88,  cy: 376, size: 54 },
-  aheadBadge: { cx: 132, cy: 468, size: 52 },
+  prev:       { cx: 88,  cy: 105, size: 54 },
+  current:    { cx: 206, cy: 182, size: 80 },
+  next:       { cx: 88,  cy: 259, size: 54 },
+  aheadBadge: { cx: 132, cy: 319, size: 52 },
 };
 // left/width — горизонтальная зона подписи; cy взят от самого узла (см.
 // TRAIL_POS), текст центрируется по вертикали через translateY(-50%), так
@@ -106,10 +109,10 @@ const TRAIL_LABEL_POS = {
   next:    { left: 128, cy: TRAIL_POS.next.cy,    width: 150, align: "left"  },
 };
 // Сегменты пунктира между соседними остановками, в порядке сверху вниз.
-const TRAIL_PATH_DONE_BADGE = "M132,66 C132,90 100,95 88,113";
-const TRAIL_PATH_DONE       = "M107,161 C140,185 155,205 178,228";
-const TRAIL_PATH_AHEAD      = "M178,284 C150,305 130,325 107,347";
-const TRAIL_PATH_AHEAD_BADGE = "M88,395 C88,415 115,420 132,442";
+const TRAIL_PATH_DONE_BADGE = "M132,66 C132,72 100,73 88,78";
+const TRAIL_PATH_DONE       = "M107,126 C140,135 155,143 178,152";
+const TRAIL_PATH_AHEAD      = "M178,208 C150,215 130,222 107,230";
+const TRAIL_PATH_AHEAD_BADGE = "M88,278 C88,284 115,286 132,293";
 
 // Короткая подпись узла: для букв/огласовок — общее название раздела (номер уже
 // на кружке), для словарной порции/грамматики — реальное короткое имя узла.

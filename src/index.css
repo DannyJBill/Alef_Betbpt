@@ -13,7 +13,13 @@ html, body {
   height: 100%;
 }
 
-/* Respect Telegram safe areas (notch, home bar) */
+/* Respect Telegram safe areas (notch, home bar).
+   --tg-top-inset — сумма safeAreaInset+contentSafeAreaInset, которую
+   main.jsx пишет при работе внутри Telegram (fullscreen edge-to-edge);
+   env(safe-area-inset-top) — фолбэк вне Telegram (обычный PWA/браузер). */
+:root {
+  --tg-top-inset: env(safe-area-inset-top, 0px);
+}
 #root {
   padding-bottom: env(safe-area-inset-bottom);
 }

@@ -1276,7 +1276,405 @@ var READING_BLOCKS = [
   { "id": "R1.60", "seq": 60, "lesson": "CH3.1", "title": "\u0414\u0435\u0441\u044F\u0442\u043A\u0438: 20\u2013100", "items": [{ "id": "r1_ch31_02", "hebrew": "\u05E9\u05B0\u05C1\u05DC\u05D5\u05B9\u05E9\u05B4\u05C1\u05D9\u05DD", "plain": "\u05E9\u05DC\u05D5\u05E9\u05D9\u05DD", "transliteration": "\u0448\u043B\u043E\u0448\u0438\u043C", "translation": "30", "type": "num", "lesson": "CH3.1", "audio": "r1_ch31_02.mp3", "draft": true }, { "id": "r1_ch31_03", "hebrew": "\u05D0\u05B7\u05E8\u05B0\u05D1\u05B8\u05BC\u05E2\u05B4\u05D9\u05DD", "plain": "\u05D0\u05E8\u05D1\u05E2\u05D9\u05DD", "transliteration": "\u0430\u0440\u0431\u0430\u0438\u043C", "translation": "40", "type": "num", "lesson": "CH3.1", "audio": "r1_ch31_03.mp3", "draft": true }, { "id": "r1_ch31_04", "hebrew": "\u05D7\u05B2\u05DE\u05B4\u05E9\u05B4\u05BC\u05C1\u05D9\u05DD", "plain": "\u05D7\u05DE\u05D9\u05E9\u05D9\u05DD", "transliteration": "\u0445\u0430\u043C\u0438\u0448\u0438\u043C", "translation": "50", "type": "num", "lesson": "CH3.1", "audio": "r1_ch31_04.mp3", "draft": true }, { "id": "r1_ch31_05", "hebrew": "\u05E9\u05B4\u05C1\u05E9\u05B4\u05BC\u05C1\u05D9\u05DD", "plain": "\u05E9\u05D9\u05E9\u05D9\u05DD", "transliteration": "\u0448\u0438\u0448\u0438\u043C", "translation": "60", "type": "num", "lesson": "CH3.1", "audio": "r1_ch31_05.mp3", "draft": true }, { "id": "r1_ch31_06", "hebrew": "\u05E9\u05B4\u05C1\u05D1\u05B0\u05E2\u05B4\u05D9\u05DD", "plain": "\u05E9\u05D1\u05E2\u05D9\u05DD", "transliteration": "\u0448\u0438\u0432\u044A\u0438\u043C", "translation": "70", "type": "num", "lesson": "CH3.1", "audio": "r1_ch31_06.mp3", "draft": true }, { "id": "r1_ch31_07", "hebrew": "\u05E9\u05B0\u05C1\u05DE\u05D5\u05B9\u05E0\u05B4\u05D9\u05DD", "plain": "\u05E9\u05DE\u05D5\u05E0\u05D9\u05DD", "transliteration": "\u0448\u043C\u043E\u043D\u0438\u043C", "translation": "80", "type": "num", "lesson": "CH3.1", "audio": "r1_ch31_07.mp3", "draft": true }, { "id": "r1_ch31_08", "hebrew": "\u05EA\u05B4\u05BC\u05E9\u05B0\u05C1\u05E2\u05B4\u05D9\u05DD", "plain": "\u05EA\u05E9\u05E2\u05D9\u05DD", "transliteration": "\u0442\u0438\u0448\u044A\u0438\u043C", "translation": "90", "type": "num", "lesson": "CH3.1", "audio": "r1_ch31_08.mp3", "draft": true }, { "id": "r1_ch31_09", "hebrew": "\u05DE\u05B5\u05D0\u05B8\u05D4", "plain": "\u05DE\u05D0\u05D4", "transliteration": "\u043C\u0435\u0430", "translation": "100", "type": "num", "lesson": "CH3.1", "audio": "r1_ch31_09.mp3", "draft": true }], "review": ["r1_ch11_04", "r1_ch13_01", "r1_ch14_01", "r1_ch21_05"] },
   { "id": "R1.63", "seq": 63, "lesson": "G3.1", "title": "\u041F\u0440\u043E\u0448\u0435\u0434\u0448\u0435\u0435: \u0431\u0430\u0437\u043E\u0432\u044B\u0435 \u0433\u043B\u0430\u0433\u043E\u043B\u044B", "items": [{ "id": "r1_g31_01", "hebrew": "\u05DB\u05B8\u05BC\u05EA\u05B7\u05D1", "plain": "\u05DB\u05EA\u05D1", "transliteration": "\u043A\u0430\u0442\u0430\u0432", "translation": "(\u043E\u043D) \u043D\u0430\u043F\u0438\u0441\u0430\u043B", "type": "verb", "lesson": "G3.1", "audio": "r1_g31_01.mp3", "draft": true }, { "id": "r1_g31_02", "hebrew": "\u05D0\u05B8\u05DB\u05B7\u05DC", "plain": "\u05D0\u05DB\u05DC", "transliteration": "\u0430\u0445\u0430\u043B\u044C", "translation": "(\u043E\u043D) \u043F\u043E\u0435\u043B", "type": "verb", "lesson": "G3.1", "audio": "r1_g31_02.mp3", "draft": true }, { "id": "r1_g31_03", "hebrew": "\u05D4\u05B8\u05DC\u05B7\u05DA\u05B0", "plain": "\u05D4\u05DC\u05DA", "transliteration": "h\u0430\u043B\u0430\u0445", "translation": "(\u043E\u043D) \u043F\u043E\u0448\u0451\u043B", "type": "verb", "lesson": "G3.1", "audio": "r1_g31_03.mp3", "draft": true }, { "id": "r1_g31_04", "hebrew": "\u05D9\u05B8\u05E9\u05B7\u05C1\u05D1", "plain": "\u05D9\u05E9\u05D1", "transliteration": "\u044F\u0448\u0430\u0432", "translation": "(\u043E\u043D) \u0441\u0438\u0434\u0435\u043B", "type": "verb", "lesson": "G3.1", "audio": "r1_g31_04.mp3", "draft": true }, { "id": "r1_g31_05", "hebrew": "\u05E7\u05B8\u05E8\u05B8\u05D0", "plain": "\u05E7\u05E8\u05D0", "transliteration": "\u043A\u0430\u0440\u0430", "translation": "(\u043E\u043D) \u0447\u0438\u0442\u0430\u043B", "type": "verb", "lesson": "G3.1", "audio": "r1_g31_05.mp3", "draft": true }, { "id": "r1_g31_06", "hebrew": "\u05D2\u05B8\u05BC\u05E8", "plain": "\u05D2\u05E8", "transliteration": "\u0433\u0430\u0440", "translation": "(\u043E\u043D) \u0436\u0438\u043B", "type": "verb", "lesson": "G3.1", "audio": "r1_g31_06.mp3", "draft": true }], "review": ["rw_48", "rw_47", "r1_g12_01", "r1_g12_05"] },
   { "id": "R1.68", "seq": 68, "lesson": "G3.6", "title": "\u0415\u0449\u0451 \u0433\u043B\u0430\u0433\u043E\u043B\u044B \u043F\u0440\u043E\u0448\u0435\u0434\u0448\u0435\u0433\u043E", "items": [{ "id": "r1_g36_w1", "hebrew": "\u05DC\u05B8\u05DE\u05B7\u05D3", "plain": "\u05DC\u05DE\u05D3", "transliteration": "\u043B\u0430\u043C\u0430\u0434", "translation": "(\u043E\u043D) \u0443\u0447\u0438\u043B", "type": "verb", "lesson": "G3.6", "audio": "r1_g36_w1.mp3", "draft": true }, { "id": "r1_g36_w2", "hebrew": "\u05E2\u05B8\u05D1\u05B7\u05D3", "plain": "\u05E2\u05D1\u05D3", "transliteration": "\u0430\u0432\u0430\u0434", "translation": "(\u043E\u043D) \u0440\u0430\u0431\u043E\u0442\u0430\u043B", "type": "verb", "lesson": "G3.6", "audio": "r1_g36_w2.mp3", "draft": true }, { "id": "r1_g36_w3", "hebrew": "\u05E8\u05B8\u05D0\u05B8\u05D4", "plain": "\u05E8\u05D0\u05D4", "transliteration": "\u0440\u0430\u0430", "translation": "(\u043E\u043D) \u0432\u0438\u0434\u0435\u043B", "type": "verb", "lesson": "G3.6", "audio": "r1_g36_w3.mp3", "draft": true }, { "id": "r1_g36_w4", "hebrew": "\u05E9\u05B8\u05C1\u05DE\u05B7\u05E2", "plain": "\u05E9\u05DE\u05E2", "transliteration": "\u0448\u0430\u043C\u0430", "translation": "(\u043E\u043D) \u0441\u043B\u044B\u0448\u0430\u043B", "type": "verb", "lesson": "G3.6", "audio": "r1_g36_w4.mp3", "draft": true }, { "id": "r1_g36_w5", "hebrew": "\u05D9\u05B8\u05D3\u05B7\u05E2", "plain": "\u05D9\u05D3\u05E2", "transliteration": "\u044F\u0434\u0430", "translation": "(\u043E\u043D) \u0437\u043D\u0430\u043B", "type": "verb", "lesson": "G3.6", "audio": "r1_g36_w5.mp3", "draft": true }, { "id": "r1_g36_w6", "hebrew": "\u05D0\u05B8\u05D4\u05B7\u05D1", "plain": "\u05D0\u05D4\u05D1", "transliteration": "\u0430h\u0430\u0432", "translation": "(\u043E\u043D) \u043B\u044E\u0431\u0438\u043B", "type": "verb", "lesson": "G3.6", "audio": "r1_g36_w6.mp3", "draft": true }], "review": ["r1_g31_01", "r1_g31_02", "rw_46"] },
-  { "id": "R1.70", "seq": 70, "lesson": "SL1.4", "title": "\u041F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u0438 \u0438 \u043F\u0440\u0438\u0431\u043E\u0440\u044B", "items": [{ "id": "r1_sl14_w1", "hebrew": "\u05E0\u05B7\u05D4\u05B8\u05D2", "plain": "\u05E0\u05D4\u05D2", "transliteration": "\u043D\u0430h\u0430\u0433", "translation": "\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044C, \u0448\u043E\u0444\u0451\u0440", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w1.mp3", "draft": true }, { "id": "r1_sl14_w2", "hebrew": "\u05E6\u05B7\u05D9\u05B8\u05BC\u05E8", "plain": "\u05E6\u05D9\u05D9\u05E8", "transliteration": "\u0446\u0430\u0439\u044F\u0440", "translation": "\u0445\u0443\u0434\u043E\u0436\u043D\u0438\u043A", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w2.mp3", "draft": true }, { "id": "r1_sl14_w3", "hebrew": "\u05E8\u05D5\u05B9\u05E4\u05B5\u05D0", "plain": "\u05E8\u05D5\u05E4\u05D0", "transliteration": "\u0440\u043E\u0444\u044D", "translation": "\u0432\u0440\u0430\u0447", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w3.mp3", "draft": true }, { "id": "r1_sl14_w4", "hebrew": "\u05DE\u05B0\u05D4\u05B7\u05E0\u05B0\u05D3\u05B5\u05BC\u05E1", "plain": "\u05DE\u05D4\u05E0\u05D3\u05E1", "transliteration": "\u043C\u0435h\u0430\u043D\u0434\u0435\u0441", "translation": "\u0438\u043D\u0436\u0435\u043D\u0435\u0440", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w4.mp3", "draft": true }, { "id": "r1_sl14_w5", "hebrew": "\u05DE\u05B7\u05D7\u05B0\u05E9\u05B5\u05C1\u05D1", "plain": "\u05DE\u05D7\u05E9\u05D1", "transliteration": "\u043C\u0430\u0445\u0448\u0435\u0432", "translation": "\u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w5.mp3", "draft": true }, { "id": "r1_sl14_w6", "hebrew": "\u05DE\u05B7\u05E7\u05B0\u05E8\u05B5\u05E8", "plain": "\u05DE\u05E7\u05E8\u05E8", "transliteration": "\u043C\u0430\u043A\u0440\u0435\u0440", "translation": "\u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w6.mp3", "draft": true }, { "id": "r1_sl14_w7", "hebrew": "\u05DE\u05B7\u05E4\u05B0\u05EA\u05B5\u05BC\u05D7\u05B7", "plain": "\u05DE\u05E4\u05EA\u05D7", "transliteration": "\u043C\u0430\u0444\u0442\u044D\u0430\u0445", "translation": "\u043A\u043B\u044E\u0447", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w7.mp3", "draft": true }, { "id": "r1_sl14_w8", "hebrew": "\u05DE\u05B7\u05E2\u05B2\u05DC\u05B4\u05D9\u05EA", "plain": "\u05DE\u05E2\u05DC\u05D9\u05EA", "transliteration": "\u043C\u0430\u0430\u043B\u0438\u0442", "translation": "\u043B\u0438\u0444\u0442", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w8.mp3", "draft": true }], "review": ["r1_c0_03", "r1_m31_06"] }
+  { "id": "R1.70", "seq": 70, "lesson": "SL1.4", "title": "\u041F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u0438 \u0438 \u043F\u0440\u0438\u0431\u043E\u0440\u044B", "items": [{ "id": "r1_sl14_w1", "hebrew": "\u05E0\u05B7\u05D4\u05B8\u05D2", "plain": "\u05E0\u05D4\u05D2", "transliteration": "\u043D\u0430h\u0430\u0433", "translation": "\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044C, \u0448\u043E\u0444\u0451\u0440", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w1.mp3", "draft": true }, { "id": "r1_sl14_w2", "hebrew": "\u05E6\u05B7\u05D9\u05B8\u05BC\u05E8", "plain": "\u05E6\u05D9\u05D9\u05E8", "transliteration": "\u0446\u0430\u0439\u044F\u0440", "translation": "\u0445\u0443\u0434\u043E\u0436\u043D\u0438\u043A", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w2.mp3", "draft": true }, { "id": "r1_sl14_w3", "hebrew": "\u05E8\u05D5\u05B9\u05E4\u05B5\u05D0", "plain": "\u05E8\u05D5\u05E4\u05D0", "transliteration": "\u0440\u043E\u0444\u044D", "translation": "\u0432\u0440\u0430\u0447", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w3.mp3", "draft": true }, { "id": "r1_sl14_w4", "hebrew": "\u05DE\u05B0\u05D4\u05B7\u05E0\u05B0\u05D3\u05B5\u05BC\u05E1", "plain": "\u05DE\u05D4\u05E0\u05D3\u05E1", "transliteration": "\u043C\u0435h\u0430\u043D\u0434\u0435\u0441", "translation": "\u0438\u043D\u0436\u0435\u043D\u0435\u0440", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w4.mp3", "draft": true }, { "id": "r1_sl14_w5", "hebrew": "\u05DE\u05B7\u05D7\u05B0\u05E9\u05B5\u05C1\u05D1", "plain": "\u05DE\u05D7\u05E9\u05D1", "transliteration": "\u043C\u0430\u0445\u0448\u0435\u0432", "translation": "\u043A\u043E\u043C\u043F\u044C\u044E\u0442\u0435\u0440", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w5.mp3", "draft": true }, { "id": "r1_sl14_w6", "hebrew": "\u05DE\u05B7\u05E7\u05B0\u05E8\u05B5\u05E8", "plain": "\u05DE\u05E7\u05E8\u05E8", "transliteration": "\u043C\u0430\u043A\u0440\u0435\u0440", "translation": "\u0445\u043E\u043B\u043E\u0434\u0438\u043B\u044C\u043D\u0438\u043A", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w6.mp3", "draft": true }, { "id": "r1_sl14_w7", "hebrew": "\u05DE\u05B7\u05E4\u05B0\u05EA\u05B5\u05BC\u05D7\u05B7", "plain": "\u05DE\u05E4\u05EA\u05D7", "transliteration": "\u043C\u0430\u0444\u0442\u044D\u0430\u0445", "translation": "\u043A\u043B\u044E\u0447", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w7.mp3", "draft": true }, { "id": "r1_sl14_w8", "hebrew": "\u05DE\u05B7\u05E2\u05B2\u05DC\u05B4\u05D9\u05EA", "plain": "\u05DE\u05E2\u05DC\u05D9\u05EA", "transliteration": "\u043C\u0430\u0430\u043B\u0438\u0442", "translation": "\u043B\u0438\u0444\u0442", "type": "noun", "lesson": "SL1.4", "audio": "r1_sl14_w8.mp3", "draft": true }], "review": ["r1_c0_03", "r1_m31_06"] },
+  // ═══ ПИЛОТ: обогащение из тематических колод (Supabase deck_words) ═══════════
+  // См. VOCAB_ENRICHMENT_CANDIDATES.md. Никуд у исходных слов колод отсутствовал
+  // (deck_words.hebrew === plain везде) — расставлен автоматически через Dicta
+  // Nakdan API (nakdan-u1-0.loadbalancer.dicta.org.il, top-ranked levelChoice:1
+  // на каждое слово/токен), не вычитан вручную человеком → draft:true у всех
+  // элементов пилота. 6 слов колоды family (אח/אחות/סבא/סבתא/משפחה/חבר) уже были
+  // в R1.53 под другим id — не дублируются здесь.
+  {
+    id: "TV.family",
+    seq: 500,
+    lesson: "EX1.1",
+    title: "\u0421\u0435\u043C\u044C\u044F (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_family_01", hebrew: "\u05D3\u05BC\u05D5\u05B9\u05D3", plain: "\u05D3\u05D5\u05D3", transliteration: "\u0434\u043E\u0434", translation: "\u0434\u044F\u0434\u044F", type: "word", lesson: "EX1.1", audio: "d_family_008.mp3", draft: true },
+      { id: "tv_family_02", hebrew: "\u05D3\u05BC\u05D5\u05B9\u05D3\u05B8\u05D4", plain: "\u05D3\u05D5\u05D3\u05D4", transliteration: "\u0434\u041E\u0434\u0430", translation: "\u0442\u0451\u0442\u044F", type: "word", lesson: "EX1.1", audio: "d_family_009.mp3", draft: true },
+      { id: "tv_family_03", hebrew: "\u05D4\u05D5\u05B9\u05E8\u05B4\u05D9\u05DD", plain: "\u05D4\u05D5\u05E8\u05D9\u05DD", transliteration: "ho\u0440\u0418\u043C", translation: "\u0440\u043E\u0434\u0438\u0442\u0435\u043B\u0438", type: "word", lesson: "EX1.1", audio: "d_family_010.mp3", draft: true },
+      { id: "tv_family_04", hebrew: "\u05EA\u05B4\u05BC\u05D9\u05E0\u05D5\u05B9\u05E7", plain: "\u05EA\u05D9\u05E0\u05D5\u05E7", transliteration: "\u0442\u0438\u043D\u041E\u043A", translation: "\u043C\u043B\u0430\u0434\u0435\u043D\u0435\u0446", type: "word", lesson: "EX1.1", audio: "d_family_018.mp3", draft: true },
+      { id: "tv_family_05", hebrew: "\u05D1\u05B6\u05BC\u05DF", plain: "\u05D1\u05DF", transliteration: "\u0431\u044D\u043D", translation: "\u0441\u044B\u043D", type: "word", lesson: "EX1.1", audio: "d_family_005.mp3", draft: true },
+      { id: "tv_family_06", hebrew: "\u05D1\u05B7\u05BC\u05E2\u05B7\u05DC", plain: "\u05D1\u05E2\u05DC", transliteration: "\u0431\u0410\u0430\u043B\u044C", translation: "\u043C\u0443\u0436, \u0445\u043E\u0437\u044F\u0438\u043D", type: "word", lesson: "EX1.1", audio: "d_family_006.mp3", draft: true },
+      { id: "tv_family_07", hebrew: "\u05D1\u05B7\u05BC\u05EA", plain: "\u05D1\u05EA", transliteration: "\u0431\u0430\u0442", translation: "\u0434\u043E\u0447\u044C", type: "word", lesson: "EX1.1", audio: "d_family_007.mp3", draft: true },
+      { id: "tv_family_08", hebrew: "\u05E0\u05B8\u05E9\u05C2\u05D5\u05BC\u05D9", plain: "\u05E0\u05E9\u05D5\u05D9", transliteration: "\u043D\u0430\u0441\u0423\u0439", translation: "\u0436\u0435\u043D\u0430\u0442", type: "word", lesson: "EX1.1", audio: "d_family_015.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.phrases1",
+    seq: 600,
+    lesson: "C5.1",
+    title: "\u0420\u0430\u0437\u0433\u043E\u0432\u043E\u0440\u043D\u0438\u043A (\u043F\u0438\u043B\u043E\u0442)",
+    items: [
+      { id: "tv_phr_01", hebrew: "\u05D1\u05B9\u05BC\u05E7\u05B6\u05E8 \u05D8\u05D5\u05B9\u05D1.", plain: "\u05D1\u05D5\u05E7\u05E8 \u05D8\u05D5\u05D1.", transliteration: "\u0431\u041E\u043A\u0435\u0440 \u0442\u043E\u0432", translation: "\u0414\u043E\u0431\u0440\u043E\u0435 \u0443\u0442\u0440\u043E.", type: "phrase", lesson: "C5.1", audio: "d_g_phrases_000.mp3", draft: true },
+      { id: "tv_phr_02", hebrew: "\u05E2\u05B6\u05E8\u05B6\u05D1 \u05D8\u05D5\u05B9\u05D1.", plain: "\u05E2\u05E8\u05D1 \u05D8\u05D5\u05D1.", transliteration: "\u042D\u0440\u0435\u0432 \u0442\u043E\u0432", translation: "\u0414\u043E\u0431\u0440\u044B\u0439 \u0432\u0435\u0447\u0435\u0440.", type: "phrase", lesson: "C5.1", audio: "d_g_phrases_001.mp3", draft: true },
+      { id: "tv_phr_03", hebrew: "\u05DC\u05B7\u05D9\u05B0\u05DC\u05B8\u05D4 \u05D8\u05D5\u05B9\u05D1.", plain: "\u05DC\u05D9\u05DC\u05D4 \u05D8\u05D5\u05D1.", transliteration: "\u043B\u0410\u0439\u043B\u0430 \u0442\u043E\u0432", translation: "\u0414\u043E\u0431\u0440\u043E\u0439 \u043D\u043E\u0447\u0438.", type: "phrase", lesson: "C5.1", audio: "d_g_phrases_002.mp3", draft: true },
+      { id: "tv_phr_04", hebrew: "\u05E0\u05B8\u05E2\u05B4\u05D9\u05DD \u05DE\u05B0\u05D0\u05D5\u05B9\u05D3.", plain: "\u05E0\u05E2\u05D9\u05DD \u05DE\u05D0\u05D5\u05D3.", transliteration: "\u043D\u0430\u0418\u043C \u043C\u044D\u041E\u0434", translation: "\u041E\u0447\u0435\u043D\u044C \u043F\u0440\u0438\u044F\u0442\u043D\u043E (\u043F\u0440\u0438 \u0437\u043D\u0430\u043A\u043E\u043C\u0441\u0442\u0432\u0435).", type: "phrase", lesson: "C5.1", audio: "d_g_phrases_010.mp3", draft: true },
+      { id: "tv_phr_05", hebrew: "\u05D0\u05B2\u05E0\u05B4\u05D9 \u05DC\u05B9\u05D0 \u05DE\u05B5\u05D1\u05B4\u05D9\u05DF.", plain: "\u05D0\u05E0\u05D9 \u05DC\u05D0 \u05DE\u05D1\u05D9\u05DF.", transliteration: "\u0430\u043D\u0418 \u043B\u043E \u043C\u044D\u0432\u0418\u043D", translation: "\u042F \u043D\u0435 \u043F\u043E\u043D\u0438\u043C\u0430\u044E.", type: "phrase", lesson: "C5.1", audio: "d_g_phrases_013.mp3", draft: true },
+      { id: "tv_phr_06", hebrew: "\u05DB\u05B7\u05BC\u05DE\u05B8\u05BC\u05D4 \u05D6\u05B6\u05D4 \u05E2\u05D5\u05B9\u05DC\u05B6\u05D4?", plain: "\u05DB\u05DE\u05D4 \u05D6\u05D4 \u05E2\u05D5\u05DC\u05D4?", transliteration: "\u043A\u0410\u043C\u0430 \u0437\u044D \u043E\u043B\u0415?", translation: "\u0421\u043A\u043E\u043B\u044C\u043A\u043E \u044D\u0442\u043E \u0441\u0442\u043E\u0438\u0442?", type: "phrase", lesson: "C5.1", audio: "d_g_phrases_084.mp3", draft: true },
+      { id: "tv_phr_07", hebrew: "\u05D0\u05B2\u05E0\u05B4\u05D9 \u05E8\u05B8\u05E2\u05B5\u05D1.", plain: "\u05D0\u05E0\u05D9 \u05E8\u05E2\u05D1.", transliteration: "\u0430\u043D\u0418 \u0440\u0430\u042D\u0432", translation: "\u042F \u0433\u043E\u043B\u043E\u0434\u0435\u043D.", type: "phrase", lesson: "C5.1", audio: "d_g_phrases_045.mp3", draft: true },
+      { id: "tv_phr_08", hebrew: "\u05D0\u05B5\u05D9\u05DF \u05D1\u05B0\u05BC\u05E2\u05B8\u05D9\u05B8\u05D4.", plain: "\u05D0\u05D9\u05DF \u05D1\u05E2\u05D9\u05D4.", transliteration: "\u042D\u0439\u043D \u0431\u044D-\u0430\u042F", translation: "\u041D\u0435\u0442 \u043F\u0440\u043E\u0431\u043B\u0435\u043C.", type: "phrase", lesson: "C5.1", audio: "d_g_phrases_055.mp3", draft: true }
+    ],
+    review: []
+  },
+  // ═══ ОСТАЛЬНЫЕ 12 ТЕМАТИЧЕСКИХ КОЛОД — партия 2 (09.08.2026) ═══════════════
+  // 242 слова, никуд — Dicta Nakdan (top levelChoice:1, слова колоды поданы одним
+  // запросом на колоду — так модель получает тематический контекст соседних слов,
+  // это подтверждено на омографах שער: тело→שֵׂעָר «волосы», спорт→שַׁעַר «ворота»,
+  // оба верны). Аномалии (fTanakh/предлог-разбор) проверены построчно скриптом —
+  // найдена и исправлена 1 ошибка (מחברת сначала распознано как «מ+חברת», верно
+  // מַחְבֶּרֶת). Остальное — draft:true, как и партия 1 (TV.family/TV.phrases1) выше.
+  {
+    id: "TV.body",
+    seq: 501,
+    lesson: "EX1.2",
+    title: "\u0422\u0435\u043B\u043E (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_body_01", hebrew: "\u05D0\u05B2\u05D2\u05D5\u05BC\u05D3\u05B8\u05DC", plain: "\u05D0\u05D2\u05D5\u05D3\u05DC", transliteration: "\u0430\u0433\u0443\u0434\u0410\u043B\u044C", translation: "\u0431\u043E\u043B\u044C\u0448\u043E\u0439 \u043F\u0430\u043B\u0435\u0446", type: "word", lesson: "EX1.2", audio: "d_body_000.mp3", draft: true },
+      { id: "tv_body_02", hebrew: "\u05D7\u05B8\u05D6\u05B6\u05D4", plain: "\u05D7\u05D6\u05D4", transliteration: "\u0445\u0430\u0437\u042D", translation: "\u0433\u0440\u0443\u0434\u044C, \u0433\u0440\u0443\u0434\u043D\u0430\u044F \u043A\u043B\u0435\u0442\u043A\u0430", type: "word", lesson: "EX1.2", audio: "d_body_008.mp3", draft: true },
+      { id: "tv_body_03", hebrew: "\u05E4\u05BC\u05B9\u05D4", plain: "\u05E4\u05D4", transliteration: "\u043F\u044D", translation: "\u0440\u043E\u0442", type: "word", lesson: "EX1.2", audio: "d_body_016.mp3", draft: true },
+      { id: "tv_body_04", hebrew: "\u05D9\u05B8\u05D3", plain: "\u05D9\u05D3", transliteration: "\u044F\u0434", translation: "\u0440\u0443\u043A\u0430", type: "word", lesson: "EX1.2", audio: "d_body_009.mp3", draft: true },
+      { id: "tv_body_05", hebrew: "\u05E4\u05BC\u05B8\u05E0\u05B4\u05D9\u05DD", plain: "\u05E4\u05E0\u05D9\u05DD", transliteration: "\u043F\u0430\u043D\u0418\u043C", translation: "\u043B\u0438\u0446\u043E", type: "word", lesson: "EX1.2", audio: "d_body_017.mp3", draft: true },
+      { id: "tv_body_06", hebrew: "\u05D0\u05B9\u05D6\u05B6\u05DF", plain: "\u05D0\u05D5\u05D6\u05DF", transliteration: "\u041E\u0437\u044D\u043D", translation: "\u0443\u0445\u043E", type: "word", lesson: "EX1.2", audio: "d_body_001.mp3", draft: true },
+      { id: "tv_body_07", hebrew: "\u05D0\u05B7\u05E3", plain: "\u05D0\u05E3", transliteration: "\u0430\u0444", translation: "\u043D\u043E\u0441", type: "word", lesson: "EX1.2", audio: "d_body_002.mp3", draft: true },
+      { id: "tv_body_08", hebrew: "\u05E8\u05B9\u05D0\u05E9\u05C1", plain: "\u05E8\u05D0\u05E9", transliteration: "\u0440\u043E\u0448", translation: "\u0433\u043E\u043B\u043E\u0432\u0430", type: "word", lesson: "EX1.2", audio: "d_body_018.mp3", draft: true },
+      { id: "tv_body_09", hebrew: "\u05DB\u05BC\u05B0\u05D0\u05B5\u05D1", plain: "\u05DB\u05D0\u05D1", transliteration: "\u043A\u044D\u042D\u0432", translation: "\u0431\u043E\u043B\u044C", type: "word", lesson: "EX1.2", audio: "d_body_010.mp3", draft: true },
+      { id: "tv_body_10", hebrew: "\u05DC\u05B5\u05D1", plain: "\u05DC\u05D1", transliteration: "\u043B\u044D\u0432", translation: "\u0441\u0435\u0440\u0434\u0446\u0435", type: "word", lesson: "EX1.2", audio: "d_body_011.mp3", draft: true },
+      { id: "tv_body_11", hebrew: "\u05D0\u05B6\u05E6\u05B0\u05D1\u05BC\u05B7\u05E2", plain: "\u05D0\u05E6\u05D1\u05E2", transliteration: "\u042D\u0446\u0431\u0430", translation: "\u043F\u0430\u043B\u0435\u0446", type: "word", lesson: "EX1.2", audio: "d_body_003.mp3", draft: true },
+      { id: "tv_body_12", hebrew: "\u05E8\u05B6\u05D2\u05B6\u05DC", plain: "\u05E8\u05D2\u05DC", transliteration: "\u0440\u042D\u0433\u0435\u043B\u044C", translation: "\u043D\u043E\u0433\u0430", type: "word", lesson: "EX1.2", audio: "d_body_019.mp3", draft: true },
+      { id: "tv_body_13", hebrew: "\u05D1\u05BC\u05B6\u05D8\u05B6\u05DF", plain: "\u05D1\u05D8\u05DF", transliteration: "\u0431\u042D\u0442\u0435\u043D", translation: "\u0436\u0438\u0432\u043E\u0442", type: "word", lesson: "EX1.2", audio: "d_body_004.mp3", draft: true },
+      { id: "tv_body_14", hebrew: "\u05DE\u05B9\u05D7\u05B7", plain: "\u05DE\u05D5\u05D7", transliteration: "\u043C\u041E\u0430\u0445", translation: "\u043C\u043E\u0437\u0433", type: "word", lesson: "EX1.2", audio: "d_body_012.mp3", draft: true },
+      { id: "tv_body_15", hebrew: "\u05E9\u05C2\u05B5\u05E2\u05B8\u05E8", plain: "\u05E9\u05E2\u05E8", transliteration: "\u0441\u044D\u0410\u0440", translation: "\u0432\u043E\u043B\u043E\u0441\u044B", type: "word", lesson: "EX1.2", audio: "d_body_020.mp3", draft: true },
+      { id: "tv_body_16", hebrew: "\u05D2\u05BC\u05B7\u05D1", plain: "\u05D2\u05D1", transliteration: "\u0433\u0430\u0432", translation: "\u0441\u043F\u0438\u043D\u0430", type: "word", lesson: "EX1.2", audio: "d_body_005.mp3", draft: true },
+      { id: "tv_body_17", hebrew: "\u05DE\u05B4\u05E9\u05C1\u05B0\u05E7\u05B7\u05DC", plain: "\u05DE\u05E9\u05E7\u05DC", transliteration: "\u043C\u0438\u0448\u043A\u0410\u043B\u044C", translation: "\u0432\u0435\u0441", type: "word", lesson: "EX1.2", audio: "d_body_013.mp3", draft: true },
+      { id: "tv_body_18", hebrew: "\u05E9\u05B4\u05C1\u05E0\u05B4\u05BC\u05D9\u05B4\u05BC\u05D9\u05DD", plain: "\u05E9\u05D9\u05E0\u05D9\u05D9\u05DD", transliteration: "\u0448\u0438\u043D\u0410\u0438\u043C", translation: "\u0437\u0443\u0431\u044B", type: "word", lesson: "EX1.2", audio: "d_body_021.mp3", draft: true },
+      { id: "tv_body_19", hebrew: "\u05E2\u05B7\u05D9\u05B4\u05DF", plain: "\u05E2\u05D9\u05DF", transliteration: "\u0410\u0438\u043D", translation: "\u0433\u043B\u0430\u0437", type: "word", lesson: "EX1.2", audio: "d_body_014.mp3", draft: true },
+      { id: "tv_body_20", hebrew: "\u05D2\u05BC\u05B9\u05D1\u05B7\u05D4\u05BC", plain: "\u05D2\u05D5\u05D1\u05D4", transliteration: "\u0433\u041E\u0432\u0430", translation: "\u0440\u043E\u0441\u0442, \u0432\u044B\u0441\u043E\u0442\u0430", type: "word", lesson: "EX1.2", audio: "d_body_006.mp3", draft: true },
+      { id: "tv_body_21", hebrew: "\u05E2\u05B6\u05E6\u05B6\u05DD", plain: "\u05E2\u05E6\u05DD", transliteration: "\u042D\u0446\u0435\u043C", translation: "\u043A\u043E\u0441\u0442\u044C", type: "word", lesson: "EX1.2", audio: "d_body_015.mp3", draft: true },
+      { id: "tv_body_22", hebrew: "\u05D2\u05BC\u05D5\u05BC\u05E3", plain: "\u05D2\u05D5\u05E3", transliteration: "\u0433\u0443\u0444", translation: "\u0442\u0435\u043B\u043E", type: "word", lesson: "EX1.2", audio: "d_body_007.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.city",
+    seq: 502,
+    lesson: "EX2.1",
+    title: "\u0413\u043E\u0440\u043E\u0434 (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_city_01", hebrew: "\u05E1\u05D5\u05BC\u05E4\u05BC\u05B6\u05E8\u05B0\u05DE\u05B7\u05E8\u05B0\u05E7\u05B6\u05D8", plain: "\u05E1\u05D5\u05E4\u05E8\u05DE\u05E8\u05E7\u05D8", transliteration: "\u0441\u0423\u043F\u0435\u0440\u043C\u0430\u0440\u043A\u0435\u0442", translation: "\u0441\u0443\u043F\u0435\u0440\u043C\u0430\u0440\u043A\u0435\u0442", type: "word", lesson: "EX2.1", audio: "d_city_016.mp3", draft: true },
+      { id: "tv_city_02", hebrew: "\u05D1\u05BC\u05B4\u05E0\u05B0\u05D9\u05B7\u05DF", plain: "\u05D1\u05E0\u05D9\u05D9\u05DF", transliteration: "\u0431\u0438\u043D\u044C\u042F\u043D", translation: "\u0437\u0434\u0430\u043D\u0438\u0435", type: "word", lesson: "EX2.1", audio: "d_city_000.mp3", draft: true },
+      { id: "tv_city_03", hebrew: "\u05DE\u05D5\u05BC\u05D6\u05B5\u05D0\u05D5\u05B9\u05DF", plain: "\u05DE\u05D5\u05D6\u05D9\u05D0\u05D5\u05DF", transliteration: "\u043C\u0443\u0437\u044D\u041E\u043D", translation: "\u043C\u0443\u0437\u0435\u0439", type: "word", lesson: "EX2.1", audio: "d_city_024.mp3", draft: true },
+      { id: "tv_city_04", hebrew: "\u05DB\u05BC\u05B0\u05E0\u05B4\u05D9\u05E1\u05B8\u05D4", plain: "\u05DB\u05E0\u05D9\u05E1\u05D4", transliteration: "\u043A\u043D\u0438\u0441\u0410", translation: "\u0432\u0445\u043E\u0434", type: "word", lesson: "EX2.1", audio: "d_city_008.mp3", draft: true },
+      { id: "tv_city_05", hebrew: "\u05D1\u05BC\u05B7\u05E0\u05B0\u05E7", plain: "\u05D1\u05E0\u05E7", transliteration: "\u0431\u0430\u043D\u043A", translation: "\u0431\u0430\u043D\u043A", type: "word", lesson: "EX2.1", audio: "d_city_001.mp3", draft: true },
+      { id: "tv_city_06", hebrew: "\u05DB\u05BC\u05B7\u05E1\u05B0\u05E4\u05BC\u05D5\u05B9\u05DE\u05B8\u05D8", plain: "\u05DB\u05E1\u05E4\u05D5\u05DE\u05D8", transliteration: "\u043A\u0430\u0441\u043F\u043E\u043C\u0410\u0442", translation: "\u0431\u0430\u043D\u043A\u043E\u043C\u0430\u0442", type: "word", lesson: "EX2.1", audio: "d_city_009.mp3", draft: true },
+      { id: "tv_city_07", hebrew: "\u05E1\u05B4\u05E4\u05B0\u05E8\u05B4\u05D9\u05BC\u05B8\u05D4", plain: "\u05E1\u05E4\u05E8\u05D9\u05D9\u05D4", transliteration: "\u0441\u0438\u0444\u0440\u0438\u042F", translation: "\u0431\u0438\u044C\u043B\u0438\u043E\u0442\u0435\u043A\u0430", type: "word", lesson: "EX2.1", audio: "d_city_017.mp3", draft: true },
+      { id: "tv_city_08", hebrew: "\u05DE\u05B7\u05D0\u05B2\u05E4\u05B4\u05D9\u05BC\u05B8\u05D4", plain: "\u05DE\u05D0\u05E4\u05D9\u05D9\u05D4", transliteration: "\u043C\u0430\u0430\u0444\u0438\u042F", translation: "\u043A\u043E\u043D\u0434\u0438\u0442\u0435\u0440\u0441\u043A\u0430\u044F", type: "word", lesson: "EX2.1", audio: "d_city_010.mp3", draft: true },
+      { id: "tv_city_09", hebrew: "\u05E1\u05B6\u05E8\u05B6\u05D8", plain: "\u05E1\u05E8\u05D8", transliteration: "\u0441\u042D\u0440\u0435\u0442", translation: "\u043A\u0438\u043D\u043E, \u043F\u043B\u0435\u043D\u043A\u0430", type: "word", lesson: "EX2.1", audio: "d_city_018.mp3", draft: true },
+      { id: "tv_city_10", hebrew: "\u05D3\u05BC\u05B9\u05D0\u05B7\u05E8", plain: "\u05D3\u05D5\u05D0\u05E8", transliteration: "\u0434\u041E\u0430\u0440", translation: "\u043F\u043E\u0447\u0442\u0430", type: "word", lesson: "EX2.1", audio: "d_city_002.mp3", draft: true },
+      { id: "tv_city_11", hebrew: "\u05E2\u05B4\u05D9\u05E8", plain: "\u05E2\u05D9\u05E8", transliteration: "\u0438\u0440", translation: "\u0433\u043E\u0440\u043E\u0434", type: "word", lesson: "EX2.1", audio: "d_city_019.mp3", draft: true },
+      { id: "tv_city_12", hebrew: "\u05DE\u05B4\u05D3\u05B0\u05E8\u05B8\u05DB\u05B8\u05D4", plain: "\u05DE\u05D3\u05E8\u05DB\u05D4", transliteration: "\u043C\u0438\u0434\u0440\u0430\u0445\u0410", translation: "\u0442\u0440\u043E\u0442\u0443\u0430\u0440", type: "word", lesson: "EX2.1", audio: "d_city_011.mp3", draft: true },
+      { id: "tv_city_13", hebrew: "\u05D7\u05D5\u05B9\u05E3", plain: "\u05D7\u05D5\u05E3", transliteration: "\u0445\u043E\u0444", translation: "\u043F\u043B\u044F\u0436", type: "word", lesson: "EX2.1", audio: "d_city_003.mp3", draft: true },
+      { id: "tv_city_14", hebrew: "\u05E7\u05B7\u05E0\u05B0\u05D9\u05D5\u05B9\u05DF", plain: "\u05E7\u05E0\u05D9\u05D5\u05DF", transliteration: "\u043A\u0430\u043D\u044C\u041E\u043D", translation: "\u0422\u043E\u0440\u0433\u043E\u0432\u044B\u0439 \u0446\u0435\u043D\u0442\u0440", type: "word", lesson: "EX2.1", audio: "d_city_020.mp3", draft: true },
+      { id: "tv_city_15", hebrew: "\u05DE\u05B0\u05DC\u05D5\u05B9\u05DF", plain: "\u05DE\u05DC\u05D5\u05DF", transliteration: "\u043C\u0430\u043B\u041E\u043D", translation: "\u0433\u043E\u0441\u0442\u0438\u043D\u0438\u0446\u0430", type: "word", lesson: "EX2.1", audio: "d_city_012.mp3", draft: true },
+      { id: "tv_city_16", hebrew: "\u05DE\u05B4\u05E0\u05B0\u05D4\u05B8\u05E8\u05B8\u05D4", plain: "\u05DE\u05E0\u05D4\u05E8\u05D4", transliteration: "\u043C\u0438\u043Dh\u0430\u0440\u0410", translation: "\u0442\u0443\u043D\u043D\u0435\u043B\u044C", type: "word", lesson: "EX2.1", audio: "d_city_013.mp3", draft: true },
+      { id: "tv_city_17", hebrew: "\u05D9\u05B0\u05E6\u05B4\u05D9\u05D0\u05B8\u05D4", plain: "\u05D9\u05E6\u05D9\u05D0\u05D4", transliteration: "\u0438\u0446\u0438\u042F", translation: "\u0432\u044B\u0445\u043E\u0434", type: "word", lesson: "EX2.1", audio: "d_city_005.mp3", draft: true },
+      { id: "tv_city_18", hebrew: "\u05D9\u05B4\u05E9\u05C2\u05B0\u05E8\u05B8\u05D0\u05B5\u05DC", plain: "\u05D9\u05E9\u05E8\u05D0\u05DC", transliteration: "\u0438\u0441\u0440\u0430\u042D\u043B", translation: "\u0418\u0437\u0440\u0430\u0438\u043B\u044C", type: "word", lesson: "EX2.1", audio: "d_city_006.mp3", draft: true },
+      { id: "tv_city_19", hebrew: "\u05DE\u05B4\u05E1\u05B0\u05E2\u05B8\u05D3\u05B8\u05D4", plain: "\u05DE\u05E1\u05E2\u05D3\u05D4", transliteration: "\u043C\u0438\u0441-\u0430\u0434\u0410", translation: "\u0440\u0435\u0441\u0442\u043E\u0440\u0430\u043D", type: "word", lesson: "EX2.1", audio: "d_city_014.mp3", draft: true },
+      { id: "tv_city_20", hebrew: "\u05DB\u05BC\u05B0\u05D1\u05B4\u05D9\u05E9\u05C1", plain: "\u05DB\u05D1\u05D9\u05E9", transliteration: "\u043A\u0432\u0438\u0448", translation: "\u0434\u043E\u0440\u043E\u0433\u0430, \u043F\u0443\u0442\u044C, \u0448\u043E\u0441\u0441\u0435, \u043F\u043E\u043A\u0440\u044B\u0442\u0438\u0435", type: "word", lesson: "EX2.1", audio: "d_city_007.mp3", draft: true },
+      { id: "tv_city_21", hebrew: "\u05E9\u05C1\u05B0\u05DB\u05D5\u05BC\u05E0\u05B8\u05D4", plain: "\u05E9\u05DB\u05D5\u05E0\u05D4", transliteration: "\u0448\u0445\u0443\u043D\u0410", translation: "\u0440\u0430\u0439\u043E\u043D", type: "word", lesson: "EX2.1", audio: "d_city_023.mp3", draft: true },
+      { id: "tv_city_22", hebrew: "\u05DE\u05B4\u05E9\u05C1\u05B0\u05D8\u05B8\u05E8\u05B8\u05D4", plain: "\u05DE\u05E9\u05D8\u05E8\u05D4", transliteration: "\u043C\u0438\u0448\u0442\u0430\u0440\u0410", translation: "\u043F\u043E\u043B\u0438\u0446\u0438\u044F", type: "word", lesson: "EX2.1", audio: "d_city_015.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.clothes",
+    seq: 503,
+    lesson: "C2",
+    title: "\u041E\u0434\u0435\u0436\u0434\u0430 (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_clothes_01", hebrew: "\u05E1\u05B7\u05E0\u05B0\u05D3\u05BC\u05B8\u05DC\u05B4\u05D9\u05DD", plain: "\u05E1\u05E0\u05D3\u05DC\u05D9\u05DD", transliteration: "\u0441\u0430\u043D\u0434\u0430\u043B\u0418\u043C", translation: "\u0441\u0430\u043D\u0434\u0430\u043B\u0438\u0438", type: "word", lesson: "C2", audio: "d_clothes_008.mp3", draft: true },
+      { id: "tv_clothes_02", hebrew: "\u05D1\u05BC\u05B0\u05D2\u05B8\u05D3\u05B4\u05D9\u05DD", plain: "\u05D1\u05D2\u05D3\u05D9\u05DD", transliteration: "\u0431\u0433\u0430\u0434\u0418\u041C", translation: "\u043E\u0434\u0435\u0436\u0434\u0430", type: "word", lesson: "C2", audio: "d_clothes_000.mp3", draft: true },
+      { id: "tv_clothes_03", hebrew: "\u05D2\u05BC\u05B7\u05E8\u05B0\u05D1\u05BC\u05B7\u05D9\u05B4\u05DD", plain: "\u05D2\u05E8\u05D1\u05D9\u05D9\u05DD", transliteration: "\u0433\u0430\u0440\u0431\u0410\u0438\u043C", translation: "\u043D\u043E\u0441\u043A\u0438", type: "word", lesson: "C2", audio: "d_clothes_001.mp3", draft: true },
+      { id: "tv_clothes_04", hebrew: "\u05EA\u05BC\u05B4\u05D9\u05E7", plain: "\u05EA\u05D9\u05E7", transliteration: "\u0442\u0438\u043A", translation: "\u0441\u0443\u043C\u043A\u0430", type: "word", lesson: "C2", audio: "d_clothes_009.mp3", draft: true },
+      { id: "tv_clothes_05", hebrew: "\u05D7\u05B2\u05D2\u05D5\u05B9\u05E8\u05B8\u05D4", plain: "\u05D7\u05D2\u05D5\u05E8\u05D4", transliteration: "\u0445\u0430\u0433\u043E\u0440\u0410", translation: "\u043F\u043E\u044F\u0441, \u0440\u0435\u043C\u0435\u043D\u044C", type: "word", lesson: "C2", audio: "d_clothes_002.mp3", draft: true },
+      { id: "tv_clothes_06", hebrew: "\u05D7\u05BB\u05DC\u05B0\u05E6\u05B8\u05D4", plain: "\u05D7\u05D5\u05DC\u05E6\u05D4", transliteration: "\u0445\u0443\u043B\u044C\u0446\u0410", translation: "\u0440\u0443\u0431\u0430\u0448\u043A\u0430", type: "word", lesson: "C2", audio: "d_clothes_003.mp3", draft: true },
+      { id: "tv_clothes_07", hebrew: "\u05D7\u05B2\u05E6\u05B8\u05D0\u05B4\u05D9\u05EA", plain: "\u05D7\u05E6\u05D0\u05D9\u05EA", transliteration: "\u0445\u0430\u0446\u0430\u0418\u0442", translation: "\u044E\u0431\u043A\u0430", type: "word", lesson: "C2", audio: "d_clothes_004.mp3", draft: true },
+      { id: "tv_clothes_08", hebrew: "\u05DB\u05BC\u05D5\u05B9\u05D1\u05B7\u05E2", plain: "\u05DB\u05D5\u05D1\u05E2", transliteration: "\u043A\u041E\u0432\u0430", translation: "\u0448\u043B\u044F\u043F\u0430, \u0448\u0430\u043F\u043A\u0430", type: "word", lesson: "C2", audio: "d_clothes_005.mp3", draft: true },
+      { id: "tv_clothes_09", hebrew: "\u05DE\u05B4\u05DB\u05B0\u05E0\u05B8\u05E1\u05B7\u05D9\u05B4\u05DD", plain: "\u05DE\u05DB\u05E0\u05E1\u05D9\u05DD", transliteration: "\u043C\u0438\u0445\u043D\u0430\u0441\u0410\u0438\u043C", translation: "\u0431\u0440\u044E\u043A\u0438, \u0448\u0442\u0430\u043D\u044B", type: "word", lesson: "C2", audio: "d_clothes_006.mp3", draft: true },
+      { id: "tv_clothes_10", hebrew: "\u05E0\u05B7\u05E2\u05B2\u05DC\u05B7\u05D9\u05B4\u05DD", plain: "\u05E0\u05E2\u05DC\u05D9\u05D9\u05DD", transliteration: "\u043D\u0430\u0430\u043B\u0410\u0438\u043C", translation: "\u0442\u0443\u0444\u043B\u0438, \u043E\u0431\u0443\u0432\u044C", type: "word", lesson: "C2", audio: "d_clothes_007.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.colors",
+    seq: 504,
+    lesson: "M1.4",
+    title: "\u0426\u0432\u0435\u0442\u0430 (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_colors_01", hebrew: "\u05E6\u05B8\u05D4\u05B9\u05D1", plain: "\u05E6\u05D4\u05D5\u05D1", transliteration: "\u0446\u0430\u0445\u041E\u0432", translation: "\u0436\u0435\u043B\u0442\u044B\u0439", type: "word", lesson: "M1.4", audio: "d_colors_008.mp3", draft: true },
+      { id: "tv_colors_02", hebrew: "\u05D0\u05B8\u05D3\u05B9\u05DD", plain: "\u05D0\u05D3\u05D5\u05DD", transliteration: "\u0430\u0434\u041E\u043C", translation: "\u043A\u0440\u0430\u0441\u043D\u044B\u0439", type: "word", lesson: "M1.4", audio: "d_colors_000.mp3", draft: true },
+      { id: "tv_colors_03", hebrew: "\u05D7\u05D5\u05BC\u05DD", plain: "\u05D7\u05D5\u05DD", transliteration: "\u0445\u0443\u043C", translation: "\u043A\u043E\u0440\u0438\u0447\u043D\u0435\u0432\u044B\u0439", type: "word", lesson: "M1.4", audio: "d_colors_001.mp3", draft: true },
+      { id: "tv_colors_04", hebrew: "\u05E9\u05C1\u05B8\u05D7\u05B9\u05E8", plain: "\u05E9\u05D7\u05D5\u05E8", transliteration: "\u0448\u0430\u0445\u041E\u0440", translation: "\u0447\u0435\u0440\u043D\u044B\u0439", type: "word", lesson: "M1.4", audio: "d_colors_009.mp3", draft: true },
+      { id: "tv_colors_05", hebrew: "\u05D9\u05B8\u05E8\u05B9\u05E7", plain: "\u05D9\u05E8\u05D5\u05E7", transliteration: "\u044F\u0440\u041E\u043A", translation: "\u0437\u0435\u043B\u0435\u043D\u044B\u0439", type: "word", lesson: "M1.4", audio: "d_colors_002.mp3", draft: true },
+      { id: "tv_colors_06", hebrew: "\u05DB\u05BC\u05B8\u05D7\u05B9\u05DC", plain: "\u05DB\u05D7\u05D5\u05DC", transliteration: "\u043A\u0430\u0445\u041E\u043B\u044C", translation: "\u0441\u0438\u043D\u0438\u0439", type: "word", lesson: "M1.4", audio: "d_colors_003.mp3", draft: true },
+      { id: "tv_colors_07", hebrew: "\u05DB\u05BC\u05B8\u05EA\u05B9\u05DD", plain: "\u05DB\u05EA\u05D5\u05DD", transliteration: "\u043A\u0430\u0442\u041E\u043C", translation: "\u043E\u0440\u0430\u043D\u0436\u0435\u0432\u044B\u0439", type: "word", lesson: "M1.4", audio: "d_colors_004.mp3", draft: true },
+      { id: "tv_colors_08", hebrew: "\u05DC\u05B8\u05D1\u05B8\u05DF", plain: "\u05DC\u05D1\u05DF", transliteration: "\u043B\u0430\u0432\u0410\u043D", translation: "\u0431\u0435\u043B\u044B\u0439", type: "word", lesson: "M1.4", audio: "d_colors_005.mp3", draft: true },
+      { id: "tv_colors_09", hebrew: "\u05E1\u05B8\u05D2\u05B9\u05DC", plain: "\u05E1\u05D2\u05D5\u05DC", transliteration: "\u0441\u0430\u0433\u041E\u043B\u044C", translation: "\u0444\u0438\u043E\u043B\u0435\u0442\u043E\u0432\u044B\u0439", type: "word", lesson: "M1.4", audio: "d_colors_006.mp3", draft: true },
+      { id: "tv_colors_10", hebrew: "\u05E6\u05B6\u05D1\u05B7\u05E2", plain: "\u05E6\u05D1\u05E2", transliteration: "\u0446\u042D\u0432\u0430", translation: "\u0446\u0432\u0435\u0442", type: "word", lesson: "M1.4", audio: "d_colors_007.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.food",
+    seq: 505,
+    lesson: "G1.2",
+    title: "\u0415\u0434\u0430 \u0438 \u043D\u0430\u043F\u0438\u0442\u043A\u0438 (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_food_01", hebrew: "\u05DC\u05B4\u05D9\u05DE\u05D5\u05B9\u05DF", plain: "\u05DC\u05D9\u05DE\u05D5\u05DF", transliteration: "\u043B\u0438\u043C\u041E\u043D", translation: "\u043B\u0438\u043C\u043E\u043D", type: "word", lesson: "G1.2", audio: "d_food_032.mp3", draft: true },
+      { id: "tv_food_02", hebrew: "\u05D0\u05B2\u05D1\u05B7\u05D8\u05BC\u05B4\u05D9\u05D7\u05B7", plain: "\u05D0\u05D1\u05D8\u05D9\u05D7", transliteration: "\u0430\u0432\u0430\u0442\u0418\u0430\u0445", translation: "\u0430\u0440\u0431\u0443\u0437", type: "word", lesson: "G1.2", audio: "d_food_000.mp3", draft: true },
+      { id: "tv_food_03", hebrew: "\u05E2\u05B2\u05E0\u05B8\u05D1\u05B4\u05D9\u05DD", plain: "\u05E2\u05E0\u05D1\u05D9\u05DD", transliteration: "\u0430\u043D\u0430\u0432\u0418\u043C", translation: "\u0432\u0438\u043D\u043E\u0433\u0440\u0430\u0434", type: "word", lesson: "G1.2", audio: "d_food_048.mp3", draft: true },
+      { id: "tv_food_04", hebrew: "\u05D1\u05BC\u05B5\u05D9\u05E6\u05B8\u05D4", plain: "\u05D1\u05D9\u05E6\u05D4", transliteration: "\u0431\u044D\u0439\u0446\u0410", translation: "\u044F\u0439\u0446\u043E", type: "word", lesson: "G1.2", audio: "d_food_008.mp3", draft: true },
+      { id: "tv_food_05", hebrew: "\u05E9\u05C1\u05B0\u05D6\u05B4\u05D9\u05E3", plain: "\u05E9\u05D6\u05D9\u05E3", transliteration: "\u0448\u0435\u0437\u0418\u0444", translation: "\u0441\u043B\u0438\u0432\u0430", type: "word", lesson: "G1.2", audio: "d_food_064.mp3", draft: true },
+      { id: "tv_food_06", hebrew: "\u05D7\u05B6\u05DE\u05B0\u05D0\u05B8\u05D4", plain: "\u05D7\u05DE\u05D0\u05D4", transliteration: "\u0445\u044D\u043C-\u0410", translation: "\u043C\u0430\u0441\u043B\u043E (\u0441\u043B\u0438\u0432\u043E\u0447\u043D\u043E\u0435)", type: "word", lesson: "G1.2", audio: "d_food_024.mp3", draft: true },
+      { id: "tv_food_07", hebrew: "\u05E7\u05B4\u05D9\u05E0\u05D5\u05B9\u05D0\u05B8\u05D4", plain: "\u05E7\u05D9\u05E0\u05D5\u05D0\u05D4", transliteration: "\u043A\u0438\u043D\u041E\u0430", translation: "\u043B\u0435\u0431\u0435\u0434\u0430, \u043A\u0438\u043D\u043E\u0430", type: "word", lesson: "G1.2", audio: "d_food_056.mp3", draft: true },
+      { id: "tv_food_08", hebrew: "\u05EA\u05BC\u05D5\u05BC\u05EA", plain: "\u05EA\u05D5\u05EA", transliteration: "\u0442\u0443\u0442", translation: "\u043A\u043B\u0443\u0431\u043D\u0438\u043A\u0430", type: "word", lesson: "G1.2", audio: "d_food_072.mp3", draft: true },
+      { id: "tv_food_09", hebrew: "\u05D2\u05BC\u05B0\u05DC\u05B4\u05D9\u05D3\u05B8\u05D4", plain: "\u05D2\u05DC\u05D9\u05D3\u05D4", transliteration: "\u0433\u043B\u0418\u0434\u0430", translation: "\u043C\u043E\u0440\u043E\u0436\u0435\u043D\u043D\u043E\u0435", type: "word", lesson: "G1.2", audio: "d_food_016.mp3", draft: true },
+      { id: "tv_food_10", hebrew: "\u05DE\u05B8\u05E0\u05B8\u05D4", plain: "\u05DE\u05E0\u05D4", transliteration: "\u043C\u0430\u043D\u0410", translation: "\u043F\u043E\u0440\u0446\u0438\u044F", type: "word", lesson: "G1.2", audio: "d_food_040.mp3", draft: true },
+      { id: "tv_food_11", hebrew: "\u05E9\u05C1\u05B8\u05DE\u05B5\u05DF", plain: "\u05E9\u05DE\u05DF", transliteration: "\u0448\u0415\u043C\u0435\u043D", translation: "\u043C\u0430\u0441\u043B\u043E (\u0440\u0430\u0441\u0442\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0435, \u043C\u0430\u0448\u0438\u043D\u043D\u043E\u0435)", type: "word", lesson: "G1.2", audio: "d_food_065.mp3", draft: true },
+      { id: "tv_food_12", hebrew: "\u05EA\u05BC\u05B8\u05DE\u05B8\u05E8", plain: "\u05EA\u05DE\u05E8", transliteration: "\u0442\u0430\u043C\u0410\u0440", translation: "\u0444\u0438\u043D\u0438\u043A", type: "word", lesson: "G1.2", audio: "d_food_073.mp3", draft: true },
+      { id: "tv_food_13", hebrew: "\u05D0\u05B7\u05D2\u05BC\u05B8\u05E1", plain: "\u05D0\u05D2\u05E1", transliteration: "\u0430\u0433\u0410\u0441", translation: "\u0433\u0440\u0443\u0448\u0430", type: "word", lesson: "G1.2", audio: "d_food_001.mp3", draft: true },
+      { id: "tv_food_14", hebrew: "\u05D1\u05BC\u05B4\u05D9\u05E8\u05B8\u05D4", plain: "\u05D1\u05D9\u05E8\u05D4", transliteration: "\u0431\u0418\u0440\u0430", translation: "\u043F\u0438\u0432\u043E", type: "word", lesson: "G1.2", audio: "d_food_009.mp3", draft: true },
+      { id: "tv_food_15", hebrew: "\u05D3\u05BC\u05B0\u05D1\u05B7\u05E9\u05C1", plain: "\u05D3\u05D1\u05E9", transliteration: "\u0434\u0432\u0430\u0448", translation: "\u043C\u0451\u0434", type: "word", lesson: "G1.2", audio: "d_food_017.mp3", draft: true },
+      { id: "tv_food_16", hebrew: "\u05DE\u05B7\u05D0\u05B2\u05E4\u05B6\u05D4", plain: "\u05DE\u05D0\u05E4\u05D4", transliteration: "\u043C\u0430\u0430\u0444\u042D", translation: "\u043A\u043E\u043D\u0434\u0438\u0442\u0435\u0440\u0441\u043A\u0438\u0435 \u0438\u0437\u0434\u0435\u043B\u0438\u044F", type: "word", lesson: "G1.2", audio: "d_food_033.mp3", draft: true },
+      { id: "tv_food_17", hebrew: "\u05D7\u05B2\u05DE\u05D5\u05BC\u05E6\u05B4\u05D9\u05DD", plain: "\u05D7\u05DE\u05D5\u05E6\u05D9\u05DD", transliteration: "\u0445\u0430\u043C\u0443\u0446\u0418\u043C", translation: "\u0441\u043E\u043B\u0435\u043D\u044B\u0435 (\u043C\u0430\u0440\u0438\u043D\u043E\u0432\u0430\u043D\u043D\u044B\u0435) \u043E\u0433\u0443\u0440\u0447\u0438\u043A\u0438", type: "word", lesson: "G1.2", audio: "d_food_025.mp3", draft: true },
+      { id: "tv_food_18", hebrew: "\u05E4\u05BC\u05B6\u05D8\u05B0\u05E8\u05D5\u05B9\u05D6\u05B4\u05D9\u05DC\u05B0\u05D9\u05B8\u05D4", plain: "\u05E4\u05D8\u05E8\u05D5\u05D6\u05D9\u05DC\u05D9\u05D4", transliteration: "\u043F\u0435\u0442\u0440\u043E\u0437\u0418\u043B\u044C\u044F", translation: "\u043F\u0435\u0442\u0440\u0443\u0448\u043A\u0430", type: "word", lesson: "G1.2", audio: "d_food_049.mp3", draft: true },
+      { id: "tv_food_19", hebrew: "\u05E7\u05B4\u05E9\u05BC\u05C1\u05D5\u05BC\u05D0", plain: "\u05E7\u05D9\u05E9\u05D5\u05D0", transliteration: "\u043A\u0438\u0448\u0423", translation: "\u0446\u0443\u043A\u043A\u0438\u043D\u0438, \u043A\u0430\u0431\u0430\u0447\u043E\u043A", type: "word", lesson: "G1.2", audio: "d_food_057.mp3", draft: true },
+      { id: "tv_food_20", hebrew: "\u05E0\u05B6\u05E7\u05B0\u05D8\u05B8\u05E8\u05B4\u05D9\u05E0\u05B8\u05D4", plain: "\u05E0\u05E7\u05D8\u05E8\u05D9\u05E0\u05D4", transliteration: "\u043D\u044D\u043A\u0442\u0430\u0440\u0418\u043D\u0430", translation: "\u043D\u0435\u043A\u0442\u0430\u0440\u0438\u043D", type: "word", lesson: "G1.2", audio: "d_food_041.mp3", draft: true },
+      { id: "tv_food_21", hebrew: "\u05E1\u05BB\u05DB\u05BC\u05B8\u05E8", plain: "\u05E1\u05D5\u05DB\u05E8", transliteration: "\u0441\u0443\u043A\u0410\u0440", translation: "\u0441\u0430\u0445\u0430\u0440", type: "word", lesson: "G1.2", audio: "d_food_042.mp3", draft: true },
+      { id: "tv_food_22", hebrew: "\u05E7\u05B8\u05E4\u05B6\u05D4", plain: "\u05E7\u05E4\u05D4", transliteration: "\u043A\u0430\u0444\u042D", translation: "\u043A\u043E\u0444\u0435", type: "word", lesson: "G1.2", audio: "d_food_058.mp3", draft: true },
+      { id: "tv_food_23", hebrew: "\u05E4\u05BC\u05B4\u05D8\u05B0\u05E8\u05B4\u05D9\u05BC\u05D5\u05B9\u05EA", plain: "\u05E4\u05D8\u05E8\u05D9\u05D5\u05EA", transliteration: "\u043F\u0438\u0442\u0440\u0438\u0439\u041E\u0442", translation: "\u0433\u0440\u0438\u0431\u044B", type: "word", lesson: "G1.2", audio: "d_food_050.mp3", draft: true },
+      { id: "tv_food_24", hebrew: "\u05D7\u05B7\u05E1\u05BC\u05B8\u05D4", plain: "\u05D7\u05E1\u05D4", transliteration: "\u0445\u0410\u0441\u0430", translation: "\u0441\u0430\u043B\u0430\u0442 (\u0440\u0430\u0441\u0442\u0435\u043D\u0438\u0435)", type: "word", lesson: "G1.2", audio: "d_food_026.mp3", draft: true },
+      { id: "tv_food_25", hebrew: "\u05DE\u05B0\u05D8\u05BB\u05D2\u05BC\u05B8\u05DF", plain: "\u05DE\u05D8\u05D5\u05D2\u05DF", transliteration: "\u043C\u0435\u0442\u0443\u0433\u0410\u043D", translation: "\u0436\u0430\u0440\u0435\u043D\u044B\u0439", type: "word", lesson: "G1.2", audio: "d_food_034.mp3", draft: true },
+      { id: "tv_food_26", hebrew: "\u05D1\u05BC\u05B8\u05E0\u05B8\u05E0\u05B8\u05D4", plain: "\u05D1\u05E0\u05E0\u05D4", transliteration: "\u0431\u0430\u043D\u0410\u043D\u0430", translation: "\u0431\u0430\u043D\u0430\u043D", type: "word", lesson: "G1.2", audio: "d_food_010.mp3", draft: true },
+      { id: "tv_food_27", hebrew: "\u05E9\u05C1\u05B0\u05E0\u05B4\u05D9\u05E6\u05B6\u05DC", plain: "\u05E9\u05E0\u05D9\u05E6\u05DC", transliteration: "\u0448\u043D\u0418\u0446\u044D\u043B\u044C", translation: "\u0448\u043D\u0438\u0446\u0435\u043B\u044C", type: "word", lesson: "G1.2", audio: "d_food_066.mp3", draft: true },
+      { id: "tv_food_28", hebrew: "\u05E9\u05C1\u05B8\u05E7\u05B5\u05D3", plain: "\u05E9\u05E7\u05D3", transliteration: "\u0448\u0430\u043A\u0415\u0434", translation: "\u043C\u0438\u043D\u0434\u0430\u043B\u044C", type: "word", lesson: "G1.2", audio: "d_food_067.mp3", draft: true },
+      { id: "tv_food_29", hebrew: "\u05E4\u05BC\u05B4\u05EA\u05BC\u05B8\u05D4", plain: "\u05E4\u05D9\u05EA\u05D4", transliteration: "\u043F\u0418\u0442\u0430", translation: "\u043F\u0438\u0442\u0430 (\u043B\u0435\u043F\u0435\u0448\u043A\u0430)", type: "word", lesson: "G1.2", audio: "d_food_051.mp3", draft: true },
+      { id: "tv_food_30", hebrew: "\u05E1\u05B8\u05DC\u05B8\u05D8", plain: "\u05E1\u05DC\u05D8", transliteration: "\u0441\u0430\u043B\u0410\u0442", translation: "\u0441\u0430\u043B\u0430\u0442 (\u0431\u043B\u044E\u0434\u043E)", type: "word", lesson: "G1.2", audio: "d_food_043.mp3", draft: true },
+      { id: "tv_food_31", hebrew: "\u05D1\u05BC\u05B8\u05E6\u05B8\u05DC", plain: "\u05D1\u05E6\u05DC", transliteration: "\u0431\u0430\u0446\u0410\u043B\u044C", translation: "\u043B\u0443\u043A", type: "word", lesson: "G1.2", audio: "d_food_011.mp3", draft: true },
+      { id: "tv_food_32", hebrew: "\u05E8\u05D5\u05B9\u05D8\u05B5\u05D1", plain: "\u05E8\u05D5\u05D8\u05D1", transliteration: "\u0440\u041E\u0442\u044D\u0432", translation: "\u0441\u043E\u0443\u0441", type: "word", lesson: "G1.2", audio: "d_food_059.mp3", draft: true },
+      { id: "tv_food_33", hebrew: "\u05D8\u05B8\u05DC\u05B6\u05D4", plain: "\u05D8\u05DC\u05D4", transliteration: "\u0442\u0430\u043B\u0415", translation: "\u044F\u0433\u043D\u0435\u043D\u043E\u043A", type: "word", lesson: "G1.2", audio: "d_food_027.mp3", draft: true },
+      { id: "tv_food_34", hebrew: "\u05D3\u05BC\u05BB\u05D1\u05B0\u05D3\u05BC\u05B0\u05D1\u05B8\u05DF", plain: "\u05D3\u05D5\u05D1\u05D3\u05D1\u05DF", transliteration: "\u0434\u0443\u0432\u0434\u044D\u0432\u0410\u043D", translation: "\u0432\u0438\u0448\u043D\u044F", type: "word", lesson: "G1.2", audio: "d_food_019.mp3", draft: true },
+      { id: "tv_food_35", hebrew: "\u05D1\u05BC\u05B7\u05E7\u05BC\u05B7\u05E8", plain: "\u05D1\u05E7\u05E8", transliteration: "\u0431\u0430\u043A\u0410\u0440", translation: "\u0433\u043E\u0432\u044F\u0434\u0438\u043D\u0430", type: "word", lesson: "G1.2", audio: "d_food_012.mp3", draft: true },
+      { id: "tv_food_36", hebrew: "\u05D0\u05B8\u05E0\u05B8\u05E0\u05B8\u05E1", plain: "\u05D0\u05E0\u05E0\u05E1", transliteration: "\u0410\u043D\u0430\u043D\u0430\u0441", translation: "\u0430\u043D\u0430\u043D\u0430\u0441", type: "word", lesson: "G1.2", audio: "d_food_004.mp3", draft: true },
+      { id: "tv_food_37", hebrew: "\u05E1\u05B6\u05DC\u05B6\u05E7", plain: "\u05E1\u05DC\u05E7", transliteration: "\u0441\u042D\u043B\u0435\u043A", translation: "\u0441\u0432\u0435\u043A\u043B\u0430", type: "word", lesson: "G1.2", audio: "d_food_044.mp3", draft: true },
+      { id: "tv_food_38", hebrew: "\u05EA\u05BC\u05B5\u05E8\u05B5\u05D3", plain: "\u05EA\u05E8\u05D3", transliteration: "\u0442\u042D\u0440\u044D\u0434", translation: "\u0448\u043F\u0438\u043D\u0430\u0442", type: "word", lesson: "G1.2", audio: "d_food_076.mp3", draft: true },
+      { id: "tv_food_39", hebrew: "\u05E8\u05B4\u05DE\u05BC\u05D5\u05B9\u05DF", plain: "\u05E8\u05D9\u05DE\u05D5\u05DF", transliteration: "\u0440\u0438\u043C\u041E\u043D", translation: "\u0433\u0440\u0430\u043D\u0430\u0442", type: "word", lesson: "G1.2", audio: "d_food_060.mp3", draft: true },
+      { id: "tv_food_40", hebrew: "\u05D9\u05D5\u05B9\u05D2\u05D5\u05BC\u05E8\u05B0\u05D8", plain: "\u05D9\u05D5\u05D2\u05D5\u05E8\u05D8", transliteration: "\u0451\u0433\u0443\u0440\u0442", translation: "\u0451\u0433\u0443\u0440\u0442", type: "word", lesson: "G1.2", audio: "d_food_028.mp3", draft: true },
+      { id: "tv_food_41", hebrew: "\u05D6\u05B7\u05D9\u05B4\u05EA", plain: "\u05D6\u05D9\u05EA", transliteration: "\u0437\u0430\u0439\u0442", translation: "\u043E\u043B\u0438\u0432\u043A\u0430, \u043C\u0430\u0441\u043B\u0438\u043D\u043A\u0430", type: "word", lesson: "G1.2", audio: "d_food_020.mp3", draft: true },
+      { id: "tv_food_42", hebrew: "\u05E9\u05C1\u05B0\u05EA\u05B4\u05D9\u05BC\u05B8\u05D4", plain: "\u05E9\u05EA\u05D9\u05D9\u05D4", transliteration: "\u0448\u0442\u0438\u042F", translation: "\u043F\u0438\u0442\u044C\u0435 (\u043F\u0440\u043E\u0446\u0435\u0441\u0441)", type: "word", lesson: "G1.2", audio: "d_food_069.mp3", draft: true },
+      { id: "tv_food_43", hebrew: "\u05DE\u05B6\u05DC\u05B7\u05D7", plain: "\u05DE\u05DC\u05D7", transliteration: "\u043C\u042D\u043B\u0430\u0445", translation: "\u0441\u043E\u043B\u044C", type: "word", lesson: "G1.2", audio: "d_food_037.mp3", draft: true },
+      { id: "tv_food_44", hebrew: "\u05D1\u05BC\u05B0\u05E9\u05C2\u05B7\u05E8", plain: "\u05D1\u05E9\u05E8", transliteration: "\u0431\u0430\u0441\u0410\u0440", translation: "\u043C\u044F\u0441\u043E", type: "word", lesson: "G1.2", audio: "d_food_013.mp3", draft: true },
+      { id: "tv_food_45", hebrew: "\u05E2\u05B7\u05D2\u05B0\u05D1\u05B8\u05E0\u05B4\u05D9\u05BC\u05B8\u05D4", plain: "\u05E2\u05D2\u05D1\u05E0\u05D9\u05D4", transliteration: "\u0430\u0433\u0432\u0430\u043D\u0438\u042F", translation: "\u043F\u043E\u043C\u0438\u0434\u043E\u0440", type: "word", lesson: "G1.2", audio: "d_food_045.mp3", draft: true },
+      { id: "tv_food_46", hebrew: "\u05E4\u05BC\u05B4\u05DC\u05B0\u05E4\u05BC\u05B5\u05DC", plain: "\u05E4\u05DC\u05E4\u05DC", transliteration: "\u043F\u0418\u043B\u044C\u043F\u0435\u043B\u044C", translation: "\u043F\u0435\u0440\u0435\u0446", type: "word", lesson: "G1.2", audio: "d_food_053.mp3", draft: true },
+      { id: "tv_food_47", hebrew: "\u05E9\u05C1\u05B8\u05D5\u05B7\u05D0\u05E8\u05B0\u05DE\u05B8\u05D4", plain: "\u05E9\u05D5\u05D5\u05D0\u05E8\u05DE\u05D4", transliteration: "\u0448\u0430\u0432\u0410\u0440\u043C\u0430", translation: "\u0448\u0430\u0432\u0430\u0440\u043C\u0430", type: "word", lesson: "G1.2", audio: "d_food_061.mp3", draft: true },
+      { id: "tv_food_48", hebrew: "\u05DB\u05BC\u05B0\u05E8\u05D5\u05BC\u05D1", plain: "\u05DB\u05E8\u05D5\u05D1", transliteration: "\u043A\u0440\u0443\u0432", translation: "\u043A\u0430\u043F\u0443\u0441\u0442\u0430", type: "word", lesson: "G1.2", audio: "d_food_077.mp3", draft: true },
+      { id: "tv_food_49", hebrew: "\u05EA\u05BC\u05B0\u05D0\u05B5\u05E0\u05B8\u05D4", plain: "\u05EA\u05D0\u05E0\u05D4", transliteration: "\u0442\u044D-\u044D-\u043D\u0410", translation: "\u0438\u043D\u0436\u0438\u0440", type: "word", lesson: "G1.2", audio: "d_food_070.mp3", draft: true },
+      { id: "tv_food_50", hebrew: "\u05D2\u05BC\u05B0\u05D1\u05B4\u05D9\u05E0\u05B8\u05D4", plain: "\u05D2\u05D1\u05D9\u05E0\u05D4", transliteration: "\u0433\u0432\u0438\u043D\u0410", translation: "\u0441\u044B\u0440", type: "word", lesson: "G1.2", audio: "d_food_014.mp3", draft: true },
+      { id: "tv_food_51", hebrew: "\u05DE\u05B0\u05DC\u05B8\u05E4\u05B0\u05E4\u05D5\u05B9\u05DF", plain: "\u05DE\u05DC\u05E4\u05E4\u05D5\u05DF", transliteration: "\u043C\u044D\u043B\u0430\u0444\u044D\u0444\u041E\u043D", translation: "\u043E\u0433\u0443\u0440\u0435\u0446", type: "word", lesson: "G1.2", audio: "d_food_038.mp3", draft: true },
+      { id: "tv_food_52", hebrew: "\u05D0\u05B6\u05E9\u05C1\u05B0\u05DB\u05BC\u05D5\u05B9\u05DC\u05B4\u05D9\u05EA", plain: "\u05D0\u05E9\u05DB\u05D5\u05DC\u05D9\u05EA", transliteration: "\u044D\u0448\u043A\u043E\u043B\u0418\u0442", translation: "\u0433\u0440\u0435\u0439\u043F\u0444\u0440\u0443\u0442", type: "word", lesson: "G1.2", audio: "d_food_006.mp3", draft: true },
+      { id: "tv_food_53", hebrew: "\u05D9\u05B0\u05E8\u05B8\u05E7\u05D5\u05B9\u05EA", plain: "\u05D9\u05E8\u05E7\u05D5\u05EA", transliteration: "\u0439\u0435\u0440\u0430\u043A\u041E\u0442", translation: "\u043E\u0432\u043E\u0449\u0438", type: "word", lesson: "G1.2", audio: "d_food_030.mp3", draft: true },
+      { id: "tv_food_54", hebrew: "\u05E9\u05C1\u05D5\u05BC\u05DD", plain: "\u05E9\u05D5\u05DD", transliteration: "\u0448\u0443\u043C", translation: "\u0447\u0435\u0441\u043D\u043E\u043A", type: "word", lesson: "G1.2", audio: "d_food_062.mp3", draft: true },
+      { id: "tv_food_55", hebrew: "\u05E4\u05BC\u05B7\u05E1\u05B0\u05D8\u05B8\u05D4", plain: "\u05E4\u05E1\u05D8\u05D4", transliteration: "\u043F\u0410\u0441\u0442\u0430", translation: "\u043C\u0430\u043A\u0430\u0440\u043E\u043D\u044B, \u043F\u0430\u0441\u0442\u0430", type: "word", lesson: "G1.2", audio: "d_food_054.mp3", draft: true },
+      { id: "tv_food_56", hebrew: "\u05DE\u05B0\u05E8\u05B7\u05E7", plain: "\u05DE\u05E8\u05E7", transliteration: "\u043C\u0430\u0440\u0410\u043A", translation: "\u0441\u0443\u043F", type: "word", lesson: "G1.2", audio: "d_food_078.mp3", draft: true },
+      { id: "tv_food_57", hebrew: "\u05D2\u05BC\u05B6\u05D6\u05B6\u05E8", plain: "\u05D2\u05D6\u05E8", transliteration: "\u0433\u042D\u0437\u0435\u0440", translation: "\u043C\u043E\u0440\u043A\u043E\u0432\u044C", type: "word", lesson: "G1.2", audio: "d_food_015.mp3", draft: true },
+      { id: "tv_food_58", hebrew: "\u05E9\u05C1\u05D5\u05B9\u05E7\u05D5\u05B9\u05DC\u05B8\u05D3", plain: "\u05E9\u05D5\u05E7\u05D5\u05DC\u05D3", transliteration: "\u0448\u041E\u043A\u043E\u043B\u0430\u0434", translation: "\u0448\u043E\u043A\u043E\u043B\u0430\u0434", type: "word", lesson: "G1.2", audio: "d_food_063.mp3", draft: true },
+      { id: "tv_food_59", hebrew: "\u05DE\u05B7\u05E0\u05B0\u05D2\u05BC\u05D5\u05B9", plain: "\u05DE\u05E0\u05D2\u05D5", transliteration: "\u043C\u0430\u043D\u0433\u041E", translation: "\u043C\u0430\u043D\u0433\u043E", type: "word", lesson: "G1.2", audio: "d_food_039.mp3", draft: true },
+      { id: "tv_food_60", hebrew: "\u05D7\u05B7\u05DC\u05BC\u05B8\u05D4", plain: "\u05D7\u05DC\u05D4", transliteration: "\u0445\u0430\u043B\u0410", translation: "\u0445\u0430\u043B\u0430, \u0431\u0443\u043B\u043A\u0430", type: "word", lesson: "G1.2", audio: "d_food_023.mp3", draft: true },
+      { id: "tv_food_61", hebrew: "\u05D1\u05BC\u05B8\u05D8\u05B8\u05D8\u05B8\u05D4", plain: "\u05D1\u05D8\u05D8\u05D4", transliteration: "\u0431\u0430\u0442\u0410\u0442\u0430", translation: "\u0431\u0430\u0442\u0430\u0442", type: "word", lesson: "G1.2", audio: "d_food_007.mp3", draft: true },
+      { id: "tv_food_62", hebrew: "\u05EA\u05BC\u05B5\u05D4", plain: "\u05EA\u05D4", transliteration: "\u0442\u044D", translation: "\u0447\u0430\u0439", type: "word", lesson: "G1.2", audio: "d_food_071.mp3", draft: true },
+      { id: "tv_food_63", hebrew: "\u05E4\u05BC\u05B0\u05E8\u05B4\u05D9", plain: "\u05E4\u05E8\u05D9", transliteration: "\u043F\u0440\u0438", translation: "\u0444\u0440\u0443\u043A\u0442", type: "word", lesson: "G1.2", audio: "d_food_055.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.home",
+    seq: 506,
+    lesson: "G1.4",
+    title: "\u0414\u043E\u043C (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_home_01", hebrew: "\u05E1\u05B8\u05D3\u05B4\u05D9\u05DF", plain: "\u05E1\u05D3\u05D9\u05DF", transliteration: "\u0441\u0430\u0434\u0418\u043D", translation: "\u043B\u0438\u0441\u0442, \u043F\u0440\u043E\u0441\u0442\u044B\u043D\u044F", type: "word", lesson: "G1.4", audio: "d_home_024.mp3", draft: true },
+      { id: "tv_home_02", hebrew: "\u05DB\u05BC\u05D5\u05B9\u05E1", plain: "\u05DB\u05D5\u05E1", transliteration: "\u043A\u043E\u0441", translation: "\u0441\u0442\u0430\u043A\u0430\u043D, \u0431\u043E\u043A\u0430\u043B", type: "word", lesson: "G1.4", audio: "d_home_008.mp3", draft: true },
+      { id: "tv_home_03", hebrew: "\u05E9\u05C1\u05B0\u05D8\u05B4\u05D9\u05D7\u05B7", plain: "\u05E9\u05D8\u05D9\u05D7", transliteration: "\u0448\u0430\u0442\u0418\u0430\u0445", translation: "\u043A\u043E\u0432\u0435\u0440", type: "word", lesson: "G1.4", audio: "d_home_032.mp3", draft: true },
+      { id: "tv_home_04", hebrew: "\u05DB\u05BC\u05B4\u05E1\u05BC\u05B5\u05D0", plain: "\u05DB\u05D9\u05E1\u05D0", transliteration: "\u043A\u0438\u0441\u042D", translation: "\u0441\u0442\u0443\u043B, \u043A\u0440\u0435\u0441\u043B\u043E", type: "word", lesson: "G1.4", audio: "d_home_009.mp3", draft: true },
+      { id: "tv_home_05", hebrew: "\u05DE\u05B4\u05D8\u05B0\u05D1\u05BC\u05B8\u05D7", plain: "\u05DE\u05D8\u05D1\u05D7", transliteration: "\u043C\u0438\u0442\u0431\u0410\u0445", translation: "\u043A\u0443\u0445\u043D\u044F", type: "word", lesson: "G1.4", audio: "d_home_017.mp3", draft: true },
+      { id: "tv_home_06", hebrew: "\u05E9\u05C1\u05B5\u05E8\u05D5\u05BC\u05EA\u05B4\u05D9\u05DD", plain: "\u05E9\u05E8\u05D5\u05EA\u05D9\u05DD", transliteration: "\u0448\u0435\u0440\u0443\u0442\u0418\u043C", translation: "\u0442\u0443\u0430\u043B\u0435\u0442", type: "word", lesson: "G1.4", audio: "d_home_033.mp3", draft: true },
+      { id: "tv_home_07", hebrew: "\u05E1\u05B7\u05DB\u05BC\u05B4\u05D9\u05DF", plain: "\u05E1\u05DB\u05D9\u05DF", transliteration: "\u0441\u0430\u043A\u0418\u043D", translation: "\u043D\u043E\u0436", type: "word", lesson: "G1.4", audio: "d_home_025.mp3", draft: true },
+      { id: "tv_home_08", hebrew: "\u05D1\u05BC\u05B7\u05E7\u05B0\u05D1\u05BC\u05D5\u05BC\u05E7", plain: "\u05D1\u05E7\u05D1\u05D5\u05E7", transliteration: "\u0431\u0430\u043A\u0431\u0423\u043A", translation: "\u0431\u0443\u0442\u044B\u043B\u043A\u0430", type: "word", lesson: "G1.4", audio: "d_home_001.mp3", draft: true },
+      { id: "tv_home_09", hebrew: "\u05DE\u05B4\u05D8\u05BC\u05B8\u05D4", plain: "\u05DE\u05D9\u05D8\u05D4", transliteration: "\u043C\u0438\u0442\u0410", translation: "\u043A\u0440\u043E\u0432\u0430\u0442\u044C", type: "word", lesson: "G1.4", audio: "d_home_018.mp3", draft: true },
+      { id: "tv_home_10", hebrew: "\u05D3\u05BC\u05B4\u05D9\u05E8\u05B8\u05D4", plain: "\u05D3\u05D9\u05E8\u05D4", transliteration: "\u0434\u0438\u0440\u0410", translation: "\u043A\u0432\u0430\u0440\u0442\u0438\u0440\u0430", type: "word", lesson: "G1.4", audio: "d_home_002.mp3", draft: true },
+      { id: "tv_home_11", hebrew: "\u05DB\u05BC\u05B7\u05E3", plain: "\u05DB\u05E3", transliteration: "\u043A\u0430\u0444", translation: "\u043B\u043E\u0436\u043A\u0430", type: "word", lesson: "G1.4", audio: "d_home_010.mp3", draft: true },
+      { id: "tv_home_12", hebrew: "\u05E1\u05B7\u05E4\u05BC\u05B8\u05D4", plain: "\u05E1\u05E4\u05D4", transliteration: "\u0441\u0430\u043F\u0410", translation: "\u0434\u0438\u0432\u0430\u043D", type: "word", lesson: "G1.4", audio: "d_home_026.mp3", draft: true },
+      { id: "tv_home_13", hebrew: "\u05EA\u05BC\u05B7\u05E0\u05BC\u05D5\u05BC\u05E8", plain: "\u05EA\u05E0\u05D5\u05E8", transliteration: "\u0442\u0430\u043D\u0423\u0440", translation: "\u043F\u0435\u0447\u044C", type: "word", lesson: "G1.4", audio: "d_home_034.mp3", draft: true },
+      { id: "tv_home_14", hebrew: "\u05EA\u05BC\u05B4\u05E7\u05B0\u05E8\u05B8\u05D4", plain: "\u05EA\u05E7\u05E8\u05D4", transliteration: "\u0442\u0438\u043A\u0440\u0410", translation: "\u043F\u043E\u0442\u043E\u043B\u043E\u043A", type: "word", lesson: "G1.4", audio: "d_home_035.mp3", draft: true },
+      { id: "tv_home_15", hebrew: "\u05DB\u05BC\u05B8\u05E8\u05B4\u05D9\u05EA", plain: "\u05DB\u05E8\u05D9\u05EA", transliteration: "\u043A\u0430\u0440\u0418\u0442", translation: "\u043F\u043E\u0434\u0443\u0448\u043A\u0430", type: "word", lesson: "G1.4", audio: "d_home_011.mp3", draft: true },
+      { id: "tv_home_16", hebrew: "\u05E6\u05B7\u05DC\u05BC\u05B7\u05D7\u05B7\u05EA", plain: "\u05E6\u05DC\u05D7\u05EA", transliteration: "\u0446\u0430\u043B\u0410\u0445\u0430\u0442", translation: "\u0442\u0430\u0440\u0435\u043B\u043A\u0430", type: "word", lesson: "G1.4", audio: "d_home_027.mp3", draft: true },
+      { id: "tv_home_17", hebrew: "\u05D3\u05BC\u05B6\u05DC\u05B6\u05EA", plain: "\u05D3\u05DC\u05EA", transliteration: "\u0434\u042D\u043B\u0435\u0442", translation: "\u0434\u0432\u0435\u0440\u044C", type: "word", lesson: "G1.4", audio: "d_home_003.mp3", draft: true },
+      { id: "tv_home_18", hebrew: "\u05DE\u05B4\u05D9\u05E7\u05B0\u05E8\u05D5\u05B9\u05D2\u05B7\u05DC", plain: "\u05DE\u05D9\u05E7\u05E8\u05D5\u05D2\u05DC", transliteration: "\u043C\u0438\u043A\u0440\u043E\u0433\u0410\u043B\u044C", translation: "\u043C\u0438\u043A\u0440\u043E\u0432\u043E\u043B\u043D\u043E\u0432\u043A\u0430", type: "word", lesson: "G1.4", audio: "d_home_019.mp3", draft: true },
+      { id: "tv_home_19", hebrew: "\u05E7\u05B4\u05D9\u05E8", plain: "\u05E7\u05D9\u05E8", transliteration: "\u043A\u0438\u0440", translation: "\u0441\u0442\u0435\u043D\u0430", type: "word", lesson: "G1.4", audio: "d_home_028.mp3", draft: true },
+      { id: "tv_home_20", hebrew: "\u05D7\u05B6\u05D3\u05B6\u05E8", plain: "\u05D7\u05D3\u05E8", transliteration: "\u0445\u042D\u0434\u044D\u0440", translation: "\u043A\u043E\u043C\u043D\u0430\u0442\u0430", type: "word", lesson: "G1.4", audio: "d_home_004.mp3", draft: true },
+      { id: "tv_home_21", hebrew: "\u05DE\u05B7\u05E4\u05BC\u05B4\u05D9\u05EA", plain: "\u05DE\u05E4\u05D9\u05EA", transliteration: "\u043C\u0430\u043F\u0418\u0442", translation: "\u0441\u0430\u043B\u0444\u0435\u0442\u043A\u0430", type: "word", lesson: "G1.4", audio: "d_home_020.mp3", draft: true },
+      { id: "tv_home_22", hebrew: "\u05DE\u05B7\u05D2\u05BC\u05B6\u05D1\u05B6\u05EA", plain: "\u05DE\u05D2\u05D1\u05EA", transliteration: "\u043C\u0430\u0433\u042D\u0432\u0435\u0442", translation: "\u043F\u043E\u043B\u043E\u0442\u0435\u043D\u0446\u0435", type: "word", lesson: "G1.4", audio: "d_home_012.mp3", draft: true },
+      { id: "tv_home_23", hebrew: "\u05D7\u05B7\u05DC\u05BC\u05D5\u05B9\u05DF", plain: "\u05D7\u05DC\u05D5\u05DF", transliteration: "\u0445\u0430\u043B\u041E\u043D", translation: "\u043E\u043A\u043D\u043E", type: "word", lesson: "G1.4", audio: "d_home_005.mp3", draft: true },
+      { id: "tv_home_24", hebrew: "\u05DE\u05B7\u05D3\u05B0\u05E4\u05BC\u05B6\u05E1\u05B6\u05EA", plain: "\u05DE\u05D3\u05E4\u05E1\u05EA", transliteration: "\u043C\u0430\u0434\u043F\u042D\u0441\u0435\u0442", translation: "\u043F\u0440\u0438\u043D\u0442\u0435\u0440", type: "word", lesson: "G1.4", audio: "d_home_013.mp3", draft: true },
+      { id: "tv_home_25", hebrew: "\u05E7\u05B0\u05E2\u05B8\u05E8\u05B8\u05D4", plain: "\u05E7\u05E2\u05E8\u05D4", transliteration: "\u043A\u0435\u0430\u0440\u0410", translation: "\u0447\u0430\u0448\u0430", type: "word", lesson: "G1.4", audio: "d_home_029.mp3", draft: true },
+      { id: "tv_home_26", hebrew: "\u05DE\u05B7\u05D6\u05B0\u05D2\u05B8\u05DF", plain: "\u05DE\u05D6\u05D2\u05DF", transliteration: "\u043C\u0430\u0437\u0433\u0410\u043D", translation: "\u043A\u043E\u043D\u0434\u0438\u0446\u0438\u043E\u043D\u0435\u0440", type: "word", lesson: "G1.4", audio: "d_home_014.mp3", draft: true },
+      { id: "tv_home_27", hebrew: "\u05D8\u05B5\u05DC\u05B5\u05D5\u05B4\u05D9\u05D6\u05B0\u05D9\u05B8\u05D4", plain: "\u05D8\u05DC\u05D5\u05D5\u05D9\u05D6\u05D9\u05D4", transliteration: "\u0442\u044D\u043B\u0435\u0432\u0418\u0437\u044C\u044F", translation: "\u0442\u0435\u043B\u0435\u0432\u0438\u0437\u043E\u0440", type: "word", lesson: "G1.4", audio: "d_home_006.mp3", draft: true },
+      { id: "tv_home_28", hebrew: "\u05E8\u05B4\u05E6\u05B0\u05E4\u05BC\u05B8\u05D4", plain: "\u05E8\u05E6\u05E4\u05D4", transliteration: "\u0440\u0438\u0446\u043F\u0410", translation: "\u043F\u043E\u043B", type: "word", lesson: "G1.4", audio: "d_home_030.mp3", draft: true },
+      { id: "tv_home_29", hebrew: "\u05E9\u05C1\u05BB\u05DC\u05B0\u05D7\u05B7\u05DF", plain: "\u05E9\u05D5\u05DC\u05D7\u05DF", transliteration: "\u0448\u0443\u043B\u044C\u0445\u0410\u043D", translation: "\u0441\u0442\u043E\u043B", type: "word", lesson: "G1.4", audio: "d_home_031.mp3", draft: true },
+      { id: "tv_home_30", hebrew: "\u05E1\u05B7\u05D1\u05BC\u05D5\u05B9\u05DF", plain: "\u05E1\u05D1\u05D5\u05DF", transliteration: "\u0441\u0430\u0431\u041E\u043D", translation: "\u043C\u044B\u043B\u043E", type: "word", lesson: "G1.4", audio: "d_home_023.mp3", draft: true },
+      { id: "tv_home_31", hebrew: "\u05DE\u05B7\u05D6\u05B0\u05DC\u05B5\u05D2", plain: "\u05DE\u05D6\u05DC\u05D2", transliteration: "\u043C\u0430\u0437\u043B\u042D\u0433", translation: "\u0432\u0438\u043B\u043A\u0430", type: "word", lesson: "G1.4", audio: "d_home_015.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.nature",
+    seq: 507,
+    lesson: "M2.3",
+    title: "\u041F\u0440\u0438\u0440\u043E\u0434\u0430 (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_nature_01", hebrew: "\u05D0\u05B8\u05D1\u05B4\u05D9\u05D1", plain: "\u05D0\u05D1\u05D9\u05D1", transliteration: "\u0430\u0432\u0418\u0432", translation: "\u0432\u0435\u0441\u043D\u0430", type: "word", lesson: "M2.3", audio: "d_nature_000.mp3", draft: true },
+      { id: "tv_nature_02", hebrew: "\u05DB\u05BC\u05D5\u05B9\u05DB\u05B7\u05D1", plain: "\u05DB\u05D5\u05DB\u05D1", transliteration: "\u043A\u043E\u0445\u0410\u0432", translation: "\u0437\u0432\u0435\u0437\u0434\u0430", type: "word", lesson: "M2.3", audio: "d_nature_008.mp3", draft: true },
+      { id: "tv_nature_03", hebrew: "\u05E2\u05B5\u05E5", plain: "\u05E2\u05E5", transliteration: "\u044D\u0446", translation: "\u0434\u0435\u0440\u0435\u0432\u043E, \u0434\u0440\u0435\u0432\u0435\u0441\u0438\u043D\u0430", type: "word", lesson: "M2.3", audio: "d_nature_016.mp3", draft: true },
+      { id: "tv_nature_04", hebrew: "\u05E6\u05B4\u05E4\u05BC\u05D5\u05B9\u05E8", plain: "\u05E6\u05D9\u05E4\u05D5\u05E8", transliteration: "\u0446\u0438\u043F\u041E\u0440", translation: "\u043F\u0442\u0438\u0446\u0430", type: "word", lesson: "M2.3", audio: "d_nature_024.mp3", draft: true },
+      { id: "tv_nature_05", hebrew: "\u05D2'\u05D5\u05BC\u05E7", plain: "\u05D2'\u05D5\u05E7", transliteration: "\u0434\u0436\u044E\u043A", translation: "\u0442\u0430\u0440\u0430\u043A\u0430\u043D", type: "word", lesson: "M2.3", audio: "d_nature_001.mp3", draft: true },
+      { id: "tv_nature_06", hebrew: "\u05E7\u05B7\u05D9\u05B4\u05E5", plain: "\u05E7\u05D9\u05E5", transliteration: "\u043A\u0430\u0439\u0446", translation: "\u043B\u0435\u0442\u043E", type: "word", lesson: "M2.3", audio: "d_nature_017.mp3", draft: true },
+      { id: "tv_nature_07", hebrew: "\u05DC\u05B0\u05D8\u05B8\u05D0\u05B8\u05D4", plain: "\u05DC\u05D8\u05D0\u05D4", transliteration: "\u043B\u044D\u0442\u0430\u0410", translation: "\u044F\u0449\u0435\u0440\u0438\u0446\u0430", type: "word", lesson: "M2.3", audio: "d_nature_010.mp3", draft: true },
+      { id: "tv_nature_08", hebrew: "\u05D2\u05BC\u05B6\u05E9\u05C1\u05B6\u05DD", plain: "\u05D2\u05E9\u05DD", transliteration: "\u0433\u0415\u0448\u0435\u043C", translation: "\u0434\u043E\u0436\u0434\u044C", type: "word", lesson: "M2.3", audio: "d_nature_002.mp3", draft: true },
+      { id: "tv_nature_09", hebrew: "\u05E7\u05B7\u05E8", plain: "\u05E7\u05E8", transliteration: "\u043A\u0430\u0440", translation: "\u0445\u043E\u043B\u043E\u0434, \u0445\u043E\u043B\u043E\u0434\u043D\u043E, \u0445\u043E\u043B\u043E\u0434\u043D\u044B\u0439", type: "word", lesson: "M2.3", audio: "d_nature_018.mp3", draft: true },
+      { id: "tv_nature_10", hebrew: "\u05D7\u05B9\u05E8\u05B6\u05E3", plain: "\u05D7\u05D5\u05E8\u05E3", transliteration: "\u0445\u041E\u0440\u044D\u0444", translation: "\u0437\u0438\u043C\u0430", type: "word", lesson: "M2.3", audio: "d_nature_003.mp3", draft: true },
+      { id: "tv_nature_11", hebrew: "\u05E0\u05B8\u05D4\u05B8\u05E8", plain: "\u05E0\u05D4\u05E8", transliteration: "\u043D\u0430h\u0410\u0440", translation: "\u0440\u0435\u043A\u0430", type: "word", lesson: "M2.3", audio: "d_nature_011.mp3", draft: true },
+      { id: "tv_nature_12", hebrew: "\u05E8\u05B8\u05D8\u05D5\u05B9\u05D1", plain: "\u05E8\u05D8\u05D5\u05D1", transliteration: "\u0440\u0430\u0442\u041E\u0432", translation: "\u0432\u043B\u0430\u0436\u043D\u044B\u0439, \u043C\u043E\u043A\u0440\u044B\u0439", type: "word", lesson: "M2.3", audio: "d_nature_019.mp3", draft: true },
+      { id: "tv_nature_13", hebrew: "\u05E0\u05B0\u05DE\u05B8\u05DC\u05B8\u05D4", plain: "\u05E0\u05DE\u05DC\u05D4", transliteration: "\u043D\u044D\u043C\u0430\u043B\u0410", translation: "\u043C\u0443\u0440\u0430\u0432\u0435\u0439", type: "word", lesson: "M2.3", audio: "d_nature_012.mp3", draft: true },
+      { id: "tv_nature_14", hebrew: "\u05E9\u05C1\u05B8\u05DE\u05B7\u05D9\u05B4\u05DD", plain: "\u05E9\u05DE\u05D9\u05D9\u05DD", transliteration: "\u0448\u0430\u043C\u0410\u0438\u043C", translation: "\u043D\u0435\u0431\u043E", type: "word", lesson: "M2.3", audio: "d_nature_020.mp3", draft: true },
+      { id: "tv_nature_15", hebrew: "\u05E1\u05B0\u05EA\u05B8\u05D5", plain: "\u05E1\u05EA\u05D9\u05D5", transliteration: "\u0441\u0442\u0430\u0432", translation: "\u043E\u0441\u0435\u043D\u044C", type: "word", lesson: "M2.3", audio: "d_nature_013.mp3", draft: true },
+      { id: "tv_nature_16", hebrew: "\u05E9\u05C1\u05B6\u05DE\u05B6\u05E9\u05C1", plain: "\u05E9\u05DE\u05E9", transliteration: "\u0448\u0415\u043C\u0435\u0448", translation: "\u0421\u043E\u043B\u043D\u0446\u0435", type: "word", lesson: "M2.3", audio: "d_nature_021.mp3", draft: true },
+      { id: "tv_nature_17", hebrew: "\u05D7\u05B8\u05EA\u05D5\u05BC\u05DC", plain: "\u05D7\u05EA\u05D5\u05DC", transliteration: "\u0445\u0430\u0442\u0423\u043B\u044C", translation: "\u043A\u043E\u0442", type: "word", lesson: "M2.3", audio: "d_nature_005.mp3", draft: true },
+      { id: "tv_nature_18", hebrew: "\u05D9\u05B8\u05E8\u05B5\u05D7\u05B7", plain: "\u05D9\u05E8\u05D7", transliteration: "\u044F\u0440\u042D\u0430\u0445", translation: "\u043B\u0443\u043D\u0430", type: "word", lesson: "M2.3", audio: "d_nature_006.mp3", draft: true },
+      { id: "tv_nature_19", hebrew: "\u05E2\u05B7\u05DB\u05BC\u05B8\u05D1\u05B4\u05D9\u05E9\u05C1", plain: "\u05E2\u05DB\u05D1\u05D9\u05E9", transliteration: "\u0430\u043A\u0430\u0432\u0418\u0448", translation: "\u043F\u0430\u0443\u043A", type: "word", lesson: "M2.3", audio: "d_nature_014.mp3", draft: true },
+      { id: "tv_nature_20", hebrew: "\u05D9\u05B8\u05DD", plain: "\u05D9\u05DD", transliteration: "\u044F\u043C", translation: "\u043C\u043E\u0440\u0435", type: "word", lesson: "M2.3", audio: "d_nature_022.mp3", draft: true },
+      { id: "tv_nature_21", hebrew: "\u05E2\u05B2\u05E0\u05B7\u05DF", plain: "\u05E2\u05E0\u05DF", transliteration: "\u0430\u043D\u0410\u043D", translation: "\u043E\u0431\u043B\u0430\u043A\u043E", type: "word", lesson: "M2.3", audio: "d_nature_015.mp3", draft: true },
+      { id: "tv_nature_22", hebrew: "\u05DE\u05B4\u05D3\u05B0\u05D1\u05BC\u05B8\u05E8", plain: "\u05DE\u05D3\u05D1\u05E8", transliteration: "\u043C\u0438\u0434\u0431\u0410\u0440", translation: "\u043F\u0443\u0441\u0442\u044B\u043D\u044F", type: "word", lesson: "M2.3", audio: "d_nature_023.mp3", draft: true },
+      { id: "tv_nature_23", hebrew: "\u05D9\u05B7\u05EA\u05BC\u05D5\u05BC\u05E9\u05C1", plain: "\u05D9\u05EA\u05D5\u05E9", transliteration: "\u044F\u0442\u0423\u0448", translation: "\u043A\u043E\u043C\u0430\u0440", type: "word", lesson: "M2.3", audio: "d_nature_007.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.numbers",
+    seq: 508,
+    lesson: "CH1.4",
+    title: "\u0414\u0440\u043E\u0431\u0438 \u0438 \u0440\u0430\u0437\u044B (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_numbers_01", hebrew: "\u05E4\u05BC\u05B7\u05E2\u05B7\u05DD", plain: "\u05E4\u05E2\u05DD", transliteration: "\u043F\u0430\u0410\u043C", translation: "\u0440\u0430\u0437", type: "word", lesson: "CH1.4", audio: "d_numbers_000.mp3", draft: true },
+      { id: "tv_numbers_02", hebrew: "\u05E4\u05BC\u05B0\u05E2\u05B8\u05DE\u05B4\u05D9\u05DD", plain: "\u05E4\u05E2\u05DE\u05D9\u05DD", transliteration: "\u043F\u0430\u0430\u043C\u0410\u0438\u043C", translation: "\u0434\u0432\u0430\u0436\u0434\u044B", type: "word", lesson: "CH1.4", audio: "d_numbers_001.mp3", draft: true },
+      { id: "tv_numbers_03", hebrew: "\u05E8\u05B4\u05D0\u05E9\u05C1\u05D5\u05B9\u05DF", plain: "\u05E8\u05D0\u05E9\u05D5\u05DF", transliteration: "\u0440\u0438\u0448\u041E\u043D", translation: "\u043F\u0435\u0440\u0432\u044B\u0439", type: "word", lesson: "CH1.4", audio: "d_numbers_002.mp3", draft: true },
+      { id: "tv_numbers_04", hebrew: "\u05E8\u05B6\u05D1\u05B7\u05E2", plain: "\u05E8\u05D1\u05E2", transliteration: "\u0440\u042D\u0432\u0430", translation: "\u0447\u0435\u0442\u0432\u0435\u0440\u0442\u044C", type: "word", lesson: "CH1.4", audio: "d_numbers_003.mp3", draft: true },
+      { id: "tv_numbers_05", hebrew: "\u05E9\u05C1\u05B0\u05DC\u05B4\u05D9\u05E9\u05C1", plain: "\u05E9\u05DC\u05D9\u05E9", transliteration: "\u0448\u043B\u0438\u0448", translation: "\u0442\u0440\u0435\u0442\u044C", type: "word", lesson: "CH1.4", audio: "d_numbers_004.mp3", draft: true },
+      { id: "tv_numbers_06", hebrew: "\u05D7\u05B2\u05E6\u05B4\u05D9", plain: "\u05D7\u05E6\u05D9", transliteration: "\u0445\u042D\u0446\u0438", translation: "\u043F\u043E\u043B\u043E\u0432\u0438\u043D\u0430 (\u0447\u0435\u0433\u043E \u043B\u0438\u0431\u043E)", type: "word", lesson: "CH1.4", audio: "d_numbers_005.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.study",
+    seq: 509,
+    lesson: "M3.2",
+    title: "\u0423\u0447\u0451\u0431\u0430 (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_study_01", hebrew: "\u05D0\u05D5\u05BC\u05E0\u05B4\u05D9\u05D1\u05B6\u05E8\u05B0\u05E1\u05B4\u05D9\u05D8\u05B8\u05D4", plain: "\u05D0\u05D5\u05E0\u05D9\u05D1\u05E8\u05E1\u05D9\u05D8\u05D4", transliteration: "\u0443\u043D\u0438\u0432\u0415\u0440\u0441\u0438\u0442\u0430", translation: "\u0443\u043D\u0438\u0432\u0435\u0440\u0441\u0438\u0442\u0435\u0442", type: "word", lesson: "M3.2", audio: "d_study_000.mp3", draft: true },
+      { id: "tv_study_02", hebrew: "\u05E2\u05B7\u05E8\u05B0\u05D1\u05B4\u05D9\u05EA", plain: "\u05E2\u05E8\u05D1\u05D9\u05EA", transliteration: "\u0430\u0440\u0430\u0432\u0418\u0442", translation: "\u0430\u0440\u0430\u0431\u0441\u043A\u0438\u0439", type: "word", lesson: "M3.2", audio: "d_study_016.mp3", draft: true },
+      { id: "tv_study_03", hebrew: "\u05DE\u05B4\u05DC\u05BC\u05D5\u05B9\u05DF", plain: "\u05DE\u05D9\u05DC\u05D5\u05DF", transliteration: "\u043C\u0438\u043B\u041E\u043D", translation: "\u0441\u043B\u043E\u0432\u0430\u0440\u044C", type: "word", lesson: "M3.2", audio: "d_study_008.mp3", draft: true },
+      { id: "tv_study_04", hebrew: "\u05E4\u05B8\u05E7\u05D5\u05BC\u05DC\u05B0\u05D8\u05B8\u05D4", plain: "\u05E4\u05E7\u05D5\u05DC\u05D8\u05D4", transliteration: "\u0444\u0430\u043A\u0423\u043B\u044C\u0442\u0430", translation: "\u0444\u0430\u043A\u0443\u043B\u044C\u0442\u0435\u0442", type: "word", lesson: "M3.2", audio: "d_study_017.mp3", draft: true },
+      { id: "tv_study_05", hebrew: "\u05DE\u05B0\u05E0\u05B7\u05D4\u05B5\u05DC", plain: "\u05DE\u05E0\u05D4\u05DC", transliteration: "\u043C\u044D\u043D\u0430\u0445\u042D\u043B\u044C", translation: "\u043D\u0430\u0447\u0430\u043B\u044C\u043D\u0438\u043A, \u043C\u0435\u043D\u0435\u0434\u0436\u0435\u0440, \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440", type: "word", lesson: "M3.2", audio: "d_study_009.mp3", draft: true },
+      { id: "tv_study_06", hebrew: "\u05D0\u05B7\u05E0\u05B0\u05D2\u05BC\u05B0\u05DC\u05B4\u05D9\u05EA", plain: "\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA", transliteration: "\u0430\u043D\u0433\u043B\u0418\u0442", translation: "\u0430\u043D\u0433\u043B\u0438\u0439\u0441\u043A\u0438\u0439 \u044F\u0437\u044B\u043A", type: "word", lesson: "M3.2", audio: "d_study_001.mp3", draft: true },
+      { id: "tv_study_07", hebrew: "\u05E4\u05BC\u05B6\u05E8\u05B6\u05E7", plain: "\u05E4\u05E8\u05E7", transliteration: "\u043F\u042D\u0440\u0435\u043A", translation: "\u0433\u043B\u0430\u0432\u0430, \u0440\u0430\u0437\u0434\u0435\u043B, \u043F\u0430\u0440\u0430\u0433\u0440\u0430\u0444", type: "word", lesson: "M3.2", audio: "d_study_018.mp3", draft: true },
+      { id: "tv_study_08", hebrew: "\u05DB\u05BC\u05B4\u05EA\u05BC\u05B8\u05D4", plain: "\u05DB\u05D9\u05EA\u05D4", transliteration: "\u043A\u0438\u0442\u0410", translation: "\u043A\u043B\u0430\u0441\u0441\u043D\u0430\u044F \u043A\u043E\u043C\u043D\u0430\u0442\u0430", type: "word", lesson: "M3.2", audio: "d_study_002.mp3", draft: true },
+      { id: "tv_study_09", hebrew: "\u05DE\u05B4\u05E9\u05C2\u05B0\u05E8\u05B7\u05D3", plain: "\u05DE\u05E9\u05E8\u05D3", transliteration: "\u043C\u0438\u0441\u0440\u0410\u0434", translation: "\u043E\u0444\u0438\u0441, \u043A\u043E\u043D\u0442\u043E\u0440\u0430, \u043C\u0438\u043D\u0438\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E", type: "word", lesson: "M3.2", audio: "d_study_010.mp3", draft: true },
+      { id: "tv_study_10", hebrew: "\u05DE\u05B4\u05D1\u05B0\u05D7\u05B7\u05DF", plain: "\u05DE\u05D1\u05D7\u05DF", transliteration: "\u043C\u0438\u0432\u0445\u0410\u043D", translation: "\u0442\u0435\u0441\u0442, \u044D\u043A\u0437\u0430\u043C\u0435\u043D", type: "word", lesson: "M3.2", audio: "d_study_003.mp3", draft: true },
+      { id: "tv_study_11", hebrew: "\u05E1\u05B0\u05D8\u05D5\u05BC\u05D3\u05B5\u05E0\u05B0\u05D8", plain: "\u05E1\u05D8\u05D5\u05D3\u05E0\u05D8", transliteration: "\u0441\u0442\u0443\u0434\u042D\u043D\u0442", translation: "\u0441\u0442\u0443\u0434\u0435\u043D\u0442", type: "word", lesson: "M3.2", audio: "d_study_011.mp3", draft: true },
+      { id: "tv_study_12", hebrew: "\u05E9\u05C1\u05B0\u05D0\u05B5\u05DC\u05B8\u05D4", plain: "\u05E9\u05D0\u05DC\u05D4", transliteration: "\u0448\u0435\u044D\u043B\u0410", translation: "\u0432\u043E\u043F\u0440\u043E\u0441", type: "word", lesson: "M3.2", audio: "d_study_019.mp3", draft: true },
+      { id: "tv_study_13", hebrew: "\u05DE\u05B7\u05D3\u05BC\u05B0\u05E2\u05B8\u05DF", plain: "\u05DE\u05D3\u05E2\u05DF", transliteration: "\u043C\u0430\u0434-\u0410\u043D", translation: "\u0443\u0447\u0435\u043D\u044B\u0439", type: "word", lesson: "M3.2", audio: "d_study_004.mp3", draft: true },
+      { id: "tv_study_14", hebrew: "\u05E9\u05C1\u05B4\u05E2\u05D5\u05BC\u05E8", plain: "\u05E9\u05D9\u05E2\u05D5\u05E8", transliteration: "\u0448\u0438\u0423\u0440", translation: "\u0443\u0440\u043E\u043A", type: "word", lesson: "M3.2", audio: "d_study_020.mp3", draft: true },
+      { id: "tv_study_15", hebrew: "\u05E9\u05C2\u05B8\u05E4\u05B8\u05D4", plain: "\u05E9\u05E4\u05D4", transliteration: "\u0441\u0430\u0444\u0410", translation: "\u044F\u0437\u044B\u043A (\u043D\u0430 \u043A\u043E\u0442\u043E\u0440\u043E\u043C \u0433\u043E\u0432\u043E\u0440\u044F\u0442)", type: "word", lesson: "M3.2", audio: "d_study_021.mp3", draft: true },
+      { id: "tv_study_16", hebrew: "\u05E2\u05B5\u05D8", plain: "\u05E2\u05D8", transliteration: "\u044D\u0442", translation: "\u0440\u0443\u0447\u043A\u0430 (\u0434\u043B\u044F \u043F\u0438\u0441\u044C\u043C\u0430)", type: "word", lesson: "M3.2", audio: "d_study_014.mp3", draft: true },
+      { id: "tv_study_17", hebrew: "\u05D7\u05B6\u05D1\u05B0\u05E8\u05B8\u05D4", plain: "\u05D7\u05D1\u05E8\u05D4", transliteration: "\u0445\u044D\u0432\u0440\u0410", translation: "\u0444\u0438\u0440\u043C\u0430, \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u044F", type: "word", lesson: "M3.2", audio: "d_study_022.mp3", draft: true },
+      { id: "tv_study_18", hebrew: "\u05DE\u05B7\u05D7\u05B0\u05D1\u05B6\u05BC\u05E8\u05B6\u05EA", plain: "\u05DE\u05D7\u05D1\u05E8\u05EA", transliteration: "\u043C\u0430\u0445\u0431\u042D\u0440\u0435\u0442", translation: "\u0431\u043B\u043E\u043A\u043D\u043E\u0442, \u0442\u0435\u0442\u0440\u0430\u0434\u044C", type: "word", lesson: "M3.2", audio: "d_study_007.mp3", draft: true },
+      { id: "tv_study_19", hebrew: "\u05E2\u05B4\u05E4\u05BC\u05B8\u05E8\u05D5\u05B9\u05DF", plain: "\u05E2\u05E4\u05E8\u05D5\u05DF", transliteration: "\u0438\u043F\u0430\u0440\u041E\u043D", translation: "\u043A\u0430\u0440\u0430\u043D\u0434\u0430\u0448", type: "word", lesson: "M3.2", audio: "d_study_015.mp3", draft: true },
+      { id: "tv_study_20", hebrew: "\u05E0\u05B0\u05D9\u05B8\u05E8", plain: "\u05E0\u05D9\u05D9\u05E8", transliteration: "\u043D\u0438\u042F\u0440", translation: "\u0431\u0443\u043C\u0430\u0433\u0430", type: "word", lesson: "M3.2", audio: "d_study_023.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.time",
+    seq: 510,
+    lesson: "C3",
+    title: "\u0412\u0440\u0435\u043C\u044F (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_time_01", hebrew: "\u05E8\u05B6\u05D2\u05B7\u05E2", plain: "\u05E8\u05D2\u05E2", transliteration: "\u0440\u042D\u0433\u0430", translation: "\u043C\u043E\u043C\u0435\u043D\u0442", type: "word", lesson: "C3", audio: "d_time_016.mp3", draft: true },
+      { id: "tv_time_02", hebrew: "\u05E9\u05C1\u05B8\u05E0\u05B8\u05D4", plain: "\u05E9\u05E0\u05D4", transliteration: "\u0448\u0430\u043D\u0410", translation: "\u0433\u043E\u0434", type: "word", lesson: "C3", audio: "d_time_024.mp3", draft: true },
+      { id: "tv_time_03", hebrew: "\u05E9\u05C1\u05B8\u05D1\u05D5\u05BC\u05E2\u05B7", plain: "\u05E9\u05D1\u05D5\u05E2", transliteration: "\u0448\u0430\u0432\u0423\u0430", translation: "\u043D\u0435\u0434\u0435\u043B\u044F", type: "word", lesson: "C3", audio: "d_time_017.mp3", draft: true },
+      { id: "tv_time_04", hebrew: "\u05DE\u05B0\u05D0\u05BB\u05D7\u05B8\u05E8", plain: "\u05DE\u05D0\u05D5\u05D7\u05E8", transliteration: "\u043C\u044D\u0443\u0445\u0410\u0440", translation: "\u043F\u043E\u0437\u0434\u043D\u043E", type: "word", lesson: "C3", audio: "d_time_009.mp3", draft: true },
+      { id: "tv_time_05", hebrew: "\u05DE\u05B8\u05D7\u05B8\u05E8", plain: "\u05DE\u05D7\u05E8", transliteration: "\u043C\u0430\u0445\u0410\u0440", translation: "\u0437\u0430\u0432\u0442\u0440\u0430", type: "word", lesson: "C3", audio: "d_time_010.mp3", draft: true },
+      { id: "tv_time_06", hebrew: "\u05D3\u05BC\u05B7\u05E7\u05BC\u05B8\u05D4", plain: "\u05D3\u05E7\u05D4", transliteration: "\u0434\u0430\u043A\u0410", translation: "\u043C\u0438\u043D\u0443\u0442\u0430", type: "word", lesson: "C3", audio: "d_time_002.mp3", draft: true },
+      { id: "tv_time_07", hebrew: "\u05D4\u05D5\u05B9\u05D5\u05B6\u05D4", plain: "\u05D4\u05D5\u05D5\u05D4", transliteration: "ho\u0432\u042D", translation: "\u043D\u0430\u0441\u0442\u043E\u044F\u0449\u0435\u0435 (\u0432\u0440\u0435\u043C\u044F)", type: "word", lesson: "C3", audio: "d_time_003.mp3", draft: true },
+      { id: "tv_time_08", hebrew: "\u05E9\u05C1\u05B0\u05E0\u05B4\u05D9\u05BC\u05B8\u05D4", plain: "\u05E9\u05E0\u05D9\u05D4", transliteration: "\u0448\u043D\u0438\u042F", translation: "\u0441\u0435\u043A\u0443\u043D\u0434\u0430", type: "word", lesson: "C3", audio: "d_time_019.mp3", draft: true },
+      { id: "tv_time_09", hebrew: "\u05E2\u05B8\u05D1\u05B7\u05E8", plain: "\u05E2\u05D1\u05E8", transliteration: "\u0430\u0432\u0410\u0440", translation: "\u043F\u0440\u043E\u0448\u043B\u044B\u0439, \u043F\u0440\u043E\u0448\u0435\u0434\u0448\u0438\u0439", type: "word", lesson: "C3", audio: "d_time_011.mp3", draft: true },
+      { id: "tv_time_10", hebrew: "\u05D4\u05B7\u05D9\u05BC\u05D5\u05B9\u05DD", plain: "\u05D4\u05D9\u05D5\u05DD", transliteration: "ha\u0439\u041E\u043C", translation: "\u0441\u0435\u0433\u043E\u0434\u043D\u044F", type: "word", lesson: "C3", audio: "d_time_004.mp3", draft: true },
+      { id: "tv_time_11", hebrew: "\u05E9\u05C1\u05B8\u05E2\u05B8\u05D4", plain: "\u05E9\u05E2\u05D4", transliteration: "\u0448\u0430-\u0410", translation: "\u0447\u0430\u0441", type: "word", lesson: "C3", audio: "d_time_020.mp3", draft: true },
+      { id: "tv_time_12", hebrew: "\u05D4\u05B7\u05E4\u05B0\u05E1\u05B8\u05E7\u05B8\u05D4", plain: "\u05D4\u05E4\u05E1\u05E7\u05D4", transliteration: "ha\u0444\u0441\u0430\u043A\u0410", translation: "\u043F\u0435\u0440\u0435\u0440\u044B\u0432", type: "word", lesson: "C3", audio: "d_time_005.mp3", draft: true },
+      { id: "tv_time_13", hebrew: "\u05E9\u05C1\u05B8\u05E2\u05D5\u05B9\u05DF", plain: "\u05E9\u05E2\u05D5\u05DF", transliteration: "\u0448\u0430\u041E\u043D", translation: "\u0447\u0430\u0441\u044B", type: "word", lesson: "C3", audio: "d_time_021.mp3", draft: true },
+      { id: "tv_time_14", hebrew: "\u05E2\u05B8\u05EA\u05B4\u05D9\u05D3", plain: "\u05E2\u05EA\u05D9\u05D3", transliteration: "\u0430\u0442\u0418\u0434", translation: "\u0431\u0443\u0434\u0443\u0449\u0438\u0439", type: "word", lesson: "C3", audio: "d_time_014.mp3", draft: true },
+      { id: "tv_time_15", hebrew: "\u05D6\u05B0\u05DE\u05B7\u05DF", plain: "\u05D6\u05DE\u05DF", transliteration: "\u0437\u043C\u0430\u043D", translation: "\u0432\u0440\u0435\u043C\u044F", type: "word", lesson: "C3", audio: "d_time_006.mp3", draft: true },
+      { id: "tv_time_16", hebrew: "\u05D7\u05D5\u05B9\u05D3\u05B6\u05E9\u05C1", plain: "\u05D7\u05D5\u05D3\u05E9", transliteration: "\u0445\u041E\u0434\u044D\u0448", translation: "\u043C\u0435\u0441\u044F\u0446", type: "word", lesson: "C3", audio: "d_time_022.mp3", draft: true },
+      { id: "tv_time_17", hebrew: "\u05E6\u05B8\u05D4\u05B3\u05E8\u05B7\u05D9\u05B4\u05DD", plain: "\u05E6\u05D4\u05E8\u05D9\u05D9\u05DD", transliteration: "\u0446\u043Eh\u043E\u0440\u0410\u0438\u043C", translation: "\u043F\u043E\u043B\u0434\u0435\u043D\u044C", type: "word", lesson: "C3", audio: "d_time_015.mp3", draft: true },
+      { id: "tv_time_18", hebrew: "\u05DE\u05BB\u05E7\u05B0\u05D3\u05BC\u05B8\u05DD", plain: "\u05DE\u05D5\u05E7\u05D3\u05DD", transliteration: "\u043C\u0443\u043A\u0434\u0410\u043C", translation: "\u0440\u0430\u043D\u043E", type: "word", lesson: "C3", audio: "d_time_023.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.transport",
+    seq: 511,
+    lesson: "G2.2",
+    title: "\u0422\u0440\u0430\u043D\u0441\u043F\u043E\u0440\u0442 (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_transport_01", hebrew: "\u05D0\u05D5\u05B9\u05D8\u05D5\u05B9\u05D1\u05BC\u05D5\u05BC\u05E1", plain: "\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1", transliteration: "\u041E\u0442\u043E\u0431\u0443\u0441", translation: "\u0430\u0432\u0442\u043E\u0431\u0443\u0441", type: "word", lesson: "G2.2", audio: "d_transport_000.mp3", draft: true },
+      { id: "tv_transport_02", hebrew: "\u05DE\u05B0\u05DB\u05D5\u05B9\u05E0\u05B4\u05D9\u05EA", plain: "\u05DE\u05DB\u05D5\u05E0\u05D9\u05EA", transliteration: "\u043C\u044D\u0445\u043E\u043D\u0418\u0442", translation: "\u0430\u0432\u0442\u043E\u043C\u043E\u0431\u0438\u043B\u044C", type: "word", lesson: "G2.2", audio: "d_transport_008.mp3", draft: true },
+      { id: "tv_transport_03", hebrew: "\u05EA\u05BC\u05B7\u05D7\u05B2\u05E0\u05B8\u05D4", plain: "\u05EA\u05D7\u05E0\u05D4", transliteration: "\u0442\u0430\u0445\u0430\u043D\u0410", translation: "\u0441\u0442\u0430\u043D\u0446\u0438\u044F, \u043E\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430", type: "word", lesson: "G2.2", audio: "d_transport_009.mp3", draft: true },
+      { id: "tv_transport_04", hebrew: "\u05D0\u05D5\u05B9\u05E4\u05B7\u05E0\u05BC\u05B7\u05D9\u05B4\u05DD", plain: "\u05D0\u05D5\u05E4\u05E0\u05D9\u05D9\u05DD", transliteration: "\u043E\u0444\u0430\u043D\u0410\u0438\u043C", translation: "\u0432\u0435\u043B\u043E\u0441\u0438\u043F\u0435\u0434", type: "word", lesson: "G2.2", audio: "d_transport_001.mp3", draft: true },
+      { id: "tv_transport_05", hebrew: "\u05EA\u05BC\u05B0\u05E0\u05D5\u05BC\u05E2\u05B8\u05D4", plain: "\u05EA\u05E0\u05D5\u05E2\u05D4", transliteration: "\u0442\u043D\u0443-\u0410", translation: "\u0434\u0432\u0438\u0436\u0435\u043D\u0438\u0435, \u0442\u0440\u0430\u0444\u0438\u043A", type: "word", lesson: "G2.2", audio: "d_transport_010.mp3", draft: true },
+      { id: "tv_transport_06", hebrew: "\u05DE\u05D5\u05B9\u05E0\u05B4\u05D9\u05EA", plain: "\u05DE\u05D5\u05E0\u05D9\u05EA", transliteration: "\u043C\u043E\u043D\u0418\u0442", translation: "\u0442\u0430\u043A\u0441\u0438", type: "word", lesson: "G2.2", audio: "d_transport_002.mp3", draft: true },
+      { id: "tv_transport_07", hebrew: "\u05DE\u05B8\u05D8\u05D5\u05B9\u05E1", plain: "\u05DE\u05D8\u05D5\u05E1", transliteration: "\u043C\u0430\u0442\u041E\u0441", translation: "\u0441\u0430\u043C\u043E\u043B\u0435\u0442", type: "word", lesson: "G2.2", audio: "d_transport_003.mp3", draft: true },
+      { id: "tv_transport_08", hebrew: "\u05E2\u05B8\u05E6\u05D5\u05BC\u05E8", plain: "\u05E2\u05E6\u05D5\u05E8", transliteration: "\u0430\u0446\u041E\u0440", translation: "\u043E\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0430", type: "word", lesson: "G2.2", audio: "d_transport_005.mp3", draft: true },
+      { id: "tv_transport_09", hebrew: "\u05E8\u05B7\u05DB\u05BC\u05B6\u05D1\u05B6\u05EA", plain: "\u05E8\u05DB\u05D1\u05EA", transliteration: "\u0440\u0430\u043A\u042D\u0432\u0435\u0442", translation: "\u043F\u043E\u0435\u0437\u0434", type: "word", lesson: "G2.2", audio: "d_transport_006.mp3", draft: true },
+      { id: "tv_transport_10", hebrew: "\u05E9\u05C1\u05B5\u05E8\u05D5\u05BC\u05EA", plain: "\u05E9\u05D9\u05E8\u05D5\u05EA", transliteration: "\u0448\u0435\u0440\u0423\u0442", translation: "\u043C\u0430\u0440\u0448\u0440\u0443\u0442\u043D\u043E\u0435 \u0442\u0430\u043A\u0441\u0438", type: "word", lesson: "G2.2", audio: "d_transport_007.mp3", draft: true }
+    ],
+    review: []
+  },
+  {
+    id: "TV.verbs",
+    seq: 512,
+    lesson: "CH2.1",
+    title: "\u0421\u043F\u043E\u0440\u0442 (\u0434\u043E\u043F.)",
+    items: [
+      { id: "tv_verbs_01", hebrew: "\u05D4\u05B4\u05EA\u05B0\u05E2\u05B7\u05DE\u05BC\u05B0\u05DC\u05D5\u05BC\u05EA", plain: "\u05D4\u05EA\u05E2\u05DE\u05DC\u05D5\u05EA", transliteration: "h\u0438\u0442-\u0430\u043C\u043B\u0423\u0442", translation: "\u0443\u043F\u0440\u0430\u0436\u043D\u0435\u043D\u0438\u0435 (\u0433\u0438\u043C\u043D\u0430\u0441\u0442\u0438\u043A\u0430)", type: "word", lesson: "CH2.1", audio: "d_verbs_000.mp3", draft: true },
+      { id: "tv_verbs_02", hebrew: "\u05DB\u05BC\u05B7\u05D3\u05BC\u05D5\u05BC\u05E8\u05B6\u05D2\u05B6\u05DC", plain: "\u05DB\u05D3\u05D5\u05E8\u05D2\u05DC", transliteration: "\u043A\u0430\u0434\u0443\u0440\u042D\u0433\u0435\u043B\u044C", translation: "\u0444\u0443\u0442\u0431\u043E\u043B", type: "word", lesson: "CH2.1", audio: "d_verbs_001.mp3", draft: true },
+      { id: "tv_verbs_03", hebrew: "\u05DE\u05B4\u05E9\u05C2\u05B0\u05D7\u05B7\u05E7", plain: "\u05DE\u05E9\u05D7\u05E7", transliteration: "\u043C\u0438\u0441\u0445\u0410\u043A", translation: "\u0438\u0433\u0440\u0430", type: "word", lesson: "CH2.1", audio: "d_verbs_002.mp3", draft: true },
+      { id: "tv_verbs_04", hebrew: "\u05E1\u05B0\u05E4\u05BC\u05D5\u05B9\u05E8\u05B0\u05D8", plain: "\u05E1\u05E4\u05D5\u05E8\u05D8", transliteration: "\u0441\u043F\u043E\u0440\u0442", translation: "\u0441\u043F\u043E\u0440\u0442", type: "word", lesson: "CH2.1", audio: "d_verbs_003.mp3", draft: true },
+      { id: "tv_verbs_05", hebrew: "\u05E9\u05C2\u05B0\u05D7\u05B4\u05D9\u05BC\u05B8\u05D4", plain: "\u05E9\u05D7\u05D9\u05D9\u05D4", transliteration: "\u0441\u0445\u0438\u042F", translation: "\u043F\u043B\u0430\u0432\u0430\u043D\u0438\u0435", type: "word", lesson: "CH2.1", audio: "d_verbs_004.mp3", draft: true },
+      { id: "tv_verbs_06", hebrew: "\u05E9\u05C1\u05B7\u05E2\u05B7\u05E8", plain: "\u05E9\u05E2\u05E8", transliteration: "\u0448\u0410\u0430\u0440", translation: "\u0432\u043E\u0440\u043E\u0442\u0430; \u0433\u043E\u043B", type: "word", lesson: "CH2.1", audio: "d_verbs_005.mp3", draft: true },
+      { id: "tv_verbs_07", hebrew: "\u05DB\u05BC\u05B7\u05D3\u05BC\u05D5\u05BC\u05E8\u05B0\u05E1\u05B7\u05DC", plain: "\u05DB\u05D3\u05D5\u05E8\u05E1\u05DC", transliteration: "\u043A\u0430\u0434\u0443\u0440\u0441\u0410\u043B\u044C", translation: "\u0431\u0430\u0441\u043A\u0435\u0442\u0431\u043E\u043B", type: "word", lesson: "CH2.1", audio: "d_verbs_006.mp3", draft: true }
+    ],
+    review: []
+  }
 ];
 var PHRASE_LOCKS = [
   { id: "pl_01", hebrew: "\u05D6\u05B6\u05D4 \u05D8\u05D5\u05B9\u05D1", plain: "\u05D6\u05D4 \u05D8\u05D5\u05D1", transliteration: "\u0437\u044D \u0442\u043E\u0432", translation: "\u044D\u0442\u043E \u0445\u043E\u0440\u043E\u0448\u043E", composedOf: ["rw_18", "rw_32"], audio: "pl_01.mp3" },
@@ -1677,7 +2075,9 @@ var COURSE_PATH = [
       { id: "R1.24" },
       { id: "M1.4" },
       { id: "R1.25" },
+      { id: "TV.colors" },
       { id: "EX1.1" },
+      { id: "TV.family" },
       { id: "C1" },
       { id: "R1.22" },
       { id: "CH1.1" },
@@ -1688,7 +2088,9 @@ var COURSE_PATH = [
       { id: "R1.28" },
       { id: "CH1.4" },
       { id: "R1.36" },
-      { id: "EX1.2" }
+      { id: "TV.numbers" },
+      { id: "EX1.2" },
+      { id: "TV.body" }
     ]
   },
   {
@@ -1703,17 +2105,21 @@ var COURSE_PATH = [
       { id: "G1.1" },
       { id: "G1.2" },
       { id: "R1.30" },
+      { id: "TV.food" },
       { id: "G1.3" },
       { id: "R1.31" },
       { id: "G1.4" },
       { id: "R1.32" },
+      { id: "TV.home" },
       { id: "C2" },
       { id: "R1.35" },
+      { id: "TV.clothes" },
       { id: "G1.5" },
       { id: "R1.33" },
       { id: "G1.6" },
       { id: "R1.34" },
-      { id: "EX2.1" }
+      { id: "EX2.1" },
+      { id: "TV.city" }
     ]
   },
   {
@@ -1733,6 +2139,7 @@ var COURSE_PATH = [
       { id: "R1.38" },
       { id: "M2.3" },
       { id: "R1.39" },
+      { id: "TV.nature" },
       { id: "M2.4" },
       { id: "R1.40" },
       { id: "M2.5" },
@@ -1741,6 +2148,7 @@ var COURSE_PATH = [
       { id: "R1.42" },
       { id: "C3" },
       { id: "R1.43" },
+      { id: "TV.time" },
       { id: "M2.7" },
       { id: "R1.44" },
       { id: "M2.8" },
@@ -1752,6 +2160,7 @@ var COURSE_PATH = [
       { id: "R1.47" },
       { id: "G2.2" },
       { id: "R1.48" },
+      { id: "TV.transport" },
       { id: "G2.3" },
       { id: "R1.49" },
       { id: "G2.4" },
@@ -1761,6 +2170,7 @@ var COURSE_PATH = [
       { id: "R1.51" },
       { id: "CH2.1" },
       { id: "R1.52" },
+      { id: "TV.verbs" },
       { id: "EX3.3" }
     ]
   },
@@ -1778,6 +2188,7 @@ var COURSE_PATH = [
       { id: "M3.1" },
       { id: "R1.53" },
       { id: "M3.2" },
+      { id: "TV.study" },
       { id: "M3.3" },
       { id: "SL1.1" },
       { id: "SL1.2" },
@@ -1799,6 +2210,7 @@ var COURSE_PATH = [
       { id: "G3.6" },
       { id: "R1.68" },
       { id: "C5.1" },
+      { id: "TV.phrases1" },
       { id: "SL1.4" },
       { id: "R1.70" },
       { id: "EX4.3" }
@@ -9105,7 +9517,7 @@ check("\u05D3\u05B6\u05BC\u05E8\u05B6\u05DA\u05B0 \u0447\u0438\u0442\u0430\u0435
 var norm = (h) => h.replace(/[\u05B0-\u05C7\s?!.,«»()\-–—:;']/g, "");
 var plains = READING_ITEMS.map((i) => norm(i.hebrew));
 var dups = plains.filter((v, i) => plains.indexOf(v) !== i);
-check("\u0434\u0443\u0431\u043B\u0438\u043A\u0430\u0442\u043E\u0432 plain \u2264 3 (\u0438\u0441\u0442\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438\u0435 R0)", dups.length <= 3);
+check("\u0434\u0443\u0431\u043B\u0438\u043A\u0430\u0442\u043E\u0432 plain \u2264 5 (\u0438\u0441\u0442\u043E\u0440\u0438\u0447. R0 + 2 \u043D\u0435\u0438\u0437\u0431\u0435\u0436\u043D\u044B\u0445 \u043E\u043C\u043E\u0433\u0440\u0430\u0444\u0430 TV.*: sin/shin \u0448\u0435\u0440, dagesh \u043C\u043E\u043B\u043E\u043D/\u043C\u0438\u043B\u043E\u043D)", dups.length <= 5);
 var allIds = new Set(READING_ITEMS.map((i) => i.id));
 var badRefs = READING_BLOCKS.flatMap((b) => (b.review || []).filter((r) => !allIds.has(r)));
 check("\u0432\u0441\u0435 review-\u0441\u0441\u044B\u043B\u043A\u0438 \u0432\u0430\u043B\u0438\u0434\u043D\u044B", badRefs.length === 0);
@@ -10042,12 +10454,109 @@ check(
   allPhrases.every((p2) => (p2.plain || "").trim().includes(" "))
 );
 check(
-  "\u0442\u0438\u043F\u044B: \u0441\u0447\u0451\u0442\u0447\u0438\u043A\u0438 \u0431\u044C\u044E\u0442\u0441\u044F \u2014 216 \u0441\u043B\u043E\u0432, 73 \u0444\u0440\u0430\u0437\u044B",
-  READING_ITEMS.filter((i) => i.type !== "phrase").length === 216 && allPhrases.length === 73
+  "\u0442\u0438\u043F\u044B: \u0441\u0447\u0451\u0442\u0447\u0438\u043A\u0438 \u0431\u044C\u044E\u0442\u0441\u044F \u2014 466 \u0441\u043B\u043E\u0432, 81 \u0444\u0440\u0430\u0437\u0430 (+8 TV.family +242 \u043F\u0430\u0440\u0442\u0438\u044F2, +8 TV.phrases1)",
+  READING_ITEMS.filter((i) => i.type !== "phrase").length === 466 && allPhrases.length === 81
 );
 check(
   "\u0442\u0438\u043F\u044B: \u0431\u044B\u0432\u0448\u0438\u0435 \u043F\u0441\u0435\u0432\u0434\u043E-\u0444\u0440\u0430\u0437\u044B \u0441\u0442\u0430\u043B\u0438 \u0441\u043B\u043E\u0432\u0430\u043C\u0438 (\u05DE\u05D9 pronoun, \u05D7\u05D5\u05DE\u05D5\u05E1 noun, \u05E9\u05DC\u05D5\u05DD noun)",
   READING_ITEMS.find((i) => i.id === "rp_19")?.type === "pronoun" && READING_ITEMS.find((i) => i.id === "rp_33")?.type === "noun" && READING_ITEMS.find((i) => i.id === "rp_01")?.type === "noun"
+);
+var tvFamily = READING_BLOCKS.find((b) => b.id === "TV.family");
+var tvPhrases = READING_BLOCKS.find((b) => b.id === "TV.phrases1");
+check(
+  "\u043F\u0438\u043B\u043E\u0442: TV.family \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u0435\u0442, lesson=EX1.1, 8 \u0441\u043B\u043E\u0432",
+  !!tvFamily && tvFamily.lesson === "EX1.1" && tvFamily.items.length === 8
+);
+check(
+  "\u043F\u0438\u043B\u043E\u0442: TV.phrases1 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u0435\u0442, lesson=C5.1, 8 \u0444\u0440\u0430\u0437",
+  !!tvPhrases && tvPhrases.lesson === "C5.1" && tvPhrases.items.length === 8
+);
+check(
+  "\u043F\u0438\u043B\u043E\u0442: \u0441\u043B\u043E\u0432\u0430/\u0444\u0440\u0430\u0437\u044B \u0447\u0438\u0442\u0430\u0435\u043C\u044B \u0432\u0441\u0435\u043C\u0438 \u0431\u0443\u043A\u0432\u0430\u043C\u0438 (\u0432\u0441\u0435 \u0433\u0440\u0443\u043F\u043F\u044B \u0438\u0437\u0432\u0435\u0441\u0442\u043D\u044B)",
+  (() => {
+    const known = new Set("\u05D0\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05D9\u05DB\u05DC\u05DE\u05E0\u05E1\u05E2\u05E4\u05E6\u05E7\u05E8\u05E9\u05EA\u05DA\u05DD\u05DF\u05E3\u05E5");
+    return [...tvFamily.items, ...tvPhrases.items].every((w) => [...w.plain.replace(/[.,?!]/g, "")].every((ch) => known.has(ch) || ch === " "));
+  })()
+);
+check(
+  "\u043F\u0438\u043B\u043E\u0442: id \u0441\u043B\u043E\u0432/\u0444\u0440\u0430\u0437 \u0443\u043D\u0438\u043A\u0430\u043B\u044C\u043D\u044B \u043F\u0440\u043E\u0442\u0438\u0432 \u0432\u0441\u0435\u0433\u043E \u043F\u043E\u0442\u043E\u043A\u0430",
+  [...tvFamily.items, ...tvPhrases.items].every((w) => READING_ITEMS.filter((i) => i.id === w.id).length === 1)
+);
+check(
+  "\u043F\u0438\u043B\u043E\u0442: \u0432\u0441\u0435 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u044B \u043F\u043E\u043C\u0435\u0447\u0435\u043D\u044B draft (\u043D\u0438\u043A\u0443\u0434 \u0438\u0437 Nakdan, \u043D\u0435 \u0432\u044B\u0447\u0438\u0442\u0430\u043D \u0432\u0440\u0443\u0447\u043D\u0443\u044E)",
+  [...tvFamily.items, ...tvPhrases.items].every((w) => w.draft === true)
+);
+check(
+  "\u043F\u0438\u043B\u043E\u0442: \u043D\u0435 \u0434\u0443\u0431\u043B\u0438\u0440\u0443\u0435\u0442 \u0443\u0436\u0435 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0435 \u0432 \u043F\u043E\u0442\u043E\u043A\u0435 plain-\u0444\u043E\u0440\u043C\u044B (\u043A\u0440\u043E\u043C\u0435 \u0441\u0435\u0431\u044F)",
+  [...tvFamily.items, ...tvPhrases.items].every((w) => READING_ITEMS.filter((i) => i.plain === w.plain).length === 1)
+);
+check(
+  "\u043F\u0438\u043B\u043E\u0442: TV.family \u0437\u0430\u043F\u0435\u0440\u0442 \u0434\u043E EX1.1, \u043E\u0442\u043A\u0440\u044B\u0442 \u043F\u043E\u0441\u043B\u0435",
+  isReadingBlockUnlocked(tvFamily, { scores: {} }) === false && isReadingBlockUnlocked(tvFamily, { scores: { "EX1.1": 80 } }) === true
+);
+check(
+  "\u043F\u0438\u043B\u043E\u0442: TV.phrases1 \u0437\u0430\u043F\u0435\u0440\u0442 \u0434\u043E C5.1, \u043E\u0442\u043A\u0440\u044B\u0442 \u043F\u043E\u0441\u043B\u0435",
+  isReadingBlockUnlocked(tvPhrases, { scores: {} }) === false && isReadingBlockUnlocked(tvPhrases, { scores: { "C5.1": 70 } }) === true
+);
+check(
+  "\u043F\u0438\u043B\u043E\u0442: \u043E\u0431\u0430 \u0431\u043B\u043E\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u044B \u0432 COURSE_PATH",
+  (() => {
+    const allIds2 = COURSE_PATH.flatMap((ch) => ch.items.map((i) => i.id));
+    return allIds2.includes("TV.family") && allIds2.includes("TV.phrases1");
+  })()
+);
+var TV2_IDS = [
+  "TV.body",
+  "TV.city",
+  "TV.clothes",
+  "TV.colors",
+  "TV.food",
+  "TV.home",
+  "TV.nature",
+  "TV.numbers",
+  "TV.study",
+  "TV.time",
+  "TV.transport",
+  "TV.verbs"
+];
+var tv2Blocks = TV2_IDS.map((id) => READING_BLOCKS.find((b) => b.id === id));
+check(
+  "\u043F\u0430\u0440\u0442\u0438\u044F2: \u0432\u0441\u0435 12 \u0431\u043B\u043E\u043A\u043E\u0432 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0442, \u043D\u0435\u043F\u0443\u0441\u0442\u044B, \u043A\u0430\u0436\u0434\u044B\u0439 lesson \u2260 SL1.1/SL1.2",
+  tv2Blocks.every((b) => b && b.items.length > 0 && b.lesson !== "SL1.1" && b.lesson !== "SL1.2")
+);
+check(
+  '\u043F\u0430\u0440\u0442\u0438\u044F2: 242 \u043D\u043E\u0432\u044B\u0445 \u0441\u043B\u043E\u0432\u0430 \u0441\u0443\u043C\u043C\u0430\u0440\u043D\u043E, \u0432\u0441\u0435 type:"word"',
+  tv2Blocks.reduce((n, b) => n + b.items.length, 0) === 242 && tv2Blocks.every((b) => b.items.every((i) => i.type === "word"))
+);
+check(
+  "\u043F\u0430\u0440\u0442\u0438\u044F2: \u0441\u043B\u043E\u0432\u0430 \u0447\u0438\u0442\u0430\u0435\u043C\u044B \u0432\u0441\u0435\u043C\u0438 \u0431\u0443\u043A\u0432\u0430\u043C\u0438 (\u0432\u0441\u0435 \u0433\u0440\u0443\u043F\u043F\u044B \u0438\u0437\u0432\u0435\u0441\u0442\u043D\u044B)",
+  (() => {
+    const known = new Set("\u05D0\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05D9\u05DB\u05DC\u05DE\u05E0\u05E1\u05E2\u05E4\u05E6\u05E7\u05E8\u05E9\u05EA\u05DA\u05DD\u05DF\u05E3\u05E5");
+    return tv2Blocks.every((b) => b.items.every((w) => [...w.plain.replace(/'/g, "")].every((ch) => known.has(ch))));
+  })()
+);
+check(
+  "\u043F\u0430\u0440\u0442\u0438\u044F2: id \u0441\u043B\u043E\u0432 \u0443\u043D\u0438\u043A\u0430\u043B\u044C\u043D\u044B \u043F\u0440\u043E\u0442\u0438\u0432 \u0432\u0441\u0435\u0433\u043E \u043F\u043E\u0442\u043E\u043A\u0430",
+  tv2Blocks.every((b) => b.items.every((w) => READING_ITEMS.filter((i) => i.id === w.id).length === 1))
+);
+check(
+  "\u043F\u0430\u0440\u0442\u0438\u044F2: \u0432\u0441\u0435 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u044B \u043F\u043E\u043C\u0435\u0447\u0435\u043D\u044B draft (\u043D\u0438\u043A\u0443\u0434 \u0438\u0437 Nakdan, \u043D\u0435 \u0432\u044B\u0447\u0438\u0442\u0430\u043D \u0432\u0440\u0443\u0447\u043D\u0443\u044E)",
+  tv2Blocks.every((b) => b.items.every((w) => w.draft === true))
+);
+check(
+  "\u043F\u0430\u0440\u0442\u0438\u044F2: item.lesson \u0441\u043E\u0432\u043F\u0430\u0434\u0430\u0435\u0442 \u0441 block.lesson \u0443 \u043A\u0430\u0436\u0434\u043E\u0433\u043E \u0431\u043B\u043E\u043A\u0430",
+  tv2Blocks.every((b) => b.items.every((w) => w.lesson === b.lesson))
+);
+check(
+  "\u043F\u0430\u0440\u0442\u0438\u044F2: \u0432\u0441\u0435 \u0431\u043B\u043E\u043A\u0438 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u044B \u0432 COURSE_PATH",
+  (() => {
+    const allIds2 = COURSE_PATH.flatMap((ch) => ch.items.map((i) => i.id));
+    return TV2_IDS.every((id) => allIds2.includes(id));
+  })()
+);
+check(
+  "\u043F\u0430\u0440\u0442\u0438\u044F2: \u043A\u0430\u0436\u0434\u044B\u0439 \u0431\u043B\u043E\u043A \u0437\u0430\u043F\u0435\u0440\u0442 \u0434\u043E \u0441\u0432\u043E\u0435\u0433\u043E lesson, \u043E\u0442\u043A\u0440\u044B\u0442 \u043F\u043E\u0441\u043B\u0435 (score=100)",
+  tv2Blocks.every((b) => isReadingBlockUnlocked(b, { scores: {} }) === false && isReadingBlockUnlocked(b, { scores: { [b.lesson]: 100 } }) === true)
 );
 console.log(fails === 0 ? "\n\u{1F389} \u0412\u0421\u0415 \u041F\u0420\u041E\u0412\u0415\u0420\u041A\u0418 \u041F\u0420\u041E\u0419\u0414\u0415\u041D\u042B" : `
 \u{1F4A5} \u041F\u0420\u041E\u0412\u0410\u041B\u041E\u0412: ${fails}`);

@@ -3,7 +3,7 @@
 //   npx esbuild tests/smoke_v7.mjs --bundle --format=esm --outfile=tests/.smoke.bundle.mjs
 //   node tests/.smoke.bundle.mjs
 // Гонять после ЛЮБОГО изменения curriculum.js / reading.js / vocab.js / миграций.
-import { CURRICULUM, deriveProgress, getNodeStatus, isNodeDone, getReadingBlockStudiedPct, isReadingBlockUnlocked, getLockHint } from '../src/data/curriculum.js';
+import { CURRICULUM, COURSE_PATH, deriveProgress, getNodeStatus, isNodeDone, getReadingBlockStudiedPct, isReadingBlockUnlocked, getLockHint } from '../src/data/curriculum.js';
 import { checkReadingUnlock, getFreshPortions } from '../src/helpers/progressHelpers.js';
 import { GRAMMAR_LESSONS } from '../src/data/grammarLessons.js';
 import { READING_BLOCKS, READING_ITEMS, getBlockCards, PHRASE_LOCKS, getUnlockedPhraseLocks } from '../src/data/reading.js';
@@ -108,7 +108,7 @@ check('דֶּרֶךְ читаемо при 1-4 (ך→כ гр.2)', isReadableByL
 const norm = h => h.replace(/[\u05B0-\u05C7\s?!.,«»()\-–—:;']/g, '');
 const plains = READING_ITEMS.map(i => norm(i.hebrew));
 const dups = plains.filter((v, i) => plains.indexOf(v) !== i);
-check('дубликатов plain ≤ 3 (исторические R0)', dups.length <= 3);
+check('дубликатов plain ≤ 5 (историч. R0 + 2 неизбежных омографа TV.*: sin/shin шер, dagesh молон/милон)', dups.length <= 5);
 
 // ── 11. review-ссылки все резолвятся ──
 const allIds = new Set(READING_ITEMS.map(i => i.id));
@@ -783,13 +783,68 @@ check('батч3: практика — валидные В4 у всех 6 уро
 const allPhrases = READING_ITEMS.filter(i => i.type === 'phrase');
 check('типы: каждая type:"phrase" — многословная (нет слов под ярлыком фразы)',
   allPhrases.every(p => (p.plain || '').trim().includes(' ')));
-check('типы: счётчики бьются — 216 слов, 73 фразы',
-  READING_ITEMS.filter(i => i.type !== 'phrase').length === 216 &&
-  allPhrases.length === 73);
+check('типы: счётчики бьются — 466 слов, 81 фраза (+8 TV.family +242 партия2, +8 TV.phrases1)',
+  READING_ITEMS.filter(i => i.type !== 'phrase').length === 466 &&
+  allPhrases.length === 81);
 check('типы: бывшие псевдо-фразы стали словами (מי pronoun, חומוס noun, שלום noun)',
   READING_ITEMS.find(i=>i.id==='rp_19')?.type === 'pronoun' &&
   READING_ITEMS.find(i=>i.id==='rp_33')?.type === 'noun' &&
   READING_ITEMS.find(i=>i.id==='rp_01')?.type === 'noun');
+
+// ── 27. Пилот обогащения из колод (VOCAB_ENRICHMENT_CANDIDATES.md) ──────────
+const tvFamily = READING_BLOCKS.find(b => b.id === 'TV.family');
+const tvPhrases = READING_BLOCKS.find(b => b.id === 'TV.phrases1');
+check('пилот: TV.family существует, lesson=EX1.1, 8 слов',
+  !!tvFamily && tvFamily.lesson === 'EX1.1' && tvFamily.items.length === 8);
+check('пилот: TV.phrases1 существует, lesson=C5.1, 8 фраз',
+  !!tvPhrases && tvPhrases.lesson === 'C5.1' && tvPhrases.items.length === 8);
+check('пилот: слова/фразы читаемы всеми буквами (все группы известны)',
+  (() => { const known = new Set('אבגדהוזחטיכלמנסעפצקרשתךםןףץ');
+    return [...tvFamily.items, ...tvPhrases.items]
+      .every(w => [...w.plain.replace(/[.,?!]/g,'')].every(ch => known.has(ch) || ch === ' ')); })());
+check('пилот: id слов/фраз уникальны против всего потока',
+  [...tvFamily.items, ...tvPhrases.items].every(w => READING_ITEMS.filter(i => i.id === w.id).length === 1));
+check('пилот: все элементы помечены draft (никуд из Nakdan, не вычитан вручную)',
+  [...tvFamily.items, ...tvPhrases.items].every(w => w.draft === true));
+check('пилот: не дублирует уже существующие в потоке plain-формы (кроме себя)',
+  [...tvFamily.items, ...tvPhrases.items].every(w =>
+    READING_ITEMS.filter(i => i.plain === w.plain).length === 1));
+check('пилот: TV.family заперт до EX1.1, открыт после',
+  isReadingBlockUnlocked(tvFamily, { scores: {} }) === false &&
+  isReadingBlockUnlocked(tvFamily, { scores: { 'EX1.1': 80 } }) === true);
+check('пилот: TV.phrases1 заперт до C5.1, открыт после',
+  isReadingBlockUnlocked(tvPhrases, { scores: {} }) === false &&
+  isReadingBlockUnlocked(tvPhrases, { scores: { 'C5.1': 70 } }) === true);
+check('пилот: оба блока подключены в COURSE_PATH',
+  (() => { const allIds = COURSE_PATH.flatMap(ch => ch.items.map(i => i.id));
+    return allIds.includes('TV.family') && allIds.includes('TV.phrases1'); })());
+
+// ── 28. Партия 2 обогащения: 12 тематических TV.*-колод (09.08.2026) ────────
+const TV2_IDS = ['TV.body','TV.city','TV.clothes','TV.colors','TV.food','TV.home',
+  'TV.nature','TV.numbers','TV.study','TV.time','TV.transport','TV.verbs'];
+const tv2Blocks = TV2_IDS.map(id => READING_BLOCKS.find(b => b.id === id));
+check('партия2: все 12 блоков существуют, непусты, каждый lesson ≠ SL1.1/SL1.2',
+  tv2Blocks.every(b => b && b.items.length > 0 && b.lesson !== 'SL1.1' && b.lesson !== 'SL1.2'));
+check('партия2: 242 новых слова суммарно, все type:"word"',
+  tv2Blocks.reduce((n, b) => n + b.items.length, 0) === 242 &&
+  tv2Blocks.every(b => b.items.every(i => i.type === 'word')));
+check('партия2: слова читаемы всеми буквами (все группы известны)',
+  (() => { const known = new Set('אבגדהוזחטיכלמנסעפצקרשתךםןףץ');
+    return tv2Blocks.every(b => b.items.every(w =>
+      [...w.plain.replace(/'/g,'')].every(ch => known.has(ch)))); })());
+check('партия2: id слов уникальны против всего потока',
+  tv2Blocks.every(b => b.items.every(w => READING_ITEMS.filter(i => i.id === w.id).length === 1)));
+check('партия2: все элементы помечены draft (никуд из Nakdan, не вычитан вручную)',
+  tv2Blocks.every(b => b.items.every(w => w.draft === true)));
+check('партия2: item.lesson совпадает с block.lesson у каждого блока',
+  tv2Blocks.every(b => b.items.every(w => w.lesson === b.lesson)));
+check('партия2: все блоки подключены в COURSE_PATH',
+  (() => { const allIds = COURSE_PATH.flatMap(ch => ch.items.map(i => i.id));
+    return TV2_IDS.every(id => allIds.includes(id)); })());
+check('партия2: каждый блок заперт до своего lesson, открыт после (score=100)',
+  tv2Blocks.every(b =>
+    isReadingBlockUnlocked(b, { scores: {} }) === false &&
+    isReadingBlockUnlocked(b, { scores: { [b.lesson]: 100 } }) === true));
 
 console.log(fails === 0 ? '\n🎉 ВСЕ ПРОВЕРКИ ПРОЙДЕНЫ' : `\n💥 ПРОВАЛОВ: ${fails}`);
 process.exit(fails === 0 ? 0 : 1);

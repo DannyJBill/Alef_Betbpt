@@ -8,7 +8,7 @@
  *                    слов, грамматический урок — без промежуточных хабов.
  *                    Тап по пройденному узлу — шпаргалка (CheatSheet) с
  *                    кнопкой «Пройти заново».
- *   📚 Мой словарь — накопитель слов (DictView внутри ReadingScreen dictOnly).
+ *   📚 Мой словарь — накопитель слов, темы и буквы одним экраном (VocabularyScreen).
  *
  * Сплетение треков (v7.1) читается прямо на ленте: замки объясняются
  * getLockHint. Старые экраны-хабы (AlphabetScreen, GrammarScreen, ReadingScreen
@@ -30,6 +30,7 @@ import LearnScreen   from "./LearnScreen";
 import NikudScreen   from "./NikudScreen";
 import CardsScreen   from "./CardsScreen";
 import ReadingScreen from "./ReadingScreen";
+import VocabularyScreen from "./VocabularyScreen";
 import LessonScreen  from "./LessonScreen";
 import ExamScreen    from "./ExamScreen";
 import CheatSheet    from "./CheatSheet";
@@ -374,7 +375,7 @@ export default function StudyScreen({ initialSection }) {
       </div>
 
       {tab === 'dict' ? (
-        <ReadingScreen dictOnly />
+        <VocabularyScreen />
       ) : (
         <div className="px-4 flex flex-col gap-4">
           {/* Продолжить */}

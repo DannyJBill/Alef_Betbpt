@@ -1,18 +1,21 @@
 /**
- * ReadingScreen — 📖 Чтение
- * Теперь в стиле WordsScreen: два таба сверху → список блоков
+ * ReadingScreen — сессии по словам порций курса.
+ *
+ * После объединения экранов словаря (см. VocabularyScreen.jsx) этот файл
+ * отвечает только за:
+ *   - soloBlock — карточки свежей порции при прохождении «Пути» (StudyScreen);
+ *   - CardsMode/QuizMode/PhraseLocksSection — переиспользуемые компоненты
+ *     сессий, которые VocabularyScreen запускает над ЛЮБЫМ подмножеством
+ *     словаря (весь словарь / модуль курса), не только над порцией.
+ * Раньше здесь же жил DictView («Мой словарь») — теперь это VocabularyScreen.
  */
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
-import { READING_BLOCKS, READING_ITEMS, PHRASE_LOCKS, getUnlockedPhraseLocks, getBlockCards } from "../data/reading";
+import { READING_BLOCKS, PHRASE_LOCKS, getUnlockedPhraseLocks, getBlockCards } from "../data/reading";
 import { ALPHABET, LETTER_GROUPS } from "../data/alphabet";
-import { isReadingBlockUnlocked } from "../data/curriculum";
 import { getKnownLetters, filterReadable } from "../helpers/vocab";
-import { getFreshPortions } from "../helpers/progressHelpers";
-import { getNodeStatus } from "../data/curriculum";
-import { DECKS_UNLOCK_NODE } from "../data/decks";
-import DecksScreen from "./DecksScreen";
+import { getLessonWordMeta, playAudio } from "../helpers/dictionary";
 import { shuffle } from "../helpers/utils";
 import { buildSession, fromReadingItem } from "../helpers/exercises";
 import ExerciseSession from "../components/ui/ExerciseSession";
@@ -25,21 +28,14 @@ const BLOCK_META = {
   lesson: { label:"Урок", gradient:"from-violet-500 to-purple-600", fill:"bg-violet-500",  border:"border-violet-200", bg:"bg-violet-50",  text:"text-violet-700"  },
 };
 
-// Палитра по id блока: R0.x — историческая, R1.x (уроки) — фиолетовая
+// Палитра по id блока: R0.x — историческая, R1.x (уроки) — фиолетовая.
+// 'dict'/'chapter' — сессии VocabularyScreen над произвольным подмножеством
+// словаря (весь словарь / модуль курса) — emerald-семья, как и порции букв.
 function metaFor(blockId) {
-  if (blockId === 'dict') return { ...BLOCK_META[1], gradient: "from-emerald-500 to-teal-600", fill: "bg-emerald-500" };
+  if (blockId === 'dict' || blockId === 'chapter') return { ...BLOCK_META[1], gradient: "from-emerald-500 to-teal-600", fill: "bg-emerald-500" };
   if (blockId?.startsWith('VL')) return BLOCK_META[1];  // порции букв — emerald-семья
   if (blockId?.startsWith('VN')) return BLOCK_META[2];  // порции огласовок
   return BLOCK_META.lesson;
-}
-
-// Показывать транслит под словом-вопросом в квизе «что значит?».
-// false — иврит голый (сама проверка чтения); true — транслит-подсказка везде.
-const SHOW_TRANSLIT_IN_QUIZ = false;
-
-function playAudio(filename) {
-  if (!filename) return;
-  new Audio(`/reading/${filename}`).play().catch(() => {});
 }
 
 // Единая проверка «читаемо по буквам» — helpers/vocab.js
@@ -179,11 +175,9 @@ export function CardsMode({ items, blockN, dark, onBack, onReview }) {
 
 // ─── Учиться (quiz) — через ДВИЖОК УПРАЖНЕНИЙ ────────────────────────────────
 // Генерация вопросов: helpers/exercises.js (word_ru), рендер: ExerciseSession.
-// Экран больше не содержит логики построения вопросов.
-// ─── Проверка — единый комплексный квиз (бывшие «Проверить» + «Тренажёр») ────
-// Смешанная сессия из всех генераторов движка: узнавание (word_ru), активное
+// Проверка — единый комплексный квиз: узнавание (word_ru), активное
 // припоминание (word_he), чтение без огласовок (no_nikud), печать (typing).
-function QuizMode({ items, pool, blockN, dark, onBack, onAnswer }) {
+export function QuizMode({ items, pool, blockN, dark, onBack, onAnswer }) {
   const m = metaFor(blockN);
   const src = items.map(fromReadingItem);
   const pl  = pool.map(fromReadingItem);
@@ -205,9 +199,8 @@ function QuizMode({ items, pool, blockN, dark, onBack, onAnswer }) {
   );
 }
 
-// ─── Лента «Новое» УДАЛЕНА (этап 4): дублировала «Путь». ────────────────────
-
-function PhraseLocksSection({ studied, dark }) {
+/** «Ты уже можешь сказать» — фразы-замки, разблокирующиеся по мере накопления словаря. */
+export function PhraseLocksSection({ studied, dark }) {
   const unlocked = getUnlockedPhraseLocks(studied);
   const lockedCount = PHRASE_LOCKS.length - unlocked.length;
   if (unlocked.length === 0 && lockedCount === 0) return null;
@@ -239,213 +232,21 @@ function PhraseLocksSection({ studied, dark }) {
   );
 }
 
-// Статус слова в словаре по его прогрессу (для точки-индикатора и счётчиков).
-// Восстановлено в этапе 3-fix: жил в снесённом FeedList.
-function statusOf(w) {
-  if (!w) return { label: "новое", dot: "bg-gray-300" };
-  const reps = w.sm2?.repetitions || 0;
-  const correct = w.correct || 0, wrong = w.wrong || 0;
-  if (reps >= 2 || correct >= 3) return { label: "знаю", dot: "bg-emerald-500" };
-  if (wrong > 0 && wrong >= correct) return { label: "слабое", dot: "bg-rose-500" };
-  return { label: "изучается", dot: "bg-amber-400" };
-}
-
-function DictView({ stats, dark, onOpen, onOpenDecks, decksUnlocked }) {
-  const [q, setQ] = useState("");
-  const wordsMap = stats.readingProgress?.words || {};
-  const studied = stats.readingProgress?.studied || [];
-  // Только слова (фразы — в разделе «Ты уже можешь сказать»), только реально
-  // существующие в контенте. Совпадает с базой заголовка «в словаре».
-  const introduced = READING_ITEMS.filter(i => i.type !== 'phrase' && studied.includes(i.id));
-
-  const known = introduced.filter(i => statusOf(wordsMap[i.id]).label === "знаю").length;
-  const weak  = introduced.filter(i => statusOf(wordsMap[i.id]).label === "слабое").length;
-  const nextFresh = getFreshPortions(stats)[0] || null; // следующая порция с новыми словами
-
-  const shown = q.trim()
-    ? introduced.filter(i =>
-        i.translation.toLowerCase().includes(q.toLowerCase()) ||
-        i.plain.includes(q) || i.hebrew.includes(q))
-    : introduced;
-
-  if (introduced.length === 0) {
-    return (
-      <div className="px-4 pt-8 text-center">
-        <p className="text-4xl mb-3">📚</p>
-        <p className={`text-sm ${dark?"text-gray-400":"text-gray-500"}`}>
-          Словарь пока пуст. Проходи уроки — новые слова из порций накапливаются здесь.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="px-4 flex flex-col gap-3">
-      {/* Сводка */}
-      <div className={`rounded-2xl border p-4 ${dark?"bg-gray-800 border-gray-700":"bg-white border-gray-100"}`}>
-        <div className="flex justify-around text-center mb-3">
-          <div><p className={`text-xl font-black ${dark?"text-white":"text-gray-900"}`}>{introduced.length}</p><p className="text-xs text-gray-400">в словаре</p></div>
-          <div><p className="text-xl font-black text-emerald-500">{known}</p><p className="text-xs text-gray-400">знаю</p></div>
-          <div><p className="text-xl font-black text-rose-400">{weak}</p><p className="text-xs text-gray-400">слабых</p></div>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={() => onOpen('dict', 'cards')}
-            className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600">
-            🃏 Повторить
-          </button>
-          <button onClick={() => onOpen('dict', 'quiz')}
-            disabled={introduced.length < 4}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 disabled:opacity-40
-              ${dark?"border-gray-600 text-gray-200":"border-gray-300 text-gray-700"}`}>
-            ✅ Проверить
-          </button>
-          <button onClick={() => decksUnlocked && onOpenDecks()}
-            disabled={!decksUnlocked}
-            title={decksUnlocked ? "Тематические колоды" : "Откроется после уровня 4"}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 disabled:opacity-40
-              ${dark?"border-indigo-500 text-indigo-400":"border-indigo-400 text-indigo-600"}`}>
-            {decksUnlocked ? "➕ Ещё слова" : "🔒 Ещё слова"}
-          </button>
-        </div>
-      </div>
-
-      {/* Фразы-замки: «ты уже можешь сказать» */}
-      <PhraseLocksSection studied={studied} dark={dark} />
-
-      {/* Поиск */}
-      <input value={q} onChange={e => setQ(e.target.value)} placeholder="Поиск по словарю…"
-        className={`w-full px-4 py-2.5 rounded-xl text-sm border outline-none
-          ${dark?"bg-gray-800 border-gray-700 text-white placeholder-gray-500":"bg-white border-gray-200 text-gray-900"}`}/>
-
-      {/* Список */}
-      <div className={`rounded-2xl border divide-y ${dark?"bg-gray-800 border-gray-700 divide-gray-700":"bg-white border-gray-100 divide-gray-100"}`}>
-        {shown.map(i => {
-          const st = statusOf(wordsMap[i.id]);
-          return (
-            <div key={i.id} className="flex items-center gap-3 px-4 py-2.5">
-              <span className={`w-2 h-2 rounded-full shrink-0 ${st.dot}`} title={st.label}/>
-              <span className={`text-lg font-bold shrink-0 w-24 ${dark?"text-white":"text-gray-900"}`} dir="rtl">{i.hebrew}</span>
-              <div className="min-w-0 flex-1 text-left">
-                <p className={`text-sm truncate ${dark?"text-gray-300":"text-gray-700"}`}>{i.translation}</p>
-                {i.transliteration && (
-                  <p className="text-[11px] text-gray-400 truncate">{i.transliteration}</p>
-                )}
-              </div>
-              {i.audio && (
-                <button onClick={() => playAudio(i.audio)} className="text-base shrink-0 active:scale-95" aria-label="Озвучить">🔊</button>
-              )}
-              {i.lesson && <span className="text-[10px] text-gray-400 shrink-0">{i.lesson}</span>}
-            </div>
-          );
-        })}
-        {shown.length === 0 && <p className="px-4 py-6 text-center text-sm text-gray-400">Ничего не найдено</p>}
-      </div>
-    </div>
-  );
-}
-
-// ─── Главный экран: Словарь ───────────────────────────────────────────────────
-// Единый поток слов через весь курс: «Новое» — лента порций по порядку курса,
-// «Мой словарь» — накопитель всего введённого (карточки/квиз по всему словарю).
-export default function ReadingScreen({ onBack, dictOnly, soloBlock }) {
+// ─── Экран: карточки свежей порции (StudyScreen «Путь») ─────────────────────
+export default function ReadingScreen({ onBack, soloBlock }) {
   const { dark } = useTheme();
-  const { stats, recordWordReview, recordWordAnswer } = useStats();
-  const [activeMode, setActiveMode] = useState(null);
-  const [activeBlock, setActiveBlock] = useState(null); // block id | 'dict'
-  const [showDecks, setShowDecks] = useState(false);
-  const decksUnlocked = !DECKS_UNLOCK_NODE || getNodeStatus(DECKS_UNLOCK_NODE, stats) === 'done';
+  const { stats, recordWordReview } = useStats();
 
-  const readingStudied = stats.readingProgress?.studied || [];
-  const wordsMap = stats.readingProgress?.words || {};
-
-  // Прямой переход из урока: «Изучить N новых слов»
-  // initialBlock-эффект удалён (этап 4): лента снесена, порции открывает Путь.
-
-  // Тематические колоды (этап 5) — вход по кнопке «Ещё слова»
-  if (showDecks) return <DecksScreen onBack={() => setShowDecks(false)} CardsMode={CardsMode} />;
-
-  // Solo-порция (экран «Путь»): сразу карточки, выход — в Путь
-  if (soloBlock) {
-    const block = READING_BLOCKS.find(b => b.id === soloBlock);
-    const cards = block ? getBlockCards(block) : [];
-    const items = getAvailableItems(cards, stats);
-    return (
-      <CardsMode
-        items={items}
-        blockN={soloBlock}
-        dark={dark}
-        onReview={recordWordReview}
-        onBack={onBack}
-      />
-    );
-  }
-
-  // Режим внутри порции или по всему словарю
-  if (activeMode && activeBlock !== null) {
-    let items, pool;
-    const introduced = READING_ITEMS.filter(i => readingStudied.includes(i.id));
-    if (activeBlock === 'dict') {
-      // Весь словарь: слабые и новые — первыми
-      const weight = i => {
-        const w = wordsMap[i.id] || {};
-        return (w.wrong || 0) * 100 - (w.correct || 0) * 10 - (w.seen || 0);
-      };
-      items = [...introduced].sort((a, b) => weight(b) - weight(a));
-      pool = introduced;
-    } else {
-      const block = READING_BLOCKS.find(b => b.id === activeBlock);
-      const cards = block ? getBlockCards(block) : [];
-      items = getAvailableItems(cards, stats);
-      // Дистракторы — из порции + всего словаря
-      pool = [...new Map([...items, ...introduced].map(i => [i.id, i])).values()];
-    }
-
-    const props = {
-      items, pool,
-      blockN: activeBlock,
-      dark,
-      onReview: recordWordReview,
-      onAnswer: recordWordAnswer,
-      onBack: () => { setActiveMode(null); setActiveBlock(null); },
-    };
-
-    return activeMode === 'cards'
-      ? <CardsMode {...props} />
-      : <QuizMode {...props} />;
-  }
-
-  // Только СЛОВА (не фразы — у них свой раздел), и только те, что реально есть
-  // в контенте (фильтр по READING_ITEMS отсекает фантомные id из прогресса).
-  const dictWords = READING_ITEMS.filter(i => i.type !== 'phrase');
-  const introducedCount = dictWords.filter(i => readingStudied.includes(i.id)).length;
-  const availWords = getAvailableItems(
-    READING_BLOCKS.filter(b => isReadingBlockUnlocked(b, stats))
-      .flatMap(b => b.items).filter(i => i.type !== 'phrase'),
-    stats
-  ).length;
-
-
-
+  const block = READING_BLOCKS.find(b => b.id === soloBlock);
+  const cards = block ? getBlockCards(block) : [];
+  const items = getAvailableItems(cards, stats);
   return (
-    <div className="pb-24 max-w-md mx-auto">
-      <div className="px-4 pt-4 pb-3">
-        {onBack && (
-          <button onClick={onBack}
-            className={`flex items-center gap-1 mb-3 text-sm font-medium ${dark?"text-emerald-400":"text-emerald-600"}`}>
-            ← Учиться
-          </button>
-        )}
-        <h2 className={`text-xl font-bold ${dark?"text-white":"text-gray-900"}`}>Словарь</h2>
-        <p className={`text-sm mt-0.5 ${dark?"text-gray-400":"text-gray-500"}`}>
-          {introducedCount} слов в словаре · {Math.max(availWords - introducedCount, 0)} новых доступно
-        </p>
-      </div>
-
-      {/* Единственный вид — «Мой словарь» (лента «Новое» снесена, этап 4) */}
-      <DictView stats={stats} dark={dark}
-        decksUnlocked={decksUnlocked}
-        onOpenDecks={() => setShowDecks(true)}
-        onOpen={(blockId, mode) => { setActiveBlock(blockId); setActiveMode(mode); }} />
-    </div>
+    <CardsMode
+      items={items}
+      blockN={soloBlock}
+      dark={dark}
+      onReview={(id, q) => recordWordReview(id, q, getLessonWordMeta(id))}
+      onBack={onBack}
+    />
   );
 }

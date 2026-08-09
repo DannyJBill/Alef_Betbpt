@@ -84,7 +84,8 @@ check('C0=85: done', isNodeDone('C0', g));
 check('M1.1 available после C0', getNodeStatus('M1.1', g) === 'available');
 check('C1 locked до M1.1', getNodeStatus('C1', g) === 'locked');
 const g2 = { ...g, scores: { ...g.scores, 'M1.1': 90, 'M1.2': 75, 'M1.3': 80 } };
-check('M1.1=90 done; C1 ждёт M1.4 (арка артикля цельная)', isNodeDone('M1.1', g2) && getNodeStatus('C1', g2) === 'locked' && getNodeStatus('C1', { ...g2, scores: { ...g2.scores, 'M1.4': 95 } }) === 'available');
+// v1.2 часть 1: C1 больше не ждёт M1.4 напрямую — гейт теперь EX1.1 (экзамен подгруппы «Артикль и род»)
+check('M1.1=90 done; C1 ждёт EX1.1 (подгруппа сдана экзаменом, не сам M1.4)', isNodeDone('M1.1', g2) && getNodeStatus('C1', g2) === 'locked' && getNodeStatus('C1', { ...g2, scores: { ...g2.scores, 'EX1.1': 90 } }) === 'available');
 check('M1.4 available (M1.3 done)', getNodeStatus('M1.4', g2) === 'available');
 check('M1.4=85 <90: не done (isSynthesis)', !isNodeDone('M1.4', { ...g2, scores: { ...g2.scores, 'M1.4': 85 } }));
 check('M1.4=90: done', isNodeDone('M1.4', { ...g2, scores: { ...g2.scores, 'M1.4': 90 } }));
@@ -173,7 +174,11 @@ check('фразы-замки: полный словарь → все 16 откр
 // ── 12e. Глаголы Г1 ──
 check('G1.1 locked до M1.4', getNodeStatus('G1.1', g) === 'locked');
 const gM14 = { ...g2, scores: { ...g2.scores, 'M1.4': 95 } };
-check('G1.1 требует M1.4 + N1.5 (якорь зоны 0)', getNodeStatus('G1.1', gM14) === 'locked' && getNodeStatus('G1.1', { ...gM14, scores: { ...gM14.scores, 'N1.5': 80 } }) === 'available');
+// v1.2 часть 1: G1.1 больше не ждёт M1.4+N1.5 напрямую — гейт EX1.1 (подгруппа «Артикль и род») + EX0.1 (алфавит целиком)
+check('G1.1 требует EX1.1 + EX0.1 (якорь зоны 0 — теперь через экзамены)',
+  getNodeStatus('G1.1', gM14) === 'locked' &&
+  getNodeStatus('G1.1', { ...gM14, scores: { ...gM14.scores, 'EX1.1': 90 } }) === 'locked' &&
+  getNodeStatus('G1.1', { ...gM14, scores: { ...gM14.scores, 'EX1.1': 90, 'EX0.1': 90 } }) === 'available');
 check('G1.1 без practiceItems (урок-концепция), G1.6 порог 90',
   GRAMMAR_LESSONS.find(l => l.id === 'G1.1').practiceItems.length === 0 &&
   GRAMMAR_LESSONS.find(l => l.id === 'G1.6').threshold === 90);
@@ -196,18 +201,20 @@ check('R1.36: 5 ж.р. чисел, review валиден',
 check('уровень 2 полностью: 8 уроков в коде',
   ['G1.1','G1.2','G1.3','G1.4','G1.5','G1.6','C2','CH1.4'].every(id => GRAMMAR_LESSONS.some(l => l.id === id)));
 
-// ── 12g. Уровень 3 (M2, C3, G2, C4, CH2.1) ──
-const gL2 = { ...gG, scores: { ...gG.scores, 'G1.6': 95, 'C2': 80, 'CH1.4': 80 } };
-check('M2.1 после G1.6; G2.1 ждёт M2.9 (ветки последовательны)', getNodeStatus('M2.1', gL2) === 'available' && getNodeStatus('G2.1', gL2) === 'locked');
-check('M2.1 locked до G1.6', getNodeStatus('M2.1', gG) === 'locked');
+// ── 12g. Уровень 3 (M2, C3, G2, C4, CH2.1) ── v1.2 часть 1: M2.1 ждёт EX2.1 (не сам G1.6), G2.1/C4 ждут EX3.1
+const gL2 = { ...gG, scores: { ...gG.scores, 'G1.6': 95, 'C2': 80, 'CH1.4': 80, 'EX2.1': 90 } };
+check('M2.1 после EX2.1 (экзамен «Глагол паАль»); G2.1 ждёт EX3.1 (ветки последовательны)', getNodeStatus('M2.1', gL2) === 'available' && getNodeStatus('G2.1', gL2) === 'locked');
+check('M2.1 locked без EX2.1 (G1.6=89 в gG ещё не done — экзамен недостижим)', getNodeStatus('M2.1', gG) === 'locked');
 const gM2 = { ...gL2, scores: { ...gL2.scores, 'M2.1': 80, 'M2.2': 80, 'M2.3': 80, 'M2.4': 80, 'M2.5': 80, 'M2.6': 80 } };
 check('C3 available после M2.6, M2.7 после C3', getNodeStatus('C3', gM2) === 'available' &&
   getNodeStatus('M2.7', { ...gM2, scores: { ...gM2.scores, 'C3': 75 } }) === 'available');
-const gC4a = { ...gM2, scores: { ...gM2.scores, 'C3': 80, 'M2.7': 80, 'M2.8': 80, 'M2.9': 95, 'G2.1': 80 } };
-check('C4 требует ОБА: M2.9 и G2.2', getNodeStatus('C4', gC4a) === 'locked' &&
+const gC4a = { ...gM2, scores: { ...gM2.scores, 'C3': 80, 'M2.7': 80, 'M2.8': 80, 'M2.9': 95, 'G2.1': 80, 'EX3.1': 90 } };
+check('C4 требует ОБА: EX3.1 и G2.2', getNodeStatus('C4', gC4a) === 'locked' &&
   getNodeStatus('C4', { ...gC4a, scores: { ...gC4a.scores, 'G2.2': 80 } }) === 'available');
 check('M2.9 порог 90: 89 не done', !isNodeDone('M2.9', { ...gM2, scores: { ...gM2.scores, 'C3': 80, 'M2.7': 80, 'M2.8': 80, 'M2.9': 89 } }));
-check('CH2.1 после CH1.4', getNodeStatus('CH2.1', gL2) === 'available');
+// v1.2 часть 1: CH2.1 ждёт EX1.2 (экзамен «Есть/нет и числа 1-10»), не сам CH1.4
+check('CH2.1 locked без EX1.2', getNodeStatus('CH2.1', gL2) === 'locked');
+check('CH2.1 после EX1.2', getNodeStatus('CH2.1', { ...gL2, scores: { ...gL2.scores, 'EX1.2': 90 } }) === 'available');
 check('уровень 3: все 16 уроков в коде и в графе',
   ['M2.1','M2.2','M2.3','M2.4','M2.5','M2.6','C3','M2.7','M2.8','M2.9','G2.1','G2.2','G2.3','G2.4','C4','CH2.1']
     .every(id => GRAMMAR_LESSONS.some(l => l.id === id) && getNodeStatus(id, g) === 'locked'));
@@ -218,7 +225,8 @@ check('порции уровня 3: R1.37–R1.52 существуют, review �
 
 // ── 12h. Выпрямление пути (03.07) ──
 check('G1.5 ждёт C2 (вопрос до отрицания)', getNodeStatus('G1.5', { ...gG, scores: { ...gG.scores, 'C2': 0, 'G1.5': 0 } }) === 'locked');
-check('G2.1 открывается после M2.9', getNodeStatus('G2.1', { ...gC4a, scores: { ...gC4a.scores, 'G2.1': 0 } }) === 'available');
+// v1.2 часть 1: G2.1 ждёт EX3.1 (gC4a уже содержит EX3.1:90 — см. фикс выше), не сам M2.9
+check('G2.1 открывается после EX3.1', getNodeStatus('G2.1', { ...gC4a, scores: { ...gC4a.scores, 'G2.1': 0 } }) === 'available');
 
 // ── 12i. Фонетика (дагеш, шва) ──
 check('D1.1 locked без N1.5, available с N1.5', getNodeStatus('D1.1', g) === 'locked' && getNodeStatus('D1.1', { ...g, scores: { ...g.scores, 'N1.5': 80 } }) === 'available');
@@ -589,10 +597,11 @@ check('движок: реестр содержит 6 генераторов, id 
 const B1_IDS = ['M3.1','M3.2','M3.3','SL1.1','SL1.2','Q1.1'];
 check('батч1: все 6 узлов в графе', B1_IDS.every(id => CURRICULUM.some(n => n.id === id)));
 check('батч1: все 6 уроков в GRAMMAR_LESSONS', B1_IDS.every(id => !!GRAMMAR_LESSONS_BY_ID[id]));
-check('батч1: цепочка M3.1←C4, M3.2←M3.1, SL1.1←G1.6, Q1.1←C2',
+// v1.2 часть 1: SL1.1 больше не ждёт G1.6 напрямую — гейт EX2.1 (экзамен «Глагол паАль»)
+check('батч1: цепочка M3.1←C4, M3.2←M3.1, SL1.1←EX2.1, Q1.1←C2',
   (() => { const by = Object.fromEntries(CURRICULUM.map(n=>[n.id,n]));
     return by['M3.1'].requires.includes('C4') && by['M3.2'].requires.includes('M3.1')
-        && by['M3.3'].requires.includes('M3.2') && by['SL1.1'].requires.includes('G1.6')
+        && by['M3.3'].requires.includes('M3.2') && by['SL1.1'].requires.includes('EX2.1')
         && by['SL1.2'].requires.includes('SL1.1') && by['Q1.1'].requires.includes('C2'); })());
 // прогресс-цепь: юзер с C4 done видит M3.1 available, M3.2 locked
 const doneThroughC4 = { scores: Object.fromEntries(
@@ -600,11 +609,12 @@ const doneThroughC4 = { scores: Object.fromEntries(
    'C0','M1.1','M1.2','M1.3','M1.4','C1','CH1.1','CH1.2','CH1.3',
    'G1.1','G1.2','G1.3','G1.4','G1.5','G1.6','C2','CH1.4',
    'M2.1','M2.2','M2.3','M2.4','M2.5','M2.6','C3','M2.7','M2.8','M2.9',
-   'G2.1','G2.2','G2.3','G2.4','C4','CH2.1'].map(id=>[id,95])),
+   'G2.1','G2.2','G2.3','G2.4','C4','CH2.1',
+   'EX0.1','EX1.1','EX1.2','EX2.1'].map(id=>[id,95])),
   blockScores:{}, readingProgress:{ studied: [...zoneCards] } };
 check('батч1: после C4 → M3.1 available', getNodeStatus('M3.1', doneThroughC4) === 'available');
 check('батч1: M3.2 заперт до M3.1', getNodeStatus('M3.2', doneThroughC4) === 'locked');
-check('батч1: SL1.1 available (G1.6 done), SL — надстройка',
+check('батч1: SL1.1 available (EX2.1 done), SL — надстройка',
   getNodeStatus('SL1.1', doneThroughC4) === 'available');
 // порция R1.53
 const b53 = READING_BLOCKS.find(b => b.id === 'R1.53');
@@ -630,11 +640,12 @@ check('батч1: SL-уроки без порций (работают на на�
 const B2_IDS = ['Q1.2','CH3.1','CH3.2','SL1.3','G3.1','G3.2'];
 check('батч2: все 6 узлов в графе', B2_IDS.every(id => CURRICULUM.some(n => n.id === id)));
 check('батч2: все 6 уроков в GRAMMAR_LESSONS', B2_IDS.every(id => !!GRAMMAR_LESSONS_BY_ID[id]));
+// v1.2 часть 1: CH3.1 ждёт EX3.3 (не сам CH2.1), G3.1 ждёт EX4.1 (не сам G2.4)
 check('батч2: цепочка requires верна',
   (() => { const by = Object.fromEntries(CURRICULUM.map(n=>[n.id,n]));
-    return by['Q1.2'].requires.includes('Q1.1') && by['CH3.1'].requires.includes('CH2.1')
+    return by['Q1.2'].requires.includes('Q1.1') && by['CH3.1'].requires.includes('EX3.3')
         && by['CH3.2'].requires.includes('CH3.1') && by['SL1.3'].requires.includes('SL1.2')
-        && by['G3.1'].requires.includes('G2.4') && by['G3.2'].requires.includes('G3.1'); })());
+        && by['G3.1'].requires.includes('EX4.1') && by['G3.2'].requires.includes('G3.1'); })());
 // прогресс: батч1 пройден → батч2 первые доступны
 const b2ready = { scores: Object.fromEntries(
   ['L1.1','L1.2','L1.3','L1.4','L1.5','N1.1','N1.2','N1.3','N1.4','N1.5',
@@ -642,7 +653,8 @@ const b2ready = { scores: Object.fromEntries(
    'G1.1','G1.2','G1.3','G1.4','G1.5','G1.6','C2','CH1.4',
    'M2.1','M2.2','M2.3','M2.4','M2.5','M2.6','C3','M2.7','M2.8','M2.9',
    'G2.1','G2.2','G2.3','G2.4','C4','CH2.1',
-   'M3.1','M3.2','M3.3','SL1.1','SL1.2','Q1.1'].map(id=>[id,95])),
+   'M3.1','M3.2','M3.3','SL1.1','SL1.2','Q1.1',
+   'EX0.1','EX1.1','EX1.2','EX2.1','EX3.3','EX4.1'].map(id=>[id,95])),
   blockScores:{}, readingProgress:{ studied:[...zoneCards] } };
 check('батч2: Q1.2/CH3.1/G3.1/SL1.3 available после батча1',
   ['Q1.2','CH3.1','G3.1','SL1.3'].every(id => getNodeStatus(id, b2ready) === 'available'));
@@ -675,18 +687,20 @@ check('батч3: все 6 уроков в GRAMMAR_LESSONS', B3_IDS.every(id => 
 check('батч3: G3.5 — синтез с порогом 90',
   (() => { const n = CURRICULUM.find(x=>x.id==='G3.5'); const l = GRAMMAR_LESSONS_BY_ID['G3.5'];
     return n.done.threshold === 90 && l.threshold === 90 && l.isSynthesis === true; })());
-check('батч3: цепочка G3.3←G3.2 … C5.1←G3.5, SL1.4←SL1.3',
+// v1.2 часть 1: C5.1 ждёт EX4.2 (не сам G3.5), SL1.4 ждёт EX4.1 (не сам SL1.3)
+check('батч3: цепочка G3.3←G3.2 … C5.1←EX4.2, SL1.4←EX4.1',
   (() => { const by = Object.fromEntries(CURRICULUM.map(n=>[n.id,n]));
     return by['G3.3'].requires.includes('G3.2') && by['G3.5'].requires.includes('G3.4')
-        && by['C5.1'].requires.includes('G3.5') && by['SL1.4'].requires.includes('SL1.3'); })());
-// прогресс: весь батч2 done → G3.3/C5.1(после G3.5?)/SL1.4
+        && by['C5.1'].requires.includes('EX4.2') && by['SL1.4'].requires.includes('EX4.1'); })());
+// прогресс: весь батч2 done → G3.3/C5.1(после EX4.2?)/SL1.4. b3ready наследует EX*-ключи из
+// b2ready (включая EX4.1, добавленный там же) — SL1.4 открывается без доп. правок.
 const b3ready = { scores: Object.fromEntries(
   [...Object.keys(b2ready.scores),'M3.1','M3.2','M3.3','SL1.1','SL1.2','Q1.1',
    'Q1.2','CH3.1','CH3.2','SL1.3','G3.1','G3.2'].map(id=>[id,95])),
   blockScores:{}, readingProgress:{ studied:[...zoneCards] } };
 check('батч3: G3.3 и SL1.4 available после батча2',
   getNodeStatus('G3.3', b3ready) === 'available' && getNodeStatus('SL1.4', b3ready) === 'available');
-check('батч3: C5.1 заперт (нужен G3.5)', getNodeStatus('C5.1', b3ready) === 'locked');
+check('батч3: C5.1 заперт (нужен EX4.2, а не сам G3.5)', getNodeStatus('C5.1', b3ready) === 'locked');
 // порции
 const b3blocks = ['R1.68','R1.70'];
 check('батч3: порции R1.68(G3.6)/R1.70(SL1.4) с верными lesson',

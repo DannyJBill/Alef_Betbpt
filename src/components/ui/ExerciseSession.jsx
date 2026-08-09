@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import HebrewKeyboard from "./HebrewKeyboard";
 
 /**
@@ -39,10 +39,20 @@ export default function ExerciseSession({
   const [typedOk, setTypedOk] = useState(null); // typing: результат проверки
   const [correct, setCorrect] = useState(0);
   const [finished, setFinished] = useState(false);
-  const reported = useRef(false);
 
   const total = questions.length;
   const q = questions[idx];
+
+  // onFinish может обновлять состояние выше по дереву (напр. StatsContext) —
+  // звать его нужно эффектом после коммита рендера, а не прямо в теле
+  // компонента (иначе React ругается "Cannot update a component while
+  // rendering a different component"). `finished` не сбрасывается назад в
+  // false, так что эффект отработает ровно один раз за сессию.
+  useEffect(() => {
+    if (!finished || !total) return;
+    onFinish?.(Math.round((correct / total) * 100), correct, total);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finished]);
 
   if (!total) return (
     <div className="pb-24 px-4 pt-12 max-w-md mx-auto text-center">
@@ -54,7 +64,6 @@ export default function ExerciseSession({
 
   if (finished) {
     const pct = Math.round((correct / total) * 100);
-    if (!reported.current) { reported.current = true; onFinish?.(pct, correct, total); }
     return (
       <div className="pb-24 px-4 pt-12 max-w-md mx-auto text-center">
         <div className="text-5xl mb-3">{pct >= 80 ? "🎉" : "💪"}</div>

@@ -108,7 +108,7 @@ check('דֶּרֶךְ читаемо при 1-4 (ך→כ гр.2)', isReadableByL
 const norm = h => h.replace(/[\u05B0-\u05C7\s?!.,«»()\-–—:;']/g, '');
 const plains = READING_ITEMS.map(i => norm(i.hebrew));
 const dups = plains.filter((v, i) => plains.indexOf(v) !== i);
-check('дубликатов plain ≤ 5 (историч. R0 + 2 неизбежных омографа TV.*: sin/shin шер, dagesh молон/милон)', dups.length <= 5);
+check('дубликатов plain ≤ 3 (историч. גר r1_g12_05/r1_g31_06 + 2 неизбежных омографа TV.*: sin/shin שער, dagesh מלון/מילון)', dups.length <= 3);
 
 // ── 11. review-ссылки все резолвятся ──
 const allIds = new Set(READING_ITEMS.map(i => i.id));
@@ -783,9 +783,9 @@ check('батч3: практика — валидные В4 у всех 6 уро
 const allPhrases = READING_ITEMS.filter(i => i.type === 'phrase');
 check('типы: каждая type:"phrase" — многословная (нет слов под ярлыком фразы)',
   allPhrases.every(p => (p.plain || '').trim().includes(' ')));
-check('типы: счётчики бьются — 466 слов, 81 фраза (+8 TV.family +242 партия2, +8 TV.phrases1)',
-  READING_ITEMS.filter(i => i.type !== 'phrase').length === 466 &&
-  allPhrases.length === 81);
+check('типы: счётчики бьются — 467 слов, 158 фраз (+8 TV.family +242 партия2 +1 tv_phr_71(word), +8 TV.phrases1 +77 TV.phrases2 после дедупа)',
+  READING_ITEMS.filter(i => i.type !== 'phrase').length === 467 &&
+  allPhrases.length === 158);
 check('типы: бывшие псевдо-фразы стали словами (מי pronoun, חומוס noun, שלום noun)',
   READING_ITEMS.find(i=>i.id==='rp_19')?.type === 'pronoun' &&
   READING_ITEMS.find(i=>i.id==='rp_33')?.type === 'noun' &&
@@ -845,6 +845,29 @@ check('партия2: каждый блок заперт до своего lesso
   tv2Blocks.every(b =>
     isReadingBlockUnlocked(b, { scores: {} }) === false &&
     isReadingBlockUnlocked(b, { scores: { [b.lesson]: 100 } }) === true));
+
+// ── 29. Партия 3 обогащения: TV.phrases2, остаток разговорника (09.08.2026) ──
+const tvPhrases2 = READING_BLOCKS.find(b => b.id === 'TV.phrases2');
+check('партия3: TV.phrases2 существует, lesson=EX4.3, 78 записей (81 - 3 дубля с существующим потоком)',
+  !!tvPhrases2 && tvPhrases2.lesson === 'EX4.3' && tvPhrases2.items.length === 78);
+check('партия3: каждая type:"phrase" — многословная, кроме сознательно перетипизированной tv_phr_71',
+  tvPhrases2.items.every(w => w.id === 'tv_phr_71'
+    ? w.type === 'word' : (w.type === 'phrase' && w.plain.trim().includes(' '))));
+check('партия3: слова/фразы читаемы всеми буквами (все группы известны)',
+  (() => { const known = new Set('אבגדהוזחטיכלמנסעפצקרשתךםןףץ');
+    return tvPhrases2.items.every(w =>
+      [...w.plain.replace(/[.,?!()'…0-9]/g,'')].every(ch => known.has(ch) || ch === ' ')); })());
+check('партия3: id уникальны против всего потока',
+  tvPhrases2.items.every(w => READING_ITEMS.filter(i => i.id === w.id).length === 1));
+check('партия3: все элементы помечены draft (никуд из Nakdan, не вычитан вручную)',
+  tvPhrases2.items.every(w => w.draft === true));
+check('партия3: не дублирует уже существующие в потоке plain-формы (кроме себя)',
+  tvPhrases2.items.every(w => READING_ITEMS.filter(i => i.plain === w.plain).length === 1));
+check('партия3: заперт до EX4.3, открыт после (score=80)',
+  isReadingBlockUnlocked(tvPhrases2, { scores: {} }) === false &&
+  isReadingBlockUnlocked(tvPhrases2, { scores: { 'EX4.3': 80 } }) === true);
+check('партия3: подключён в COURSE_PATH',
+  COURSE_PATH.flatMap(ch => ch.items.map(i => i.id)).includes('TV.phrases2'));
 
 console.log(fails === 0 ? '\n🎉 ВСЕ ПРОВЕРКИ ПРОЙДЕНЫ' : `\n💥 ПРОВАЛОВ: ${fails}`);
 process.exit(fails === 0 ? 0 : 1);

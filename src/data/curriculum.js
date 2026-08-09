@@ -506,6 +506,7 @@ export const COURSE_PATH = [
       { id: 'TV.phrases1' },
       { id: 'SL1.4' }, { id: 'R1.70' },
       { id: 'EX4.3' },
+      { id: 'TV.phrases2' },
     ],
   },
 ];

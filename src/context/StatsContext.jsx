@@ -2,7 +2,8 @@ import { createContext, useContext, useCallback, useState, useEffect, useRef } f
 import { INITIAL_STATS, computeLevel, MIN_CORRECT_TO_UNLOCK } from "../data/constants";
 import { saveStatsToServer, loadStatsFromServer, resetStatsOnServer } from "../helpers/serverSync";
 import { LETTER_GROUPS, NIKUD_GROUPS } from "../data/alphabet";
-import { deriveProgress, blockKey, sectionBlockToId } from "../helpers/progressHelpers";
+import { deriveProgress, blockKey, sectionBlockToId, isNodeDone } from "../helpers/progressHelpers";
+import { CURRICULUM } from "../data/curriculum";
 import { Analytics } from "../helpers/analytics";
 import {
   foldToFacts, factsToLegacyView,
@@ -203,6 +204,22 @@ function migrate(p) {
   // Канон = facts. Легаси-поля — read-only ЗЕРКАЛО, всегда регенерируются из
   // facts (экраны ещё читают их напрямую; удаление — этапы 3–4).
   Object.assign(p, factsToLegacyView(p.facts));
+
+  // Разовый автозачёт экзаменов подгрупп (введены в графе позже самих
+  // подгрупп): игрок, уже прошедший весь материал подгруппы ДО появления
+  // экзамена, не должен упираться в новый шаг задним числом. Флаг делает это
+  // ровно один раз — после него экзамен для этого игрока идёт штатно (нужно
+  // реально пройти), даже если он пересдаёт уроки подгруппы заново.
+  if (!p.examsGrandfathered) {
+    for (const node of CURRICULUM) {
+      if (node.kind !== 'exam') continue;
+      if (isNodeDone(node.id, p)) continue;
+      const allDone = (node.sourceLessons || []).every(id => isNodeDone(id, p));
+      if (allDone) p.facts = setNodeScore(p.facts, node.id, 100);
+    }
+    p.examsGrandfathered = true;
+    Object.assign(p, factsToLegacyView(p.facts));
+  }
 
   // Статусы — всегда свежая деривация из фактов (curriculum мог измениться
   // между деплоями; хранимый progress — только кэш)

@@ -39,8 +39,12 @@ function AppShell() {
   function openProfile() { setShowProfile(true); }
   function closeProfile() { setShowProfile(false); }
 
+  // Объект (не голая строка): studySection может прийти дважды подряд с одним
+  // и тем же значением («Продолжить» → следующий урок → снова «Продолжить»)
+  // — StudyScreen остаётся смонтированным между табами (см. ниже), и эффект,
+  // который его читает, должен видеть новую ссылку, чтобы точно сработать.
   function navigateToStudy(section) {
-    setStudySection(section);
+    setStudySection({ type: section });
     setTab("study");
   }
 

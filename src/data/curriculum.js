@@ -13,15 +13,34 @@
  * Никаких recalc*-цепочек и рукописных unlock-функций на урок.
  *
  * Узел графа:
- *   id        — 'L1.2' | 'N1.3' | 'R0.2' | 'W1' | 'P1' | 'C0' | 'M1.2' …
- *   kind      — letters|sounds|reading|words|phrases|grammar
+ *   id        — 'L1.2' | 'N1.3' | 'R0.2' | 'W1' | 'P1' | 'C0' | 'M1.2' | 'EX1.1' …
+ *   kind      — letters|sounds|reading|words|phrases|grammar|exam
  *   block     — номер блока 1-5 для матрицы progress (letters/sounds/words/phrases/reading)
- *   module    — для grammar: syntax|morphology|verb|numbers (ключ в progress)
+ *   module    — для grammar: syntax|morphology|verb|numbers|phonetics|wordsystem (ключ в progress)
  *   requires  — ['L1.1'] или [{ id:'L1.2', min:90 }] — min переопределяет порог узла-зависимости
- *   done      — { type:'score'|'studied', threshold }
+ *   done      — { type:'score'|'studied'|'exam', threshold }
  *               score:   scores[id] >= threshold; для letters/sounds дополнительно
  *                        засчитывается игровой путь blockScores[counterKey] >= MIN_CORRECT_TO_UNLOCK
  *               studied: доля изученных карточек блока чтения >= threshold (0..1)
+ *               exam:    scores[id] >= threshold. ⚠️ НЕ автозачитывается по факту
+ *                        «sourceLessons все done» — requires и это условие совпадают
+ *                        почти всегда, живая проверка означала бы самозачёт в
+ *                        момент открытия для любого игрока (реальный баг первой
+ *                        версии, см. CHANGELOG.md v1.2 часть 1). Разовый автозачёт
+ *                        для тех, кто прошёл материал ДО появления экзамена в графе —
+ *                        миграция StatsContext.migrate() (флаг examsGrandfathered).
+ *   kind:'exam' — доп. поля:
+ *     examTitle     — заголовок экзамена в UI ("Экзамен: {examTitle}")
+ *     sourceLessons — [id,...] уроков подгруппы; их practiceItems (grammar) или
+ *                     сами буквы/огласовки (L1.x/N1.x, через адаптер в ExamScreen)
+ *                     формируют пул вопросов сессии (buildSession/exercises.js)
+ *
+ * COURSE_PATH (канонический путь для экрана «Путь», ниже) — доп. опциональные
+ * поля главы: icon, description (визуал модуля, src/data/pathTheme.js) и
+ * subgroups: [{ title, endId }] — нарезка модуля на подгруппы для UI; endId —
+ * id последнего урока подгруппы, узел-экзамен вставляется в items главы сразу
+ * после него (и после порций чтения, которые он открывает) как отдельный
+ * элемент {id:'EXx.x'} — subgroups сам по себе items не меняет и не генерирует.
  *
  * Добавление урока из мастерской = одна строка здесь + контент в grammarLessons.js.
  */
@@ -81,7 +100,7 @@ export const CURRICULUM = [
   // ── Грамматика — уровень 1 (перенесено из мастерской 01-02.07.2026) ──
   { id: 'C0',   kind: 'grammar', module: 'syntax',     requires: ['VL1.3'],  done: { type: 'score', threshold: 70 } },
   { id: 'M1.1', kind: 'grammar', module: 'morphology', requires: ['C0'],   done: { type: 'score', threshold: 70 } },
-  { id: 'C1',   kind: 'grammar', module: 'syntax',     requires: ['M1.4'],   done: { type: 'score', threshold: 70 } },
+  { id: 'C1',   kind: 'grammar', module: 'syntax',     requires: ['EX1.1'],   done: { type: 'score', threshold: 70 } },
   { id: 'M1.2', kind: 'grammar', module: 'morphology', requires: ['M1.1'],   done: { type: 'score', threshold: 70 } },
   { id: 'M1.3', kind: 'grammar', module: 'morphology', requires: ['M1.2'],   done: { type: 'score', threshold: 70 } },
   { id: 'M1.4', kind: 'grammar', module: 'morphology', requires: ['M1.3'],   done: { type: 'score', threshold: 90 } },
@@ -92,7 +111,7 @@ export const CURRICULUM = [
   { id: 'CH1.3', kind: 'grammar', module: 'numbers', requires: ['CH1.2'], done: { type: 'score', threshold: 70 } },
 
   // ── Глагол — Г1, паАль настоящее (открывается после M1 done = M1.4) ──
-  { id: 'G1.1', kind: 'grammar', module: 'verb', requires: ['M1.4', 'N1.5'], done: { type: 'score', threshold: 70 } },
+  { id: 'G1.1', kind: 'grammar', module: 'verb', requires: ['EX1.1', 'EX0.1'], done: { type: 'score', threshold: 70 } },
   { id: 'G1.2', kind: 'grammar', module: 'verb', requires: ['G1.1'], done: { type: 'score', threshold: 70 } },
   { id: 'G1.3', kind: 'grammar', module: 'verb', requires: ['G1.2'], done: { type: 'score', threshold: 70 } },
   { id: 'G1.4', kind: 'grammar', module: 'verb', requires: ['G1.3'], done: { type: 'score', threshold: 70 } },
@@ -106,7 +125,7 @@ export const CURRICULUM = [
   // ── Уровень 3: М2 (мн.ч.+предлоги), С3, Г2, С4, Ч2 ──
   // ⚠️ Реестр: «М2 ← порции уровня 1 изучены + G1 done». Гейт по порциям R1.2x
   //    не реализован (они не узлы графа) — пока только G1.6. Решить с Daniel.
-  { id: 'M2.1', kind: 'grammar', module: 'morphology', requires: ['G1.6'], done: { type: 'score', threshold: 70 } },
+  { id: 'M2.1', kind: 'grammar', module: 'morphology', requires: ['EX2.1'], done: { type: 'score', threshold: 70 } },
   { id: 'M2.2', kind: 'grammar', module: 'morphology', requires: ['M2.1'], done: { type: 'score', threshold: 70 } },
   { id: 'M2.3', kind: 'grammar', module: 'morphology', requires: ['M2.2'], done: { type: 'score', threshold: 70 } },
   { id: 'M2.4', kind: 'grammar', module: 'morphology', requires: ['M2.3'], done: { type: 'score', threshold: 70 } },
@@ -116,32 +135,85 @@ export const CURRICULUM = [
   { id: 'M2.7', kind: 'grammar', module: 'morphology', requires: ['C3'],   done: { type: 'score', threshold: 70 } },
   { id: 'M2.8', kind: 'grammar', module: 'morphology', requires: ['M2.7'], done: { type: 'score', threshold: 70 } },
   { id: 'M2.9', kind: 'grammar', module: 'morphology', requires: ['M2.8'], done: { type: 'score', threshold: 90 } },
-  { id: 'G2.1', kind: 'grammar', module: 'verb', requires: ['M2.9'], done: { type: 'score', threshold: 70 } },
+  { id: 'G2.1', kind: 'grammar', module: 'verb', requires: ['EX3.1'], done: { type: 'score', threshold: 70 } },
   { id: 'G2.2', kind: 'grammar', module: 'verb', requires: ['G2.1'], done: { type: 'score', threshold: 70 } },
   { id: 'G2.3', kind: 'grammar', module: 'verb', requires: ['G2.2'], done: { type: 'score', threshold: 70 } },
   { id: 'G2.4', kind: 'grammar', module: 'verb', requires: ['G2.3'], done: { type: 'score', threshold: 90 } },
-  { id: 'C4',   kind: 'grammar', module: 'syntax',   requires: ['M2.9', 'G2.2'], done: { type: 'score', threshold: 70 } },
-  { id: 'CH2.1', kind: 'grammar', module: 'numbers', requires: ['CH1.4'], done: { type: 'score', threshold: 70 } },
+  { id: 'C4',   kind: 'grammar', module: 'syntax',   requires: ['EX3.1', 'G2.2'], done: { type: 'score', threshold: 70 } },
+  { id: 'CH2.1', kind: 'grammar', module: 'numbers', requires: ['EX1.2'], done: { type: 'score', threshold: 70 } },
 
   // ── Уровень 4 · батч 1 (beta.V1.1.4): שֶׁל + SL-трек + вопросы ──
   { id: 'M3.1',  kind: 'grammar', module: 'morphology', requires: ['C4'],    done: { type: 'score', threshold: 70 } },
   { id: 'M3.2',  kind: 'grammar', module: 'morphology', requires: ['M3.1'],  done: { type: 'score', threshold: 70 } },
   { id: 'M3.3',  kind: 'grammar', module: 'morphology', requires: ['M3.2'],  done: { type: 'score', threshold: 70 } },
-  { id: 'SL1.1', kind: 'grammar', module: 'wordsystem', requires: ['G1.6'],  done: { type: 'score', threshold: 70 } },
+  { id: 'SL1.1', kind: 'grammar', module: 'wordsystem', requires: ['EX2.1'],  done: { type: 'score', threshold: 70 } },
   { id: 'SL1.2', kind: 'grammar', module: 'wordsystem', requires: ['SL1.1'], done: { type: 'score', threshold: 70 } },
   { id: 'Q1.1',  kind: 'grammar', module: 'syntax',     requires: ['C2'],    done: { type: 'score', threshold: 70 } },
   { id: 'Q1.2',  kind: 'grammar', module: 'syntax',     requires: ['Q1.1'],  done: { type: 'score', threshold: 70 } },
-  { id: 'CH3.1', kind: 'grammar', module: 'numbers',    requires: ['CH2.1'], done: { type: 'score', threshold: 70 } },
+  { id: 'CH3.1', kind: 'grammar', module: 'numbers',    requires: ['EX3.3'], done: { type: 'score', threshold: 70 } },
   { id: 'CH3.2', kind: 'grammar', module: 'numbers',    requires: ['CH3.1'], done: { type: 'score', threshold: 70 } },
   { id: 'SL1.3', kind: 'grammar', module: 'wordsystem', requires: ['SL1.2'], done: { type: 'score', threshold: 70 } },
-  { id: 'G3.1',  kind: 'grammar', module: 'verb',       requires: ['G2.4'],  done: { type: 'score', threshold: 70 } },
+  { id: 'G3.1',  kind: 'grammar', module: 'verb',       requires: ['EX4.1'],  done: { type: 'score', threshold: 70 } },
   { id: 'G3.2',  kind: 'grammar', module: 'verb',       requires: ['G3.1'],  done: { type: 'score', threshold: 70 } },
   { id: 'G3.3',  kind: 'grammar', module: 'verb',       requires: ['G3.2'],  done: { type: 'score', threshold: 70 } },
   { id: 'G3.4',  kind: 'grammar', module: 'verb',       requires: ['G3.3'],  done: { type: 'score', threshold: 70 } },
   { id: 'G3.5',  kind: 'grammar', module: 'verb',       requires: ['G3.4'],  done: { type: 'score', threshold: 90 } },
-  { id: 'G3.6',  kind: 'grammar', module: 'verb',       requires: ['G3.5'],  done: { type: 'score', threshold: 70 } },
-  { id: 'C5.1',  kind: 'grammar', module: 'syntax',     requires: ['G3.5'],  done: { type: 'score', threshold: 70 } },
-  { id: 'SL1.4', kind: 'grammar', module: 'wordsystem', requires: ['SL1.3'], done: { type: 'score', threshold: 70 } },
+  { id: 'G3.6',  kind: 'grammar', module: 'verb',       requires: ['EX4.2'],  done: { type: 'score', threshold: 70 } },
+  { id: 'C5.1',  kind: 'grammar', module: 'syntax',     requires: ['EX4.2'],  done: { type: 'score', threshold: 70 } },
+  { id: 'SL1.4', kind: 'grammar', module: 'wordsystem', requires: ['EX4.1'], done: { type: 'score', threshold: 70 } },
+
+  // ═══ ЭКЗАМЕН АЛФАВИТА ═════════════════════════════════════════════════════════
+  // Большой экзамен в конце «Алфавит и звуки»: все буквы + огласовки + фонетика.
+  // Вопросы по буквам/огласовкам — не choice4 (не грамматические уроки), а
+  // адаптер letters/nikud → {he,ru} через word_ru/word_he (см. ExamScreen).
+  { id: 'EX0.1', kind: 'exam', examTitle: 'Буквы, огласовки и фонетика',
+    sourceLessons: ['L1.1', 'L1.2', 'L1.3', 'L1.4', 'L1.5', 'N1.1', 'N1.2', 'N1.3', 'N1.4', 'N1.5', 'D1.1', 'D1.2', 'SH1.1', 'SH1.2'],
+    requires: ['L1.1', 'L1.2', 'L1.3', 'L1.4', 'L1.5', 'N1.1', 'N1.2', 'N1.3', 'N1.4', 'N1.5', 'D1.1', 'D1.2', 'SH1.1', 'SH1.2'],
+    done: { type: 'exam', threshold: 80 } },
+
+  // ═══ ЭКЗАМЕНЫ ПОДГРУПП ═══════════════════════════════════════════════════════
+  // Сводный тест по всем грамматическим урокам подгруппы (вопросы собираются
+  // из их practiceItems, см. ExamScreen). done: score ≥ threshold ИЛИ все
+  // sourceLessons уже done (см. isNodeDone выше) — тот же принцип «несколько
+  // путей к done», что у letters/sounds. requires = sourceLessons: экзамен
+  // открывается, только когда пройдены ВСЕ уроки подгруппы (не только последний
+  // по цепочке — внутри подгрупп есть боковые ветки вроде D1.3).
+  { id: 'EX1.1', kind: 'exam', examTitle: 'Артикль и род',
+    sourceLessons: ['C0', 'M1.1', 'D1.3', 'M1.2', 'M1.3', 'M1.4'],
+    requires: ['C0', 'M1.1', 'D1.3', 'M1.2', 'M1.3', 'M1.4'],
+    done: { type: 'exam', threshold: 80 } },
+  { id: 'EX1.2', kind: 'exam', examTitle: 'Есть/нет и числа 1–10',
+    sourceLessons: ['C1', 'CH1.1', 'CH1.2', 'CH1.3', 'CH1.4'],
+    requires: ['C1', 'CH1.1', 'CH1.2', 'CH1.3', 'CH1.4'],
+    done: { type: 'exam', threshold: 80 } },
+  { id: 'EX2.1', kind: 'exam', examTitle: 'Глагол паАль — настоящее время',
+    sourceLessons: ['G1.1', 'G1.2', 'G1.3', 'G1.4', 'C2', 'G1.5', 'G1.6'],
+    requires: ['G1.1', 'G1.2', 'G1.3', 'G1.4', 'C2', 'G1.5', 'G1.6'],
+    done: { type: 'exam', threshold: 80 } },
+  { id: 'EX3.1', kind: 'exam', examTitle: 'Множественное число и предлоги',
+    sourceLessons: ['M2.1', 'M2.2', 'M2.3', 'M2.4', 'M2.5', 'M2.6', 'C3', 'M2.7', 'M2.8', 'M2.9'],
+    requires: ['M2.1', 'M2.2', 'M2.3', 'M2.4', 'M2.5', 'M2.6', 'C3', 'M2.7', 'M2.8', 'M2.9'],
+    done: { type: 'exam', threshold: 80 } },
+  { id: 'EX3.2', kind: 'exam', examTitle: 'Глагол мн.ч. и прямое дополнение',
+    sourceLessons: ['G2.1', 'G2.2', 'G2.3', 'G2.4'],
+    requires: ['G2.1', 'G2.2', 'G2.3', 'G2.4'],
+    done: { type: 'exam', threshold: 80 } },
+  { id: 'EX3.3', kind: 'exam', examTitle: 'Связка ש и числа 11–20',
+    sourceLessons: ['C4', 'CH2.1'],
+    requires: ['C4', 'CH2.1'],
+    done: { type: 'exam', threshold: 80 } },
+  { id: 'EX4.1', kind: 'exam', examTitle: 'Принадлежность, корень и вопросы',
+    sourceLessons: ['M3.1', 'M3.2', 'M3.3', 'SL1.1', 'SL1.2', 'Q1.1', 'Q1.2', 'CH3.1', 'CH3.2', 'SL1.3'],
+    requires: ['M3.1', 'M3.2', 'M3.3', 'SL1.1', 'SL1.2', 'Q1.1', 'Q1.2', 'CH3.1', 'CH3.2', 'SL1.3'],
+    done: { type: 'exam', threshold: 80 } },
+  { id: 'EX4.2', kind: 'exam', examTitle: 'Прошедшее время',
+    sourceLessons: ['G3.1', 'G3.2', 'G3.3', 'G3.4', 'G3.5'],
+    requires: ['G3.1', 'G3.2', 'G3.3', 'G3.4', 'G3.5'],
+    done: { type: 'exam', threshold: 80 } },
+  { id: 'EX4.3', kind: 'exam', examTitle: 'Итоги уровня 4',
+    sourceLessons: ['G3.6', 'C5.1', 'SL1.4'],
+    requires: ['G3.6', 'C5.1', 'SL1.4'],
+    done: { type: 'exam', threshold: 80 } },
 ];
 
 export const CURRICULUM_BY_ID = Object.fromEntries(CURRICULUM.map(n => [n.id, n]));
@@ -180,6 +252,18 @@ export function isNodeDone(id, stats) {
 
   if (node.done.type === 'studied') {
     return getReadingBlockStudiedPct(id, stats) >= node.done.threshold;
+  }
+
+  if (node.done.type === 'exam') {
+    // ⚠️ Только реальный результат экзамена — НЕ «все sourceLessons done»:
+    // requires экзамена и это условие совпадают почти всегда (уроки подгруппы
+    // идут подряд), так что «автозачёт по фактам» на каждом рендере означал бы
+    // «экзамен зачитывается сам себе в момент открытия» — для НОВЫХ игроков
+    // это делает его декорацией, а не проверкой. Разовый автозачёт для тех,
+    // кто прошёл подгруппу ДО появления экзамена в графе — миграция
+    // StatsContext.migrate() (флаг examsGrandfathered), не отсюда.
+    const score = getScore(stats, id);
+    return score != null && score >= node.done.threshold;
   }
 
   return false;
@@ -284,7 +368,10 @@ export function getLockHint(id, stats) {
 // LESSON_REGISTRY, ещё не перенесённые: видны серыми, дают ощущение дороги вперёд.
 export const COURSE_PATH = [
   {
+    id: 'alphabet',
     chapter: 'Алфавит и звуки',
+    icon: '🔤',
+    description: 'Буквы, огласовки, первые слова',
     items: [
       { id: 'L1.1' }, { id: 'VL1.1' }, { id: 'L1.2' }, { id: 'VL1.2' },
       { id: 'N1.1' }, { id: 'N1.2' },
@@ -292,25 +379,44 @@ export const COURSE_PATH = [
       { id: 'L1.4' }, { id: 'VL1.4' }, { id: 'N1.4' }, { id: 'VN1.4' },
       { id: 'L1.5' }, { id: 'N1.5' }, { id: 'VN1.5' },
       { id: 'D1.1' }, { id: 'D1.2' }, { id: 'SH1.1' }, { id: 'SH1.2' },
+      { id: 'EX0.1' },
     ],
   },
   {
+    id: 'level1',
     chapter: 'Уровень 1 · Именное предложение и артикль',
+    icon: '🧩',
+    description: 'Артикль, род, первые числа',
+    // Подгруппы внутри модуля — каждая заканчивается проверкой (checkpoint = id
+    // последнего урока подгруппы). M1.4 — уже готовый синтез-урок (порог 90%);
+    // CH1.4 — новая граница, порог урока не менялся (проверка только визуальная).
+    subgroups: [
+      { title: 'Артикль и род', endId: 'M1.4' },
+      { title: 'Есть/нет и числа 1–10', endId: 'CH1.4' },
+    ],
     items: [
       { id: 'C0' },   { id: 'R1.20' },
       { id: 'M1.1' }, { id: 'R1.21' }, { id: 'D1.3' },
       { id: 'M1.2' }, { id: 'R1.23' },
       { id: 'M1.3' }, { id: 'R1.24' },
       { id: 'M1.4' }, { id: 'R1.25' },
+      { id: 'EX1.1' },
       { id: 'C1' },   { id: 'R1.22' },
       { id: 'CH1.1' }, { id: 'R1.26' },
       { id: 'CH1.2' }, { id: 'R1.27' },
       { id: 'CH1.3' }, { id: 'R1.28' },
       { id: 'CH1.4' }, { id: 'R1.36' },
+      { id: 'EX1.2' },
     ],
   },
   {
+    id: 'level2',
     chapter: 'Уровень 2',
+    icon: '🗣️',
+    description: 'Глагол паАль, настоящее время',
+    subgroups: [
+      { title: 'Глагол паАль — настоящее время', endId: 'G1.6' },
+    ],
     items: [
       { id: 'G1.1' },
       { id: 'G1.2' }, { id: 'R1.30' },
@@ -319,10 +425,19 @@ export const COURSE_PATH = [
       { id: 'C2' },   { id: 'R1.35' },
       { id: 'G1.5' }, { id: 'R1.33' },
       { id: 'G1.6' }, { id: 'R1.34' },
+      { id: 'EX2.1' },
     ],
   },
   {
+    id: 'level3',
     chapter: 'Уровень 3',
+    icon: '📐',
+    description: 'Мн. число, предлоги, глагол II',
+    subgroups: [
+      { title: 'Множественное число и предлоги', endId: 'M2.9' },
+      { title: 'Глагол мн.ч. и прямое дополнение', endId: 'G2.4' },
+      { title: 'Связка ש и числа 11–20', endId: 'CH2.1' },
+    ],
     items: [
       { id: 'M2.1' }, { id: 'R1.37' },
       { id: 'M2.2' }, { id: 'R1.38' },
@@ -334,16 +449,27 @@ export const COURSE_PATH = [
       { id: 'M2.7' }, { id: 'R1.44' },
       { id: 'M2.8' }, { id: 'R1.45' },
       { id: 'M2.9' }, { id: 'R1.46' },
+      { id: 'EX3.1' },
       { id: 'G2.1' }, { id: 'R1.47' },
       { id: 'G2.2' }, { id: 'R1.48' },
       { id: 'G2.3' }, { id: 'R1.49' },
       { id: 'G2.4' }, { id: 'R1.50' },
+      { id: 'EX3.2' },
       { id: 'C4' },   { id: 'R1.51' },
       { id: 'CH2.1' }, { id: 'R1.52' },
+      { id: 'EX3.3' },
     ],
   },
   {
+    id: 'level4',
     chapter: 'Уровень 4 · Принадлежность и вопросы (начало)',
+    icon: '🔑',
+    description: 'Принадлежность, вопросы, числа 3',
+    subgroups: [
+      { title: 'Принадлежность, корень и вопросы', endId: 'SL1.3' },
+      { title: 'Прошедшее время', endId: 'G3.5' },
+      { title: 'Итоги уровня 4', endId: 'SL1.4' },
+    ],
     items: [
       { id: 'M3.1' }, { id: 'R1.53' },
       { id: 'M3.2' },
@@ -355,14 +481,17 @@ export const COURSE_PATH = [
       { id: 'CH3.1' }, { id: 'R1.60' },
       { id: 'CH3.2' },
       { id: 'SL1.3' },
+      { id: 'EX4.1' },
       { id: 'G3.1' }, { id: 'R1.63' },
       { id: 'G3.2' },
       { id: 'G3.3' },
       { id: 'G3.4' },
       { id: 'G3.5' },
+      { id: 'EX4.2' },
       { id: 'G3.6' }, { id: 'R1.68' },
       { id: 'C5.1' },
       { id: 'SL1.4' }, { id: 'R1.70' },
+      { id: 'EX4.3' },
     ],
   },
 ];

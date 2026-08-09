@@ -1385,7 +1385,7 @@ var CURRICULUM = [
   // ── Грамматика — уровень 1 (перенесено из мастерской 01-02.07.2026) ──
   { id: "C0", kind: "grammar", module: "syntax", requires: ["VL1.3"], done: { type: "score", threshold: 70 } },
   { id: "M1.1", kind: "grammar", module: "morphology", requires: ["C0"], done: { type: "score", threshold: 70 } },
-  { id: "C1", kind: "grammar", module: "syntax", requires: ["M1.4"], done: { type: "score", threshold: 70 } },
+  { id: "C1", kind: "grammar", module: "syntax", requires: ["EX1.1"], done: { type: "score", threshold: 70 } },
   { id: "M1.2", kind: "grammar", module: "morphology", requires: ["M1.1"], done: { type: "score", threshold: 70 } },
   { id: "M1.3", kind: "grammar", module: "morphology", requires: ["M1.2"], done: { type: "score", threshold: 70 } },
   { id: "M1.4", kind: "grammar", module: "morphology", requires: ["M1.3"], done: { type: "score", threshold: 90 } },
@@ -1394,7 +1394,7 @@ var CURRICULUM = [
   { id: "CH1.2", kind: "grammar", module: "numbers", requires: ["CH1.1"], done: { type: "score", threshold: 70 } },
   { id: "CH1.3", kind: "grammar", module: "numbers", requires: ["CH1.2"], done: { type: "score", threshold: 70 } },
   // ── Глагол — Г1, паАль настоящее (открывается после M1 done = M1.4) ──
-  { id: "G1.1", kind: "grammar", module: "verb", requires: ["M1.4", "N1.5"], done: { type: "score", threshold: 70 } },
+  { id: "G1.1", kind: "grammar", module: "verb", requires: ["EX1.1", "EX0.1"], done: { type: "score", threshold: 70 } },
   { id: "G1.2", kind: "grammar", module: "verb", requires: ["G1.1"], done: { type: "score", threshold: 70 } },
   { id: "G1.3", kind: "grammar", module: "verb", requires: ["G1.2"], done: { type: "score", threshold: 70 } },
   { id: "G1.4", kind: "grammar", module: "verb", requires: ["G1.3"], done: { type: "score", threshold: 70 } },
@@ -1406,7 +1406,7 @@ var CURRICULUM = [
   // ── Уровень 3: М2 (мн.ч.+предлоги), С3, Г2, С4, Ч2 ──
   // ⚠️ Реестр: «М2 ← порции уровня 1 изучены + G1 done». Гейт по порциям R1.2x
   //    не реализован (они не узлы графа) — пока только G1.6. Решить с Daniel.
-  { id: "M2.1", kind: "grammar", module: "morphology", requires: ["G1.6"], done: { type: "score", threshold: 70 } },
+  { id: "M2.1", kind: "grammar", module: "morphology", requires: ["EX2.1"], done: { type: "score", threshold: 70 } },
   { id: "M2.2", kind: "grammar", module: "morphology", requires: ["M2.1"], done: { type: "score", threshold: 70 } },
   { id: "M2.3", kind: "grammar", module: "morphology", requires: ["M2.2"], done: { type: "score", threshold: 70 } },
   { id: "M2.4", kind: "grammar", module: "morphology", requires: ["M2.3"], done: { type: "score", threshold: 70 } },
@@ -1416,31 +1416,122 @@ var CURRICULUM = [
   { id: "M2.7", kind: "grammar", module: "morphology", requires: ["C3"], done: { type: "score", threshold: 70 } },
   { id: "M2.8", kind: "grammar", module: "morphology", requires: ["M2.7"], done: { type: "score", threshold: 70 } },
   { id: "M2.9", kind: "grammar", module: "morphology", requires: ["M2.8"], done: { type: "score", threshold: 90 } },
-  { id: "G2.1", kind: "grammar", module: "verb", requires: ["M2.9"], done: { type: "score", threshold: 70 } },
+  { id: "G2.1", kind: "grammar", module: "verb", requires: ["EX3.1"], done: { type: "score", threshold: 70 } },
   { id: "G2.2", kind: "grammar", module: "verb", requires: ["G2.1"], done: { type: "score", threshold: 70 } },
   { id: "G2.3", kind: "grammar", module: "verb", requires: ["G2.2"], done: { type: "score", threshold: 70 } },
   { id: "G2.4", kind: "grammar", module: "verb", requires: ["G2.3"], done: { type: "score", threshold: 90 } },
-  { id: "C4", kind: "grammar", module: "syntax", requires: ["M2.9", "G2.2"], done: { type: "score", threshold: 70 } },
-  { id: "CH2.1", kind: "grammar", module: "numbers", requires: ["CH1.4"], done: { type: "score", threshold: 70 } },
+  { id: "C4", kind: "grammar", module: "syntax", requires: ["EX3.1", "G2.2"], done: { type: "score", threshold: 70 } },
+  { id: "CH2.1", kind: "grammar", module: "numbers", requires: ["EX1.2"], done: { type: "score", threshold: 70 } },
   // ── Уровень 4 · батч 1 (beta.V1.1.4): שֶׁל + SL-трек + вопросы ──
   { id: "M3.1", kind: "grammar", module: "morphology", requires: ["C4"], done: { type: "score", threshold: 70 } },
   { id: "M3.2", kind: "grammar", module: "morphology", requires: ["M3.1"], done: { type: "score", threshold: 70 } },
   { id: "M3.3", kind: "grammar", module: "morphology", requires: ["M3.2"], done: { type: "score", threshold: 70 } },
-  { id: "SL1.1", kind: "grammar", module: "wordsystem", requires: ["G1.6"], done: { type: "score", threshold: 70 } },
+  { id: "SL1.1", kind: "grammar", module: "wordsystem", requires: ["EX2.1"], done: { type: "score", threshold: 70 } },
   { id: "SL1.2", kind: "grammar", module: "wordsystem", requires: ["SL1.1"], done: { type: "score", threshold: 70 } },
   { id: "Q1.1", kind: "grammar", module: "syntax", requires: ["C2"], done: { type: "score", threshold: 70 } },
   { id: "Q1.2", kind: "grammar", module: "syntax", requires: ["Q1.1"], done: { type: "score", threshold: 70 } },
-  { id: "CH3.1", kind: "grammar", module: "numbers", requires: ["CH2.1"], done: { type: "score", threshold: 70 } },
+  { id: "CH3.1", kind: "grammar", module: "numbers", requires: ["EX3.3"], done: { type: "score", threshold: 70 } },
   { id: "CH3.2", kind: "grammar", module: "numbers", requires: ["CH3.1"], done: { type: "score", threshold: 70 } },
   { id: "SL1.3", kind: "grammar", module: "wordsystem", requires: ["SL1.2"], done: { type: "score", threshold: 70 } },
-  { id: "G3.1", kind: "grammar", module: "verb", requires: ["G2.4"], done: { type: "score", threshold: 70 } },
+  { id: "G3.1", kind: "grammar", module: "verb", requires: ["EX4.1"], done: { type: "score", threshold: 70 } },
   { id: "G3.2", kind: "grammar", module: "verb", requires: ["G3.1"], done: { type: "score", threshold: 70 } },
   { id: "G3.3", kind: "grammar", module: "verb", requires: ["G3.2"], done: { type: "score", threshold: 70 } },
   { id: "G3.4", kind: "grammar", module: "verb", requires: ["G3.3"], done: { type: "score", threshold: 70 } },
   { id: "G3.5", kind: "grammar", module: "verb", requires: ["G3.4"], done: { type: "score", threshold: 90 } },
-  { id: "G3.6", kind: "grammar", module: "verb", requires: ["G3.5"], done: { type: "score", threshold: 70 } },
-  { id: "C5.1", kind: "grammar", module: "syntax", requires: ["G3.5"], done: { type: "score", threshold: 70 } },
-  { id: "SL1.4", kind: "grammar", module: "wordsystem", requires: ["SL1.3"], done: { type: "score", threshold: 70 } }
+  { id: "G3.6", kind: "grammar", module: "verb", requires: ["EX4.2"], done: { type: "score", threshold: 70 } },
+  { id: "C5.1", kind: "grammar", module: "syntax", requires: ["EX4.2"], done: { type: "score", threshold: 70 } },
+  { id: "SL1.4", kind: "grammar", module: "wordsystem", requires: ["EX4.1"], done: { type: "score", threshold: 70 } },
+  // ═══ ЭКЗАМЕН АЛФАВИТА ═════════════════════════════════════════════════════════
+  // Большой экзамен в конце «Алфавит и звуки»: все буквы + огласовки + фонетика.
+  // Вопросы по буквам/огласовкам — не choice4 (не грамматические уроки), а
+  // адаптер letters/nikud → {he,ru} через word_ru/word_he (см. ExamScreen).
+  {
+    id: "EX0.1",
+    kind: "exam",
+    examTitle: "\u0411\u0443\u043A\u0432\u044B, \u043E\u0433\u043B\u0430\u0441\u043E\u0432\u043A\u0438 \u0438 \u0444\u043E\u043D\u0435\u0442\u0438\u043A\u0430",
+    sourceLessons: ["L1.1", "L1.2", "L1.3", "L1.4", "L1.5", "N1.1", "N1.2", "N1.3", "N1.4", "N1.5", "D1.1", "D1.2", "SH1.1", "SH1.2"],
+    requires: ["L1.1", "L1.2", "L1.3", "L1.4", "L1.5", "N1.1", "N1.2", "N1.3", "N1.4", "N1.5", "D1.1", "D1.2", "SH1.1", "SH1.2"],
+    done: { type: "exam", threshold: 80 }
+  },
+  // ═══ ЭКЗАМЕНЫ ПОДГРУПП ═══════════════════════════════════════════════════════
+  // Сводный тест по всем грамматическим урокам подгруппы (вопросы собираются
+  // из их practiceItems, см. ExamScreen). done: score ≥ threshold ИЛИ все
+  // sourceLessons уже done (см. isNodeDone выше) — тот же принцип «несколько
+  // путей к done», что у letters/sounds. requires = sourceLessons: экзамен
+  // открывается, только когда пройдены ВСЕ уроки подгруппы (не только последний
+  // по цепочке — внутри подгрупп есть боковые ветки вроде D1.3).
+  {
+    id: "EX1.1",
+    kind: "exam",
+    examTitle: "\u0410\u0440\u0442\u0438\u043A\u043B\u044C \u0438 \u0440\u043E\u0434",
+    sourceLessons: ["C0", "M1.1", "D1.3", "M1.2", "M1.3", "M1.4"],
+    requires: ["C0", "M1.1", "D1.3", "M1.2", "M1.3", "M1.4"],
+    done: { type: "exam", threshold: 80 }
+  },
+  {
+    id: "EX1.2",
+    kind: "exam",
+    examTitle: "\u0415\u0441\u0442\u044C/\u043D\u0435\u0442 \u0438 \u0447\u0438\u0441\u043B\u0430 1\u201310",
+    sourceLessons: ["C1", "CH1.1", "CH1.2", "CH1.3", "CH1.4"],
+    requires: ["C1", "CH1.1", "CH1.2", "CH1.3", "CH1.4"],
+    done: { type: "exam", threshold: 80 }
+  },
+  {
+    id: "EX2.1",
+    kind: "exam",
+    examTitle: "\u0413\u043B\u0430\u0433\u043E\u043B \u043F\u0430\u0410\u043B\u044C \u2014 \u043D\u0430\u0441\u0442\u043E\u044F\u0449\u0435\u0435 \u0432\u0440\u0435\u043C\u044F",
+    sourceLessons: ["G1.1", "G1.2", "G1.3", "G1.4", "C2", "G1.5", "G1.6"],
+    requires: ["G1.1", "G1.2", "G1.3", "G1.4", "C2", "G1.5", "G1.6"],
+    done: { type: "exam", threshold: 80 }
+  },
+  {
+    id: "EX3.1",
+    kind: "exam",
+    examTitle: "\u041C\u043D\u043E\u0436\u0435\u0441\u0442\u0432\u0435\u043D\u043D\u043E\u0435 \u0447\u0438\u0441\u043B\u043E \u0438 \u043F\u0440\u0435\u0434\u043B\u043E\u0433\u0438",
+    sourceLessons: ["M2.1", "M2.2", "M2.3", "M2.4", "M2.5", "M2.6", "C3", "M2.7", "M2.8", "M2.9"],
+    requires: ["M2.1", "M2.2", "M2.3", "M2.4", "M2.5", "M2.6", "C3", "M2.7", "M2.8", "M2.9"],
+    done: { type: "exam", threshold: 80 }
+  },
+  {
+    id: "EX3.2",
+    kind: "exam",
+    examTitle: "\u0413\u043B\u0430\u0433\u043E\u043B \u043C\u043D.\u0447. \u0438 \u043F\u0440\u044F\u043C\u043E\u0435 \u0434\u043E\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435",
+    sourceLessons: ["G2.1", "G2.2", "G2.3", "G2.4"],
+    requires: ["G2.1", "G2.2", "G2.3", "G2.4"],
+    done: { type: "exam", threshold: 80 }
+  },
+  {
+    id: "EX3.3",
+    kind: "exam",
+    examTitle: "\u0421\u0432\u044F\u0437\u043A\u0430 \u05E9 \u0438 \u0447\u0438\u0441\u043B\u0430 11\u201320",
+    sourceLessons: ["C4", "CH2.1"],
+    requires: ["C4", "CH2.1"],
+    done: { type: "exam", threshold: 80 }
+  },
+  {
+    id: "EX4.1",
+    kind: "exam",
+    examTitle: "\u041F\u0440\u0438\u043D\u0430\u0434\u043B\u0435\u0436\u043D\u043E\u0441\u0442\u044C, \u043A\u043E\u0440\u0435\u043D\u044C \u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u044B",
+    sourceLessons: ["M3.1", "M3.2", "M3.3", "SL1.1", "SL1.2", "Q1.1", "Q1.2", "CH3.1", "CH3.2", "SL1.3"],
+    requires: ["M3.1", "M3.2", "M3.3", "SL1.1", "SL1.2", "Q1.1", "Q1.2", "CH3.1", "CH3.2", "SL1.3"],
+    done: { type: "exam", threshold: 80 }
+  },
+  {
+    id: "EX4.2",
+    kind: "exam",
+    examTitle: "\u041F\u0440\u043E\u0448\u0435\u0434\u0448\u0435\u0435 \u0432\u0440\u0435\u043C\u044F",
+    sourceLessons: ["G3.1", "G3.2", "G3.3", "G3.4", "G3.5"],
+    requires: ["G3.1", "G3.2", "G3.3", "G3.4", "G3.5"],
+    done: { type: "exam", threshold: 80 }
+  },
+  {
+    id: "EX4.3",
+    kind: "exam",
+    examTitle: "\u0418\u0442\u043E\u0433\u0438 \u0443\u0440\u043E\u0432\u043D\u044F 4",
+    sourceLessons: ["G3.6", "C5.1", "SL1.4"],
+    requires: ["G3.6", "C5.1", "SL1.4"],
+    done: { type: "exam", threshold: 80 }
+  }
 ];
 var CURRICULUM_BY_ID = Object.fromEntries(CURRICULUM.map((n) => [n.id, n]));
 var SECTION_PREFIX = { letters: "L1.", sounds: "N1.", words: "W", phrases: "P" };
@@ -1465,6 +1556,10 @@ function isNodeDone(id, stats) {
   }
   if (node.done.type === "studied") {
     return getReadingBlockStudiedPct(id, stats) >= node.done.threshold;
+  }
+  if (node.done.type === "exam") {
+    const score = getScore(stats, id);
+    return score != null && score >= node.done.threshold;
   }
   return false;
 }
@@ -8747,7 +8842,7 @@ check("C0=85: done", isNodeDone("C0", g));
 check("M1.1 available \u043F\u043E\u0441\u043B\u0435 C0", getNodeStatus("M1.1", g) === "available");
 check("C1 locked \u0434\u043E M1.1", getNodeStatus("C1", g) === "locked");
 var g2 = { ...g, scores: { ...g.scores, "M1.1": 90, "M1.2": 75, "M1.3": 80 } };
-check("M1.1=90 done; C1 \u0436\u0434\u0451\u0442 M1.4 (\u0430\u0440\u043A\u0430 \u0430\u0440\u0442\u0438\u043A\u043B\u044F \u0446\u0435\u043B\u044C\u043D\u0430\u044F)", isNodeDone("M1.1", g2) && getNodeStatus("C1", g2) === "locked" && getNodeStatus("C1", { ...g2, scores: { ...g2.scores, "M1.4": 95 } }) === "available");
+check("M1.1=90 done; C1 \u0436\u0434\u0451\u0442 EX1.1 (\u043F\u043E\u0434\u0433\u0440\u0443\u043F\u043F\u0430 \u0441\u0434\u0430\u043D\u0430 \u044D\u043A\u0437\u0430\u043C\u0435\u043D\u043E\u043C, \u043D\u0435 \u0441\u0430\u043C M1.4)", isNodeDone("M1.1", g2) && getNodeStatus("C1", g2) === "locked" && getNodeStatus("C1", { ...g2, scores: { ...g2.scores, "EX1.1": 90 } }) === "available");
 check("M1.4 available (M1.3 done)", getNodeStatus("M1.4", g2) === "available");
 check("M1.4=85 <90: \u043D\u0435 done (isSynthesis)", !isNodeDone("M1.4", { ...g2, scores: { ...g2.scores, "M1.4": 85 } }));
 check("M1.4=90: done", isNodeDone("M1.4", { ...g2, scores: { ...g2.scores, "M1.4": 90 } }));
@@ -8826,7 +8921,10 @@ check(
 );
 check("G1.1 locked \u0434\u043E M1.4", getNodeStatus("G1.1", g) === "locked");
 var gM14 = { ...g2, scores: { ...g2.scores, "M1.4": 95 } };
-check("G1.1 \u0442\u0440\u0435\u0431\u0443\u0435\u0442 M1.4 + N1.5 (\u044F\u043A\u043E\u0440\u044C \u0437\u043E\u043D\u044B 0)", getNodeStatus("G1.1", gM14) === "locked" && getNodeStatus("G1.1", { ...gM14, scores: { ...gM14.scores, "N1.5": 80 } }) === "available");
+check(
+  "G1.1 \u0442\u0440\u0435\u0431\u0443\u0435\u0442 EX1.1 + EX0.1 (\u044F\u043A\u043E\u0440\u044C \u0437\u043E\u043D\u044B 0 \u2014 \u0442\u0435\u043F\u0435\u0440\u044C \u0447\u0435\u0440\u0435\u0437 \u044D\u043A\u0437\u0430\u043C\u0435\u043D\u044B)",
+  getNodeStatus("G1.1", gM14) === "locked" && getNodeStatus("G1.1", { ...gM14, scores: { ...gM14.scores, "EX1.1": 90 } }) === "locked" && getNodeStatus("G1.1", { ...gM14, scores: { ...gM14.scores, "EX1.1": 90, "EX0.1": 90 } }) === "available"
+);
 check(
   "G1.1 \u0431\u0435\u0437 practiceItems (\u0443\u0440\u043E\u043A-\u043A\u043E\u043D\u0446\u0435\u043F\u0446\u0438\u044F), G1.6 \u043F\u043E\u0440\u043E\u0433 90",
   GRAMMAR_LESSONS.find((l) => l.id === "G1.1").practiceItems.length === 0 && GRAMMAR_LESSONS.find((l) => l.id === "G1.6").threshold === 90
@@ -8854,15 +8952,16 @@ check(
   "\u0443\u0440\u043E\u0432\u0435\u043D\u044C 2 \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E: 8 \u0443\u0440\u043E\u043A\u043E\u0432 \u0432 \u043A\u043E\u0434\u0435",
   ["G1.1", "G1.2", "G1.3", "G1.4", "G1.5", "G1.6", "C2", "CH1.4"].every((id) => GRAMMAR_LESSONS.some((l) => l.id === id))
 );
-var gL2 = { ...gG, scores: { ...gG.scores, "G1.6": 95, "C2": 80, "CH1.4": 80 } };
-check("M2.1 \u043F\u043E\u0441\u043B\u0435 G1.6; G2.1 \u0436\u0434\u0451\u0442 M2.9 (\u0432\u0435\u0442\u043A\u0438 \u043F\u043E\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u043D\u044B)", getNodeStatus("M2.1", gL2) === "available" && getNodeStatus("G2.1", gL2) === "locked");
-check("M2.1 locked \u0434\u043E G1.6", getNodeStatus("M2.1", gG) === "locked");
+var gL2 = { ...gG, scores: { ...gG.scores, "G1.6": 95, "C2": 80, "CH1.4": 80, "EX2.1": 90 } };
+check("M2.1 \u043F\u043E\u0441\u043B\u0435 EX2.1 (\u044D\u043A\u0437\u0430\u043C\u0435\u043D \xAB\u0413\u043B\u0430\u0433\u043E\u043B \u043F\u0430\u0410\u043B\u044C\xBB); G2.1 \u0436\u0434\u0451\u0442 EX3.1 (\u0432\u0435\u0442\u043A\u0438 \u043F\u043E\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u043D\u044B)", getNodeStatus("M2.1", gL2) === "available" && getNodeStatus("G2.1", gL2) === "locked");
+check("M2.1 locked \u0431\u0435\u0437 EX2.1 (G1.6=89 \u0432 gG \u0435\u0449\u0451 \u043D\u0435 done \u2014 \u044D\u043A\u0437\u0430\u043C\u0435\u043D \u043D\u0435\u0434\u043E\u0441\u0442\u0438\u0436\u0438\u043C)", getNodeStatus("M2.1", gG) === "locked");
 var gM2 = { ...gL2, scores: { ...gL2.scores, "M2.1": 80, "M2.2": 80, "M2.3": 80, "M2.4": 80, "M2.5": 80, "M2.6": 80 } };
 check("C3 available \u043F\u043E\u0441\u043B\u0435 M2.6, M2.7 \u043F\u043E\u0441\u043B\u0435 C3", getNodeStatus("C3", gM2) === "available" && getNodeStatus("M2.7", { ...gM2, scores: { ...gM2.scores, "C3": 75 } }) === "available");
-var gC4a = { ...gM2, scores: { ...gM2.scores, "C3": 80, "M2.7": 80, "M2.8": 80, "M2.9": 95, "G2.1": 80 } };
-check("C4 \u0442\u0440\u0435\u0431\u0443\u0435\u0442 \u041E\u0411\u0410: M2.9 \u0438 G2.2", getNodeStatus("C4", gC4a) === "locked" && getNodeStatus("C4", { ...gC4a, scores: { ...gC4a.scores, "G2.2": 80 } }) === "available");
+var gC4a = { ...gM2, scores: { ...gM2.scores, "C3": 80, "M2.7": 80, "M2.8": 80, "M2.9": 95, "G2.1": 80, "EX3.1": 90 } };
+check("C4 \u0442\u0440\u0435\u0431\u0443\u0435\u0442 \u041E\u0411\u0410: EX3.1 \u0438 G2.2", getNodeStatus("C4", gC4a) === "locked" && getNodeStatus("C4", { ...gC4a, scores: { ...gC4a.scores, "G2.2": 80 } }) === "available");
 check("M2.9 \u043F\u043E\u0440\u043E\u0433 90: 89 \u043D\u0435 done", !isNodeDone("M2.9", { ...gM2, scores: { ...gM2.scores, "C3": 80, "M2.7": 80, "M2.8": 80, "M2.9": 89 } }));
-check("CH2.1 \u043F\u043E\u0441\u043B\u0435 CH1.4", getNodeStatus("CH2.1", gL2) === "available");
+check("CH2.1 locked \u0431\u0435\u0437 EX1.2", getNodeStatus("CH2.1", gL2) === "locked");
+check("CH2.1 \u043F\u043E\u0441\u043B\u0435 EX1.2", getNodeStatus("CH2.1", { ...gL2, scores: { ...gL2.scores, "EX1.2": 90 } }) === "available");
 check(
   "\u0443\u0440\u043E\u0432\u0435\u043D\u044C 3: \u0432\u0441\u0435 16 \u0443\u0440\u043E\u043A\u043E\u0432 \u0432 \u043A\u043E\u0434\u0435 \u0438 \u0432 \u0433\u0440\u0430\u0444\u0435",
   ["M2.1", "M2.2", "M2.3", "M2.4", "M2.5", "M2.6", "C3", "M2.7", "M2.8", "M2.9", "G2.1", "G2.2", "G2.3", "G2.4", "C4", "CH2.1"].every((id) => GRAMMAR_LESSONS.some((l) => l.id === id) && getNodeStatus(id, g) === "locked")
@@ -8875,7 +8974,7 @@ check(
   })
 );
 check("G1.5 \u0436\u0434\u0451\u0442 C2 (\u0432\u043E\u043F\u0440\u043E\u0441 \u0434\u043E \u043E\u0442\u0440\u0438\u0446\u0430\u043D\u0438\u044F)", getNodeStatus("G1.5", { ...gG, scores: { ...gG.scores, "C2": 0, "G1.5": 0 } }) === "locked");
-check("G2.1 \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u043F\u043E\u0441\u043B\u0435 M2.9", getNodeStatus("G2.1", { ...gC4a, scores: { ...gC4a.scores, "G2.1": 0 } }) === "available");
+check("G2.1 \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u043F\u043E\u0441\u043B\u0435 EX3.1", getNodeStatus("G2.1", { ...gC4a, scores: { ...gC4a.scores, "G2.1": 0 } }) === "available");
 check("D1.1 locked \u0431\u0435\u0437 N1.5, available \u0441 N1.5", getNodeStatus("D1.1", g) === "locked" && getNodeStatus("D1.1", { ...g, scores: { ...g.scores, "N1.5": 80 } }) === "available");
 check(
   "D1.1 \u0431\u0435\u0437 \u0442\u0435\u0441\u0442\u0430 (\u043A\u043E\u043D\u0446\u0435\u043F\u0446\u0438\u044F), D1.2 \u0441 \u0442\u0435\u0441\u0442\u043E\u043C",
@@ -9329,10 +9428,10 @@ var B1_IDS = ["M3.1", "M3.2", "M3.3", "SL1.1", "SL1.2", "Q1.1"];
 check("\u0431\u0430\u0442\u04471: \u0432\u0441\u0435 6 \u0443\u0437\u043B\u043E\u0432 \u0432 \u0433\u0440\u0430\u0444\u0435", B1_IDS.every((id) => CURRICULUM.some((n) => n.id === id)));
 check("\u0431\u0430\u0442\u04471: \u0432\u0441\u0435 6 \u0443\u0440\u043E\u043A\u043E\u0432 \u0432 GRAMMAR_LESSONS", B1_IDS.every((id) => !!GRAMMAR_LESSONS_BY_ID[id]));
 check(
-  "\u0431\u0430\u0442\u04471: \u0446\u0435\u043F\u043E\u0447\u043A\u0430 M3.1\u2190C4, M3.2\u2190M3.1, SL1.1\u2190G1.6, Q1.1\u2190C2",
+  "\u0431\u0430\u0442\u04471: \u0446\u0435\u043F\u043E\u0447\u043A\u0430 M3.1\u2190C4, M3.2\u2190M3.1, SL1.1\u2190EX2.1, Q1.1\u2190C2",
   (() => {
     const by = Object.fromEntries(CURRICULUM.map((n) => [n.id, n]));
-    return by["M3.1"].requires.includes("C4") && by["M3.2"].requires.includes("M3.1") && by["M3.3"].requires.includes("M3.2") && by["SL1.1"].requires.includes("G1.6") && by["SL1.2"].requires.includes("SL1.1") && by["Q1.1"].requires.includes("C2");
+    return by["M3.1"].requires.includes("C4") && by["M3.2"].requires.includes("M3.1") && by["M3.3"].requires.includes("M3.2") && by["SL1.1"].requires.includes("EX2.1") && by["SL1.2"].requires.includes("SL1.1") && by["Q1.1"].requires.includes("C2");
   })()
 );
 var doneThroughC4 = {
@@ -9380,7 +9479,11 @@ var doneThroughC4 = {
       "G2.3",
       "G2.4",
       "C4",
-      "CH2.1"
+      "CH2.1",
+      "EX0.1",
+      "EX1.1",
+      "EX1.2",
+      "EX2.1"
     ].map((id) => [id, 95])
   ),
   blockScores: {},
@@ -9389,7 +9492,7 @@ var doneThroughC4 = {
 check("\u0431\u0430\u0442\u04471: \u043F\u043E\u0441\u043B\u0435 C4 \u2192 M3.1 available", getNodeStatus("M3.1", doneThroughC4) === "available");
 check("\u0431\u0430\u0442\u04471: M3.2 \u0437\u0430\u043F\u0435\u0440\u0442 \u0434\u043E M3.1", getNodeStatus("M3.2", doneThroughC4) === "locked");
 check(
-  "\u0431\u0430\u0442\u04471: SL1.1 available (G1.6 done), SL \u2014 \u043D\u0430\u0434\u0441\u0442\u0440\u043E\u0439\u043A\u0430",
+  "\u0431\u0430\u0442\u04471: SL1.1 available (EX2.1 done), SL \u2014 \u043D\u0430\u0434\u0441\u0442\u0440\u043E\u0439\u043A\u0430",
   getNodeStatus("SL1.1", doneThroughC4) === "available"
 );
 var b53 = READING_BLOCKS.find((b) => b.id === "R1.53");
@@ -9431,7 +9534,7 @@ check(
   "\u0431\u0430\u0442\u04472: \u0446\u0435\u043F\u043E\u0447\u043A\u0430 requires \u0432\u0435\u0440\u043D\u0430",
   (() => {
     const by = Object.fromEntries(CURRICULUM.map((n) => [n.id, n]));
-    return by["Q1.2"].requires.includes("Q1.1") && by["CH3.1"].requires.includes("CH2.1") && by["CH3.2"].requires.includes("CH3.1") && by["SL1.3"].requires.includes("SL1.2") && by["G3.1"].requires.includes("G2.4") && by["G3.2"].requires.includes("G3.1");
+    return by["Q1.2"].requires.includes("Q1.1") && by["CH3.1"].requires.includes("EX3.3") && by["CH3.2"].requires.includes("CH3.1") && by["SL1.3"].requires.includes("SL1.2") && by["G3.1"].requires.includes("EX4.1") && by["G3.2"].requires.includes("G3.1");
   })()
 );
 var b2ready = {
@@ -9485,7 +9588,13 @@ var b2ready = {
       "M3.3",
       "SL1.1",
       "SL1.2",
-      "Q1.1"
+      "Q1.1",
+      "EX0.1",
+      "EX1.1",
+      "EX1.2",
+      "EX2.1",
+      "EX3.3",
+      "EX4.1"
     ].map((id) => [id, 95])
   ),
   blockScores: {},
@@ -9549,10 +9658,10 @@ check(
   })()
 );
 check(
-  "\u0431\u0430\u0442\u04473: \u0446\u0435\u043F\u043E\u0447\u043A\u0430 G3.3\u2190G3.2 \u2026 C5.1\u2190G3.5, SL1.4\u2190SL1.3",
+  "\u0431\u0430\u0442\u04473: \u0446\u0435\u043F\u043E\u0447\u043A\u0430 G3.3\u2190G3.2 \u2026 C5.1\u2190EX4.2, SL1.4\u2190EX4.1",
   (() => {
     const by = Object.fromEntries(CURRICULUM.map((n) => [n.id, n]));
-    return by["G3.3"].requires.includes("G3.2") && by["G3.5"].requires.includes("G3.4") && by["C5.1"].requires.includes("G3.5") && by["SL1.4"].requires.includes("SL1.3");
+    return by["G3.3"].requires.includes("G3.2") && by["G3.5"].requires.includes("G3.4") && by["C5.1"].requires.includes("EX4.2") && by["SL1.4"].requires.includes("EX4.1");
   })()
 );
 var b3ready = {
@@ -9580,7 +9689,7 @@ check(
   "\u0431\u0430\u0442\u04473: G3.3 \u0438 SL1.4 available \u043F\u043E\u0441\u043B\u0435 \u0431\u0430\u0442\u0447\u04302",
   getNodeStatus("G3.3", b3ready) === "available" && getNodeStatus("SL1.4", b3ready) === "available"
 );
-check("\u0431\u0430\u0442\u04473: C5.1 \u0437\u0430\u043F\u0435\u0440\u0442 (\u043D\u0443\u0436\u0435\u043D G3.5)", getNodeStatus("C5.1", b3ready) === "locked");
+check("\u0431\u0430\u0442\u04473: C5.1 \u0437\u0430\u043F\u0435\u0440\u0442 (\u043D\u0443\u0436\u0435\u043D EX4.2, \u0430 \u043D\u0435 \u0441\u0430\u043C G3.5)", getNodeStatus("C5.1", b3ready) === "locked");
 var b3blocks = ["R1.68", "R1.70"];
 check(
   "\u0431\u0430\u0442\u04473: \u043F\u043E\u0440\u0446\u0438\u0438 R1.68(G3.6)/R1.70(SL1.4) \u0441 \u0432\u0435\u0440\u043D\u044B\u043C\u0438 lesson",

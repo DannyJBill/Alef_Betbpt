@@ -24,24 +24,29 @@ import {
 } from "../data/curriculum";
 import { READING_BLOCKS } from "../data/reading";
 import { GRAMMAR_LESSONS_BY_ID } from "../data/grammarLessons";
+import { getSectionTheme, getTopicMeta, getNodeCardTheme } from "../data/pathTheme";
 
 import LearnScreen   from "./LearnScreen";
 import NikudScreen   from "./NikudScreen";
 import CardsScreen   from "./CardsScreen";
 import ReadingScreen from "./ReadingScreen";
 import LessonScreen  from "./LessonScreen";
+import ExamScreen    from "./ExamScreen";
 import CheatSheet    from "./CheatSheet";
 
 // ─── Представление узла в ленте ───────────────────────────────────────────────
 
-const KIND_META = {
+export const KIND_META = {
   letters: { icon: "🔤", color: "indigo" },
   sounds:  { icon: "🎵", color: "blue" },
   reading: { icon: "📖", color: "emerald" },
   grammar: { icon: "🧩", color: "violet" },
+  exam:    { icon: "🏁", color: "amber" },
 };
 
-function nodeView(item, stats) {
+// Экспортируется для HomeScreen — там строится мини-превью тропы (пред./тек./след.
+// узел канонического пути) на основе того же представления, что и полная лента здесь.
+export function nodeView(item, stats) {
   // Порция урока (R1.x) — не узел графа
   const block = READING_BLOCKS.find(b => b.id === item.id);
   if (item.inDev) {
@@ -85,9 +90,59 @@ function nodeView(item, stats) {
     const l = GRAMMAR_LESSONS_BY_ID[item.id];
     title = l?.title || item.id;
     sub = l?.tagline || 'Грамматика';
+  } else if (node.kind === 'exam') {
+    title = `Экзамен: ${node.examTitle}`;
+    sub = `Сводный тест · ${node.sourceLessons?.length || 0} уроков`;
   }
   return { id: item.id, kind: node.kind, title, sub, status,
-           score: stats.scores?.[item.id], icon: KIND_META[node.kind]?.icon || '📘' };
+           score: stats.scores?.[item.id], icon: KIND_META[node.kind]?.icon || '📘',
+           topic: node.kind === 'grammar' ? node.module : null };
+}
+
+/** v (из nodeView) → форма active-состояния экрана, которая сразу открывает контент узла. */
+function activeForNode(v) {
+  if (v.kind === 'letters') return { type: 'letters', group: Number(v.id.split('.')[1]) };
+  if (v.kind === 'sounds')  return { type: 'sounds',  group: Number(v.id.split('.')[1]) };
+  if (v.kind === 'reading') return { type: 'portion', id: v.id };
+  if (v.kind === 'grammar') return { type: 'grammar', id: v.id };
+  if (v.kind === 'exam')    return { type: 'exam', id: v.id };
+  return null;
+}
+
+/**
+ * Делит items секции на подгруппы по ch.subgroups (см. curriculum.js).
+ * Каждая подгруппа заканчивается уроком-чекпоинтом (endId) + прицепленными
+ * к нему порциями чтения и самим узлом-экзаменом (kind:'exam' в графе,
+ * curriculum.js) — они разблокируются этим уроком, визуально остаются в
+ * одной карточке подгруппы. Без ch.subgroups — одна безымянная группа.
+ */
+function splitIntoSubgroups(ch) {
+  if (!ch.subgroups?.length) return [{ title: null, items: ch.items }];
+  const groups = [];
+  let start = 0;
+  for (const sg of ch.subgroups) {
+    let end = ch.items.findIndex((it, i) => i >= start && it.id === sg.endId);
+    if (end === -1) continue; // граница не найдена — пропускаем, не роняем экран
+    while (end + 1 < ch.items.length && READING_BLOCKS.some(b => b.id === ch.items[end + 1].id)) end++;
+    if (end + 1 < ch.items.length && CURRICULUM_BY_ID[ch.items[end + 1].id]?.kind === 'exam') end++;
+    groups.push({ title: sg.title, items: ch.items.slice(start, end + 1) });
+    start = end + 1;
+  }
+  if (start < ch.items.length) groups.push({ title: null, items: ch.items.slice(start) });
+  return groups;
+}
+
+/** Сводка секции пути для шапки модуля: done/total + есть ли что-то доступное. */
+function sectionSummary(ch, stats) {
+  let total = 0, done = 0, anyOpen = false;
+  for (const item of ch.items) {
+    const v = nodeView(item, stats);
+    if (!v) continue;
+    total++;
+    if (v.status === 'done') done++;
+    if (v.status === 'available' || v.status === 'done') anyOpen = true;
+  }
+  return { done, total, anyOpen };
 }
 
 // ─── Строка узла ──────────────────────────────────────────────────────────────
@@ -95,7 +150,9 @@ function nodeView(item, stats) {
 function PathNode({ v, dark, isCurrent, lockHint, onOpen, nodeRef }) {
   const done = v.status === 'done';
   const locked = v.status === 'locked' || v.status === 'indev';
-  const base = dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100";
+  const isExam = v.kind === 'exam';
+  const card = getNodeCardTheme(v.kind, dark);
+  const topic = v.topic ? getTopicMeta(v.topic, dark) : null;
 
   return (
     <button
@@ -104,7 +161,8 @@ function PathNode({ v, dark, isCurrent, lockHint, onOpen, nodeRef }) {
       disabled={locked}
       style={{ scrollMarginTop: 80, scrollMarginBottom: 120 }}
       className={`w-full text-left rounded-2xl border p-3.5 flex items-center gap-3 transition-all
-        ${locked ? `opacity-55 ${base}` : base}
+        ${locked ? `opacity-55 ${card}` : card}
+        ${isExam && !done ? "border-dashed" : ""}
         ${isCurrent ? "ring-2 ring-emerald-400" : ""}`}
     >
       <span className="text-2xl w-9 text-center shrink-0">
@@ -114,8 +172,13 @@ function PathNode({ v, dark, isCurrent, lockHint, onOpen, nodeRef }) {
         <p className={`font-bold text-sm truncate ${dark ? "text-white" : "text-gray-900"}`}>
           {v.title}
         </p>
-        <p className="text-xs text-gray-400 truncate">
+        <p className="text-xs text-gray-400 truncate flex items-center gap-1.5">
           {v.status === 'indev' ? 'скоро — урок в разработке' : (lockHint || v.sub)}
+          {!locked && !isExam && topic && (
+            <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full normal-case ${topic.cls}`}>
+              {topic.label}
+            </span>
+          )}
         </p>
         {v.kind === 'reading' && !locked && !done && v.pct > 0 && (
           <div className={`h-1 rounded-full mt-1.5 ${dark ? "bg-gray-700" : "bg-gray-100"}`}>
@@ -132,21 +195,87 @@ function PathNode({ v, dark, isCurrent, lockHint, onOpen, nodeRef }) {
   );
 }
 
+// ─── Шапка модуля (секции пути) ───────────────────────────────────────────────
+
+function SectionHeader({ ch, dark, isActiveChapter, expanded, onToggle, summary }) {
+  const theme = getSectionTheme(ch.id, dark);
+  const { done, total, anyOpen } = summary;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  const locked = !anyOpen && done === 0;
+
+  return (
+    <button
+      onClick={onToggle}
+      className={`w-full text-left rounded-2xl p-3 flex items-center gap-3 transition-all ${theme.head}
+        ${isActiveChapter ? `ring-1 ${theme.ring.split(' ')[0]}` : ""}`}
+    >
+      <span className={`w-10 h-10 rounded-xl border flex items-center justify-center text-lg shrink-0 ${theme.icon} ${locked ? "opacity-50" : ""}`}>
+        {locked ? "🔒" : ch.icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className={`font-bold text-sm truncate ${dark ? "text-white" : "text-gray-900"}`}>
+          {ch.chapter}
+        </p>
+        <p className="text-xs text-gray-400 truncate">{ch.description}</p>
+        <div className={`h-1 rounded-full mt-1.5 ${dark ? "bg-gray-700" : "bg-gray-100"}`}>
+          <div className={`h-full rounded-full ${theme.bar}`} style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+      <span className={`shrink-0 text-xs font-bold ${theme.text}`}>{done}/{total}</span>
+      <span className="shrink-0 text-gray-400 text-xs">{expanded ? "▴" : "▾"}</span>
+    </button>
+  );
+}
+
 // ─── Главный экран ────────────────────────────────────────────────────────────
 
 export default function StudyScreen({ initialSection }) {
   const { dark } = useTheme();
   const { stats } = useStats();
-  const [tab, setTab] = useState(initialSection === 'reading' ? 'dict' : 'path');
+  const [tab, setTab] = useState('path');
   // active: { type:'letters'|'sounds'|'portion'|'grammar'|'sheet'|'cards', ... }
-  // 'cards' — SM-2 колода букв (CardsScreen). Открывается из CheatSheet узла
-  // букв и из HomeScreen «⏰ Повторить буквы» (initialSection='cards').
-  const [active, setActive] = useState(
-    initialSection === 'cards' ? { type: 'cards' } : null
-  );
+  const [active, setActive] = useState(null);
   const [readingTarget, setReadingTarget] = useState(null);
 
   const continueId = getContinueNode(stats);
+
+  // Развёрнутые модули пути (id секции COURSE_PATH). По умолчанию открыт
+  // только модуль с текущим узлом — остальные свёрнуты в одну строку.
+  // Ленивая инициализация — continueId уже известен на первый рендер.
+  const [expandedChapters, setExpandedChapters] = useState(() => {
+    const activeCh = COURSE_PATH.find(c => c.items.some(i => i.id === continueId));
+    return new Set(activeCh ? [activeCh.id] : []);
+  });
+  function toggleChapter(id) {
+    setExpandedChapters(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  // initialSection — команда с Home ({ type: 'cards'|'continue'|'reading' }),
+  // свежий объект на каждый переход. StudyScreen НЕ размонтируется между
+  // табами (App держит все табы смонтированными, переключает display) — этот
+  // экран уже открыт и просто ждёт следующей команды, поэтому это эффект,
+  // а не useState-инициализатор: одного запуска на монтирование недостаточно.
+  //  'cards'    — SM-2 колода букв (CardsScreen), из HomeScreen «Повторить».
+  //  'continue' — сразу открывает актуальный узел getContinueNode(stats),
+  //               без промежуточной остановки на ленте (HomeScreen «Продолжить»).
+  //  'reading'  — таб «Мой словарь» (HomeScreen «Повторить» → слова).
+  useEffect(() => {
+    const type = initialSection?.type;
+    if (!type) return;
+    if (type === 'reading') { setTab('dict'); return; }
+    if (type === 'cards')   { setActive({ type: 'cards' }); return; }
+    if (type === 'continue') {
+      const contId = getContinueNode(stats);
+      const item = COURSE_PATH.flatMap(c => c.items).find(i => i.id === contId);
+      const v = item && nodeView(item, stats);
+      if (v) setActive(activeForNode(v));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSection]);
 
   // Автопрокрутка к текущему уроку при открытии таба «Путь» (и когда меняется
   // текущий узел). Ждём кадр, чтобы список успел отрендериться.
@@ -158,6 +287,15 @@ export default function StudyScreen({ initialSection }) {
     });
     return () => cancelAnimationFrame(id);
   }, [tab, active, continueId]);
+
+  // Модуль с текущим узлом всегда развёрнут (например, после сдачи всех
+  // уроков предыдущего модуля курс переходит в следующий) — не убираем
+  // при этом раскрытые пользователем вручную модули.
+  useEffect(() => {
+    const activeCh = COURSE_PATH.find(c => c.items.some(i => i.id === continueId));
+    if (!activeCh) return;
+    setExpandedChapters(prev => prev.has(activeCh.id) ? prev : new Set(prev).add(activeCh.id));
+  }, [continueId]);
 
   // CTA «Изучить N новых слов» из результатов уроков → сразу в порцию
   function openReading(blockId) {
@@ -174,10 +312,8 @@ export default function StudyScreen({ initialSection }) {
   }
 
   function startNode(v) {
-    if (v.kind === 'letters') setActive({ type: 'letters', group: Number(v.id.split('.')[1]) });
-    else if (v.kind === 'sounds') setActive({ type: 'sounds', group: Number(v.id.split('.')[1]) });
-    else if (v.kind === 'reading') setActive({ type: 'portion', id: v.id });
-    else if (v.kind === 'grammar') setActive({ type: 'grammar', id: v.id });
+    const next = activeForNode(v);
+    if (next) setActive(next);
   }
 
   const back = () => setActive(null);
@@ -194,6 +330,10 @@ export default function StudyScreen({ initialSection }) {
   if (active?.type === 'grammar') {
     const lesson = GRAMMAR_LESSONS_BY_ID[active.id];
     return <LessonScreen lesson={lesson} onBack={back} onOpenReading={openReading} />;
+  }
+  if (active?.type === 'exam') {
+    const examNode = CURRICULUM_BY_ID[active.id];
+    return <ExamScreen examNode={examNode} onBack={back} />;
   }
   if (active?.type === 'sheet') {
     const v = active.v;
@@ -252,32 +392,58 @@ export default function StudyScreen({ initialSection }) {
 
           {COURSE_PATH.map(ch => {
             const isActiveChapter = ch.items.some(i => i.id === continueId);
+            const expanded = expandedChapters.has(ch.id);
+            const summary = sectionSummary(ch, stats);
+            const theme = getSectionTheme(ch.id, dark);
             return (
-            <div key={ch.chapter}
-              className={isActiveChapter
-                ? `rounded-2xl p-2 -m-2 ${dark ? "ring-1 ring-emerald-500/40 bg-emerald-500/5" : "ring-1 ring-emerald-300 bg-emerald-50/50"}`
-                : ""}>
-              <p className={`text-xs font-bold uppercase tracking-wide mb-2 flex items-center gap-1.5
-                ${isActiveChapter ? (dark ? "text-emerald-400" : "text-emerald-600") : (dark ? "text-gray-500" : "text-gray-400")}`}>
-                {isActiveChapter && <span>▸</span>}{ch.chapter}
-              </p>
-              <div className="flex flex-col gap-2">
-                {ch.items.map(item => {
-                  const v = nodeView(item, stats);
-                  if (!v) return null;
-                  const lockHint = v.status === 'locked' && CURRICULUM_BY_ID[v.id]
-                    ? getLockHint(v.id, stats) : null;
-                  const isCur = v.id === continueId;
-                  return (
-                    <PathNode key={v.id} v={v} dark={dark}
-                      isCurrent={isCur}
-                      nodeRef={isCur ? currentNodeRef : null}
-                      lockHint={lockHint}
-                      onOpen={openNode} />
-                  );
-                })}
+              <div key={ch.id} className="flex flex-col gap-2">
+                <SectionHeader ch={ch} dark={dark} isActiveChapter={isActiveChapter}
+                  expanded={expanded} summary={summary}
+                  onToggle={() => toggleChapter(ch.id)} />
+                {expanded && (
+                  <div className="flex flex-col gap-2.5">
+                    {splitIntoSubgroups(ch).map((sg, sgIdx) => {
+                      const subDone = sg.items.reduce((n, it) => {
+                        const v = nodeView(it, stats);
+                        return n + (v?.status === 'done' ? 1 : 0);
+                      }, 0);
+                      return (
+                        <div key={sg.title || `_${sgIdx}`}
+                          className={`flex flex-col gap-2 rounded-2xl border-l-[3px] p-2.5
+                            ${sg.title ? theme.sub : ""}`}>
+                          {sg.title && (
+                            <div className="flex items-center gap-2 px-0.5">
+                              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${theme.icon}`}>
+                                {sgIdx + 1}
+                              </span>
+                              <p className={`text-[11px] font-bold uppercase tracking-wide flex-1 truncate ${theme.text}`}>
+                                {sg.title}
+                              </p>
+                              <span className={`text-[10px] font-bold shrink-0 ${dark ? "text-gray-500" : "text-gray-400"}`}>
+                                {subDone}/{sg.items.filter(it => nodeView(it, stats)).length}
+                              </span>
+                            </div>
+                          )}
+                          {sg.items.map(item => {
+                            const v = nodeView(item, stats);
+                            if (!v) return null;
+                            const lockHint = v.status === 'locked' && CURRICULUM_BY_ID[v.id]
+                              ? getLockHint(v.id, stats) : null;
+                            const isCur = v.id === continueId;
+                            return (
+                              <PathNode key={v.id} v={v} dark={dark}
+                                isCurrent={isCur}
+                                nodeRef={isCur ? currentNodeRef : null}
+                                lockHint={lockHint}
+                                onOpen={openNode} />
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
             );
           })}
         </div>

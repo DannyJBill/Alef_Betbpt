@@ -1622,6 +1622,189 @@ function getLockHint(id, stats) {
   }
   return null;
 }
+var COURSE_PATH = [
+  {
+    id: "alphabet",
+    chapter: "\u0410\u043B\u0444\u0430\u0432\u0438\u0442 \u0438 \u0437\u0432\u0443\u043A\u0438",
+    icon: "\u{1F524}",
+    description: "\u0411\u0443\u043A\u0432\u044B, \u043E\u0433\u043B\u0430\u0441\u043E\u0432\u043A\u0438, \u043F\u0435\u0440\u0432\u044B\u0435 \u0441\u043B\u043E\u0432\u0430",
+    items: [
+      { id: "L1.1" },
+      { id: "VL1.1" },
+      { id: "L1.2" },
+      { id: "VL1.2" },
+      { id: "N1.1" },
+      { id: "N1.2" },
+      { id: "L1.3" },
+      { id: "VL1.3" },
+      { id: "N1.3" },
+      { id: "VN1.3" },
+      { id: "L1.4" },
+      { id: "VL1.4" },
+      { id: "N1.4" },
+      { id: "VN1.4" },
+      { id: "L1.5" },
+      { id: "N1.5" },
+      { id: "VN1.5" },
+      { id: "D1.1" },
+      { id: "D1.2" },
+      { id: "SH1.1" },
+      { id: "SH1.2" },
+      { id: "EX0.1" }
+    ]
+  },
+  {
+    id: "level1",
+    chapter: "\u0423\u0440\u043E\u0432\u0435\u043D\u044C 1 \xB7 \u0418\u043C\u0435\u043D\u043D\u043E\u0435 \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u0438 \u0430\u0440\u0442\u0438\u043A\u043B\u044C",
+    icon: "\u{1F9E9}",
+    description: "\u0410\u0440\u0442\u0438\u043A\u043B\u044C, \u0440\u043E\u0434, \u043F\u0435\u0440\u0432\u044B\u0435 \u0447\u0438\u0441\u043B\u0430",
+    // Подгруппы внутри модуля — каждая заканчивается проверкой (checkpoint = id
+    // последнего урока подгруппы). M1.4 — уже готовый синтез-урок (порог 90%);
+    // CH1.4 — новая граница, порог урока не менялся (проверка только визуальная).
+    subgroups: [
+      { title: "\u0410\u0440\u0442\u0438\u043A\u043B\u044C \u0438 \u0440\u043E\u0434", endId: "M1.4" },
+      { title: "\u0415\u0441\u0442\u044C/\u043D\u0435\u0442 \u0438 \u0447\u0438\u0441\u043B\u0430 1\u201310", endId: "CH1.4" }
+    ],
+    items: [
+      { id: "C0" },
+      { id: "R1.20" },
+      { id: "M1.1" },
+      { id: "R1.21" },
+      { id: "D1.3" },
+      { id: "M1.2" },
+      { id: "R1.23" },
+      { id: "M1.3" },
+      { id: "R1.24" },
+      { id: "M1.4" },
+      { id: "R1.25" },
+      { id: "EX1.1" },
+      { id: "C1" },
+      { id: "R1.22" },
+      { id: "CH1.1" },
+      { id: "R1.26" },
+      { id: "CH1.2" },
+      { id: "R1.27" },
+      { id: "CH1.3" },
+      { id: "R1.28" },
+      { id: "CH1.4" },
+      { id: "R1.36" },
+      { id: "EX1.2" }
+    ]
+  },
+  {
+    id: "level2",
+    chapter: "\u0423\u0440\u043E\u0432\u0435\u043D\u044C 2",
+    icon: "\u{1F5E3}\uFE0F",
+    description: "\u0413\u043B\u0430\u0433\u043E\u043B \u043F\u0430\u0410\u043B\u044C, \u043D\u0430\u0441\u0442\u043E\u044F\u0449\u0435\u0435 \u0432\u0440\u0435\u043C\u044F",
+    subgroups: [
+      { title: "\u0413\u043B\u0430\u0433\u043E\u043B \u043F\u0430\u0410\u043B\u044C \u2014 \u043D\u0430\u0441\u0442\u043E\u044F\u0449\u0435\u0435 \u0432\u0440\u0435\u043C\u044F", endId: "G1.6" }
+    ],
+    items: [
+      { id: "G1.1" },
+      { id: "G1.2" },
+      { id: "R1.30" },
+      { id: "G1.3" },
+      { id: "R1.31" },
+      { id: "G1.4" },
+      { id: "R1.32" },
+      { id: "C2" },
+      { id: "R1.35" },
+      { id: "G1.5" },
+      { id: "R1.33" },
+      { id: "G1.6" },
+      { id: "R1.34" },
+      { id: "EX2.1" }
+    ]
+  },
+  {
+    id: "level3",
+    chapter: "\u0423\u0440\u043E\u0432\u0435\u043D\u044C 3",
+    icon: "\u{1F4D0}",
+    description: "\u041C\u043D. \u0447\u0438\u0441\u043B\u043E, \u043F\u0440\u0435\u0434\u043B\u043E\u0433\u0438, \u0433\u043B\u0430\u0433\u043E\u043B II",
+    subgroups: [
+      { title: "\u041C\u043D\u043E\u0436\u0435\u0441\u0442\u0432\u0435\u043D\u043D\u043E\u0435 \u0447\u0438\u0441\u043B\u043E \u0438 \u043F\u0440\u0435\u0434\u043B\u043E\u0433\u0438", endId: "M2.9" },
+      { title: "\u0413\u043B\u0430\u0433\u043E\u043B \u043C\u043D.\u0447. \u0438 \u043F\u0440\u044F\u043C\u043E\u0435 \u0434\u043E\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435", endId: "G2.4" },
+      { title: "\u0421\u0432\u044F\u0437\u043A\u0430 \u05E9 \u0438 \u0447\u0438\u0441\u043B\u0430 11\u201320", endId: "CH2.1" }
+    ],
+    items: [
+      { id: "M2.1" },
+      { id: "R1.37" },
+      { id: "M2.2" },
+      { id: "R1.38" },
+      { id: "M2.3" },
+      { id: "R1.39" },
+      { id: "M2.4" },
+      { id: "R1.40" },
+      { id: "M2.5" },
+      { id: "R1.41" },
+      { id: "M2.6" },
+      { id: "R1.42" },
+      { id: "C3" },
+      { id: "R1.43" },
+      { id: "M2.7" },
+      { id: "R1.44" },
+      { id: "M2.8" },
+      { id: "R1.45" },
+      { id: "M2.9" },
+      { id: "R1.46" },
+      { id: "EX3.1" },
+      { id: "G2.1" },
+      { id: "R1.47" },
+      { id: "G2.2" },
+      { id: "R1.48" },
+      { id: "G2.3" },
+      { id: "R1.49" },
+      { id: "G2.4" },
+      { id: "R1.50" },
+      { id: "EX3.2" },
+      { id: "C4" },
+      { id: "R1.51" },
+      { id: "CH2.1" },
+      { id: "R1.52" },
+      { id: "EX3.3" }
+    ]
+  },
+  {
+    id: "level4",
+    chapter: "\u0423\u0440\u043E\u0432\u0435\u043D\u044C 4 \xB7 \u041F\u0440\u0438\u043D\u0430\u0434\u043B\u0435\u0436\u043D\u043E\u0441\u0442\u044C \u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u044B (\u043D\u0430\u0447\u0430\u043B\u043E)",
+    icon: "\u{1F511}",
+    description: "\u041F\u0440\u0438\u043D\u0430\u0434\u043B\u0435\u0436\u043D\u043E\u0441\u0442\u044C, \u0432\u043E\u043F\u0440\u043E\u0441\u044B, \u0447\u0438\u0441\u043B\u0430 3",
+    subgroups: [
+      { title: "\u041F\u0440\u0438\u043D\u0430\u0434\u043B\u0435\u0436\u043D\u043E\u0441\u0442\u044C, \u043A\u043E\u0440\u0435\u043D\u044C \u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u044B", endId: "SL1.3" },
+      { title: "\u041F\u0440\u043E\u0448\u0435\u0434\u0448\u0435\u0435 \u0432\u0440\u0435\u043C\u044F", endId: "G3.5" },
+      { title: "\u0418\u0442\u043E\u0433\u0438 \u0443\u0440\u043E\u0432\u043D\u044F 4", endId: "SL1.4" }
+    ],
+    items: [
+      { id: "M3.1" },
+      { id: "R1.53" },
+      { id: "M3.2" },
+      { id: "M3.3" },
+      { id: "SL1.1" },
+      { id: "SL1.2" },
+      { id: "Q1.1" },
+      { id: "Q1.2" },
+      { id: "R1.59" },
+      { id: "CH3.1" },
+      { id: "R1.60" },
+      { id: "CH3.2" },
+      { id: "SL1.3" },
+      { id: "EX4.1" },
+      { id: "G3.1" },
+      { id: "R1.63" },
+      { id: "G3.2" },
+      { id: "G3.3" },
+      { id: "G3.4" },
+      { id: "G3.5" },
+      { id: "EX4.2" },
+      { id: "G3.6" },
+      { id: "R1.68" },
+      { id: "C5.1" },
+      { id: "SL1.4" },
+      { id: "R1.70" },
+      { id: "EX4.3" }
+    ]
+  }
+];
 
 // src/helpers/progressHelpers.js
 function blockKey(section, blockN) {
@@ -8398,6 +8581,7 @@ function factsToLegacyView(facts = { nodes: {}, items: {} }) {
         wrong: it.wrong ?? 0
       };
       if (it.sm2) w.sm2 = it.sm2;
+      if (it.meta) w.meta = it.meta;
       words[id] = w;
       if (it.correct != null) wordsCorrect[id] = it.correct;
     }
@@ -8439,15 +8623,17 @@ function reviewVowel(facts, vowelKey, quality) {
   const it = facts.items?.[key] || {};
   return withItem(facts, key, { kind: "vowel", sm2: sm2(it.sm2, quality) });
 }
-function seenWord(facts, id) {
+function seenWord(facts, id, meta) {
   const key = itemKey.word(id);
   const it = facts.items?.[key] || {};
+  const patch = { kind: "word", introduced: true, seen: (it.seen || 0) + 1 };
+  if (meta) patch.meta = meta;
   return {
-    facts: withItem(facts, key, { kind: "word", introduced: true, seen: (it.seen || 0) + 1 }),
+    facts: withItem(facts, key, patch),
     isNew: !it.introduced
   };
 }
-function answerWord(facts, id, ok) {
+function answerWord(facts, id, ok, meta) {
   const key = itemKey.word(id);
   const it = facts.items?.[key] || {};
   const patch = {
@@ -8455,26 +8641,36 @@ function answerWord(facts, id, ok) {
     correct: (it.correct || 0) + (ok ? 1 : 0),
     wrong: (it.wrong || 0) + (ok ? 0 : 1)
   };
+  if (meta) patch.meta = meta;
   const isNew = ok && !it.introduced;
   if (ok) patch.introduced = true;
   return { facts: withItem(facts, key, patch), isNew };
 }
-function reviewWord(facts, id, quality) {
+function reviewWord(facts, id, quality, meta) {
   const key = itemKey.word(id);
   const it = facts.items?.[key] || {};
   const ok = quality >= 1;
   const isNew = !it.introduced;
-  return {
-    facts: withItem(facts, key, {
-      kind: "word",
-      introduced: true,
-      seen: (it.seen || 0) + 1,
-      correct: (it.correct || 0) + (ok ? 1 : 0),
-      wrong: (it.wrong || 0) + (ok ? 0 : 1),
-      sm2: sm2(it.sm2, quality)
-    }),
-    isNew
+  const patch = {
+    kind: "word",
+    introduced: true,
+    seen: (it.seen || 0) + 1,
+    correct: (it.correct || 0) + (ok ? 1 : 0),
+    wrong: (it.wrong || 0) + (ok ? 0 : 1),
+    sm2: sm2(it.sm2, quality)
   };
+  if (meta) patch.meta = meta;
+  return { facts: withItem(facts, key, patch), isNew };
+}
+function introduceWord(facts, id, meta, ok) {
+  const key = itemKey.word(id);
+  const it = facts.items?.[key] || {};
+  const isNew = !it.introduced;
+  const patch = { kind: "word", introduced: true, seen: (it.seen || 0) + 1 };
+  if (ok === true) patch.correct = (it.correct || 0) + 1;
+  if (ok === false) patch.wrong = (it.wrong || 0) + 1;
+  if (meta) patch.meta = meta;
+  return { facts: withItem(facts, key, patch), isNew };
 }
 function mergeFacts(a = { nodes: {}, items: {} }, b = { nodes: {}, items: {} }) {
   const nodes = { ...a.nodes || {} };
@@ -8496,6 +8692,7 @@ function mergeFacts(a = { nodes: {}, items: {} }, b = { nodes: {}, items: {} }) 
     if (correct) m.correct = correct;
     const wrong = Math.max(c.wrong ?? 0, it.wrong ?? 0);
     if (wrong) m.wrong = wrong;
+    if (c.meta || it.meta) m.meta = c.meta || it.meta;
     const sa = c.sm2, sb = it.sm2;
     const pick = !sa ? sb : !sb ? sa : sb.repetitions > sa.repetitions || sb.repetitions === sa.repetitions && (sb.nextReview || 0) > (sa.nextReview || 0) ? sb : sa;
     if (pick) m.sm2 = pick;
@@ -8503,6 +8700,57 @@ function mergeFacts(a = { nodes: {}, items: {} }, b = { nodes: {}, items: {} }) 
   }
   return { nodes, items };
 }
+
+// src/helpers/dictionary.js
+function lessonWordMeta(item) {
+  if (!item) return null;
+  return {
+    hebrew: item.hebrew,
+    plain: item.plain || null,
+    transliteration: item.transliteration || null,
+    translation: item.translation,
+    audio: item.audio || null,
+    type: item.type || "word",
+    source: { kind: "lesson", label: item.lesson || null }
+  };
+}
+function deckWordMeta(item, deck2) {
+  if (!item) return null;
+  return {
+    hebrew: item.hebrew,
+    plain: item.plain || null,
+    transliteration: item.transliteration || null,
+    translation: item.translation,
+    audio: item.audio || null,
+    type: item.type || "word",
+    source: { kind: "deck", id: deck2?.id || null, label: deck2?.title || null, icon: deck2?.icon || "\u{1F4E6}" }
+  };
+}
+var LESSON_META_BY_ID = Object.fromEntries(
+  READING_ITEMS.map((i) => [i.id, lessonWordMeta(i)])
+);
+function dictionaryEntries(stats) {
+  const words = stats?.readingProgress?.words || {};
+  const studied = stats?.readingProgress?.studied || [];
+  return studied.map((id) => {
+    const w = words[id] || {};
+    const meta = w.meta || LESSON_META_BY_ID[id];
+    if (!meta) return null;
+    return { id, ...meta, progress: w };
+  }).filter(Boolean);
+}
+var WORD_ID_TO_BLOCK_ID = Object.fromEntries(
+  READING_BLOCKS.flatMap((b) => b.items.map((i) => [i.id, b.id]))
+);
+var BLOCK_ID_TO_CHAPTER = {};
+for (const ch of COURSE_PATH) {
+  for (const it of ch.items) {
+    if (READING_BLOCKS.some((b) => b.id === it.id)) {
+      BLOCK_ID_TO_CHAPTER[it.id] = { id: ch.id, title: ch.chapter, icon: ch.icon };
+    }
+  }
+}
+var CHAPTER_ORDER = COURSE_PATH.map((c) => c.id);
 
 // src/helpers/migrate.js
 function tgId() {
@@ -9176,6 +9424,64 @@ check("merge: \u0443\u0437\u0435\u043B \u0442\u043E\u043B\u044C\u043A\u043E \u04
 check("merge: \u0441\u0447\u0451\u0442\u0447\u0438\u043A\u0438 \u043F\u043E \u043C\u0430\u043A\u0441\u0438\u043C\u0443\u043C\u0443", mg.items["w:a"].correct === 5);
 check("merge: sm2 \u0431\u0435\u0440\u0451\u0442 \u0431\u043E\u043B\u0435\u0435 \u043F\u0440\u043E\u0434\u0432\u0438\u043D\u0443\u0442\u0443\u044E (\u0431\u043E\u043B\u044C\u0448\u0435 repetitions)", mg.items["w:a"].sm2.repetitions === 3);
 check("merge: introduced \u043F\u043E \u0418\u041B\u0418", mg.items["w:a"].introduced === true && mg.items["w:b"].introduced === true);
+var rw02 = READING_ITEMS.find((i) => i.id === "rw_02");
+var lm = lessonWordMeta(rw02);
+check(
+  "lessonWordMeta: \u0441\u043E\u0434\u0435\u0440\u0436\u0438\u0442 \u043A\u043E\u043D\u0442\u0435\u043D\u0442 + source.kind=lesson",
+  lm.hebrew === rw02.hebrew && lm.translation === rw02.translation && lm.source.kind === "lesson"
+);
+var deckWord = { id: "d_family_01", hebrew: "\u05D0\u05B8\u05D1", plain: "\u05D0\u05D1", transliteration: "\u0430\u0432", translation: "\u043E\u0442\u0435\u0446", audio: "d_family_01.mp3", type: "noun" };
+var deck = { id: "family", title: "\u0421\u0435\u043C\u044C\u044F", icon: "\u{1F468}\u200D\u{1F469}\u200D\u{1F467}" };
+var dm = deckWordMeta(deckWord, deck);
+check(
+  "deckWordMeta: source.kind=deck \u0441 id/label/icon \u043A\u043E\u043B\u043E\u0434\u044B",
+  dm.hebrew === "\u05D0\u05B8\u05D1" && dm.source.kind === "deck" && dm.source.id === "family" && dm.source.icon === "\u{1F468}\u200D\u{1F469}\u200D\u{1F467}"
+);
+var E2 = { nodes: {}, items: {} };
+E2 = answerWord(E2, "rw_02", true, lm).facts;
+check("answerWord: meta \u043E\u0441\u0435\u043B\u0430 \u0432 facts.items", E2.items["w:rw_02"].meta.hebrew === rw02.hebrew);
+check("answerWord: meta \u043F\u0435\u0440\u0435\u0436\u0438\u043B\u0430 factsToLegacyView", factsToLegacyView(E2).readingProgress.words["rw_02"].meta.translation === rw02.translation);
+var E3 = { nodes: {}, items: {} };
+var iw = introduceWord(E3, "d_family_01", dm, void 0);
+check("introduceWord: \u0432\u0432\u043E\u0434\u0438\u0442 \u0441\u043B\u043E\u0432\u043E (introduced=true) \u0434\u0430\u0436\u0435 \u0431\u0435\u0437 \u043E\u0446\u0435\u043D\u043A\u0438", iw.facts.items["w:d_family_01"].introduced === true);
+check("introduceWord: isNew=true \u043D\u0430 \u043F\u0435\u0440\u0432\u043E\u043C \u0432\u0432\u043E\u0434\u0435", iw.isNew === true);
+check("introduceWord: meta (\u0438\u0441\u0442\u043E\u0447\u043D\u0438\u043A \u2014 \u043A\u043E\u043B\u043E\u0434\u0430) \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u0430", iw.facts.items["w:d_family_01"].meta.source.kind === "deck");
+var iw2 = introduceWord(iw.facts, "d_family_01", dm, false);
+check(
+  "introduceWord: \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u044B\u0439 \u0432\u0432\u043E\u0434 \u0441 ok=false \u043D\u0435 \u0441\u0431\u0440\u0430\u0441\u044B\u0432\u0430\u0435\u0442 introduced, \u043A\u043E\u043F\u0438\u0442 wrong",
+  iw2.facts.items["w:d_family_01"].introduced === true && iw2.facts.items["w:d_family_01"].wrong === 1 && iw2.isNew === false
+);
+var metaMergeLocal = { nodes: {}, items: { "w:c": { kind: "word", introduced: true, correct: 1 } } };
+var metaMergeServer = { nodes: {}, items: { "w:c": { kind: "word", introduced: true, correct: 1, meta: lm } } };
+check(
+  "mergeFacts: meta \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u0435\u0442\u0441\u044F \u043F\u0440\u0438 \u0441\u043B\u0438\u044F\u043D\u0438\u0438, \u0434\u0430\u0436\u0435 \u0435\u0441\u043B\u0438 \u0435\u0441\u0442\u044C \u0442\u043E\u043B\u044C\u043A\u043E \u0443 \u043E\u0434\u043D\u043E\u0439 \u0441\u0442\u043E\u0440\u043E\u043D\u044B",
+  mergeFacts(metaMergeLocal, metaMergeServer).items["w:c"].meta?.hebrew === rw02.hebrew
+);
+var statsFixture = {
+  readingProgress: {
+    studied: ["rw_02", "d_family_01", "rw_01"],
+    // rw_01 — «старое» слово, meta не записана
+    words: {
+      rw_02: { seen: 1, correct: 1, meta: lm },
+      d_family_01: { seen: 1, correct: 0, wrong: 1, meta: dm },
+      rw_01: { seen: 1, correct: 0 }
+      // без meta — фолбэк на бандл уроков
+    }
+  }
+};
+var entries = dictionaryEntries(statsFixture);
+check(
+  "dictionaryEntries: \u0432\u0441\u0435 3 \u0441\u043B\u043E\u0432\u0430 \u0432\u0438\u0434\u043D\u044B (\u0443\u0440\u043E\u043A+meta, \u043A\u043E\u043B\u043E\u0434\u0430+meta, \u0443\u0440\u043E\u043A-\u0444\u043E\u043B\u0431\u044D\u043A \u0431\u0435\u0437 meta)",
+  entries.length === 3
+);
+check(
+  "dictionaryEntries: \u0441\u043B\u043E\u0432\u043E \u043A\u043E\u043B\u043E\u0434\u044B \u043D\u0435\u0441\u0451\u0442 source.kind=deck",
+  entries.find((e) => e.id === "d_family_01")?.source.kind === "deck"
+);
+check(
+  "dictionaryEntries: \u0441\u0442\u0430\u0440\u043E\u0435 \u0441\u043B\u043E\u0432\u043E \u0431\u0435\u0437 meta \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u043E \u0444\u043E\u043B\u0431\u044D\u043A\u043E\u043C \u0438\u0437 READING_ITEMS",
+  entries.find((e) => e.id === "rw_01")?.hebrew === READING_ITEMS.find((i) => i.id === "rw_01").hebrew
+);
 var huzpay = {
   scores: {
     C0: 88,

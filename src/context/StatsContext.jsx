@@ -8,7 +8,7 @@ import { Analytics } from "../helpers/analytics";
 import {
   foldToFacts, factsToLegacyView,
   setNodeScore, bumpNodeCounter, reviewLetter, reviewVowel,
-  seenWord, answerWord, reviewWord,
+  seenWord, answerWord, reviewWord, introduceWord,
 } from "../helpers/facts";
 
 const STORAGE_KEY    = "hebrew-app-stats";
@@ -477,10 +477,15 @@ export function StatsProvider({ children }) {
     });
   }, [scheduleSave]);
 
-  /** Ответ в квизе по слову. Правильный ответ также вводит слово в словарь. */
-  const recordWordAnswer = useCallback((id, isCorrect) => {
+  /**
+   * Ответ в квизе по слову. Правильный ответ также вводит слово в словарь.
+   * meta (опц.) — снапшот отображаемых полей слова (helpers/dictionary.js),
+   * кладётся в facts вместе с прогрессом, чтобы «Мой словарь» мог показать
+   * слово независимо от того, откуда оно пришло (урок/колода).
+   */
+  const recordWordAnswer = useCallback((id, isCorrect, meta) => {
     setStats(prev => {
-      const { facts, isNew } = answerWord(prev.facts, id, isCorrect);
+      const { facts, isNew } = answerWord(prev.facts, id, isCorrect, meta);
       const next = commit(prev, facts, { xp: (prev.xp || 0) + (isNew ? 2 : 0) });
       scheduleSave(next);
       return next;
@@ -493,10 +498,34 @@ export function StatsProvider({ children }) {
    * И питает статус словаря: Снова → wrong+1 (слабое), Трудно/Легко → correct+1.
    * Первый показ вводит слово в словарь (studied + XP), как recordWordSeen.
    */
-  const recordWordReview = useCallback((id, quality) => {
+  const recordWordReview = useCallback((id, quality, meta) => {
     setStats(prev => {
-      const { facts, isNew } = reviewWord(prev.facts, id, quality);
+      const { facts, isNew } = reviewWord(prev.facts, id, quality, meta);
       const next = commit(prev, facts, { xp: (prev.xp || 0) + (isNew ? 2 : 0) });
+      scheduleSave(next);
+      return next;
+    });
+  }, [scheduleSave]);
+
+  /**
+   * Массовый ввод слов колоды в словарь по итогам сессии (изучение/проверка).
+   * entries: [{ id, meta, ok? }] — ok: true/false, если сессия была оценена
+   * («Проверить»); undefined — тренировка без зачёта («Изучить»), слово всё
+   * равно вводится в словарь. Единая точка входа для DecksScreen — раньше
+   * колоды писали readingProgress напрямую в обход facts, и это не переживало
+   * перезагрузку (readingProgress — производное зеркало, регенерируется из
+   * facts при каждой миграции/commit).
+   */
+  const recordDeckWords = useCallback((entries) => {
+    setStats(prev => {
+      let facts = prev.facts;
+      let newCount = 0;
+      for (const e of entries) {
+        const r = introduceWord(facts, e.id, e.meta, e.ok);
+        facts = r.facts;
+        if (r.isNew) newCount++;
+      }
+      const next = commit(prev, facts, { xp: (prev.xp || 0) + newCount * 2 });
       scheduleSave(next);
       return next;
     });
@@ -653,6 +682,7 @@ export function StatsProvider({ children }) {
       recordWordSeen,
       recordWordAnswer,
       recordWordReview,
+      recordDeckWords,
       getDueCards,
       getDueVowelCards,
       getDueWords,

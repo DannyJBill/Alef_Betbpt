@@ -12,7 +12,9 @@ import { ALPHABET, LETTER_GROUPS } from '../src/data/alphabet.js';
 import { GRAMMAR_LESSONS_BY_ID } from '../src/data/grammarLessons.js';
 import { sm2, isDue, dueKeys } from '../src/helpers/planner.js';
 import { foldToFacts, factsToLegacyView, itemKey, COUNTER_KEY_TO_NODE, NODE_TO_COUNTER_KEY,
-         setNodeScore, bumpNodeCounter, reviewLetter, reviewVowel, seenWord, answerWord, reviewWord, mergeFacts } from '../src/helpers/facts.js';
+         setNodeScore, bumpNodeCounter, reviewLetter, reviewVowel, seenWord, answerWord, reviewWord,
+         introduceWord, mergeFacts } from '../src/helpers/facts.js';
+import { lessonWordMeta, deckWordMeta, dictionaryEntries } from '../src/helpers/dictionary.js';
 import { migrate, migrateThroughV7 } from '../src/helpers/migrate.js';
 import { GENERATORS, buildQuestion, buildSession, stripNikud as exStrip, shuffleRnd } from '../src/helpers/exercises.js';
 
@@ -417,6 +419,62 @@ check('merge: узел только у b сохранён', mg.nodes['N1.1'].cou
 check('merge: счётчики по максимуму', mg.items['w:a'].correct === 5);
 check('merge: sm2 берёт более продвинутую (больше repetitions)', mg.items['w:a'].sm2.repetitions === 3);
 check('merge: introduced по ИЛИ', mg.items['w:a'].introduced === true && mg.items['w:b'].introduced === true);
+
+// ── 18b. Словарь: meta-снапшот (helpers/dictionary.js) — уроки + колоды одним списком ──
+// Раньше DictView строился ТОЛЬКО из READING_ITEMS: слово из колоды физически
+// не могло появиться в «Мой словарь», хотя прогресс по нему уже писался.
+const rw02 = READING_ITEMS.find(i => i.id === 'rw_02');
+const lm = lessonWordMeta(rw02);
+check('lessonWordMeta: содержит контент + source.kind=lesson',
+  lm.hebrew === rw02.hebrew && lm.translation === rw02.translation && lm.source.kind === 'lesson');
+
+const deckWord = { id: 'd_family_01', hebrew: 'אָב', plain: 'אב', transliteration: 'ав', translation: 'отец', audio: 'd_family_01.mp3', type: 'noun' };
+const deck = { id: 'family', title: 'Семья', icon: '👨‍👩‍👧' };
+const dm = deckWordMeta(deckWord, deck);
+check('deckWordMeta: source.kind=deck с id/label/icon колоды',
+  dm.hebrew === 'אָב' && dm.source.kind === 'deck' && dm.source.id === 'family' && dm.source.icon === '👨‍👩‍👧');
+
+// answerWord/reviewWord/introduceWord пишут meta в facts и она переживает round-trip
+// через factsToLegacyView (то, что реально персистится и читается экраном).
+let E2 = { nodes: {}, items: {} };
+E2 = answerWord(E2, 'rw_02', true, lm).facts;
+check('answerWord: meta осела в facts.items', E2.items['w:rw_02'].meta.hebrew === rw02.hebrew);
+check('answerWord: meta пережила factsToLegacyView', factsToLegacyView(E2).readingProgress.words['rw_02'].meta.translation === rw02.translation);
+
+let E3 = { nodes: {}, items: {} };
+const iw = introduceWord(E3, 'd_family_01', dm, undefined); // тренировка колоды без зачёта
+check('introduceWord: вводит слово (introduced=true) даже без оценки', iw.facts.items['w:d_family_01'].introduced === true);
+check('introduceWord: isNew=true на первом вводе', iw.isNew === true);
+check('introduceWord: meta (источник — колода) записана', iw.facts.items['w:d_family_01'].meta.source.kind === 'deck');
+const iw2 = introduceWord(iw.facts, 'd_family_01', dm, false); // повтор с неверным ответом — остаётся introduced
+check('introduceWord: повторный ввод с ok=false не сбрасывает introduced, копит wrong',
+  iw2.facts.items['w:d_family_01'].introduced === true && iw2.facts.items['w:d_family_01'].wrong === 1 && iw2.isNew === false);
+
+// mergeFacts не роняет meta при слиянии (serverSync — локальный факт без meta + серверный с meta)
+const metaMergeLocal  = { nodes: {}, items: { 'w:c': { kind:'word', introduced:true, correct:1 } } };
+const metaMergeServer = { nodes: {}, items: { 'w:c': { kind:'word', introduced:true, correct:1, meta: lm } } };
+check('mergeFacts: meta сохраняется при слиянии, даже если есть только у одной стороны',
+  mergeFacts(metaMergeLocal, metaMergeServer).items['w:c'].meta?.hebrew === rw02.hebrew);
+
+// dictionaryEntries: единый список словаря — слово урока (с meta) + слово колоды (с meta) +
+// «старое» слово урока БЕЗ meta (записано до этого изменения) — все три видны.
+const statsFixture = {
+  readingProgress: {
+    studied: ['rw_02', 'd_family_01', 'rw_01'], // rw_01 — «старое» слово, meta не записана
+    words: {
+      rw_02: { seen: 1, correct: 1, meta: lm },
+      d_family_01: { seen: 1, correct: 0, wrong: 1, meta: dm },
+      rw_01: { seen: 1, correct: 0 }, // без meta — фолбэк на бандл уроков
+    },
+  },
+};
+const entries = dictionaryEntries(statsFixture);
+check('dictionaryEntries: все 3 слова видны (урок+meta, колода+meta, урок-фолбэк без meta)',
+  entries.length === 3);
+check('dictionaryEntries: слово колоды несёт source.kind=deck',
+  entries.find(e => e.id === 'd_family_01')?.source.kind === 'deck');
+check('dictionaryEntries: старое слово без meta восстановлено фолбэком из READING_ITEMS',
+  entries.find(e => e.id === 'rw_01')?.hebrew === READING_ITEMS.find(i => i.id === 'rw_01').hebrew);
 
 // ── 19. Реальный населённый дамп (Huzpay) — миграция потерянулева ──
 // Обезличенный срез: непустые scores(48)/blockScores, cardReviews(числ. id),

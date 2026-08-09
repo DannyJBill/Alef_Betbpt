@@ -161,6 +161,7 @@ export function factsToLegacyView(facts = { nodes: {}, items: {} }) {
         wrong:   it.wrong   ?? 0,
       };
       if (it.sm2) w.sm2 = it.sm2;
+      if (it.meta) w.meta = it.meta;
       words[id] = w;
       if (it.correct != null) wordsCorrect[id] = it.correct;
     }
@@ -214,16 +215,23 @@ export function reviewVowel(facts, vowelKey, quality) {
   return withItem(facts, key, { kind: 'vowel', sm2: sm2(it.sm2, quality) });
 }
 /** Слово показано (карточка перевёрнута). Возвращает {facts, isNew}. */
-export function seenWord(facts, id) {
+export function seenWord(facts, id, meta) {
   const key = itemKey.word(id);
   const it = facts.items?.[key] || {};
+  const patch = { kind: 'word', introduced: true, seen: (it.seen || 0) + 1 };
+  if (meta) patch.meta = meta;
   return {
-    facts: withItem(facts, key, { kind: 'word', introduced: true, seen: (it.seen || 0) + 1 }),
+    facts: withItem(facts, key, patch),
     isNew: !it.introduced,
   };
 }
-/** Ответ в квизе. Верный ответ вводит слово в словарь. {facts, isNew}. */
-export function answerWord(facts, id, ok) {
+/**
+ * Ответ в квизе. Верный ответ вводит слово в словарь. {facts, isNew}.
+ * meta (опц.) — снапшот отображаемых полей слова (см. helpers/dictionary.js):
+ * пишется независимо от ok, чтобы словарь мог показать слово по контенту любого
+ * источника (урок/колода), а не только из бандла READING_ITEMS.
+ */
+export function answerWord(facts, id, ok, meta) {
   const key = itemKey.word(id);
   const it = facts.items?.[key] || {};
   const patch = {
@@ -231,26 +239,43 @@ export function answerWord(facts, id, ok) {
     correct: (it.correct || 0) + (ok ? 1 : 0),
     wrong:   (it.wrong   || 0) + (ok ? 0 : 1),
   };
+  if (meta) patch.meta = meta;
   const isNew = ok && !it.introduced;
   if (ok) patch.introduced = true;
   return { facts: withItem(facts, key, patch), isNew };
 }
 /** Повтор слова карточкой (Снова/Трудно/Легко): единый SM-2. {facts, isNew}. */
-export function reviewWord(facts, id, quality) {
+export function reviewWord(facts, id, quality, meta) {
   const key = itemKey.word(id);
   const it = facts.items?.[key] || {};
   const ok = quality >= 1;
   const isNew = !it.introduced;
-  return {
-    facts: withItem(facts, key, {
-      kind: 'word', introduced: true,
-      seen:    (it.seen    || 0) + 1,
-      correct: (it.correct || 0) + (ok ? 1 : 0),
-      wrong:   (it.wrong   || 0) + (ok ? 0 : 1),
-      sm2:     sm2(it.sm2, quality),
-    }),
-    isNew,
+  const patch = {
+    kind: 'word', introduced: true,
+    seen:    (it.seen    || 0) + 1,
+    correct: (it.correct || 0) + (ok ? 1 : 0),
+    wrong:   (it.wrong   || 0) + (ok ? 0 : 1),
+    sm2:     sm2(it.sm2, quality),
   };
+  if (meta) patch.meta = meta;
+  return { facts: withItem(facts, key, patch), isNew };
+}
+/**
+ * Слово из колоды: вводится в словарь при показе в сессии (изучение ИЛИ
+ * проверка), независимо от оценки ответа — как в старом DecksScreen.commitResults.
+ * ok: true|false — если сессия была оценена; undefined — тренировка без зачёта.
+ * meta — обязателен на практике (иначе слово не попадёт в снапшот и останется
+ * невидимым в словаре, см. helpers/dictionary.js). {facts, isNew}.
+ */
+export function introduceWord(facts, id, meta, ok) {
+  const key = itemKey.word(id);
+  const it = facts.items?.[key] || {};
+  const isNew = !it.introduced;
+  const patch = { kind: 'word', introduced: true, seen: (it.seen || 0) + 1 };
+  if (ok === true)  patch.correct = (it.correct || 0) + 1;
+  if (ok === false) patch.wrong   = (it.wrong   || 0) + 1;
+  if (meta) patch.meta = meta;
+  return { facts: withItem(facts, key, patch), isNew };
 }
 
 // ─── Слияние фактов для serverSync (одно правило, монотонно) ─────────────────
@@ -274,6 +299,7 @@ export function mergeFacts(a = { nodes: {}, items: {} }, b = { nodes: {}, items:
     const seen    = Math.max(c.seen    ?? 0, it.seen    ?? 0); if (seen)    m.seen    = seen;
     const correct = Math.max(c.correct ?? 0, it.correct ?? 0); if (correct) m.correct = correct;
     const wrong   = Math.max(c.wrong   ?? 0, it.wrong   ?? 0); if (wrong)   m.wrong   = wrong;
+    if (c.meta || it.meta) m.meta = c.meta || it.meta; // снапшот контента — берём любой, обе стороны хранят один и тот же id
     const sa = c.sm2, sb = it.sm2;
     const pick = !sa ? sb : !sb ? sa
       : (sb.repetitions > sa.repetitions

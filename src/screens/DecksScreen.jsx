@@ -8,6 +8,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
 import { DECKS, DECKS_BY_ID, loadDeckContent, loadWordProgress, syncWordProgress, deckStats } from "../data/decks";
 import { buildSession } from "../helpers/exercises";
+import { deckWordMeta } from "../helpers/dictionary";
 import ExerciseSession from "../components/ui/ExerciseSession";
 
 // Приведение слова колоды к формату движка (fromReadingItem-совместимо).
@@ -20,7 +21,7 @@ const toItem = w => ({
 
 export default function DecksScreen({ onBack, CardsMode }) {
   const { dark } = useTheme();
-  const { stats, updateStats } = useStats();
+  const { stats, recordDeckWords } = useStats();
   const tgId = stats.telegramId;
 
   const [progress, setProgress] = useState({});   // word_id -> {seen,correct,wrong,sm2,introduced}
@@ -36,8 +37,13 @@ export default function DecksScreen({ onBack, CardsMode }) {
     loadDeckContent(id).then(setChunks).catch(() => setChunks([]));
   }
 
-  // Записать результаты чанка: в user_word_progress + слить в основной словарь
+  // Записать результаты чанка: в user_word_progress (для % колоды на её экране)
+  // + слить в основной словарь через facts (helpers/facts.introduceWord) —
+  // с meta-снапшотом, иначе слово физически не сможет отрисоваться в «Мой
+  // словарь» (readingProgress — производное зеркало facts, регенерируется
+  // при каждой миграции; прямой патч readingProgress не переживал перезагрузку).
   function commitResults(words, results) {
+    const deck = DECKS_BY_ID[deckId];
     const updates = words.map(w => {
       const prev = progress[w.id] || { seen: 0, correct: 0, wrong: 0 };
       const r = results[w.id] || {};
@@ -47,14 +53,9 @@ export default function DecksScreen({ onBack, CardsMode }) {
     });
     setProgress(p => { const n = { ...p }; updates.forEach(u => n[u.word_id] = u); return n; });
     if (tgId) syncWordProgress(tgId, updates).catch(() => {});
-    // слияние в основной словарь (readingProgress) — слово появляется в «Мой словарь»
-    updateStats(s => {
-      const rp = { ...(s.readingProgress || {}) };
-      rp.studied = Array.from(new Set([...(rp.studied || []), ...words.map(w => w.id)]));
-      rp.words = { ...(rp.words || {}) };
-      for (const u of updates) rp.words[u.word_id] = { seen: u.seen, correct: u.correct, wrong: u.wrong };
-      return { ...s, readingProgress: rp };
-    });
+    recordDeckWords(words.map(w => ({
+      id: w.id, meta: deckWordMeta(w, deck), ok: results[w.id]?.ok,
+    })));
   }
 
   // ── Сессия изучения/проверки группы ──
@@ -120,7 +121,7 @@ export default function DecksScreen({ onBack, CardsMode }) {
   return (
     <div className="pb-24 px-4 pt-4 max-w-md mx-auto">
       {onBack && <button onClick={onBack}
-        className={`flex items-center gap-1 mb-3 text-sm font-medium ${dark ? "text-indigo-400" : "text-indigo-600"}`}>← Учиться</button>}
+        className={`flex items-center gap-1 mb-3 text-sm font-medium ${dark ? "text-indigo-400" : "text-indigo-600"}`}>← Словарь</button>}
       <h2 className={`text-xl font-bold mb-1 ${dark ? "text-white" : "text-gray-900"}`}>📦 Ещё слова</h2>
       <p className="text-sm text-gray-400 mb-4">Тематические колоды · слова падают в твой словарь</p>
       <div className="grid grid-cols-2 gap-2">

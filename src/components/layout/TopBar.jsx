@@ -9,8 +9,9 @@ export default function TopBar({ onToggleTheme }) {
   const { level, pct: lvlPct } = levelProgress(stats.xp);
 
   return (
-    <div className={`flex items-center justify-between px-4 py-3 border-b sticky top-0 z-40
-      ${dark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-100"}`}>
+    <div className={`flex items-center justify-between px-4 pb-3 border-b sticky top-0 z-40
+      ${dark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-100"}`}
+      style={{ paddingTop: "calc(0.75rem + var(--tg-top-inset))" }}>
       <div className="flex items-center gap-2">
         <span className="text-yellow-500 font-bold text-sm">⚡ {stats.xp} XP</span>
         <div className={`w-20 h-1.5 rounded-full ${dark ? "bg-gray-700" : "bg-gray-200"}`}>

@@ -61,6 +61,26 @@ async function cmdStart(chatId, user) {
   // Strip invisible unicode chars, fallback to username or "друг"
   const name = (user.first_name || "").replace(/[\u1160-\u11FF\uFFA0-\uFFDC\u3164]/g, "").trim()
     || user.username || "друг";
+
+  // Регистрируем факт /start сразу в user_stats — иначе пользователи, которые
+  // жмут /start, но не доходят до сохранения прогресса (/api/sync save),
+  // невидимы для рассылок в админке (сегмент "Все пользователи" строится по
+  // user_stats). Не трогаем stats существующих пользователей — только
+  // обновляем контактные поля и last_seen_at.
+  const { data: existing } = await supabase
+    .from("user_stats").select("stats")
+    .eq("telegram_id", user.id).maybeSingle();
+  const now = new Date().toISOString();
+  await supabase.from("user_stats").upsert({
+    telegram_id:   user.id,
+    username:      user.username      || null,
+    first_name:    user.first_name    || null,
+    language_code: user.language_code || null,
+    last_seen_at:  now,
+    updated_at:    now,
+    stats:         existing?.stats || {},
+  }, { onConflict: "telegram_id" });
+
   await send(chatId,
     `👋 Шалом, <b>${name}</b>!\n\n` +
     `Учи ивритский алфавит — 22 буквы, игры, SM-2 повторения и AI-помощник 🇮🇱\n\n` +

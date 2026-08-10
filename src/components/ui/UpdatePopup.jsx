@@ -125,7 +125,15 @@ export default function UpdatePopup({ dark }) {
   return (
     <div
       className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto px-4 py-8"
-      style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(2px)", animation: "annFade .2s ease" }}
+      style={{
+        background: "rgba(0,0,0,0.5)",
+        backdropFilter: "blur(2px)",
+        animation: "annFade .2s ease",
+        // без этого карточка (и её ✕) упирается в верхний край экрана и
+        // прячется под собственным хедером Telegram (Close/шеврон/меню) —
+        // тот же --tg-top-inset, что и в TopBar.jsx.
+        paddingTop: "calc(2rem + var(--tg-top-inset))",
+      }}
       onClick={close}
     >
       <div

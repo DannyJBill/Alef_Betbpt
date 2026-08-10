@@ -115,6 +115,22 @@ export default async function handler(req, res) {
       console.error("Supabase select error:", JSON.stringify(error));
       return res.status(500).json({ error: error.message, code: error.code });
     }
+
+    // Фиксируем сам факт входа в приложение — не только /start в боте, но и
+    // каждое открытие Mini App (частый случай: пользователь жмёт кнопку в
+    // чате, а не /start заново). onConflict по telegram_id — обновляет
+    // существующую строку, новую не создаёт; stats не трогаем.
+    const nowLoad = new Date().toISOString();
+    await supabase.from("user_stats").upsert({
+      telegram_id:   user.id,
+      username:      user.username      || null,
+      first_name:    user.first_name    || null,
+      language_code: user.language_code || null,
+      last_seen_at:  nowLoad,
+      updated_at:    data ? data.updated_at : nowLoad,
+      stats:         data?.stats || {},
+    }, { onConflict: "telegram_id" });
+
     return res.status(200).json({
       stats: data ? { ...data.stats, updatedAt: new Date(data.updated_at).getTime() } : null
     });

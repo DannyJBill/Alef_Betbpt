@@ -10,6 +10,8 @@
 
 > ⚠️ Не закоммичено (10.08.2026): `api/bot.js`/`api/sync.js` — фикс охвата маркетинговых рассылок: `user_stats` теперь пишется при каждом `/start` и при каждом входе в приложение (`action:"load"`), а не только при сохранении прогресса — иначе часть пользователей была невидима для рассылок в `api/admin.js`. Работает только вперёд, с момента деплоя (см. `CHANGELOG.md`).
 
+> 📌 `UpdatePopup.jsx` (10.08.2026, закоммичено `7f1fdd1`) — актуальный анонс, `ANNOUNCE_ID = "v1.2.1"`. Текст фич сокращён и переписан на пользу (9 → 8 пунктов: «Готовые фразы» убран, слился с «Игра на скорость и другие тренажёры»; дефис `-` вместо тире `—` по всему тексту); заявленные цифры словаря/колод пересчитаны с нуля по факту (см. «Словарь — данные» и «Тематические колоды» ниже — старые «216 слов / 460 слов, 15 тем» были устаревшими уже на момент v1.2, 09.08.2026). Сверху — маскот `public/mascot/mskt-2-heyy.png` вместо эмодзи 🚀. Чейнджлог (`CHANGELOG`, 4 версии, новая сверху) свёрнут под одну кнопку-строку «🕓 Последние обновления» (компонент `UpdatesSection`) вместо отдельной раскрывашки на каждую версию (был `ChangelogEntry` — снесён). Крестик в углу карточки — закрыть на этот раз (как раньше кнопка «Круто», которую убрали); вместо неё — «👥 Пригласить друга» (реферальная ссылка `t.me/alef_betbot/learn?startapp=...`, та же механика, что в `ProfileScreen.jsx`, читает `stats.referralCode` через `useStats()`). Следующий анонс — поднять `ANNOUNCE_ID`.
+
 ## Перестройка v1.0 — статус
 
 1. ✅ Этап 1 — планировщик SM-2 (`planner.js`)
@@ -60,13 +62,13 @@
 
 ## Словарь — данные
 
-`READING_ITEMS`: 216 слов + 73 фразы (type:"phrase" только многословные) + 16 `PHRASE_LOCKS`. 45 порций. Счётчики: только слова, только резолвящиеся в контент.
+`READING_ITEMS`: ~497 слов + 158 фраз (type:"phrase" только многословные; пересчитано по факту 10.08.2026 — старая цифра «216+73» устарела после обогащения курса из колод 09.08.2026, коммиты `0f25b69`/`a5194f0`) + 16 `PHRASE_LOCKS`. 45 порций. Счётчики: только слова, только резолвящиеся в контент.
 
 ## Тематические колоды (этап 5) — В ПРОДЕ (данные)
 
-* Supabase: `deck_words` (462 слова, 15 колод, группы по 8, с транслитерацией) + `user_word_progress` (telegram_id, word_id, seen, correct, wrong, sm2, introduced). RLS включён 08.08.2026 (без политик — весь доступ через service role в `api/*.js`). Источник: курированные 500 слов (`WORD_CATEGORIES`), мусор отфильтрован.
+* Supabase: `deck_words` (5080 слов, 19 колод, группы по 8, с транслитерацией) + `user_word_progress` (telegram_id, word_id, seen, correct, wrong, sm2, introduced). RLS включён 08.08.2026 (без политик — весь доступ через service role в `api/*.js`). Источник: 15 тематических колод из курированных 500 слов (`WORD_CATEGORIES`, мусор отфильтрован) + 4 колоды по частям речи, добавлены 08.08.2026 (`3422537`, импорт Hebrew-Russian_Bet_Audio + 100 TeachMeHebrew, см. `BACKLOG.md`).
 * API: `api/decks.js` (плоский): content / load / sync. ⚠️ Верификация initData НЕ добавлена (подтверждено в коде: `// initData не верифицируем здесь ради краткости примера — В ПРОДЕ добавить`) — сделать перед широким релизом.
-* Клиент: `src/data/decks.js` — DECKS (15: family 19, food 79, body 22, nature 25, city 25, home 36, time 25, numbers 7, colors 10, clothes 10, transport 11, study 24, verbs 7, conj 22, misc 140), `loadDeckContent`, `loadWordProgress`, `syncWordProgress`, `deckStats`. `DECKS_UNLOCK_NODE = 'G3.6'`.
+* Клиент: `src/data/decks.js` — DECKS (19: 15 тематических — family 19, food 79, body 22, nature 25, city 25, home 36, time 25, numbers 7, colors 10, clothes 10, transport 11, study 24, verbs 7, conj 613, misc 140 — + 4 по частям речи: g_nouns 1553, g_adjectives 1678, g_verbs 695, g_phrases 101), `loadDeckContent`, `loadWordProgress`, `syncWordProgress`, `deckStats`. `DECKS_UNLOCK_NODE = null` (колоды открыты всем сразу; в старой версии доки значилось `'G3.6'` — устарело).
 * Огласовок нет (карточка «иврит → перевод» + транслит).
 
 ## Тесты
@@ -88,7 +90,7 @@ node tests/.smoke.bundle.mjs
 
 ## Инфраструктура
 
-Repo `DannyJBill/Alef_Betbpt` · `https://alef-betbpt.vercel.app` · бот `@alef_betbot` (в проф. ссылках и `t.me/AlefBetBot` в UpdatePopup — тот же бот, разный регистр в разных местах кода) · Supabase `pikoccutljmlkfondcxc` · Windows/PowerShell (команды раздельно). API плоский: sync, bot, cron, chat, admin, events, referral, payments-create, payments-status, decks. Vercel gotchas: `_`-префикс приватный, вложенные пути 404, cross-file импорты не работают, `SUPABASE_URL` без `/rest/v1`.
+Repo `DannyJBill/Alef_Betbpt` · `https://alef-betbpt.vercel.app` · бот `@alef_betbot` (подтверждено владельцем 10.08.2026; `ProfileScreen.jsx` и `UpdatePopup.jsx` используют это написание, `LearnScreen.jsx:367` пока хардкодит `AlefBetBot` — унификация в очереди, см. `BACKLOG.md`) · Supabase `pikoccutljmlkfondcxc` · Windows/PowerShell (команды раздельно). API плоский: sync, bot, cron, chat, admin, events, referral, payments-create, payments-status, decks. Vercel gotchas: `_`-префикс приватный, вложенные пути 404, cross-file импорты не работают, `SUPABASE_URL` без `/rest/v1`.
 
 `ADMIN_TELEGRAM_ID` (владелец) захардкожен как строка в `api/admin.js` и продублирован в `src/screens/ProfileScreen.jsx` — не секрет сам по себе (это telegram id, не пароль), но два места дублирования и отсутствие env-переменной — потенциальный источник рассинхрона при смене владельца.
 

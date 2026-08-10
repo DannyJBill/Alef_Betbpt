@@ -25,7 +25,7 @@ export const DECKS = [
   { id: 'g_nouns',      icon: '📇', title: 'Существительные', wordCount: 1553, chunkCount: 195 },
   { id: 'g_adjectives', icon: '🌈', title: 'Прилагательные',  wordCount: 1678, chunkCount: 210 },
   { id: 'g_verbs',      icon: '🎬', title: 'Глаголы',          wordCount: 695,  chunkCount: 87  },
-  { id: 'g_phrases',    icon: '💬', title: 'Фразы',            wordCount: 101,  chunkCount: 13  },
+  { id: 'g_phrases',    icon: '💬', title: 'Фразы',            wordCount: 101,  chunkCount: 26  },
 ];
 export const DECKS_BY_ID = Object.fromEntries(DECKS.map(d => [d.id, d]));
 

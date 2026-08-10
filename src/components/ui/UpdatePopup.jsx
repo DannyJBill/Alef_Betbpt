@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { useStats } from "../../context/StatsContext";
+
+const BOT_USERNAME = "alef_betbot";
+const APP_SHORT    = "learn";
 
 /**
  * UpdatePopup — одноразовый анонс обновления при открытии приложения.
@@ -8,55 +12,45 @@ import { useState } from "react";
  * анонс в будущем — просто подними ANNOUNCE_ID.
  *
  * Поведение кнопок:
- *   «Круто» — закрыть на этот раз (покажется при следующем открытии);
+ *   ✕ (в углу) / клик по фону — закрыть на этот раз (покажется при следующем открытии);
+ *   «Пригласить друга» — реферальная ссылка, как в ProfileScreen;
  *   «Не показывать снова» — пометить и больше не показывать никогда.
  */
-const ANNOUNCE_ID  = "v1.2";
+const ANNOUNCE_ID  = "v1.2.1";
 const ANNOUNCE_KEY = `hebrew-app-announce-${ANNOUNCE_ID}`;
 const CHAT_URL     = "https://t.me/alefbetchannel";
 
-// Багфикс-записи — новая сверху. Каждая скрыта за датой/названием и
-// разворачивается по клику (см. <ChangelogEntry> ниже).
+// Багфикс-записи — новая сверху. Все спрятаны за одной кнопкой-строкой
+// «Последние обновления» (см. <UpdatesSection> ниже): 5-7 записей,
+// по объёму нововведений — старые просто выпадают сверху при добавлении новых.
 const CHANGELOG = [
   {
     version: "v1.2.1",
     date: "09.08.2026",
-    text: `«Мой словарь» собран в один экран вместо трёх разных: слова, тематические
-      колоды и буквы теперь в одном месте, с переключателем «Все слова / По
-      урокам / По темам» — раньше за колодами и буквами надо было выходить на
-      отдельные экраны · починен баг: слова, выученные через тематические
-      колоды, иногда пропадали из словаря после перезапуска приложения — теперь
-      сохраняются надёжно и сразу видны в общем списке.`,
+    text: `«Мой словарь» - слова, колоды и буквы теперь на одном экране, с
+      переключателем «Все слова / По урокам / По темам» · починен баг: слова
+      из колод иногда пропадали из словаря после перезапуска.`,
   },
   {
     version: "v1.2",
     date: "09.08.2026",
-    text: `Путь курса теперь разбит на 5 модулей (алфавит + уровни 1–4) с подгруппами
-      и итоговым экзаменом на каждую — вместо одной длинной ленты · главный экран
-      обновлён: наглядная тропа «что пройдено — что сейчас — что дальше», кнопка
-      «Продолжить» открывает урок сразу (раньше иногда вместо этого открывался
-      список уроков) · подсказка под текущей темой теперь всегда по делу ·
-      починены мелкие визуальные огрехи (перенос строк в названиях уроков,
-      цвета этапов пути).`,
+    text: `Путь курса разбит на 5 модулей с экзаменом на каждый · обновлён
+      главный экран: наглядная тропа прогресса, кнопка «Продолжить» открывает
+      урок сразу · починены мелкие визуальные огрехи.`,
   },
   {
     version: "v1.15.2",
     date: "08.08.2026",
-    text: `Диалоговые карточки во всех уроках уровней 1–4 теперь озвучены (кнопка 🔊
-      появляется у вопроса и ответа) · озвучены новые слова и примеры уровня 4 ·
-      озвучены все 462 слова тематических колод · карточки колод при просмотре
-      («Изучить») больше не показывают пустое слово и пустой перевод · починены
-      несколько фраз, где озвучка говорила не то слово, что написано на экране.`,
+    text: `Озвучены диалоги во всех уроках 1-4, новые слова уровня 4 и все 462
+      слова тематических колод · починены фразы, где озвучка не совпадала с
+      текстом.`,
   },
   {
     version: "v1.15",
     date: "07.08.2026",
-    text: `на iPad приложение теперь открывается на весь экран · тема больше не
-      сбрасывается на тёмную при переключении окон · прогресс не теряется при
-      быстром выходе сразу после ответа · в карточках не мелькает ответ
-      следующей · числа 13–19 расписаны подробно с транскрипцией · варианты
-      ответов с ивритом и русским вперемешку больше не выглядят одинаково ·
-      опечатка в переводе слова «следующий».`,
+    text: `Полноэкранный режим на iPad · тема больше не сбрасывается на тёмную
+      · прогресс не теряется при быстром выходе · числа 13-19 расписаны
+      подробно · опечатка в переводе слова «следующий».`,
   },
 ];
 
@@ -64,15 +58,16 @@ function dismissedForever() {
   try { return localStorage.getItem(ANNOUNCE_KEY) === "off"; } catch { return false; }
 }
 
-function ChangelogEntry({ version, date, text, soft, border }) {
+function UpdatesSection({ soft, border }) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <div className="border-t" style={{ borderColor: border }}>
+    <div className="mt-4 border-t" style={{ borderColor: border }}>
       <button
         onClick={() => setExpanded(e => !e)}
+        aria-expanded={expanded}
         className={`w-full py-3 flex items-center justify-between gap-2 text-xs font-semibold ${soft}`}
       >
-        <span>🛠 Багфиксы {version} · {date}</span>
+        <span>🕓 Последние обновления</span>
         <span
           style={{ transition: "transform .2s ease", transform: expanded ? "rotate(180deg)" : "none" }}
         >
@@ -80,8 +75,13 @@ function ChangelogEntry({ version, date, text, soft, border }) {
         </span>
       </button>
       {expanded && (
-        <div className={`pb-3 text-xs leading-relaxed ${soft}`} style={{ animation: "annFade .15s ease" }}>
-          {text}
+        <div className="pb-3" style={{ animation: "annFade .15s ease" }}>
+          {CHANGELOG.map(({ version, date, text }, i) => (
+            <div key={version} className={i > 0 ? "pt-2.5 mt-2.5 border-t border-dashed" : ""} style={{ borderColor: border }}>
+              <span className={`text-[11px] font-bold ${soft}`}>{version} · {date}</span>
+              <p className={`mt-1 text-xs leading-relaxed ${soft}`}>{text}</p>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -89,6 +89,7 @@ function ChangelogEntry({ version, date, text, soft, border }) {
 }
 
 export default function UpdatePopup({ dark }) {
+  const { stats } = useStats();
   const [open, setOpen] = useState(() => !dismissedForever());
   if (!open) return null;
 
@@ -99,10 +100,19 @@ export default function UpdatePopup({ dark }) {
     setOpen(false);
   };
 
+  const tg = window.Telegram?.WebApp;
+
   const joinChat = () => {
-    const tg = window.Telegram?.WebApp;
     if (tg?.openTelegramLink) tg.openTelegramLink(CHAT_URL);
     else window.open(CHAT_URL, "_blank");
+  };
+
+  const inviteFriend = () => {
+    const refLink = `https://t.me/${BOT_USERNAME}/${APP_SHORT}?startapp=${stats.referralCode || ""}`;
+    const shareText = "Учу иврит по приложению Alef Bet 🇮🇱, присоединяйся →";
+    const url = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
+    if (tg?.openTelegramLink) tg.openTelegramLink(url);
+    else window.open(url, "_blank");
   };
 
   const card = dark ? "bg-gray-900 text-white" : "bg-white text-gray-900";
@@ -119,40 +129,47 @@ export default function UpdatePopup({ dark }) {
       onClick={close}
     >
       <div
-        className={`w-full max-w-sm rounded-3xl shadow-2xl p-6 my-auto ${card}`}
+        className={`relative w-full max-w-sm rounded-3xl shadow-2xl p-6 my-auto ${card}`}
         style={{ animation: "annPop .25s cubic-bezier(.2,.9,.3,1.2)" }}
         onClick={e => e.stopPropagation()}
       >
+        <button
+          onClick={close}
+          aria-label="Закрыть"
+          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-base leading-none ${secondaryBtn}`}
+        >
+          ✕
+        </button>
+
         <div className="text-center">
-          <div style={{ fontSize: 52, lineHeight: 1 }}>🚀</div>
-          <h2 className="mt-3 text-xl font-bold">Alef Bet v1.2</h2>
-          <p className={`mt-1 text-sm ${sub}`}>Всё, что уже умеет приложение:</p>
+          <img
+            src="/mascot/mskt-2-heyy.png"
+            alt=""
+            className="mx-auto w-24 h-24 object-contain"
+            style={{ marginTop: -8 }}
+          />
+          <h2 className="mt-1 text-xl font-bold">Alef Bet v1.2.1</h2>
+          <p className={`mt-1 text-sm ${sub}`}>Коротко о том, что внутри:</p>
         </div>
 
         <div className={`mt-4 text-[15px] leading-relaxed ${sub}`}>
           <ul className="space-y-2">
-            <li>🔤 <b>Алфавит и огласовки</b> — 22 буквы, 5 групп, финальные формы</li>
-            <li>🔊 <b>Фонетика</b> — дагеш и шва</li>
-            <li>🗺️ <b>Путь курса</b> — 5 модулей, подгруппы, итоговый экзамен на каждую</li>
-            <li>📖 <b>58 уроков грамматики</b> — от «это дом» до прошедшего времени</li>
-            <li>🧬 <b>Система слова</b> — корень и модель: понимай незнакомое без словаря</li>
-            <li>📚 <b>Словарь</b> — 216 слов и 73 фразы, темы и буквы одним экраном, умное повторение</li>
-            <li>📦 <b>Колоды</b> — ещё 460 слов по 15 темам</li>
-            <li>✨ <b>«Ты уже можешь сказать»</b> — фразы из выученных слов</li>
-            <li>⚡ <b>Игра</b> — на скорость, рейтинг и тренировка</li>
-            <li>🤖 <b>ИИ-помощник</b> — спроси что угодно на иврите</li>
+            <li>🔤 <b>Алфавит</b> - 22 буквы, огласовки, дагеш и шва</li>
+            <li>🗺️ <b>Путь курса</b> - 5 модулей с уроками, тренажёрами, заданиями</li>
+            <li>📖 <b>58 уроков грамматики</b> - от Алеф и Бет до Построения фраз</li>
+            <li>🧬 <b>Система слова</b> - понимай новые слова по корню, без словаря</li>
+            <li>📚 <b>Словарь</b> - 500 слов и 160 фраз с умным повторением</li>
+            <li>📦 <b>Колоды</b> - тысячи слов, 19 тем и частей речи</li>
+            <li>⚡ <b>Игра на скорость</b> и другие тренажёры</li>
+            <li>🤖 <b>ИИ-помощник</b> - спроси что угодно на иврите</li>
           </ul>
         </div>
 
         <div className={`mt-4 text-[15px] leading-relaxed ${sub}`}>
-          Помоги нам стать лучше — залетай в чат ранних пользователей 👇
+          Есть идея или баг? Пиши нам 👇
         </div>
 
-        <div className="mt-4">
-          {CHANGELOG.map(entry => (
-            <ChangelogEntry key={entry.version} {...entry} soft={soft} border="rgba(127,127,127,0.25)" />
-          ))}
-        </div>
+        <UpdatesSection soft={soft} border="rgba(127,127,127,0.25)" />
 
         <button
           onClick={joinChat}
@@ -163,11 +180,11 @@ export default function UpdatePopup({ dark }) {
         </button>
 
         <button
-          onClick={close}
+          onClick={inviteFriend}
           className={`mt-2 w-full rounded-2xl ${secondaryBtn} active:scale-[0.99] transition font-semibold py-3`}
           style={{ minHeight: 48 }}
         >
-          Круто 🙌
+          👥 Пригласить друга
         </button>
 
         <button

@@ -1,0 +1,312 @@
+{
+ "g_nouns": [
+  {
+   "name": "Люди, семья, профессии",
+   "chunkStart": 0,
+   "chunkEnd": 3
+  },
+  {
+   "name": "Тело и здоровье",
+   "chunkStart": 4,
+   "chunkEnd": 10
+  },
+  {
+   "name": "Дом, мебель, быт",
+   "chunkStart": 11,
+   "chunkEnd": 18
+  },
+  {
+   "name": "Еда и напитки",
+   "chunkStart": 19,
+   "chunkEnd": 23
+  },
+  {
+   "name": "Природа, животные, погода",
+   "chunkStart": 24,
+   "chunkEnd": 28
+  },
+  {
+   "name": "Время и календарь",
+   "chunkStart": 29,
+   "chunkEnd": 30
+  },
+  {
+   "name": "Город, транспорт, место",
+   "chunkStart": 31,
+   "chunkEnd": 36
+  },
+  {
+   "name": "Одежда и личные вещи",
+   "chunkStart": 37,
+   "chunkEnd": 38
+  },
+  {
+   "name": "Учёба, работа, техника",
+   "chunkStart": 39,
+   "chunkEnd": 45
+  },
+  {
+   "name": "Эмоции, характер и абстрактные понятия",
+   "chunkStart": 46,
+   "chunkEnd": 55
+  },
+  {
+   "name": "Деньги, торговля, право",
+   "chunkStart": 56,
+   "chunkEnd": 58
+  },
+  {
+   "name": "Искусство, культура, религия, события",
+   "chunkStart": 59,
+   "chunkEnd": 61
+  },
+  {
+   "name": "Спорт и досуг",
+   "chunkStart": 62,
+   "chunkEnd": 62
+  },
+  {
+   "name": "Прочее",
+   "chunkStart": 63,
+   "chunkEnd": 194
+  }
+ ],
+ "g_adjectives": [
+  {
+   "name": "Люди, семья, профессии",
+   "chunkStart": 0,
+   "chunkEnd": 15
+  },
+  {
+   "name": "Размер и форма",
+   "chunkStart": 16,
+   "chunkEnd": 20
+  },
+  {
+   "name": "Цвет",
+   "chunkStart": 21,
+   "chunkEnd": 22
+  },
+  {
+   "name": "Оценка (хорошо/плохо)",
+   "chunkStart": 23,
+   "chunkEnd": 30
+  },
+  {
+   "name": "Характер и качества людей",
+   "chunkStart": 31,
+   "chunkEnd": 39
+  },
+  {
+   "name": "Эмоции и состояния",
+   "chunkStart": 40,
+   "chunkEnd": 42
+  },
+  {
+   "name": "Физические свойства",
+   "chunkStart": 43,
+   "chunkEnd": 46
+  },
+  {
+   "name": "Количество, время, порядок",
+   "chunkStart": 47,
+   "chunkEnd": 52
+  },
+  {
+   "name": "Происхождение и категория",
+   "chunkStart": 53,
+   "chunkEnd": 64
+  },
+  {
+   "name": "Причастия и результат действия",
+   "chunkStart": 65,
+   "chunkEnd": 70
+  },
+  {
+   "name": "Прочее",
+   "chunkStart": 71,
+   "chunkEnd": 209
+  }
+ ],
+ "g_verbs": [
+  {
+   "name": "Движение",
+   "chunkStart": 0,
+   "chunkEnd": 4
+  },
+  {
+   "name": "Речь и коммуникация",
+   "chunkStart": 5,
+   "chunkEnd": 8
+  },
+  {
+   "name": "Мышление, восприятие, эмоции",
+   "chunkStart": 9,
+   "chunkEnd": 13
+  },
+  {
+   "name": "Бытовые и физические действия",
+   "chunkStart": 14,
+   "chunkEnd": 24
+  },
+  {
+   "name": "Тело и физиология",
+   "chunkStart": 25,
+   "chunkEnd": 26
+  },
+  {
+   "name": "Работа, учёба, дом (сфера деятельности)",
+   "chunkStart": 27,
+   "chunkEnd": 28
+  },
+  {
+   "name": "Еда и питьё",
+   "chunkStart": 29,
+   "chunkEnd": 29
+  },
+  {
+   "name": "Обладание, обмен, торговля",
+   "chunkStart": 30,
+   "chunkEnd": 31
+  },
+  {
+   "name": "Конфликт, закон, опасность",
+   "chunkStart": 32,
+   "chunkEnd": 34
+  },
+  {
+   "name": "Изменение состояния и природные процессы",
+   "chunkStart": 35,
+   "chunkEnd": 36
+  },
+  {
+   "name": "Прочее",
+   "chunkStart": 37,
+   "chunkEnd": 86
+  }
+ ],
+ "conj": [
+  {
+   "name": "Вопросительные слова",
+   "chunkStart": 0,
+   "chunkEnd": 5
+  },
+  {
+   "name": "Предлоги, места и направления",
+   "chunkStart": 6,
+   "chunkEnd": 13
+  },
+  {
+   "name": "Союзы и наречия времени",
+   "chunkStart": 14,
+   "chunkEnd": 14
+  },
+  {
+   "name": "Союзы логики и частицы",
+   "chunkStart": 15,
+   "chunkEnd": 17
+  },
+  {
+   "name": "Местоимения",
+   "chunkStart": 18,
+   "chunkEnd": 18
+  },
+  {
+   "name": "Наречия степени и оценки",
+   "chunkStart": 19,
+   "chunkEnd": 21
+  },
+  {
+   "name": "Числительные и количество",
+   "chunkStart": 22,
+   "chunkEnd": 22
+  },
+  {
+   "name": "Страны, языки, топонимы",
+   "chunkStart": 23,
+   "chunkEnd": 24
+  },
+  {
+   "name": "Дом и бытовая техника",
+   "chunkStart": 25,
+   "chunkEnd": 26
+  },
+  {
+   "name": "Еда (составные названия)",
+   "chunkStart": 27,
+   "chunkEnd": 27
+  },
+  {
+   "name": "Здоровье, эмоции, состояния (составные)",
+   "chunkStart": 28,
+   "chunkEnd": 29
+  },
+  {
+   "name": "Транспорт, город, учреждения (составные)",
+   "chunkStart": 30,
+   "chunkEnd": 32
+  },
+  {
+   "name": "Разное (составные выражения)",
+   "chunkStart": 33,
+   "chunkEnd": 34
+  },
+  {
+   "name": "Прочее",
+   "chunkStart": 35,
+   "chunkEnd": 76
+  }
+ ],
+ "g_phrases": [
+  {
+   "name": "Приветствия и прощания",
+   "chunkStart": 0,
+   "chunkEnd": 0
+  },
+  {
+   "name": "Вежливость и благодарность",
+   "chunkStart": 1,
+   "chunkEnd": 2
+  },
+  {
+   "name": "Знакомство и о себе",
+   "chunkStart": 3,
+   "chunkEnd": 7
+  },
+  {
+   "name": "Самочувствие и состояние",
+   "chunkStart": 8,
+   "chunkEnd": 10
+  },
+  {
+   "name": "Язык и понимание",
+   "chunkStart": 11,
+   "chunkEnd": 12
+  },
+  {
+   "name": "Пребывание в Израиле и время",
+   "chunkStart": 13,
+   "chunkEnd": 14
+  },
+  {
+   "name": "Транспорт и дорога",
+   "chunkStart": 15,
+   "chunkEnd": 15
+  },
+  {
+   "name": "Покупки, кафе, деньги",
+   "chunkStart": 16,
+   "chunkEnd": 19
+  },
+  {
+   "name": "Разное бытовое",
+   "chunkStart": 20,
+   "chunkEnd": 22
+  },
+  {
+   "name": "Прочее",
+   "chunkStart": 23,
+   "chunkEnd": 25
+  }
+ ]
+}

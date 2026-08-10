@@ -5,6 +5,7 @@ import { LETTER_GROUPS } from "../data/alphabet";
 import { getGroupLetters, isGroupUnlocked, getGroupMastery, GROUP_COLORS } from "../helpers/groupHelpers";
 import { getFreshPortions } from "../helpers/progressHelpers";
 import { getLockHint } from "../data/curriculum";
+import { BOT_USERNAME, APP_SHORT } from "../data/constants";
 import HebrewKeyboard from "../components/ui/HebrewKeyboard";
 import { speakLetter } from "../helpers/speak";
 
@@ -364,7 +365,7 @@ const fixedColors = group ? (FIXED_CARD_COLORS[group.color] || {}) : {};
 export function shareGroupResult(group, score, refCode) {
   const tg = window.Telegram?.WebApp;
   if (!tg) return;
-  const refLink = `https://t.me/AlefBetBot/learn?startapp=${refCode}`;
+  const refLink = `https://t.me/${BOT_USERNAME}/${APP_SHORT}?startapp=${refCode}`;
   const text = `Прошёл группу "${group?.name}" с результатом ${score}%! 🇮🇱\nУчу иврит в Alef Bet → ${refLink}`;
   tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(text)}`);
 }

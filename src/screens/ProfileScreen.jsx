@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useStats } from "../context/StatsContext";
-import { levelProgress } from "../data/constants";
+import { levelProgress, BOT_USERNAME, APP_SHORT } from "../data/constants";
 import ProgressBar from "../components/ui/ProgressBar";
 import DevPanel from "../components/ui/DevPanel";
 import AdminScreen from "./AdminScreen";
 
 const ADMIN_TELEGRAM_ID = "5675751402";
-
-const BOT_USERNAME = "alef_betbot"; // поменяй на своего бота
-const APP_SHORT    = "learn";
 
 export default function ProfileScreen({ onBack }) {
   const { dark } = useTheme();

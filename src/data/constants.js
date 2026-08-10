@@ -115,3 +115,7 @@ export const INITIAL_STATS = {
 // ─── Константы ────────────────────────────────────────────────────────────────
 export const LESSON_LENGTH    = 6;
 export const AI_HISTORY_LIMIT = 10;
+
+// ─── Telegram-бот (реферальные ссылки) ───────────────────────────────────────
+export const BOT_USERNAME = "alef_betbot";
+export const APP_SHORT    = "learn";

@@ -16,7 +16,7 @@
  * уроков (LESSON_META_BY_ID); слова колод без meta считались утраченными и до
  * этого изменения (баг: не переживали перезагрузку, см. DecksScreen).
  */
-import { READING_ITEMS, READING_BLOCKS } from '../data/reading';
+import { READING_ITEMS, READING_BLOCKS, PHRASE_LOCKS, getUnlockedPhraseLocks } from '../data/reading';
 import { COURSE_PATH } from '../data/curriculum';
 
 /** Снапшот слова из порции урока (data/reading.js). */
@@ -171,4 +171,30 @@ export function groupByLessonBlock(stats, { phrase = false } = {}) {
       const ia = CHAPTER_ORDER.indexOf(a.id), ib = CHAPTER_ORDER.indexOf(b.id);
       return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
     });
+}
+
+/**
+ * Открытые «комбо-фразы» (PHRASE_LOCKS — собраны из уже известных слов, не
+ * контент урока), сгруппированные по модулю курса — раньше рендерились
+ * отдельным всегда-открытым списком (PhraseLocksSection) над аккордеоном
+ * «Фразы»; по фидбэку это выглядело как дублирующий, оторванный от уроков
+ * список. Модуль фразы — модуль САМОГО ПОЗДНЕГО из составляющих её слов
+ * (composedOf) в порядке COURSE_PATH: это и есть модуль, прохождение
+ * которого фактически открывает фразу.
+ */
+export function phraseLocksByChapter(studied) {
+  const unlocked = getUnlockedPhraseLocks(studied);
+  const byChapter = new Map();
+  for (const p of unlocked) {
+    let chapter = null, order = -1;
+    for (const wordId of p.composedOf) {
+      const ch = lessonWordChapter(wordId);
+      const i = ch ? CHAPTER_ORDER.indexOf(ch.id) : -1;
+      if (i > order) { order = i; chapter = ch; }
+    }
+    const chId = chapter?.id || '_other';
+    if (!byChapter.has(chId)) byChapter.set(chId, { ...(chapter || { id: '_other', title: 'Другое', icon: '📖' }), phrases: [] });
+    byChapter.get(chId).phrases.push(p);
+  }
+  return byChapter;
 }

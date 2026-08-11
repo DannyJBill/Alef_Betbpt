@@ -10,11 +10,18 @@
  *      Огласовки без своего тренажёра на этом этапе — read-only.
  *   📝 Слова / 💬 Фразы — список изученных слов/фраз, аккордеон модуль
  *      (COURSE_PATH) → урок (READING_BLOCKS), см. groupByLessonBlock.
- *      «Повторить» задизейблена — «в разработке».
+ *      «Повторить» задизейблена — «в разработке». Во «Фразах» открытые
+ *      комбо-фразы (PHRASE_LOCKS) вшиты внутрь модуля, который их
+ *      фактически открыл (phraseLocksByChapter) — не отдельным
+ *      всегда-раскрытым списком, как было раньше (PhraseLocksSection).
  *   🎁 Бонус — тематические колоды (DecksScreen), встроены напрямую как
- *      постоянная вкладка (без onBack — это больше не отдельный экран).
- * Макет утверждён 11.08.2026 (mockups/vocab-screen-v2.html), см. обсуждение
- * в истории чата — это перенос того же дизайна в реальный код.
+ *      постоянная вкладка, тем же визуальным языком (счёт + аккордеон
+ *      колод вместо сетки квадратиков) — см. DecksScreen.jsx.
+ * Макет утверждён 11.08.2026 (mockups/vocab-screen-v2.html); правки
+ * 12.08.2026 по фидбэку — числа Всего/Знаешь/Предстоит должны биться
+ * (Предстоит = total - known, а не total - studied), комбо-фразы внутри
+ * модулей, «Бонус» в общем визуальном языке (StatBar/Accordion — вынесены
+ * в components/ui/VocabAccordion.jsx, общие с DecksScreen).
  */
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
@@ -26,9 +33,10 @@ import { getNodeStatus } from "../data/curriculum";
 import { DECKS_UNLOCK_NODE } from "../data/decks";
 import { READING_ITEMS } from "../data/reading";
 import {
-  dictionaryEntries, groupByLessonBlock, statusOf, sourceBadge, metaOf, playAudio,
+  dictionaryEntries, groupByLessonBlock, phraseLocksByChapter, statusOf, sourceBadge, playAudio,
 } from "../helpers/dictionary";
-import { CardsMode, PhraseLocksSection } from "./ReadingScreen";
+import { StatBar, RepeatButton, Accordion, SearchInput } from "../components/ui/VocabAccordion";
+import { CardsMode } from "./ReadingScreen";
 import DecksScreen from "./DecksScreen";
 import CardsScreen from "./CardsScreen";
 
@@ -36,67 +44,11 @@ const WORDS_TOTAL   = READING_ITEMS.filter(i => i.type !== 'phrase').length;
 const PHRASES_TOTAL = READING_ITEMS.filter(i => i.type === 'phrase').length;
 
 const TABS = [
-  { id: 'letters', icon: '🔤', label: 'Буквы и Огласовки' },
+  { id: 'letters', icon: '🔤', label: 'Буквы' },
   { id: 'words',   icon: '📝', label: 'Слова' },
   { id: 'phrases', icon: '💬', label: 'Фразы' },
   { id: 'bonus',   icon: '🎁', label: 'Бонус' },
 ];
-
-// ─── Общие мелкие блоки ─────────────────────────────────────────────────────
-
-function StatBar({ dark, total, known, upcoming }) {
-  return (
-    <div className="flex justify-around text-center mb-3">
-      <div><p className={`text-xl font-black ${dark ? "text-white" : "text-gray-900"}`}>{total}</p><p className="text-xs text-gray-400">всего</p></div>
-      <div><p className="text-xl font-black text-emerald-500">{known}</p><p className="text-xs text-gray-400">знаешь</p></div>
-      <div><p className="text-xl font-black text-rose-400">{upcoming}</p><p className="text-xs text-gray-400">предстоит</p></div>
-    </div>
-  );
-}
-
-function RepeatButton({ dark, onClick, disabled }) {
-  if (disabled) {
-    return (
-      <button disabled className={`w-full py-2.5 px-4 rounded-xl text-sm font-bold flex items-center justify-between
-        ${dark ? "bg-gray-700 text-gray-400" : "bg-gray-100 text-gray-400"} cursor-not-allowed`}>
-        <span>🔄 Повторить</span>
-        <span className="flex items-center gap-1 text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-1 rounded-full">🔒 в разработке</span>
-      </button>
-    );
-  }
-  return (
-    <button onClick={onClick}
-      className="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600">
-      🔄 Повторить
-    </button>
-  );
-}
-
-function Accordion({ dark, icon, iconCls, title, sub, defaultOpen = false, children }) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className={`rounded-2xl border overflow-hidden ${dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100"}`}>
-      <button onClick={() => setOpen(o => !o)} aria-expanded={open}
-        className="w-full p-3.5 flex items-center gap-3 text-left">
-        <span className={`w-10 h-10 rounded-xl border flex items-center justify-center text-lg shrink-0 ${iconCls}`}>{icon}</span>
-        <div className="min-w-0 flex-1">
-          <p className={`font-bold text-sm truncate ${dark ? "text-white" : "text-gray-900"}`}>{title}</p>
-          <p className="text-xs text-gray-400 truncate">{sub}</p>
-        </div>
-        <span className="shrink-0 text-gray-400 text-xs">{open ? "▴" : "▾"}</span>
-      </button>
-      {open && <div className="px-3 pb-3 flex flex-col gap-3">{children}</div>}
-    </div>
-  );
-}
-
-function SearchInput({ dark, q, setQ, placeholder }) {
-  return (
-    <input value={q} onChange={e => setQ(e.target.value)} placeholder={placeholder}
-      className={`w-full px-4 py-2.5 rounded-xl text-sm border outline-none
-        ${dark ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500" : "bg-white border-gray-200 text-gray-900"}`} />
-  );
-}
 
 // ─── Вкладка 1 — Буквы и Огласовки ──────────────────────────────────────────
 
@@ -227,6 +179,23 @@ function WordRow({ dark, entry }) {
   );
 }
 
+/** Строка комбо-фразы (PHRASE_LOCKS) — тот же вид, что WordRow, но без
+ * статус-точки (это не запись словаря, а производная от известных слов). */
+function ComboPhraseRow({ dark, p }) {
+  return (
+    <div className="flex items-center gap-3 px-1 py-1.5">
+      <span className="w-2 h-2 shrink-0" />
+      <span className={`text-base font-bold shrink-0 w-24 truncate ${dark ? "text-white" : "text-gray-900"}`} dir="rtl">{p.hebrew}</span>
+      <div className="min-w-0 flex-1 text-left">
+        <p className={`text-sm truncate ${dark ? "text-gray-300" : "text-gray-700"}`}>{p.translation}</p>
+      </div>
+      {p.audio && (
+        <button onClick={() => playAudio(p.audio)} className="text-sm shrink-0 active:scale-95" aria-label="Озвучить">🔊</button>
+      )}
+    </div>
+  );
+}
+
 function LessonListTab({ dark, stats, phrase, total }) {
   const [q, setQ] = useState('');
   const query = q.trim().toLowerCase();
@@ -234,32 +203,41 @@ function LessonListTab({ dark, stats, phrase, total }) {
   const entries = dictionaryEntries(stats).filter(e => phrase ? e.type === 'phrase' : e.type !== 'phrase');
   const known = entries.filter(e => statusOf(e.progress).label === 'знаю').length;
   const chapters = groupByLessonBlock(stats, { phrase });
+  const comboByChapter = phrase ? phraseLocksByChapter(stats.readingProgress?.studied || []) : new Map();
+
+  // Модули из обоих источников (обычные фразы урока + комбо-фразы), чтобы
+  // модуль с одними только комбо-фразами тоже показался в списке.
+  const chapterIds = phrase
+    ? [...new Set([...chapters.map(c => c.id), ...comboByChapter.keys()])]
+    : chapters.map(c => c.id);
+  const chaptersById = Object.fromEntries(chapters.map(c => [c.id, c]));
 
   return (
     <div className="flex flex-col gap-3 px-4">
       <div className={`rounded-2xl border p-4 ${dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-100"}`}>
-        <StatBar dark={dark} total={total} known={known} upcoming={Math.max(0, total - entries.length)} />
+        <StatBar dark={dark} total={total} known={known} upcoming={Math.max(0, total - known)} />
         <RepeatButton dark={dark} disabled />
       </div>
 
-      {phrase && <PhraseLocksSection studied={stats.readingProgress?.studied || []} dark={dark} />}
-
       <SearchInput dark={dark} q={q} setQ={setQ} placeholder={phrase ? "Поиск по фразам…" : "Поиск по словам…"} />
 
-      {chapters.length === 0 ? (
+      {chapterIds.length === 0 ? (
         <p className={`text-sm text-center py-6 ${dark ? "text-gray-400" : "text-gray-500"}`}>
           {phrase ? "Фразы пока не изучены — они появятся здесь по мере прохождения уроков." : "Слова пока не изучены."}
         </p>
-      ) : chapters.map(ch => {
-        const theme = getSectionTheme(ch.id, dark);
-        const blocks = ch.blocks
+      ) : chapterIds.map(chId => {
+        const ch = chaptersById[chId] || comboByChapter.get(chId);
+        const theme = getSectionTheme(chId, dark);
+        const blocks = (ch.blocks || [])
           .map(b => ({ ...b, words: query ? b.words.filter(e => e.translation.toLowerCase().includes(query) || (e.plain || '').includes(q) || e.hebrew.includes(q)) : b.words }))
           .filter(b => b.words.length > 0);
-        if (!blocks.length) return null;
-        const chTotal = ch.blocks.reduce((n, b) => n + b.words.length, 0);
+        const combo = (comboByChapter.get(chId)?.phrases || [])
+          .filter(p => !query || p.translation.toLowerCase().includes(query) || p.plain.includes(q) || p.hebrew.includes(q));
+        if (!blocks.length && !combo.length) return null;
+        const chTotal = (chaptersById[chId]?.blocks || []).reduce((n, b) => n + b.words.length, 0) + (comboByChapter.get(chId)?.phrases.length || 0);
         return (
-          <Accordion key={ch.id} dark={dark} icon={ch.icon} title={ch.title} sub={`${chTotal} изучено`}
-            iconCls={theme.icon} defaultOpen={chapters.length === 1}>
+          <Accordion key={chId} dark={dark} icon={ch.icon} title={ch.title} sub={`${chTotal} изучено`}
+            iconCls={theme.icon} defaultOpen={chapterIds.length === 1}>
             {blocks.map(b => (
               <div key={b.id} className={`rounded-xl border-l-[3px] p-2 ${dark ? "border-gray-600 bg-gray-700/30" : "border-gray-300 bg-gray-50"}`}>
                 <p className={`text-[11px] font-bold px-1 mb-1 ${dark ? "text-gray-300" : "text-gray-600"}`}>{b.title}</p>
@@ -268,6 +246,14 @@ function LessonListTab({ dark, stats, phrase, total }) {
                 </div>
               </div>
             ))}
+            {combo.length > 0 && (
+              <div className={`rounded-xl border-l-[3px] p-2 ${dark ? "border-amber-500/50 bg-amber-500/[0.04]" : "border-amber-300 bg-amber-50/60"}`}>
+                <p className={`text-[11px] font-bold px-1 mb-1 ${dark ? "text-amber-400" : "text-amber-600"}`}>✨ Ты уже можешь сказать</p>
+                <div className={`flex flex-col divide-y ${dark ? "divide-gray-700/60" : "divide-gray-200/60"}`}>
+                  {combo.map(p => <ComboPhraseRow key={p.id} dark={dark} p={p} />)}
+                </div>
+              </div>
+            )}
           </Accordion>
         );
       })}
@@ -297,7 +283,7 @@ export default function VocabularyScreen() {
                   ? dark ? "bg-gray-700 text-white shadow" : "bg-white text-gray-900 shadow"
                   : dark ? "text-gray-400" : "text-gray-500"}`}>
               <span className="text-base">{t.icon}</span>
-              <span className="truncate w-full text-center">{t.label.split(' ')[0]}</span>
+              <span className="truncate w-full text-center">{t.label}</span>
             </button>
           ))}
         </div>

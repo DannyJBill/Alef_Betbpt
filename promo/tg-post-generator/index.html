@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>TG Post Generator — Hebrew App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --panel-bg:#ffffff;
+    --panel-border:#e5e7eb;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --accent:#6366f1;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI",Arial,sans-serif;
+    background:#f3f4f6;
+    color:var(--text);
+    display:flex;
+    min-height:100vh;
+  }
+  h1{font-size:16px;margin:0 0 4px;}
+  .sub{color:var(--muted);font-size:12px;margin:0 0 18px;}
+
+  /* preview */
+  .stage{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    overflow:auto;
+  }
+  #canvasWrap{
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+    border-radius:8px;
+    overflow:hidden;
+    line-height:0;
+  }
+  canvas{
+    max-width:min(80vw,640px);
+    max-height:82vh;
+    width:auto;
+    height:auto;
+    display:block;
+    cursor:grab;
+    background:#fff;
+  }
+  canvas.dragging{cursor:grabbing;}
+
+  /* controls */
+  .panel{
+    width:340px;
+    min-width:340px;
+    background:var(--panel-bg);
+    border-left:1px solid var(--panel-border);
+    padding:18px;
+    overflow-y:auto;
+    max-height:100vh;
+  }
+  fieldset{
+    border:1px solid var(--panel-border);
+    border-radius:8px;
+    margin:0 0 14px;
+    padding:10px 12px 14px;
+  }
+  legend{
+    font-size:12px;
+    font-weight:600;
+    color:var(--muted);
+    padding:0 6px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  label{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    margin:8px 0 4px;
+  }
+  label:first-child{margin-top:0;}
+  input[type=text],
+  input[type=number],
+  textarea,
+  select{
+    width:100%;
+    padding:6px 8px;
+    border:1px solid var(--panel-border);
+    border-radius:6px;
+    font-size:13px;
+    font-family:inherit;
+    background:#fff;
+    color:var(--text);
+  }
+  textarea{resize:vertical;min-height:44px;}
+  input[type=color]{
+    width:36px;height:28px;padding:0;border:1px solid var(--panel-border);
+    border-radius:6px;background:#fff;cursor:pointer;
+  }
+  .row{display:flex;gap:8px;align-items:center;}
+  .row > *{flex:1;}
+  .row.tight{gap:6px;}
+  .row label{margin:0;flex:none;width:auto;}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  .rangeval{font-size:11px;color:var(--muted);text-align:right;}
+  .btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+  button{
+    border:1px solid var(--panel-border);
+    background:#fff;
+    border-radius:6px;
+    padding:6px 10px;
+    font-size:12px;
+    cursor:pointer;
+    color:var(--text);
+  }
+  button:hover{border-color:var(--accent);color:var(--accent);}
+  button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .swatch{
+    width:26px;height:26px;border-radius:50%;border:2px solid #fff;
+    box-shadow:0 0 0 1px var(--panel-border);cursor:pointer;padding:0;
+  }
+  .grad-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+  .icon-thumb{
+    width:44px;height:44px;border-radius:8px;border:2px solid var(--panel-border);
+    background:#fff center/70% no-repeat;cursor:pointer;padding:0;
+  }
+  .icon-thumb.active{border-color:var(--accent);}
+  .icon-thumb.none{font-size:10px;color:var(--muted);display:flex;align-items:center;justify-content:center;background-image:none!important;}
+  .icon-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+  .hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4;}
+  .export{
+    width:100%;padding:12px;font-size:14px;font-weight:600;
+    background:linear-gradient(90deg,#6366f1,#9333ea);
+    color:#fff;border:none;border-radius:8px;cursor:pointer;margin-top:4px;
+  }
+  .export:hover{opacity:.92;color:#fff;}
+  .reset-link{
+    display:inline-block;margin-top:8px;font-size:12px;color:var(--muted);
+    text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div id="canvasWrap">
+    <canvas id="cv" width="1080" height="1080"></canvas>
+  </div>
+</div>
+
+<div class="panel">
+  <h1>🎨 Генератор постов для Telegram</h1>
+  <p class="sub">Тяните текст и иконку прямо на картинке. Экспорт — в PNG.</p>
+
+  <fieldset>
+    <legend>Формат</legend>
+    <div class="btns" id="formatBtns"></div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Фон</legend>
+    <div class="btns" id="bgTypeBtns"></div>
+
+    <div id="bgSolidCtl">
+      <label>Цвет</label>
+      <input type="color" id="bgSolidColor" value="#4338ca">
+    </div>
+
+    <div id="bgGradCtl">
+      <label>Градиент</label>
+      <div class="row tight">
+        <input type="color" id="bgGrad1" value="#6366f1">
+        <input type="color" id="bgGrad2" value="#9333ea">
+        <select id="bgGradAngle" style="flex:1.4">
+          <option value="135">↘ диагональ</option>
+          <option value="90">↓ вертикально</option>
+          <option value="0">→ горизонтально</option>
+          <option value="45">↗ диагональ</option>
+        </select>
+      </div>
+      <div class="grad-row" id="gradPresets"></div>
+    </div>
+
+    <div id="bgImageCtl" style="display:none">
+      <label>Изображение фона</label>
+      <input type="file" id="bgImageFile" accept="image/*">
+      <label>Затемнение (для читаемости текста) <span class="rangeval" id="overlayVal"></span></label>
+      <input type="range" id="overlayOpacity" min="0" max="0.85" step="0.01" value="0.35">
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Метка (eyebrow)</legend>
+    <input type="text" id="eyebrowText" placeholder="Например: Обновление v1.3">
+    <div class="row" style="margin-top:6px">
+      <input type="color" id="eyebrowColor" value="#fde047">
+      <select id="eyebrowAlign">
+        <option value="center">По центру</option>
+        <option value="left">Слева</option>
+        <option value="right">Справа</option>
+      </select>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Заголовок</legend>
+    <textarea id="titleText" placeholder="Заголовок поста">Учи иврит легко 🇮🇱</textarea>
+    <div class="row" style="margin-top:6px">
+      <input type="color" id="titleColor" value="#ffffff">
+      <select id="titleAlign">
+        <option value="center">По центру</option>
+        <option value="left">Слева</option>
+        <option value="right">Справа</option>
+      </select>
+    </div>
+    <label>Размер <span class="rangeval" id="titleSizeVal"></span></label>
+    <input type="range" id="titleSize" min="28" max="120" value="72">
+    <div class="row tight" style="margin-top:6px">
+      <select id="titleWeight">
+        <option value="800">Жирный</option>
+        <option value="400">Обычный</option>
+      </select>
+      <select id="titleDir">
+        <option value="auto">Авто-направление</option>
+        <option value="rtl">RTL (иврит)</option>
+        <option value="ltr">LTR</option>
+      </select>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Текст / описание</legend>
+    <textarea id="bodyText" placeholder="Короткое описание поста">Новые слова, карточки и произношение — всё в одном приложении.</textarea>
+    <div class="row" style="margin-top:6px">
+      <input type="color" id="bodyColor" value="#e5e7eb">
+      <select id="bodyAlign">
+        <option value="center">По центру</option>
+        <option value="left">Слева</option>
+        <option value="right">Справа</option>
+      </select>
+    </div>
+    <label>Размер <span class="rangeval" id="bodySizeVal"></span></label>
+    <input type="range" id="bodySize" min="16" max="56" value="32">
+  </fieldset>
+
+  <fieldset>
+    <legend>Иконка / маскот</legend>
+    <div class="icon-row" id="iconThumbs"></div>
+    <input type="file" id="iconFile" accept="image/*" style="margin-top:8px">
+    <label>Размер <span class="rangeval" id="iconSizeVal"></span></label>
+    <input type="range" id="iconSize" min="60" max="500" value="180">
+  </fieldset>
+
+  <fieldset>
+    <legend>Подпись (футер)</legend>
+    <input type="text" id="footerText" placeholder="@yourchannel · hebrew-app.example">
+    <input type="color" id="footerColor" value="#ffffffaa" style="margin-top:6px">
+  </fieldset>
+
+  <button class="reset-link" id="resetPositions">↺ Сбросить позиции текста и иконки</button>
+
+  <button class="export" id="exportBtn">⬇ Скачать PNG</button>
+</div>
+
+<script>
+(function(){
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+
+  const FORMATS = [
+    {key:'post11', label:'Пост 1:1', w:1080, h:1080},
+    {key:'post45', label:'Пост 4:5', w:1080, h:1350},
+    {key:'story',  label:'Сторис 9:16', w:1080, h:1920},
+    {key:'wide',   label:'Wide 1200×630', w:1200, h:630},
+  ];
+
+  const GRAD_PRESETS = [
+    ['#6366f1','#9333ea'], // indigo -> purple
+    ['#10b981','#0d9488'], // emerald -> teal
+    ['#f97316','#ef4444'], // orange -> red
+    ['#8b5cf6','#6d28d9'], // violet -> deep violet
+    ['#0ea5e9','#0369a1'], // sky -> deep blue
+    ['#f59e0b','#d97706'], // amber
+  ];
+
+  const BUNDLED_ICONS = [
+    {key:'none', label:'нет'},
+    {key:'assets/icons/mskt-1-hi.png', label:'Привет'},
+    {key:'assets/icons/mskt-2-heyy.png', label:'Хей'},
+    {key:'assets/icons/mskt-7-star.png', label:'Звезда'},
+  ];
+
+  const state = {
+    format: FORMATS[0],
+    bgType: 'gradient',
+    bgSolid: '#4338ca',
+    grad1: '#6366f1',
+    grad2: '#9333ea',
+    gradAngle: 135,
+    bgImage: null,
+    overlayOpacity: 0.35,
+    eyebrow: { text:'', color:'#fde047', align:'center' },
+    title: { text:'Учи иврит легко 🇮🇱', color:'#ffffff', align:'center', size:72, weight:'800', dir:'auto' },
+    body: { text:'Новые слова, карточки и произношение — всё в одном приложении.', color:'#e5e7eb', align:'center', size:32 },
+    footer: { text:'', color:'#ffffffaa' },
+    icon: { src:null, size:180 },
+    // draggable anchors (fractions of canvas size, 0..1)
+    textAnchor: { x:0.5, y:0.5 },
+    iconAnchor: { x:0.5, y:0.86 },
+  };
+
+  let textRect = null; // last drawn bbox {x,y,w,h} in px for hit-testing
+  let iconRect = null;
+  let iconImg = null;
+  let bgImg = null;
+  let dragTarget = null;
+  let dragOffset = {x:0,y:0};
+
+  // ---------- helpers ----------
+  function hebrewLikely(str){
+    return /[֐-׿]/.test(str);
+  }
+
+  function wrapLines(text, font, maxWidth){
+    ctx.font = font;
+    const paragraphs = text.split('\n');
+    const lines = [];
+    paragraphs.forEach(p=>{
+      if(p.trim()===''){ lines.push(''); return; }
+      const words = p.split(' ');
+      let cur = '';
+      words.forEach(w=>{
+        const test = cur ? cur + ' ' + w : w;
+        if(ctx.measureText(test).width > maxWidth && cur){
+          lines.push(cur);
+          cur = w;
+        } else {
+          cur = test;
+        }
+      });
+      if(cur) lines.push(cur);
+    });
+    return lines;
+  }
+
+  function loadImage(src){
+    return new Promise((resolve,reject)=>{
+      const img = new Image();
+      img.onload = ()=>resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  function fileToDataUrl(file){
+    return new Promise((resolve)=>{
+      const reader = new FileReader();
+      reader.onload = e=>resolve(e.target.result);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ---------- drawing ----------
+  function draw(){
+    const {w,h} = state.format;
+    cv.width = w; cv.height = h;
+
+    // background
+    if(state.bgType==='solid'){
+      ctx.fillStyle = state.bgSolid;
+      ctx.fillRect(0,0,w,h);
+    } else if(state.bgType==='gradient'){
+      const rad = state.gradAngle * Math.PI/180;
+      const x1 = w/2 - Math.cos(rad)*w/2, y1 = h/2 - Math.sin(rad)*h/2;
+      const x2 = w/2 + Math.cos(rad)*w/2, y2 = h/2 + Math.sin(rad)*h/2;
+      const g = ctx.createLinearGradient(x1,y1,x2,y2);
+      g.addColorStop(0, state.grad1);
+      g.addColorStop(1, state.grad2);
+      ctx.fillStyle = g;
+      ctx.fillRect(0,0,w,h);
+    } else if(state.bgType==='image' && bgImg){
+      drawCover(bgImg, 0,0,w,h);
+      ctx.fillStyle = `rgba(0,0,0,${state.overlayOpacity})`;
+      ctx.fillRect(0,0,w,h);
+    } else {
+      ctx.fillStyle = '#4338ca';
+      ctx.fillRect(0,0,w,h);
+    }
+
+    drawTextBlock();
+    drawIcon();
+    drawFooter();
+  }
+
+  function drawCover(img, dx,dy,dw,dh){
+    const ir = img.width/img.height, dr = dw/dh;
+    let sx,sy,sw,sh;
+    if(ir > dr){ sh = img.height; sw = sh*dr; sx=(img.width-sw)/2; sy=0; }
+    else { sw = img.width; sh = sw/dr; sx=0; sy=(img.height-sh)/2; }
+    ctx.drawImage(img, sx,sy,sw,sh, dx,dy,dw,dh);
+  }
+
+  function drawTextBlock(){
+    const {w} = state.format;
+    const maxWidth = w * 0.82;
+    const cx = state.textAnchor.x * state.format.w;
+    const cy = state.textAnchor.y * state.format.h;
+
+    const blocks = [];
+
+    if(state.eyebrow.text.trim()){
+      const font = `700 ${Math.round(state.title.size*0.32)}px Segoe UI, Arial, sans-serif`;
+      blocks.push({type:'eyebrow', font, color:state.eyebrow.color, align:state.eyebrow.align,
+        lines: wrapLines(state.eyebrow.text, font, maxWidth), lineH: Math.round(state.title.size*0.32*1.3), gapAfter: 18});
+    }
+    if(state.title.text.trim()){
+      const font = `${state.title.weight} ${state.title.size}px Segoe UI, Arial, sans-serif`;
+      blocks.push({type:'title', font, color:state.title.color, align:state.title.align, dir:state.title.dir,
+        lines: wrapLines(state.title.text, font, maxWidth), lineH: Math.round(state.title.size*1.18), gapAfter: 16});
+    }
+    if(state.body.text.trim()){
+      const font = `400 ${state.body.size}px Segoe UI, Arial, sans-serif`;
+      blocks.push({type:'body', font, color:state.body.color, align:state.body.align,
+        lines: wrapLines(state.body.text, font, maxWidth), lineH: Math.round(state.body.size*1.4), gapAfter: 0});
+    }
+
+    // total height
+    let totalH = 0;
+    blocks.forEach(b=>{ totalH += b.lines.length*b.lineH + b.gapAfter; });
+
+    let y = cy - totalH/2;
+    let minX = Infinity, maxX = -Infinity;
+    const startY = y;
+
+    blocks.forEach(b=>{
+      ctx.font = b.font;
+      ctx.fillStyle = b.color;
+      ctx.textBaseline = 'top';
+      const dir = b.dir==='rtl' || (b.dir==='auto' && hebrewLikely(b.lines.join(''))) ? 'rtl' : 'ltr';
+      ctx.direction = dir;
+      b.lines.forEach(line=>{
+        let x = cx;
+        let align = b.align;
+        ctx.textAlign = align;
+        ctx.fillText(line, x, y);
+        const width = ctx.measureText(line).width;
+        let lx;
+        if(align==='center'){ lx = cx - width/2; }
+        else if(align==='right'){ lx = cx - width; }
+        else { lx = cx; }
+        minX = Math.min(minX, lx);
+        maxX = Math.max(maxX, lx+width);
+        y += b.lineH;
+      });
+      y += b.gapAfter;
+      ctx.direction = 'inherit';
+    });
+
+    textRect = { x:minX, y:startY, w:(maxX-minX), h:(y-startY) };
+  }
+
+  function drawIcon(){
+    if(!iconImg) { iconRect = null; return; }
+    const size = state.icon.size;
+    const cx = state.iconAnchor.x * state.format.w;
+    const cy = state.iconAnchor.y * state.format.h;
+    const ratio = iconImg.width / iconImg.height;
+    let dw = size, dh = size/ratio;
+    if(dh > size){ dh = size; dw = size*ratio; }
+    const x = cx - dw/2, y = cy - dh/2;
+    ctx.drawImage(iconImg, x, y, dw, dh);
+    iconRect = {x,y,w:dw,h:dh};
+  }
+
+  function drawFooter(){
+    if(!state.footer.text.trim()) return;
+    const {w,h} = state.format;
+    ctx.font = `600 ${Math.round(w*0.024)}px Segoe UI, Arial, sans-serif`;
+    ctx.fillStyle = state.footer.color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.direction = hebrewLikely(state.footer.text) ? 'rtl' : 'ltr';
+    ctx.fillText(state.footer.text, w/2, h - h*0.035);
+    ctx.direction = 'inherit';
+  }
+
+  // ---------- UI wiring ----------
+  function bindText(id, path, redraw=true){
+    document.getElementById(id).addEventListener('input', e=>{
+      setPath(path, e.target.value);
+      if(redraw) draw();
+    });
+  }
+  function setPath(path, value){
+    const parts = path.split('.');
+    let obj = state;
+    for(let i=0;i<parts.length-1;i++) obj = obj[parts[i]];
+    obj[parts[parts.length-1]] = value;
+  }
+
+  // format buttons
+  const formatBtnsEl = document.getElementById('formatBtns');
+  FORMATS.forEach(f=>{
+    const b = document.createElement('button');
+    b.textContent = f.label;
+    b.dataset.key = f.key;
+    if(f.key===state.format.key) b.classList.add('active');
+    b.addEventListener('click', ()=>{
+      state.format = f;
+      [...formatBtnsEl.children].forEach(c=>c.classList.toggle('active', c===b));
+      draw();
+    });
+    formatBtnsEl.appendChild(b);
+  });
+
+  // bg type buttons
+  const bgTypes = [['gradient','Градиент'],['solid','Цвет'],['image','Картинка']];
+  const bgTypeBtnsEl = document.getElementById('bgTypeBtns');
+  function refreshBgCtl(){
+    document.getElementById('bgSolidCtl').style.display = state.bgType==='solid' ? '' : 'none';
+    document.getElementById('bgGradCtl').style.display = state.bgType==='gradient' ? '' : 'none';
+    document.getElementById('bgImageCtl').style.display = state.bgType==='image' ? '' : 'none';
+  }
+  bgTypes.forEach(([key,label])=>{
+    const b = document.createElement('button');
+    b.textContent = label;
+    if(key===state.bgType) b.classList.add('active');
+    b.addEventListener('click', ()=>{
+      state.bgType = key;
+      [...bgTypeBtnsEl.children].forEach(c=>c.classList.toggle('active', c===b));
+      refreshBgCtl();
+      draw();
+    });
+    bgTypeBtnsEl.appendChild(b);
+  });
+  refreshBgCtl();
+
+  document.getElementById('bgSolidColor').addEventListener('input', e=>{ state.bgSolid=e.target.value; draw(); });
+  document.getElementById('bgGrad1').addEventListener('input', e=>{ state.grad1=e.target.value; draw(); });
+  document.getElementById('bgGrad2').addEventListener('input', e=>{ state.grad2=e.target.value; draw(); });
+  document.getElementById('bgGradAngle').addEventListener('change', e=>{ state.gradAngle=+e.target.value; draw(); });
+
+  const gradPresetsEl = document.getElementById('gradPresets');
+  GRAD_PRESETS.forEach(([c1,c2])=>{
+    const b = document.createElement('button');
+    b.className = 'swatch';
+    b.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
+    b.addEventListener('click', ()=>{
+      state.grad1=c1; state.grad2=c2;
+      document.getElementById('bgGrad1').value=c1;
+      document.getElementById('bgGrad2').value=c2;
+      draw();
+    });
+    gradPresetsEl.appendChild(b);
+  });
+
+  document.getElementById('bgImageFile').addEventListener('change', async e=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const url = await fileToDataUrl(file);
+    bgImg = await loadImage(url);
+    draw();
+  });
+  document.getElementById('overlayOpacity').addEventListener('input', e=>{
+    state.overlayOpacity = +e.target.value;
+    document.getElementById('overlayVal').textContent = Math.round(state.overlayOpacity*100)+'%';
+    draw();
+  });
+
+  bindText('eyebrowText','eyebrow.text');
+  document.getElementById('eyebrowColor').addEventListener('input', e=>{ state.eyebrow.color=e.target.value; draw(); });
+  document.getElementById('eyebrowAlign').addEventListener('change', e=>{ state.eyebrow.align=e.target.value; draw(); });
+
+  bindText('titleText','title.text');
+  document.getElementById('titleColor').addEventListener('input', e=>{ state.title.color=e.target.value; draw(); });
+  document.getElementById('titleAlign').addEventListener('change', e=>{ state.title.align=e.target.value; draw(); });
+  document.getElementById('titleWeight').addEventListener('change', e=>{ state.title.weight=e.target.value; draw(); });
+  document.getElementById('titleDir').addEventListener('change', e=>{ state.title.dir=e.target.value; draw(); });
+  document.getElementById('titleSize').addEventListener('input', e=>{
+    state.title.size = +e.target.value;
+    document.getElementById('titleSizeVal').textContent = e.target.value+'px';
+    draw();
+  });
+
+  bindText('bodyText','body.text');
+  document.getElementById('bodyColor').addEventListener('input', e=>{ state.body.color=e.target.value; draw(); });
+  document.getElementById('bodyAlign').addEventListener('change', e=>{ state.body.align=e.target.value; draw(); });
+  document.getElementById('bodySize').addEventListener('input', e=>{
+    state.body.size = +e.target.value;
+    document.getElementById('bodySizeVal').textContent = e.target.value+'px';
+    draw();
+  });
+
+  bindText('footerText','footer.text');
+  document.getElementById('footerColor').addEventListener('input', e=>{ state.footer.color=e.target.value; draw(); });
+
+  // icons
+  const iconThumbsEl = document.getElementById('iconThumbs');
+  async function selectIcon(src, btn){
+    [...iconThumbsEl.children].forEach(c=>c.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    if(!src){ state.icon.src=null; iconImg=null; draw(); return; }
+    state.icon.src = src;
+    iconImg = await loadImage(src);
+    draw();
+  }
+  BUNDLED_ICONS.forEach(ic=>{
+    const b = document.createElement('button');
+    if(ic.key==='none'){
+      b.className = 'icon-thumb none active';
+      b.textContent = 'нет';
+      b.addEventListener('click', ()=>selectIcon(null,b));
+    } else {
+      b.className = 'icon-thumb';
+      b.style.backgroundImage = `url(${ic.key})`;
+      b.title = ic.label;
+      b.addEventListener('click', ()=>selectIcon(ic.key,b));
+    }
+    iconThumbsEl.appendChild(b);
+  });
+
+  document.getElementById('iconFile').addEventListener('change', async e=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const url = await fileToDataUrl(file);
+    [...iconThumbsEl.children].forEach(c=>c.classList.remove('active'));
+    await selectIcon(url, null);
+  });
+
+  document.getElementById('iconSize').addEventListener('input', e=>{
+    state.icon.size = +e.target.value;
+    document.getElementById('iconSizeVal').textContent = e.target.value+'px';
+    draw();
+  });
+
+  document.getElementById('resetPositions').addEventListener('click', ()=>{
+    state.textAnchor = {x:0.5,y:0.5};
+    state.iconAnchor = {x:0.5,y:0.86};
+    draw();
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', ()=>{
+    const link = document.createElement('a');
+    link.download = `tg-post-${state.format.w}x${state.format.h}.png`;
+    link.href = cv.toDataURL('image/png');
+    link.click();
+  });
+
+  // ---------- dragging on canvas ----------
+  function canvasPoint(e){
+    const rect = cv.getBoundingClientRect();
+    const scaleX = cv.width/rect.width, scaleY = cv.height/rect.height;
+    return { x:(e.clientX-rect.left)*scaleX, y:(e.clientY-rect.top)*scaleY };
+  }
+  function inRect(p, r, pad=10){
+    return r && p.x>=r.x-pad && p.x<=r.x+r.w+pad && p.y>=r.y-pad && p.y<=r.y+r.h+pad;
+  }
+  cv.addEventListener('pointerdown', e=>{
+    const p = canvasPoint(e);
+    if(inRect(p, iconRect)){
+      dragTarget = 'icon';
+      dragOffset = { x: p.x - state.iconAnchor.x*state.format.w, y: p.y - state.iconAnchor.y*state.format.h };
+    } else if(inRect(p, textRect)){
+      dragTarget = 'text';
+      dragOffset = { x: p.x - state.textAnchor.x*state.format.w, y: p.y - state.textAnchor.y*state.format.h };
+    } else {
+      dragTarget = null;
+      return;
+    }
+    cv.classList.add('dragging');
+    cv.setPointerCapture(e.pointerId);
+  });
+  cv.addEventListener('pointermove', e=>{
+    if(!dragTarget) return;
+    const p = canvasPoint(e);
+    const nx = (p.x - dragOffset.x) / state.format.w;
+    const ny = (p.y - dragOffset.y) / state.format.h;
+    const clamped = { x: Math.min(1, Math.max(0, nx)), y: Math.min(1, Math.max(0, ny)) };
+    if(dragTarget==='icon') state.iconAnchor = clamped;
+    else state.textAnchor = clamped;
+    draw();
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(evt=>{
+    cv.addEventListener(evt, ()=>{ dragTarget=null; cv.classList.remove('dragging'); });
+  });
+
+  // ---------- init values into UI ----------
+  document.getElementById('overlayVal').textContent = Math.round(state.overlayOpacity*100)+'%';
+  document.getElementById('titleSizeVal').textContent = state.title.size+'px';
+  document.getElementById('bodySizeVal').textContent = state.body.size+'px';
+  document.getElementById('iconSizeVal').textContent = state.icon.size+'px';
+
+  draw();
+})();
+</script>
+</body>
+</html>

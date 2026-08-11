@@ -222,6 +222,11 @@ async function getData(supabase) {
 const CONTENT_PLAN_PLATFORMS = [
   "telegram_channel", "telegram_chat", "instagram", "tiktok", "vk", "facebook", "youtube", "other",
 ];
+const CONTENT_PLAN_PLATFORM_LABELS = {
+  telegram_channel: "📢 TG-канал", telegram_chat: "💬 TG-чат", instagram: "📸 Instagram",
+  tiktok: "🎵 TikTok", vk: "🔵 VK", facebook: "📘 Facebook", youtube: "▶️ YouTube", other: "🔗 Другое",
+};
+const CONTENT_PLAN_STATUS_LABELS = { planned: "📅 План", posted: "✅ Вышел", skipped: "⏭ Пропущен" };
 
 async function getContentPlan(supabase) {
   const { data, error } = await supabase.from("content_plan").select("*").order("scheduled_date", { ascending: true });
@@ -246,6 +251,8 @@ function renderHTML(d, secret) {
   const j = JSON.stringify;
   const segOpts = Object.entries(SEGMENTS)
     .map(([k, v]) => '<option value="' + k + '">' + v.label + '</option>').join("");
+  const platformOpts = Object.entries(CONTENT_PLAN_PLATFORM_LABELS)
+    .map(([k, v]) => '<option value="' + k + '">' + v + '</option>').join("");
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Alef Bet · админка</title>
@@ -289,6 +296,7 @@ button.ghost{background:#262a33}button.danger{background:#b91c1c}
   <div class="tab on" data-t="over">📊 Обзор</div>
   <div class="tab" data-t="users">👥 Пользователи</div>
   <div class="tab" data-t="mkt">📣 Маркетинг</div>
+  <div class="tab" data-t="plan">📅 Контент-план</div>
 </div>
 
 <!-- ОБЗОР -->
@@ -381,6 +389,48 @@ button.ghost{background:#262a33}button.danger{background:#b91c1c}
   </div>
 </div>
 
+<!-- КОНТЕНТ-ПЛАН -->
+<div id="plan" style="display:none">
+  <div class="panel">
+    <div class="row" style="justify-content:space-between;margin-bottom:10px;flex-wrap:wrap">
+      <div class="row" id="planFilters" style="gap:6px"></div>
+      <button onclick="newPlan()">+ Запланировать пост</button>
+    </div>
+    <div id="planList"></div>
+  </div>
+</div>
+
+<!-- МОДАЛКА ПОСТА ПЛАНА -->
+<div class="modal" id="pm"><div class="box">
+  <div class="row" style="justify-content:space-between;margin-bottom:10px">
+    <h3 id="pfTitleHead"></h3><button class="ghost" onclick="closePlan()">✕</button>
+  </div>
+  <label class="muted" style="font-size:11px">ПЛОЩАДКА</label>
+  <select id="pfPlatform" style="margin-bottom:8px">${platformOpts}</select>
+  <label class="muted" style="font-size:11px">ДАТА ПУБЛИКАЦИИ</label>
+  <input type="date" id="pfDate" style="margin-bottom:8px">
+  <label class="muted" style="font-size:11px">НАЗВАНИЕ (для себя)</label>
+  <input type="text" id="pfTitle" placeholder="Например: Слово дня — שלום" style="margin-bottom:8px">
+  <label class="muted" style="font-size:11px">ТЕКСТ ПОСТА</label>
+  <textarea id="pfContent" placeholder="Готовый текст поста…" style="margin-bottom:8px"></textarea>
+  <label class="muted" style="font-size:11px">ССЫЛКА НА ГРУППУ/КАНАЛ (куда выставить)</label>
+  <input type="text" id="pfGroup" placeholder="https://t.me/..." style="margin-bottom:8px">
+  <label class="muted" style="font-size:11px">ССЫЛКА НА ОПУБЛИКОВАННЫЙ ПОСТ (заполнить после)</label>
+  <input type="text" id="pfPost" placeholder="Появится после публикации" style="margin-bottom:8px">
+  <label class="muted" style="font-size:11px">СТАТУС</label>
+  <select id="pfStatus" style="margin-bottom:8px">
+    <option value="planned">📅 План</option>
+    <option value="posted">✅ Вышел</option>
+    <option value="skipped">⏭ Пропущен</option>
+  </select>
+  <label class="muted" style="font-size:11px">ЗАМЕТКИ</label>
+  <textarea id="pfNotes" placeholder="Необязательно" style="min-height:50px"></textarea>
+  <div class="row" style="margin-top:10px">
+    <button onclick="savePlan()">Сохранить</button>
+    <button class="danger" id="pfDelete" onclick="deletePlan()" style="display:none">Удалить</button>
+  </div>
+</div></div>
+
 <!-- МОДАЛКА ЮЗЕРА -->
 <div class="modal" id="um"><div class="box">
   <div class="row" style="justify-content:space-between;margin-bottom:10px">
@@ -401,6 +451,9 @@ button.ghost{background:#262a33}button.danger{background:#b91c1c}
 <script>
 var SECRET = ${j(secret)};
 var USERS  = ${j(d.users)};
+var PLAN   = ${j(d.content_plan || [])};
+var PLATFORM_LABEL = ${j(CONTENT_PLAN_PLATFORM_LABELS)};
+var STATUS_LABEL = ${j(CONTENT_PLAN_STATUS_LABELS)};
 var SEGF = {
   all:       function(u){return true},
   active7:   function(u){return u.idle_days!==null&&u.idle_days<=7},
@@ -418,7 +471,7 @@ document.querySelectorAll('.tab').forEach(function(t){
   t.onclick=function(){
     document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
     t.classList.add('on');
-    ['over','users','mkt'].forEach(function(id){ document.getElementById(id).style.display='none'; });
+    ['over','users','mkt','plan'].forEach(function(id){ document.getElementById(id).style.display='none'; });
     document.getElementById(t.dataset.t).style.display='';
   };
 });
@@ -511,6 +564,107 @@ function exportCsv(){
   a.download='alefbet_users.csv'; a.click();
 }
 draw();
+
+// ── Контент-план ──
+var planFilter='all', planCur=null;
+function initPlanFilters(){
+  document.getElementById('planFilters').innerHTML =
+    [['all','Все'],['planned','📅 План'],['posted','✅ Вышли'],['skipped','⏭ Пропущены']].map(function(f){
+      return '<button class="'+(planFilter===f[0]?'':'ghost')+'" onclick="setPlanFilter(&#39;'+f[0]+'&#39;)" style="padding:6px 12px;font-size:12px">'+f[1]+'</button>';
+    }).join('');
+}
+function setPlanFilter(f){ planFilter=f; initPlanFilters(); drawPlan(); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function drawPlan(){
+  var today=new Date().toISOString().slice(0,10);
+  var list=PLAN.filter(function(p){ return planFilter==='all'||p.status===planFilter; })
+    .slice().sort(function(a,b){ return a.scheduled_date<b.scheduled_date?-1:a.scheduled_date>b.scheduled_date?1:0; });
+  document.getElementById('planList').innerHTML = list.length ? list.map(function(p){
+    var overdue = p.status==='planned' && p.scheduled_date<today;
+    var groupBtn = p.group_link ? '<a href="'+esc(p.group_link)+'" target="_blank" rel="noopener" class="pill" style="margin-right:6px" onclick="event.stopPropagation()">📎 Группа</a>' : '';
+    var postBtn = p.post_link
+      ? '<a href="'+esc(p.post_link)+'" target="_blank" rel="noopener" class="pill" style="background:#14532d;color:#86efac" onclick="event.stopPropagation()">✅ Пост</a>'
+      : '<button class="ghost" style="font-size:11px;padding:5px 10px" onclick="event.stopPropagation();quickMarkPosted('+p.id+')">➕ Ссылка на пост</button>';
+    return '<div class="card" style="margin-bottom:8px;cursor:pointer'+(overdue?';border:1px solid #f59e0b':'')+'" onclick="openPlan('+p.id+')">'+
+      '<div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap">'+
+        '<div style="min-width:0">'+
+          '<span class="pill">'+(PLATFORM_LABEL[p.platform]||esc(p.platform))+'</span> '+
+          '<span class="muted" style="'+(overdue?'color:#f59e0b;font-weight:700':'')+'">'+p.scheduled_date+(overdue?' · просрочен':'')+'</span>'+
+          '<div style="font-weight:700;margin-top:4px">'+esc(p.title||'(без названия)')+'</div>'+
+          (p.content?'<div class="muted" style="margin-top:2px;max-width:520px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.content)+'</div>':'')+
+        '</div>'+
+        '<span class="muted" style="white-space:nowrap">'+(STATUS_LABEL[p.status]||esc(p.status))+'</span>'+
+      '</div>'+
+      '<div class="row" style="margin-top:8px">'+groupBtn+postBtn+'</div>'+
+    '</div>';
+  }).join('') : '<div class="muted">Пока пусто — добавь первый пост в план.</div>';
+}
+function fillPlanForm(){
+  document.getElementById('pfPlatform').value=planCur.platform;
+  document.getElementById('pfDate').value=planCur.scheduled_date;
+  document.getElementById('pfTitle').value=planCur.title||'';
+  document.getElementById('pfContent').value=planCur.content||'';
+  document.getElementById('pfGroup').value=planCur.group_link||'';
+  document.getElementById('pfPost').value=planCur.post_link||'';
+  document.getElementById('pfStatus').value=planCur.status||'planned';
+  document.getElementById('pfNotes').value=planCur.notes||'';
+  document.getElementById('pfDelete').style.display=planCur.id?'':'none';
+  document.getElementById('pfTitleHead').textContent=planCur.id?'Редактировать пост':'Новый пост в план';
+}
+function newPlan(){
+  planCur={ id:null, platform:'telegram_channel', scheduled_date:new Date().toISOString().slice(0,10),
+    title:'', content:'', group_link:'', post_link:'', status:'planned', notes:'' };
+  fillPlanForm();
+  document.getElementById('pm').classList.add('on');
+}
+function openPlan(id){
+  planCur=Object.assign({}, PLAN.filter(function(p){return p.id===id})[0]);
+  fillPlanForm();
+  document.getElementById('pm').classList.add('on');
+}
+function closePlan(){ document.getElementById('pm').classList.remove('on'); }
+async function reloadPlan(){
+  var r=await fetch('/api/admin?secret='+encodeURIComponent(SECRET));
+  var d=await r.json();
+  PLAN=d.content_plan||[];
+  drawPlan();
+}
+async function savePlan(){
+  var body={
+    action:'content_plan_save', id: planCur.id,
+    platform: document.getElementById('pfPlatform').value,
+    scheduled_date: document.getElementById('pfDate').value,
+    title: document.getElementById('pfTitle').value,
+    content: document.getElementById('pfContent').value,
+    group_link: document.getElementById('pfGroup').value,
+    post_link: document.getElementById('pfPost').value,
+    status: document.getElementById('pfStatus').value,
+    notes: document.getElementById('pfNotes').value,
+  };
+  if(!body.scheduled_date) return toast('Укажи дату',false);
+  var r=await api(body);
+  if(r.ok){ toast(body.id?'Сохранено':'Добавлено в план'); closePlan(); reloadPlan(); }
+  else toast(r.error||'Ошибка',false);
+}
+async function deletePlan(){
+  if(!planCur||!planCur.id) return;
+  if(!confirm('Удалить пост из плана?')) return;
+  var r=await api({action:'content_plan_delete', id:planCur.id});
+  if(r.ok){ toast('Удалено'); closePlan(); reloadPlan(); }
+  else toast(r.error||'Ошибка',false);
+}
+async function quickMarkPosted(id){
+  var item=PLAN.filter(function(p){return p.id===id})[0];
+  var link=prompt('Ссылка на опубликованный пост:', item.post_link||'');
+  if(link===null) return;
+  var r=await api({action:'content_plan_save', id:id, platform:item.platform, scheduled_date:item.scheduled_date,
+    title:item.title, content:item.content, group_link:item.group_link, notes:item.notes,
+    post_link:link.trim(), status: link.trim()?'posted':item.status});
+  if(r.ok){ toast(link.trim()?'Отмечено опубликованным':'Сохранено'); reloadPlan(); }
+  else toast(r.error||'Ошибка',false);
+}
+initPlanFilters();
+drawPlan();
 </script></body></html>`;
 }
 
@@ -620,9 +774,10 @@ export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).end();
 
   const [data, contentPlan] = await Promise.all([getData(supabase), getContentPlan(supabase)]);
+  const full = { ...data, content_plan: contentPlan };
   if (req.query.view === "1") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    return res.status(200).send(renderHTML(data, secret));
+    return res.status(200).send(renderHTML(full, secret));
   }
-  return res.status(200).json({ ...data, content_plan: contentPlan });
+  return res.status(200).json(full);
 }

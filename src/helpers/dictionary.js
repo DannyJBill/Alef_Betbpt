@@ -142,3 +142,33 @@ export function groupByLessonChapter(stats) {
     return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
   });
 }
+
+/**
+ * Двухуровневая версия groupByLessonChapter — для вкладок «Слова»/«Фразы»
+ * VocabularyScreen: модуль (COURSE_PATH) → урок/порция (READING_BLOCKS) →
+ * записи. { phrase:false } — только слова (как groupByLessonChapter),
+ * { phrase:true } — только фразы (type === 'phrase', реальное значение поля
+ * в reading.js; у слов там разные POS-теги, ни один не 'phrase').
+ */
+export function groupByLessonBlock(stats, { phrase = false } = {}) {
+  const entries = dictionaryEntries(stats).filter(e =>
+    (phrase ? e.type === 'phrase' : e.type !== 'phrase') && e.source?.kind !== 'deck');
+  const byChapter = new Map();
+  for (const e of entries) {
+    const ch = lessonWordChapter(e.id) || { id: '_other', title: 'Другое', icon: '📖' };
+    const blockId = WORD_ID_TO_BLOCK_ID[e.id] || '_other';
+    if (!byChapter.has(ch.id)) byChapter.set(ch.id, { ...ch, blocks: new Map() });
+    const chEntry = byChapter.get(ch.id);
+    if (!chEntry.blocks.has(blockId)) {
+      const block = READING_BLOCKS.find(b => b.id === blockId);
+      chEntry.blocks.set(blockId, { id: blockId, title: block?.title || 'Другое', words: [] });
+    }
+    chEntry.blocks.get(blockId).words.push(e);
+  }
+  return [...byChapter.values()]
+    .map(ch => ({ ...ch, blocks: [...ch.blocks.values()] }))
+    .sort((a, b) => {
+      const ia = CHAPTER_ORDER.indexOf(a.id), ib = CHAPTER_ORDER.indexOf(b.id);
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+}

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Мокап — Мой словарь v2 (4 вкладки)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .frame { width: 390px; margin: 24px auto; border-radius: 28px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+  .acc-body { display: none; }
+  .acc.open .acc-body { display: block; }
+  .acc.open .acc-chevron { transform: rotate(180deg); }
+  .acc-chevron { transition: transform .15s ease; }
+  .tabpanel { display: none; }
+  .tabpanel.active { display: flex; }
+  ::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body class="bg-gray-200">
+
+<p class="text-center text-xs text-gray-500 pt-4">Мокап 1:1 — не боевой код, только для проверки структуры/логики. Кликабельны табы и аккордеоны.</p>
+
+<div class="frame bg-gray-950 text-white" style="height: 844px; display:flex; flex-direction:column;">
+
+  <!-- ── TopBar (как в приложении) ── -->
+  <div class="flex items-center justify-between px-4 pb-3 pt-3 border-b border-gray-800 bg-gray-900 shrink-0">
+    <div class="flex items-center gap-2">
+      <span class="text-yellow-500 font-bold text-sm">⚡ 4994 XP</span>
+      <div class="w-20 h-1.5 rounded-full bg-gray-700"><div class="h-full bg-yellow-400 rounded-full" style="width:62%"></div></div>
+      <span class="text-xs text-gray-400">Ур. 50</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-orange-500 font-bold text-sm">🔥 1</span>
+      <span class="text-yellow-600 font-bold text-sm">💰 18</span>
+      <button class="w-8 h-8 rounded-full flex items-center justify-center text-base bg-gray-700">☀️</button>
+    </div>
+  </div>
+
+  <!-- ── Контент (скролл) ── -->
+  <div class="flex-1 overflow-y-auto pb-24">
+    <div class="px-4 pt-4 pb-3">
+      <h2 class="text-xl font-bold text-white">Словарь</h2>
+    </div>
+
+    <!-- Переключатель 4 вкладки -->
+    <div class="px-4 mb-4">
+      <div class="grid grid-cols-4 gap-1 rounded-2xl p-1 bg-gray-800">
+        <button data-tab="letters" onclick="switchTab('letters')" class="tabbtn py-2 rounded-xl text-[10px] font-bold flex flex-col items-center gap-0.5">
+          <span class="text-base">🔤</span>Буквы
+        </button>
+        <button data-tab="words" onclick="switchTab('words')" class="tabbtn py-2 rounded-xl text-[10px] font-bold flex flex-col items-center gap-0.5">
+          <span class="text-base">📝</span>Слова
+        </button>
+        <button data-tab="phrases" onclick="switchTab('phrases')" class="tabbtn py-2 rounded-xl text-[10px] font-bold flex flex-col items-center gap-0.5">
+          <span class="text-base">💬</span>Фразы
+        </button>
+        <button data-tab="decks" onclick="switchTab('decks')" class="tabbtn py-2 rounded-xl text-[10px] font-bold flex flex-col items-center gap-0.5">
+          <span class="text-base">🎁</span>Бонус
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 1 — Буквы и Огласовки ══════════════ -->
+    <div id="panel-letters" class="tabpanel active flex-col gap-3 px-4">
+      <!-- статистика -->
+      <div class="rounded-2xl border border-gray-700 bg-gray-800 p-4">
+        <div class="flex justify-around text-center mb-3">
+          <div><p class="text-xl font-black text-white">27+17</p><p class="text-xs text-gray-400">всего</p></div>
+          <div><p class="text-xl font-black text-emerald-500">44</p><p class="text-xs text-gray-400">знаешь</p></div>
+          <div><p class="text-xl font-black text-rose-400">0</p><p class="text-xs text-gray-400">предстоит</p></div>
+        </div>
+        <button class="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600">🔄 Повторить</button>
+      </div>
+      <button class="w-full flex items-center justify-between rounded-2xl bg-indigo-600 text-white px-4 py-3 font-bold text-sm">
+        <span>⏰ Все на сегодня</span>
+        <span class="bg-white/20 px-3 py-1 rounded-full text-xs">27 букв</span>
+      </button>
+
+      <!-- Модуль: Алфавит и звуки -->
+      <div class="acc open rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
+        <button class="acc-toggle w-full p-3.5 flex items-center gap-3 text-left" onclick="toggleAcc(this)">
+          <span class="w-10 h-10 rounded-xl border border-indigo-500/30 bg-indigo-500/10 flex items-center justify-center text-lg">🔤</span>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-sm text-white">Алфавит и звуки</p>
+            <p class="text-xs text-gray-400">44/44 изучено</p>
+          </div>
+          <span class="acc-chevron text-gray-400 text-xs">▾</span>
+        </button>
+        <div class="acc-body px-3 pb-3 flex flex-col gap-3">
+
+          <p class="text-[11px] font-bold uppercase tracking-wide text-gray-500 px-1">Буквы</p>
+          <div class="flex flex-col gap-1.5">
+            <div class="rounded-xl border-l-[3px] border-emerald-400 bg-emerald-500/5 p-2">
+              <p class="text-[11px] font-bold text-emerald-400 px-1 mb-1">Первые шаги</p>
+              <div class="flex flex-col divide-y divide-gray-700/60">
+                <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-lg font-bold w-8" style="font-family:serif">א</span><span class="text-sm text-gray-300 flex-1">Алеф — «а»</span></div>
+                <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-lg font-bold w-8" style="font-family:serif">ב</span><span class="text-sm text-gray-300 flex-1">Бет — «б/в»</span></div>
+                <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-lg font-bold w-8" style="font-family:serif">ג</span><span class="text-sm text-gray-300 flex-1">Гимел — «г»</span></div>
+              </div>
+            </div>
+            <div class="rounded-xl border-l-[3px] border-sky-400 bg-sky-500/5 p-2">
+              <p class="text-[11px] font-bold text-sky-400 px-1 mb-1">Звуки и формы</p>
+              <div class="flex flex-col divide-y divide-gray-700/60">
+                <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-lg font-bold w-8" style="font-family:serif">ז</span><span class="text-sm text-gray-300 flex-1">Зайин — «з»</span></div>
+                <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-lg font-bold w-8" style="font-family:serif">ח</span><span class="text-sm text-gray-300 flex-1">Хэт — «х»</span></div>
+              </div>
+            </div>
+            <div class="rounded-xl border-l-[3px] border-amber-400 bg-amber-500/5 p-2">
+              <p class="text-[11px] font-bold text-amber-400 px-1 mb-1">Похожие буквы</p>
+              <div class="flex flex-col divide-y divide-gray-700/60">
+                <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-lg font-bold w-8" style="font-family:serif">מ</span><span class="text-sm text-gray-300 flex-1">Мем — «м»</span></div>
+                <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-lg font-bold w-8" style="font-family:serif">נ</span><span class="text-sm text-gray-300 flex-1">Нун — «н»</span></div>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-[11px] font-bold uppercase tracking-wide text-gray-500 px-1 mt-1">Огласовки</p>
+          <div class="flex flex-col gap-1.5">
+            <div class="rounded-xl border-l-[3px] border-emerald-400 bg-emerald-500/5 p-2">
+              <p class="text-[11px] font-bold text-emerald-400 px-1 mb-1">Три кита</p>
+              <div class="flex flex-col divide-y divide-gray-700/60">
+                <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-lg font-bold w-8" style="font-family:serif">ַ</span><span class="text-sm text-gray-300 flex-1">Патах — «а»</span></div>
+                <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-lg font-bold w-8" style="font-family:serif">ִ</span><span class="text-sm text-gray-300 flex-1">Хирик — «и»</span></div>
+              </div>
+            </div>
+            <div class="rounded-xl border-l-[3px] border-violet-400 bg-violet-500/5 p-2">
+              <p class="text-[11px] font-bold text-violet-400 px-1 mb-1">Пример слога (שָׁלוֹם)</p>
+              <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-lg font-bold" style="font-family:serif" dir="rtl">שָׁ · לוֹ · ם</span><span class="text-sm text-gray-300 flex-1 ml-2">шалом — мир/привет</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 2 — Слова ══════════════ -->
+    <div id="panel-words" class="tabpanel flex-col gap-3 px-4">
+      <div class="rounded-2xl border border-gray-700 bg-gray-800 p-4">
+        <div class="flex justify-around text-center mb-3">
+          <div><p class="text-xl font-black text-white">242</p><p class="text-xs text-gray-400">всего</p></div>
+          <div><p class="text-xl font-black text-emerald-500">118</p><p class="text-xs text-gray-400">знаешь</p></div>
+          <div><p class="text-xl font-black text-rose-400">124</p><p class="text-xs text-gray-400">предстоит</p></div>
+        </div>
+        <button disabled class="w-full py-2.5 px-4 rounded-xl text-sm font-bold text-gray-400 bg-gray-700 cursor-not-allowed flex items-center justify-between">
+          <span>🔄 Повторить</span>
+          <span class="flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-1 rounded-full">🔒 в разработке</span>
+        </button>
+      </div>
+
+      <div class="acc open rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
+        <button class="acc-toggle w-full p-3.5 flex items-center gap-3 text-left" onclick="toggleAcc(this)">
+          <span class="w-10 h-10 rounded-xl border border-indigo-500/30 bg-indigo-500/10 flex items-center justify-center text-lg">🔤</span>
+          <div class="flex-1 min-w-0"><p class="font-bold text-sm text-white">Алфавит и звуки</p><p class="text-xs text-gray-400">32/32 изучено</p></div>
+          <span class="acc-chevron text-gray-400 text-xs">▾</span>
+        </button>
+        <div class="acc-body px-3 pb-3 flex flex-col gap-1.5">
+          <div class="rounded-xl border-l-[3px] border-gray-600 bg-gray-700/30 p-2">
+            <p class="text-[11px] font-bold text-gray-300 px-1 mb-1">Урок L1.1 · первые слова</p>
+            <div class="flex flex-col divide-y divide-gray-700/60">
+              <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-base font-bold" dir="rtl">אבא</span><span class="text-sm text-gray-300 flex-1">папа</span><span class="text-xs">🔊</span></div>
+              <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span><span class="text-base font-bold" dir="rtl">אמא</span><span class="text-sm text-gray-300 flex-1">мама</span><span class="text-xs">🔊</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
+        <button class="acc-toggle w-full p-3.5 flex items-center gap-3 text-left" onclick="toggleAcc(this)">
+          <span class="w-10 h-10 rounded-xl border border-violet-500/30 bg-violet-500/10 flex items-center justify-center text-lg">🧩</span>
+          <div class="flex-1 min-w-0"><p class="font-bold text-sm text-white">Уровень 1 · Именное предложение</p><p class="text-xs text-gray-400">54/86 изучено</p></div>
+          <span class="acc-chevron text-gray-400 text-xs">▾</span>
+        </button>
+        <div class="acc-body px-3 pb-3 flex flex-col gap-1.5">
+          <div class="rounded-xl border-l-[3px] border-gray-600 bg-gray-700/30 p-2">
+            <p class="text-[11px] font-bold text-gray-300 px-1 mb-1">Урок C0 · артикль</p>
+            <div class="flex flex-col divide-y divide-gray-700/60">
+              <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-rose-500 shrink-0"></span><span class="text-base font-bold" dir="rtl">בית</span><span class="text-sm text-gray-300 flex-1">дом</span><span class="text-xs">🔊</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
+        <button class="acc-toggle w-full p-3.5 flex items-center gap-3 text-left" onclick="toggleAcc(this)">
+          <span class="w-10 h-10 rounded-xl border border-sky-500/30 bg-sky-500/10 flex items-center justify-center text-lg">🗣️</span>
+          <div class="flex-1 min-w-0"><p class="font-bold text-sm text-white">Уровень 2</p><p class="text-xs text-gray-400">0/58 изучено</p></div>
+          <span class="acc-chevron text-gray-400 text-xs">▾</span>
+        </button>
+        <div class="acc-body px-3 pb-3"><p class="text-xs text-gray-500 px-1">Пока не изучено ничего из этого модуля.</p></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 3 — Фразы ══════════════ -->
+    <div id="panel-phrases" class="tabpanel flex-col gap-3 px-4">
+      <div class="rounded-2xl border border-gray-700 bg-gray-800 p-4">
+        <div class="flex justify-around text-center mb-3">
+          <div><p class="text-xl font-black text-white">86</p><p class="text-xs text-gray-400">всего</p></div>
+          <div><p class="text-xl font-black text-emerald-500">12</p><p class="text-xs text-gray-400">знаешь</p></div>
+          <div><p class="text-xl font-black text-rose-400">74</p><p class="text-xs text-gray-400">предстоит</p></div>
+        </div>
+        <button disabled class="w-full py-2.5 px-4 rounded-xl text-sm font-bold text-gray-400 bg-gray-700 cursor-not-allowed flex items-center justify-between">
+          <span>🔄 Повторить</span>
+          <span class="flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-1 rounded-full">🔒 в разработке</span>
+        </button>
+      </div>
+
+      <div class="acc open rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
+        <button class="acc-toggle w-full p-3.5 flex items-center gap-3 text-left" onclick="toggleAcc(this)">
+          <span class="w-10 h-10 rounded-xl border border-indigo-500/30 bg-indigo-500/10 flex items-center justify-center text-lg">🔤</span>
+          <div class="flex-1 min-w-0"><p class="font-bold text-sm text-white">Алфавит и звуки</p><p class="text-xs text-gray-400">8/8 изучено</p></div>
+          <span class="acc-chevron text-gray-400 text-xs">▾</span>
+        </button>
+        <div class="acc-body px-3 pb-3 flex flex-col gap-1.5">
+          <div class="rounded-xl border-l-[3px] border-gray-600 bg-gray-700/30 p-2">
+            <p class="text-[11px] font-bold text-gray-300 px-1 mb-1">TV.phrases1</p>
+            <div class="flex flex-col divide-y divide-gray-700/60">
+              <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-base font-bold" dir="rtl">מה שלומך</span><span class="text-sm text-gray-300 flex-1">как дела?</span><span class="text-xs">🔊</span></div>
+              <div class="flex items-center gap-3 px-1 py-1.5"><span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span><span class="text-base font-bold" dir="rtl">נעים מאוד</span><span class="text-sm text-gray-300 flex-1">очень приятно</span><span class="text-xs">🔊</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ TAB 4 — Бонус ══════════════ -->
+    <div id="panel-decks" class="tabpanel flex-col gap-3 px-4">
+      <div class="rounded-2xl border border-gray-700 bg-gray-800 p-4">
+        <div class="flex justify-around text-center mb-3">
+          <div><p class="text-xl font-black text-white">5080</p><p class="text-xs text-gray-400">всего</p></div>
+          <div><p class="text-xl font-black text-emerald-500">462</p><p class="text-xs text-gray-400">знаешь</p></div>
+          <div><p class="text-xl font-black text-rose-400">4618</p><p class="text-xs text-gray-400">предстоит</p></div>
+        </div>
+        <p class="text-[11px] text-gray-500 text-center">19 колод · выбирай тему ниже</p>
+      </div>
+
+      <!-- Тематические колоды (без DECK_GROUPS-подсекций, каждая колода целиком) -->
+      <div class="acc open rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
+        <button class="acc-toggle w-full p-3.5 flex items-center gap-2.5 text-left" onclick="toggleAcc(this)">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-400 shrink-0"></span>
+          <div class="flex-1 min-w-0"><p class="font-bold text-sm text-white">👪 Семья</p><p class="text-xs text-gray-400">19 слов · 12/19 изучено</p></div>
+          <span class="acc-chevron text-gray-400 text-xs">▾</span>
+        </button>
+        <div class="acc-body px-3 pb-3 flex flex-col gap-2">
+          <div class="rounded-2xl border border-gray-700 bg-gray-900 p-3">
+            <div class="flex items-center justify-between mb-2"><span class="font-bold text-sm text-white">Группа 1</span><span class="text-xs text-gray-400">8/8</span></div>
+            <div class="flex gap-2">
+              <button class="flex-1 py-2 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-purple-600">📖 Изучить</button>
+              <button class="flex-1 py-2 rounded-xl text-sm font-bold border-2 border-gray-600 text-gray-200">✅ Проверить</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
+        <button class="acc-toggle w-full p-3.5 flex items-center gap-2.5 text-left" onclick="toggleAcc(this)">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
+          <div class="flex-1 min-w-0"><p class="font-bold text-sm text-white">🍎 Еда</p><p class="text-xs text-gray-400">79 слов · 5/79 изучено</p></div>
+          <span class="acc-chevron text-gray-400 text-xs">▾</span>
+        </button>
+        <div class="acc-body px-3 pb-3"><p class="text-xs text-gray-500 px-1">10 групп по 8 слов…</p></div>
+      </div>
+
+      <!-- Сквозные колоды (g_nouns и т.п.) — подсекции DECK_GROUPS -->
+      <div class="acc rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
+        <button class="acc-toggle w-full p-3.5 flex items-center gap-2.5 text-left" onclick="toggleAcc(this)">
+          <span class="w-2.5 h-2.5 rounded-full bg-sky-400 shrink-0"></span>
+          <div class="flex-1 min-w-0"><p class="font-bold text-sm text-white">📦 Существительные</p><p class="text-xs text-gray-400">1553 слов · 14 тем</p></div>
+          <span class="acc-chevron text-gray-400 text-xs">▾</span>
+        </button>
+        <div class="acc-body px-3 pb-3 flex flex-col gap-1.5">
+          <div class="rounded-xl border border-gray-700 bg-gray-900 p-2.5 flex items-center justify-between">
+            <span class="text-sm text-gray-200">Люди, семья, профессии</span><span class="text-xs text-gray-500">4 группы · 0/32</span>
+          </div>
+          <div class="rounded-xl border border-gray-700 bg-gray-900 p-2.5 flex items-center justify-between">
+            <span class="text-sm text-gray-200">Тело и здоровье</span><span class="text-xs text-gray-500">7 групп · 0/56</span>
+          </div>
+          <div class="rounded-xl border border-gray-700 bg-gray-900 p-2.5 flex items-center justify-between">
+            <span class="text-sm text-gray-400">Прочее</span><span class="text-xs text-gray-500">132 группы · 0/1056</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="acc rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
+        <button class="acc-toggle w-full p-3.5 flex items-center gap-2.5 text-left" onclick="toggleAcc(this)">
+          <span class="w-2.5 h-2.5 rounded-full bg-violet-400 shrink-0"></span>
+          <div class="flex-1 min-w-0"><p class="font-bold text-sm text-white">🔗 Служебные слова</p><p class="text-xs text-gray-400">613 слов · 46% размечено</p></div>
+          <span class="acc-chevron text-gray-400 text-xs">▾</span>
+        </button>
+        <div class="acc-body px-3 pb-3"><p class="text-xs text-gray-500 px-1">Вопросительные / предлоги / союзы / … / Прочее (330 слов, требует аудита — см. BACKLOG.md)</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── BottomNav ── -->
+  <div class="border-t border-gray-800 bg-gray-900 flex shrink-0">
+    <button class="flex-1 flex flex-col items-center py-2 gap-0.5 text-gray-500"><span class="text-xl">🏠</span><span class="text-[10px] font-medium">Главная</span></button>
+    <button class="flex-1 flex flex-col items-center py-2 gap-0.5 text-indigo-500"><span class="text-xl">📚</span><span class="text-[10px] font-medium">Учиться</span></button>
+    <button class="flex-1 flex flex-col items-center py-2 gap-0.5 text-gray-500"><span class="text-xl">⚡</span><span class="text-[10px] font-medium">Игра</span></button>
+  </div>
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.tabbtn').forEach(b => {
+    const on = b.dataset.tab === id;
+    b.classList.toggle('bg-gray-700', on);
+    b.classList.toggle('text-white', on);
+    b.classList.toggle('text-gray-400', !on);
+  });
+}
+function toggleAcc(btn) { btn.closest('.acc').classList.toggle('open'); }
+switchTab('letters');
+</script>
+</body>
+</html>

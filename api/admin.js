@@ -218,6 +218,17 @@ async function getData(supabase) {
   };
 }
 
+// ── Контент-план (планировщик постов для соцсетей) ────────────────────────────
+const CONTENT_PLAN_PLATFORMS = [
+  "telegram_channel", "telegram_chat", "instagram", "tiktok", "vk", "facebook", "youtube", "other",
+];
+
+async function getContentPlan(supabase) {
+  const { data, error } = await supabase.from("content_plan").select("*").order("scheduled_date", { ascending: true });
+  if (error) return [];
+  return data || [];
+}
+
 // ── Сегменты для рассылки ─────────────────────────────────────────────────────
 const SEGMENTS = {
   all:       { label: "Все пользователи",        fn: u => true },
@@ -574,15 +585,44 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
+    // Контент-план — сохранить (создать/обновить)
+    if (action === "content_plan_save") {
+      const { id, platform, scheduled_date, title, content, group_link, post_link, status, notes } = req.body || {};
+      if (!platform || !CONTENT_PLAN_PLATFORMS.includes(platform)) return res.status(400).json({ error: "bad platform" });
+      if (!scheduled_date) return res.status(400).json({ error: "scheduled_date required" });
+      const row = {
+        platform, scheduled_date, title: title || "", content: content || "",
+        group_link: group_link || null, post_link: post_link || null,
+        status: status || (post_link ? "posted" : "planned"), notes: notes || null,
+      };
+      let result;
+      if (id) {
+        result = await supabase.from("content_plan").update(row).eq("id", id).select().maybeSingle();
+      } else {
+        result = await supabase.from("content_plan").insert(row).select().maybeSingle();
+      }
+      if (result.error) return res.status(500).json({ error: result.error.message });
+      return res.status(200).json({ ok: true, row: result.data });
+    }
+
+    // Контент-план — удалить
+    if (action === "content_plan_delete") {
+      const { id } = req.body || {};
+      if (!id) return res.status(400).json({ error: "id required" });
+      const { error } = await supabase.from("content_plan").delete().eq("id", id);
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ ok: true });
+    }
+
     return res.status(400).json({ error: "unknown action" });
   }
 
   if (req.method !== "GET") return res.status(405).end();
 
-  const data = await getData(supabase);
+  const [data, contentPlan] = await Promise.all([getData(supabase), getContentPlan(supabase)]);
   if (req.query.view === "1") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     return res.status(200).send(renderHTML(data, secret));
   }
-  return res.status(200).json(data);
+  return res.status(200).json({ ...data, content_plan: contentPlan });
 }

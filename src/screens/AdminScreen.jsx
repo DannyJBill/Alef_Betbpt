@@ -7,6 +7,8 @@
  */
 import { useState, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
+import PostGenerator from "../components/admin/PostGenerator";
+import ContentPlanner from "../components/admin/ContentPlanner";
 
 const SECRET_KEY = "ab_admin_secret";
 
@@ -120,7 +122,7 @@ export default function AdminScreen({ onBack }) {
       </div>
 
       <div className="flex gap-2 mb-4">
-        {[["over", "📊"], ["users", "👥"], ["mkt", "📣"]].map(([id, ic]) => (
+        {[["over", "📊"], ["users", "👥"], ["mkt", "📣"], ["plan", "📅"], ["promo", "🎨"]].map(([id, ic]) => (
           <button key={id} onClick={() => setTab(id)}
             className={`flex-1 py-2 rounded-xl text-sm font-bold ${tab === id ? "bg-indigo-500 text-white" : `border ${card} ${txt}`}`}>
             {ic}
@@ -235,6 +237,15 @@ export default function AdminScreen({ onBack }) {
           ))}
         </div>
       )}
+
+      {/* ── Контент-план ── */}
+      {tab === "plan" && (
+        <ContentPlanner items={data.content_plan} api={api} reload={() => load(secret)}
+          card={card} txt={txt} soft={soft} dark={dark} />
+      )}
+
+      {/* ── Промо ── */}
+      {tab === "promo" && <PostGenerator />}
 
       {/* ── Карточка пользователя ── */}
       {user && (

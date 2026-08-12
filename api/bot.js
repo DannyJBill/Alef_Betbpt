@@ -57,10 +57,16 @@ async function getStats(telegramId) {
 
 // ── Commands ──────────────────────────────────────────────────────────────────
 
+// Strip invisible unicode chars (некоторые клиенты шлют first_name с ними),
+// fallback на username/«друг». Общий хелпер — используется и в /start, и в
+// персонализированных напоминаниях.
+function cleanName(rawName, username) {
+  return (rawName || "").replace(/[\u1160-\u11FF\uFFA0-\uFFDC\u3164]/g, "").trim()
+    || username || "друг";
+}
+
 async function cmdStart(chatId, user) {
-  // Strip invisible unicode chars, fallback to username or "друг"
-  const name = (user.first_name || "").replace(/[\u1160-\u11FF\uFFA0-\uFFDC\u3164]/g, "").trim()
-    || user.username || "друг";
+  const name = cleanName(user.first_name, user.username);
 
   // Регистрируем факт /start сразу в user_stats — иначе пользователи, которые
   // жмут /start, но не доходят до сохранения прогресса (/api/sync save),
@@ -200,6 +206,116 @@ export async function sendSmartReminders() {
     },
     ({ stats: s }) => Object.values(s?.cardReviews || {}).some(r => r.nextReview <= now)
   );
+}
+
+// ── Персонализированные напоминания (раз в N дней, период задаёт админка) ──────
+//
+// В отличие от sendDailyReminders/sendSmartReminders (шлют всем сразу по
+// расписанию cron), этот сендер per-user: у каждого юзера в stats лежит
+// lastReminderSentAt, и раз в сутки cron (?type=periodic) отбирает только
+// тех, у кого с последней отправки прошло >= reminder_period_days из
+// app_settings. Так «период» получается настоящим per-user интервалом, а не
+// просто ещё одним фиксированным временем рассылки.
+
+function ruPlural(n, one, few, many) {
+  const mod10 = n % 10, mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+  return many;
+}
+
+// Несколько вариантов приветствия, чтобы не слать один и тот же текст каждый
+// раз — выбираем по telegram_id, детерминированно (не рандом на каждый прогон).
+const REMINDER_GREETINGS = [
+  (name) => `👋 Привет, <b>${name}</b>!`,
+  (name) => `🇮🇱 ${name}, есть минутка на иврит?`,
+  (name) => `✨ <b>${name}</b>, не теряй темп!`,
+  (name) => `📖 Здравствуй, ${name}!`,
+];
+
+function buildReminderText(name, s, seed) {
+  const now = Date.now();
+  const due = Object.values(s?.cardReviews || {}).filter(r => r.nextReview <= now).length;
+  const weak = Object.keys(s?.weakLetters || {}).length;
+  const streak = s?.streak || 0;
+
+  const lines = [];
+  if (due > 0) lines.push(`⏰ ${due} ${ruPlural(due, "карточка", "карточки", "карточек")} ждут повторения`);
+  if (weak > 0) lines.push(`🔴 ${weak} ${ruPlural(weak, "буква", "буквы", "букв")} даются тяжелее остальных — самое время закрепить`);
+  if (streak > 0) lines.push(`🔥 Серия ${streak} ${ruPlural(streak, "день", "дня", "дней")} — не дай ей прерваться`);
+  if (!lines.length) lines.push("Загляни в приложение и пройди новую тему 📖");
+
+  const greet = REMINDER_GREETINGS[seed % REMINDER_GREETINGS.length](name);
+  return `${greet}\n\n${lines.join("\n")}`;
+}
+
+async function getReminderSettings() {
+  const { data } = await supabase.from("app_settings").select("*").eq("id", 1).maybeSingle();
+  return {
+    enabled:    data?.reminder_enabled ?? true,
+    periodDays: data?.reminder_period_days ?? 1,
+    segment:    data?.reminder_segment ?? "all",
+  };
+}
+
+// Сегменты, вычислимые прямо из user_stats (без джойнов на daily_sessions/events,
+// как в api/admin.js — там сегменты богаче, но это отдельный, более тяжёлый путь).
+const REMINDER_SEGMENTS = {
+  all:      () => true,
+  active7:  (u) => u.idleDays !== null && u.idleDays <= 7,
+  idle7:    (u) => u.idleDays !== null && u.idleDays > 7 && u.idleDays <= 30,
+  churned:  (u) => u.idleDays !== null && u.idleDays > 30,
+  premium:  (u) => u.isPremium,
+  free:     (u) => !u.isPremium,
+  streak:   (u) => u.streak > 0,
+};
+
+export async function sendPeriodicReminders() {
+  const settings = await getReminderSettings();
+  if (!settings.enabled) return 0;
+
+  const { data: rows } = await supabase
+    .from("user_stats")
+    .select("telegram_id, first_name, username, is_premium, last_seen_at, stats");
+  if (!rows) return 0;
+
+  const now = Date.now();
+  const periodMs = settings.periodDays * 86400000;
+  const segFn = REMINDER_SEGMENTS[settings.segment] || REMINDER_SEGMENTS.all;
+
+  const eligible = rows.filter((r) => {
+    const s = r.stats || {};
+    const lastSent = s.lastReminderSentAt || 0;
+    if (now - lastSent < periodMs) return false;
+    const idleDays = r.last_seen_at
+      ? Math.floor((now - new Date(r.last_seen_at).getTime()) / 86400000)
+      : null;
+    return segFn({ idleDays, isPremium: !!r.is_premium, streak: s.streak || 0 });
+  });
+
+  const BATCH_SIZE = 30;
+  const BATCH_DELAY = 1000;
+  let sent = 0;
+
+  for (let i = 0; i < eligible.length; i += BATCH_SIZE) {
+    const batch = eligible.slice(i, i + BATCH_SIZE);
+    await Promise.all(batch.map(async (r) => {
+      const s = r.stats || {};
+      const name = cleanName(r.first_name, r.username);
+      const text = buildReminderText(name, s, r.telegram_id);
+      await send(r.telegram_id, text, { reply_markup: { inline_keyboard: [[
+        { text: "📖 Открыть Alef Bet", web_app: { url: APP_URL } }
+      ]]}});
+      await supabase.from("user_stats")
+        .update({ stats: { ...s, lastReminderSentAt: now } })
+        .eq("telegram_id", r.telegram_id);
+      sent++;
+    }));
+    if (i + BATCH_SIZE < eligible.length) {
+      await new Promise((res) => setTimeout(res, BATCH_DELAY));
+    }
+  }
+  return sent;
 }
 
 // ── Webhook handler ───────────────────────────────────────────────────────────

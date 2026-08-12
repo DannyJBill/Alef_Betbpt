@@ -234,6 +234,20 @@ async function getContentPlan(supabase) {
   return data || [];
 }
 
+// ── Настройки персонализированных напоминаний (см. api/bot.js: sendPeriodicReminders) ─
+async function getReminderSettings(supabase) {
+  const { data } = await supabase.from("app_settings").select("*").eq("id", 1).maybeSingle();
+  return {
+    enabled:     data?.reminder_enabled ?? true,
+    period_days: data?.reminder_period_days ?? 1,
+    segment:     data?.reminder_segment ?? "all",
+  };
+}
+
+// Подмножество SEGMENTS, вычислимое в api/bot.js без джойнов на daily_sessions/events —
+// см. REMINDER_SEGMENTS там же. Ключи должны совпадать.
+const REMINDER_SEGMENT_OPTIONS = ["all", "active7", "idle7", "churned", "premium", "free", "streak"];
+
 // ── Сегменты для рассылки ─────────────────────────────────────────────────────
 const SEGMENTS = {
   all:       { label: "Все пользователи",        fn: u => true },
@@ -251,6 +265,8 @@ function renderHTML(d, secret) {
   const j = JSON.stringify;
   const segOpts = Object.entries(SEGMENTS)
     .map(([k, v]) => '<option value="' + k + '">' + v.label + '</option>').join("");
+  const reminderSegOpts = REMINDER_SEGMENT_OPTIONS
+    .map(k => '<option value="' + k + '">' + SEGMENTS[k].label + '</option>').join("");
   const platformOpts = Object.entries(CONTENT_PLAN_PLATFORM_LABELS)
     .map(([k, v]) => '<option value="' + k + '">' + v + '</option>').join("");
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8">
@@ -362,6 +378,22 @@ button.ghost{background:#262a33}button.danger{background:#b91c1c}
 
 <!-- МАРКЕТИНГ -->
 <div id="mkt" style="display:none">
+  <div class="panel"><h3>⏰ Персонализированные напоминания</h3>
+    <div class="muted" style="margin-bottom:10px">
+      Раз в N дней каждому неактивному юзеру уходит личное напоминание (имя,
+      слабые буквы, серия, карточки на повторение). Отправляется через cron
+      раз в сутки — шлёт только тем, у кого с прошлой отправки прошёл период.
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <label class="row" style="gap:6px;flex:0"><input type="checkbox" id="remEnabled" style="width:auto"> вкл.</label>
+      <span class="muted">каждые</span>
+      <input type="number" id="remPeriod" min="1" style="width:70px">
+      <span class="muted">дн.</span>
+      <select id="remSegment" style="flex:1">${reminderSegOpts}</select>
+      <button onclick="saveReminderSettings()">Сохранить</button>
+    </div>
+  </div>
+
   <div class="panel"><h3>Рассылка по сегменту</h3>
     <div class="row" style="margin-bottom:8px">
       <select id="bseg" onchange="segCount()" style="flex:1">
@@ -539,6 +571,23 @@ function segCount(){
   document.getElementById('bcount').textContent=USERS.filter(SEGF[s]).length+' чел.';
 }
 segCount();
+
+// ── Напоминания ──
+var REM = ${j(d.reminder_settings || { enabled: true, period_days: 1, segment: "all" })};
+document.getElementById('remEnabled').checked = REM.enabled;
+document.getElementById('remPeriod').value = REM.period_days;
+document.getElementById('remSegment').value = REM.segment;
+async function saveReminderSettings(){
+  var body = {
+    action: 'reminder_settings_save',
+    enabled: document.getElementById('remEnabled').checked,
+    period_days: Number(document.getElementById('remPeriod').value),
+    segment: document.getElementById('remSegment').value,
+  };
+  if (!body.period_days || body.period_days < 1) return toast('Период должен быть ≥ 1', false);
+  var r = await api(body);
+  if (r.ok) toast('Настройки сохранены'); else toast(r.error || 'Ошибка', false);
+}
 async function broadcast(){
   var seg=document.getElementById('bseg').value;
   var text=document.getElementById('btext').value.trim();
@@ -768,13 +817,32 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
+    // Напоминания — сохранить настройки (период/сегмент/вкл-выкл)
+    if (action === "reminder_settings_save") {
+      const { enabled, period_days, segment } = req.body || {};
+      const periodDays = Number(period_days);
+      if (!Number.isFinite(periodDays) || periodDays < 1) return res.status(400).json({ error: "period_days must be >= 1" });
+      if (!REMINDER_SEGMENT_OPTIONS.includes(segment)) return res.status(400).json({ error: "unknown segment" });
+      const { error } = await supabase.from("app_settings").upsert({
+        id: 1,
+        reminder_enabled: !!enabled,
+        reminder_period_days: periodDays,
+        reminder_segment: segment,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "id" });
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ ok: true });
+    }
+
     return res.status(400).json({ error: "unknown action" });
   }
 
   if (req.method !== "GET") return res.status(405).end();
 
-  const [data, contentPlan] = await Promise.all([getData(supabase), getContentPlan(supabase)]);
-  const full = { ...data, content_plan: contentPlan };
+  const [data, contentPlan, reminderSettings] = await Promise.all([
+    getData(supabase), getContentPlan(supabase), getReminderSettings(supabase),
+  ]);
+  const full = { ...data, content_plan: contentPlan, reminder_settings: reminderSettings };
   if (req.query.view === "1") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     return res.status(200).send(renderHTML(full, secret));

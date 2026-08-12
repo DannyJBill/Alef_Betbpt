@@ -28,6 +28,7 @@ export default function AdminScreen({ onBack }) {
   const [msg, setMsg]       = useState("");
   const [busy, setBusy]     = useState(false);
   const [toast, setToast]   = useState("");
+  const [rem, setRem]       = useState(null); // { enabled, period_days, segment }
 
   const card = dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200";
   const txt  = dark ? "text-white" : "text-gray-900";
@@ -44,7 +45,9 @@ export default function AdminScreen({ onBack }) {
         setErr(initData ? "Доступ запрещён: этот аккаунт не владелец" : "Неверный секрет");
         localStorage.removeItem(SECRET_KEY); setSecret(""); return;
       }
-      setData(await r.json());
+      const json = await r.json();
+      setData(json);
+      setRem(json.reminder_settings || { enabled: true, period_days: 1, segment: "all" });
     } catch (e) { setErr("Сеть недоступна"); }
   }
 
@@ -102,6 +105,7 @@ export default function AdminScreen({ onBack }) {
   const SEG_LABEL = {
     all: "Все", active7: "Активные 7д", idle7: "Спят 7–30д", churned: "Ушли 30+д",
     premium: "Premium", free: "Без premium", starters: "Начали <5", advanced: "20+ уроков",
+    streak: "С активной серией",
   };
 
   const list = data.users.filter(SEGF[seg]).filter(u =>
@@ -206,6 +210,42 @@ export default function AdminScreen({ onBack }) {
       {/* ── Маркетинг ── */}
       {tab === "mkt" && (
         <div>
+          <p className={`text-xs font-bold mb-2 ${soft}`}>⏰ ПЕРСОНАЛИЗИРОВАННЫЕ НАПОМИНАНИЯ</p>
+          {rem && (
+            <div className={`rounded-xl border p-3 mb-5 ${card}`}>
+              <p className={`text-[11px] mb-2 ${soft}`}>
+                Раз в N дней — личное напоминание (имя, слабые буквы, серия, карточки на повторение)
+                тем, у кого с прошлой отправки прошёл период.
+              </p>
+              <label className={`flex items-center gap-2 text-sm mb-2 ${txt}`}>
+                <input type="checkbox" checked={rem.enabled}
+                  onChange={e => setRem({ ...rem, enabled: e.target.checked })} />
+                включено
+              </label>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`text-sm ${soft}`}>каждые</span>
+                <input type="number" min={1} value={rem.period_days}
+                  onChange={e => setRem({ ...rem, period_days: Number(e.target.value) })}
+                  className={`w-16 rounded-lg border p-1.5 text-sm text-center ${card} ${txt}`} />
+                <span className={`text-sm ${soft}`}>дн.</span>
+              </div>
+              <select value={rem.segment} onChange={e => setRem({ ...rem, segment: e.target.value })}
+                className={`w-full rounded-lg border p-2 text-sm mb-2 ${card} ${txt}`}>
+                {["all", "active7", "idle7", "churned", "premium", "free", "streak"].map(k => (
+                  <option key={k} value={k}>{SEG_LABEL[k] || k}</option>
+                ))}
+              </select>
+              <button disabled={busy || !rem.period_days || rem.period_days < 1}
+                onClick={async () => {
+                  const r = await api({ action: "reminder_settings_save", ...rem });
+                  r.ok ? flash("Настройки сохранены") : flash(r.error || "Ошибка");
+                }}
+                className="w-full py-2.5 rounded-xl font-bold text-white bg-indigo-500 disabled:opacity-40">
+                Сохранить
+              </button>
+            </div>
+          )}
+
           <p className={`text-xs font-bold mb-2 ${soft}`}>РАССЫЛКА ПО СЕГМЕНТУ</p>
           <div className="flex gap-1.5 mb-2 overflow-x-auto pb-1">
             {Object.keys(SEGF).map(k => (

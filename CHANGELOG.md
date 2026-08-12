@@ -2,6 +2,12 @@
 
 Новое — сверху.
 
+## 2026-08-12 — персонализированные напоминания раз в N дней (админка задаёт период)
+
+Новый push-сендер `sendPeriodicReminders()` в `api/bot.js`, отдельный от существующих `sendDailyReminders`/`sendSmartReminders` (те шлют всем по фиксированному времени cron, 9:00/18:00 UTC). Здесь период per-user: у каждого юзера в `stats.lastReminderSentAt` хранится время последней отправки, cron (`?type=periodic`, добавлен в `vercel.json`, `0 10 * * *`) бьёт раз в сутки и шлёт только тем, у кого с прошлой отправки прошло ≥ `reminder_period_days`. Персонализация — имя (общий хелпер `cleanName`, раньше был инлайн только в `/start`), слабые буквы, серия, карточки на повторение; 4 варианта приветствия по `telegram_id`, чтобы не долбить одним и тем же текстом.
+
+Настройки (вкл/выкл, период в днях, сегмент — переиспользует часть `SEGMENTS` из `api/admin.js`: all/active7/idle7/churned/premium/free/streak) — новая таблица Supabase `app_settings` (одна строка, id=1; тот же deny-all-для-anon паттерн RLS, что у `content_plan`), правится из обеих админок: `/api/admin?view=1` (панель в «📣 Маркетинг») и React `AdminScreen.jsx` (тот же таб). Новые действия `api/admin.js`: `reminder_settings_save`, GET отдаёт `reminder_settings` вместе с остальными данными.
+
 ## 2026-08-12 — уборка хвостов: фикс юзернейма бота, чистка скретч-файлов, документация
 
 **Фикс** (`5caa3df`): юзернейм бота вынесен в `BOT_USERNAME`/`APP_SHORT` (`src/data/constants.js`) — было 3 независимых копии (`LearnScreen.jsx` хардкодил устаревшее `AlefBetBot`, `ProfileScreen.jsx`/`UpdatePopup.jsx` — по своей локальной константе `alef_betbot`). Восстановлено из отслоившейся ветки `claude/beautiful-babbage-81a7e7` (коммит `506ed61`) — ветка разошлась с `main` до ребейза истории и не была влита, но сам фикс не устарел и закрывает пункт `BACKLOG.md` про унификацию написания.

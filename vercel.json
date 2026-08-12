@@ -4,8 +4,9 @@
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "crons": [
-    { "path": "/api/cron?type=daily",  "schedule": "0 9 * * *"  },
-    { "path": "/api/cron?type=smart",  "schedule": "0 18 * * *" }
+    { "path": "/api/cron?type=daily",    "schedule": "0 9 * * *"  },
+    { "path": "/api/cron?type=smart",    "schedule": "0 18 * * *" },
+    { "path": "/api/cron?type=periodic", "schedule": "0 10 * * *" }
   ],
   "headers": [
     {

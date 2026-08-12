@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useStats } from "../../context/StatsContext";
-
-const BOT_USERNAME = "alef_betbot";
-const APP_SHORT    = "learn";
+import { BOT_USERNAME, APP_SHORT } from "../../data/constants";
 
 /**
  * UpdatePopup — одноразовый анонс обновления при открытии приложения.

@@ -239,6 +239,22 @@ async function getData(supabase) {
   };
 }
 
+// ── Deep-link с меткой источника ──────────────────────────────────────────────
+// Юзернейм бота — тот же, что src/data/constants.js: BOT_USERNAME (не импортируем
+// напрямую — cross-file импорт из src/ в api/ на Vercel не работает, см. PROJECT_STATE.md).
+const DEEP_LINK_BOT = "alef_betbot";
+
+// Telegram допускает в start-параметре только [A-Za-z0-9_-], до 64 симв.
+function sanitizeDeepLinkSource(raw) {
+  return String(raw || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64);
+}
+
+async function getDeepLinks(supabase) {
+  const { data, error } = await supabase.from("deep_links").select("*").order("created_at", { ascending: false });
+  if (error) return [];
+  return data || [];
+}
+
 // ── Контент-план (планировщик постов для соцсетей) ────────────────────────────
 const CONTENT_PLAN_PLATFORMS = [
   "telegram_channel", "telegram_chat", "instagram", "tiktok", "vk", "facebook", "youtube", "other",
@@ -432,14 +448,9 @@ button.ghost{background:#262a33}button.danger{background:#b91c1c}
   <div class="panel"><h3>Deep-link с меткой источника</h3>
     <div class="row">
       <input id="utm" placeholder="метка: instagram, chat, blog…" style="flex:1">
-      <button class="ghost" onclick="makeLink()">Собрать</button>
+      <button class="ghost" onclick="makeLink()">Собрать и сохранить</button>
     </div>
-    <div id="linkout" class="muted" style="margin-top:8px"></div>
-  </div>
-
-  <div class="panel"><h3>Источники (по меткам)</h3>
-    <div class="muted" style="margin-bottom:6px">переходов всего / уникальных людей</div>
-    ${Object.entries(d.sources || {}).sort((a,b)=>b[1].total-a[1].total).map(([k,v]) => '<div class="row" style="justify-content:space-between;padding:3px 0"><span>' + k + '</span><b>' + v.total + ' <span class="muted">/ ' + v.unique + '</span></b></div>').join("") || '<div class="muted">пока не было переходов по меткам</div>'}
+    <div id="dlList" style="margin-top:10px"></div>
   </div>
 
   <div class="panel"><h3>Языки аудитории</h3>
@@ -510,6 +521,8 @@ button.ghost{background:#262a33}button.danger{background:#b91c1c}
 var SECRET = ${j(secret)};
 var USERS  = ${j(d.users)};
 var PLAN   = ${j(d.content_plan || [])};
+var DL      = ${j(d.deep_links || [])};
+var SOURCES = ${j(d.sources || {})};
 var PLATFORM_LABEL = ${j(CONTENT_PLAN_PLATFORM_LABELS)};
 var STATUS_LABEL = ${j(CONTENT_PLAN_STATUS_LABELS)};
 var SEGF = {
@@ -626,11 +639,45 @@ async function broadcast(){
   if(r.ok) toast('Доставлено: '+r.sent+' / ошибок: '+r.failed);
   else toast(r.error||'Ошибка',false);
 }
-function makeLink(){
-  var u=(document.getElementById('utm').value||'src').replace(/[^a-zA-Z0-9_-]/g,'');
-  document.getElementById('linkout').innerHTML=
-    'https://t.me/alef_betbot?start='+u+'<br><span class="muted">Метка придёт боту в /start — по ней считаем источник.</span>';
+async function makeLink(){
+  var u=(document.getElementById('utm').value||'').replace(/[^a-zA-Z0-9_-]/g,'');
+  if(!u) return toast('Введи метку',false);
+  var r=await api({action:'deep_link_save',source:u});
+  if(r.ok){ toast('Ссылка сохранена'); document.getElementById('utm').value=''; reloadDeepLinks(); }
+  else toast(r.error||'Ошибка',false);
 }
+async function reloadDeepLinks(){
+  var r=await fetch('/api/admin?secret='+encodeURIComponent(SECRET));
+  var d=await r.json();
+  DL=d.deep_links||[]; SOURCES=d.sources||{};
+  drawDeepLinks();
+}
+async function deleteDeepLink(id){
+  if(!confirm('Удалить ссылку?')) return;
+  var r=await api({action:'deep_link_delete',id:id});
+  if(r.ok){ toast('Удалено'); reloadDeepLinks(); } else toast(r.error||'Ошибка',false);
+}
+function copyLink(url){
+  if(navigator.clipboard) navigator.clipboard.writeText(url).then(function(){ toast('Скопировано'); });
+}
+function drawDeepLinks(){
+  document.getElementById('dlList').innerHTML = DL.length ? DL.map(function(l){
+    var stat = SOURCES[l.source];
+    var statTxt = stat ? (stat.total+' переходов / '+stat.unique+' уник.') : 'переходов пока нет';
+    return '<div class="row" style="justify-content:space-between;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #262a33">'+
+      '<div style="min-width:0">'+
+        '<div style="font-weight:700">'+esc(l.source)+'</div>'+
+        '<div class="muted" style="word-break:break-all;font-size:12px">'+esc(l.url)+'</div>'+
+        '<div class="muted" style="font-size:11px;margin-top:2px">'+statTxt+'</div>'+
+      '</div>'+
+      '<div class="row" style="flex:0;gap:6px;white-space:nowrap">'+
+        '<button class="ghost" style="padding:6px 10px;font-size:11px" onclick="copyLink(&#39;'+esc(l.url)+'&#39;)">⧉</button>'+
+        '<button class="danger" style="padding:6px 10px;font-size:11px" onclick="deleteDeepLink('+l.id+')">✕</button>'+
+      '</div>'+
+    '</div>';
+  }).join('') : '<div class="muted">Пока нет сохранённых ссылок.</div>';
+}
+drawDeepLinks();
 function exportCsv(){
   var rows=[['id','name','username','xp','level','lessons','words','streak','premium','lang','idle_days']];
   filtered().forEach(function(u){ rows.push([u.telegram_id,u.name,u.username,u.xp,u.level,u.lessons,u.words,u.streak,u.premium?1:0,u.lang,u.idle_days]); });
@@ -861,15 +908,36 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
+    // Deep-link — сохранить в список
+    if (action === "deep_link_save") {
+      const source = sanitizeDeepLinkSource(req.body?.source);
+      if (!source) return res.status(400).json({ error: "source required" });
+      const url = `https://t.me/${DEEP_LINK_BOT}?start=${source}`;
+      const { data, error } = await supabase.from("deep_links")
+        .upsert({ source, url }, { onConflict: "source" })
+        .select().maybeSingle();
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ ok: true, row: data });
+    }
+
+    // Deep-link — удалить из списка
+    if (action === "deep_link_delete") {
+      const { id } = req.body || {};
+      if (!id) return res.status(400).json({ error: "id required" });
+      const { error } = await supabase.from("deep_links").delete().eq("id", id);
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ ok: true });
+    }
+
     return res.status(400).json({ error: "unknown action" });
   }
 
   if (req.method !== "GET") return res.status(405).end();
 
-  const [data, contentPlan, reminderSettings] = await Promise.all([
-    getData(supabase), getContentPlan(supabase), getReminderSettings(supabase),
+  const [data, contentPlan, reminderSettings, deepLinks] = await Promise.all([
+    getData(supabase), getContentPlan(supabase), getReminderSettings(supabase), getDeepLinks(supabase),
   ]);
-  const full = { ...data, content_plan: contentPlan, reminder_settings: reminderSettings };
+  const full = { ...data, content_plan: contentPlan, reminder_settings: reminderSettings, deep_links: deepLinks };
   if (req.query.view === "1") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     return res.status(200).send(renderHTML(full, secret));

@@ -29,6 +29,7 @@ export default function AdminScreen({ onBack }) {
   const [busy, setBusy]     = useState(false);
   const [toast, setToast]   = useState("");
   const [rem, setRem]       = useState(null); // { enabled, period_days, segment }
+  const [dlInput, setDlInput] = useState("");
 
   const card = dark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200";
   const txt  = dark ? "text-white" : "text-gray-900";
@@ -271,14 +272,48 @@ export default function AdminScreen({ onBack }) {
             {busy ? "Отправляю…" : "📣 Отправить"}
           </button>
 
-          <p className={`text-xs font-bold mt-5 mb-2 ${soft}`}>ИСТОЧНИКИ (ПО МЕТКАМ)</p>
-          <p className={`text-[11px] mb-1 ${soft}`}>переходов всего / уникальных людей</p>
-          {Object.entries(data.sources || {}).sort((a, b) => b[1].total - a[1].total).map(([k, v]) => (
-            <div key={k} className={`flex justify-between py-1 text-sm ${soft}`}>
-              <span>{k}</span><b>{v.total} <span className="font-normal">/ {v.unique}</span></b>
-            </div>
-          ))}
-          {!Object.keys(data.sources || {}).length && <p className={`text-sm ${soft}`}>пока не было переходов по меткам</p>}
+          <p className={`text-xs font-bold mt-5 mb-2 ${soft}`}>DEEP-LINK С МЕТКОЙ ИСТОЧНИКА</p>
+          <div className="flex gap-2 mb-3">
+            <input value={dlInput} onChange={e => setDlInput(e.target.value)} placeholder="метка: instagram, chat, blog…"
+              className={`flex-1 rounded-lg border p-2 text-sm ${card} ${txt}`} />
+            <button disabled={busy || !dlInput.trim()}
+              onClick={async () => {
+                const source = dlInput.replace(/[^a-zA-Z0-9_-]/g, "");
+                if (!source) return flash("Введи метку");
+                const r = await api({ action: "deep_link_save", source });
+                r.ok ? (flash("Ссылка сохранена"), setDlInput(""), load(secret)) : flash(r.error || "Ошибка");
+              }}
+              className="px-4 rounded-lg font-bold text-white bg-indigo-500 disabled:opacity-40 text-sm">
+              Собрать
+            </button>
+          </div>
+          {(data.deep_links || []).map(l => {
+            const stat = (data.sources || {})[l.source];
+            return (
+              <div key={l.id} className={`rounded-xl border p-3 mb-2 ${card}`}>
+                <div className="flex justify-between items-start gap-2">
+                  <div className="min-w-0">
+                    <div className={`font-bold text-sm ${txt}`}>{l.source}</div>
+                    <div className={`text-xs break-all ${soft}`}>{l.url}</div>
+                    <div className={`text-[11px] mt-1 ${soft}`}>
+                      {stat ? `${stat.total} переходов / ${stat.unique} уник.` : "переходов пока нет"}
+                    </div>
+                  </div>
+                  <div className="flex gap-1 shrink-0">
+                    <button onClick={() => navigator.clipboard?.writeText(l.url).then(() => flash("Скопировано"))}
+                      className={`px-2 py-1 rounded-lg text-xs border ${card} ${soft}`}>⧉</button>
+                    <button onClick={async () => {
+                        if (!window.confirm("Удалить ссылку?")) return;
+                        const r = await api({ action: "deep_link_delete", id: l.id });
+                        r.ok ? (flash("Удалено"), load(secret)) : flash(r.error || "Ошибка");
+                      }}
+                      className="px-2 py-1 rounded-lg text-xs border border-rose-500 text-rose-500">✕</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {!(data.deep_links || []).length && <p className={`text-sm ${soft}`}>Пока нет сохранённых ссылок.</p>}
 
           <p className={`text-xs font-bold mt-5 mb-2 ${soft}`}>ЯЗЫКИ</p>
           {Object.entries(data.langs).sort((a, b) => b[1] - a[1]).map(([k, v]) => (

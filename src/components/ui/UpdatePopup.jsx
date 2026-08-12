@@ -142,7 +142,7 @@ export default function UpdatePopup({ dark }) {
         <button
           onClick={close}
           aria-label="Закрыть"
-          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-base leading-none ${secondaryBtn}`}
+          className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-base leading-none bg-red-500 text-white hover:bg-red-600"
         >
           ✕
         </button>

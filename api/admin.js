@@ -600,9 +600,9 @@ async function broadcast(){
   else toast(r.error||'Ошибка',false);
 }
 function makeLink(){
-  var u=(document.getElementById('utm').value||'src').replace(/[^a-zA-Z0-9_]/g,'');
+  var u=(document.getElementById('utm').value||'src').replace(/[^a-zA-Z0-9_-]/g,'');
   document.getElementById('linkout').innerHTML=
-    'https://t.me/AlefBetBot?start='+u+'<br><span class="muted">Метка придёт боту в /start — по ней считаем источник.</span>';
+    'https://t.me/alef_betbot?start='+u+'<br><span class="muted">Метка придёт боту в /start — по ней считаем источник.</span>';
 }
 function exportCsv(){
   var rows=[['id','name','username','xp','level','lessons','words','streak','premium','lang','idle_days']];

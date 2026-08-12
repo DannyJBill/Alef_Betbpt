@@ -4,4 +4,8 @@ dist
 .env.local
 .DS_Store
 tools/tts/.tts_state.json
-tools/tts/.tts_state.json
+
+# скретч/дампы разовых скриптов обогащения словаря — не коммитим по умолчанию;
+# уже закоммиченные файлы (напр. tools/vocab_tmp/semantic_regroup/*.mjs, backup_original.json)
+# это правило не трогает — git продолжает их отслеживать независимо от .gitignore
+tools/vocab_tmp/

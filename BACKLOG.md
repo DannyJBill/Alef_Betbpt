@@ -41,7 +41,7 @@
 - [ ] `colorScheme` из `Telegram.WebApp` (Android) + флаг ручного override — частично сделано: `ThemeContext.jsx` уже читает `tg.colorScheme` и подписывается на его смену; Android-специфичного обхода и флага ручного override всё ещё нет
 - [ ] PGRST125: логировать body ответа Supabase в `api/sync.js` → грепнуть Vercel Logs
 - [x] «Написать в поддержку» — username бота — уточнено: кнопка ведёт на `t.me/alef_betbot` (`ProfileScreen.jsx`); тот же бот в реферальных ссылках.
-- [ ] Унификация написания юзернейма бота — владелец подтвердил 10.08.2026: правильно `alef_betbot`. `ProfileScreen.jsx` и `UpdatePopup.jsx` (обновлён 10.08.2026, коммит `7f1fdd1` — кнопка «Пригласить друга») уже используют это написание; `LearnScreen.jsx:367` пока хардкодит `AlefBetBot` — фикс поставлен фоновой задачей (см. `task_6dd34590`), не завершён на момент этой записи.
+- [x] Унификация написания юзернейма бота — закрыто 12.08.2026 (`5caa3df`). `BOT_USERNAME`/`APP_SHORT` вынесены в `src/data/constants.js`, `LearnScreen.jsx`/`ProfileScreen.jsx`/`UpdatePopup.jsx` используют единый источник вместо 3 независимых копий.
 
 ## 🆕 Новое (обнаружено при сверке доков с кодом 07.08.2026)
 

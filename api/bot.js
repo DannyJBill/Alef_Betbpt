@@ -65,7 +65,7 @@ function cleanName(rawName, username) {
     || username || "друг";
 }
 
-async function cmdStart(chatId, user) {
+async function cmdStart(chatId, user, startPayload) {
   const name = cleanName(user.first_name, user.username);
 
   // Регистрируем факт /start сразу в user_stats — иначе пользователи, которые
@@ -74,9 +74,19 @@ async function cmdStart(chatId, user) {
   // user_stats). Не трогаем stats существующих пользователей — только
   // обновляем контактные поля и last_seen_at.
   const { data: existing } = await supabase
-    .from("user_stats").select("stats")
+    .from("user_stats").select("stats, utm_source")
     .eq("telegram_id", user.id).maybeSingle();
   const now = new Date().toISOString();
+
+  // Метка источника (Deep-link из админки, ?start=fb-sp-1-t) — только «первое
+  // касание»: если utm_source уже проставлен, повторные /start (в т.ч. просто
+  // открытие приложения заново) его не перезаписывают. ref_<id> — отдельная
+  // ветка (реферальная программа, читается на фронте из startapp, см.
+  // StatsContext.jsx) — сюда не попадает, чтобы не путать источники.
+  const utmSource = !existing?.utm_source && startPayload && !startPayload.startsWith("ref_")
+    ? startPayload.slice(0, 64)
+    : undefined;
+
   await supabase.from("user_stats").upsert({
     telegram_id:   user.id,
     username:      user.username      || null,
@@ -85,6 +95,7 @@ async function cmdStart(chatId, user) {
     last_seen_at:  now,
     updated_at:    now,
     stats:         existing?.stats || {},
+    ...(utmSource ? { utm_source: utmSource } : {}),
   }, { onConflict: "telegram_id" });
 
   await send(chatId,
@@ -371,10 +382,17 @@ export default async function handler(req, res) {
 
   const chatId = msg.chat.id;
   const userId = msg.from.id;
-  const cmd    = msg.text.split("@")[0];
+  // Разбираем ТОЛЬКО первый токен: было .split("@")[0], но у /start с
+  // deep-link payload'ом текст выглядит как "/start fb-sp-1-t" — split по "@"
+  // такое не резал (пробел, не @), и весь текст целиком не совпадал ни с
+  // одним case ниже — /start с меткой источника молча улетал в default.
+  const cmd = msg.text.split(/[\s@]/)[0];
+  const startPayload = cmd === "/start"
+    ? msg.text.replace(/^\/start(@\S+)?\s*/, "")
+    : "";
 
   switch (cmd) {
-    case "/start":  await cmdStart(chatId, msg.from); break;
+    case "/start":  await cmdStart(chatId, msg.from, startPayload); break;
     case "/stats":  await cmdStats(chatId, userId); break;
     case "/streak": await cmdStreak(chatId, userId); break;
     case "/reset":  await cmdReset(chatId); break;

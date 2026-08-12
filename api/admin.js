@@ -103,7 +103,7 @@ async function getData(supabase) {
     { data: refs },
     { data: deckProg },
   ] = await Promise.all([
-    supabase.from("user_stats").select("telegram_id, first_name, username, last_seen_at, is_premium, language_code, updated_at, stats"),
+    supabase.from("user_stats").select("telegram_id, first_name, username, last_seen_at, is_premium, language_code, updated_at, stats, utm_source"),
     supabase.from("daily_sessions").select("telegram_id, date").gte("date", dayAgo(60)),
     supabase.from("events").select("telegram_id, event_type, created_at").gte("created_at", new Date(now - 30 * 86400000).toISOString()),
     supabase.from("referrals").select("referrer_id, referee_id, created_at"),
@@ -157,6 +157,7 @@ async function getData(supabase) {
       premium: !!r.is_premium,
       premium_type: st.premiumType || "",
       lang: r.language_code || "—",
+      source: r.utm_source || "",
       schema: schemaVer(st),
       first_seen: firstSeen[r.telegram_id] || null,
       last_seen: last,
@@ -196,6 +197,10 @@ async function getData(supabase) {
   const langs = {};
   users.forEach(u => { langs[u.lang] = (langs[u.lang] || 0) + 1; });
 
+  // Источники (UTM-метка из Deep-link, api/bot.js: cmdStart)
+  const sources = {};
+  users.forEach(u => { if (u.source) sources[u.source] = (sources[u.source] || 0) + 1; });
+
   // Рефералы
   const refCount = {};
   (refs || []).forEach(r => { refCount[r.referrer_id] = (refCount[r.referrer_id] || 0) + 1; });
@@ -213,7 +218,7 @@ async function getData(supabase) {
       referrals: (refs || []).length,
       deck_users: deckUsers.size, deck_words: deckWordsLearned,
     },
-    funnel, churn, ev7, chart, langs, topRefs, users,
+    funnel, churn, ev7, chart, langs, sources, topRefs, users,
     generated_at: new Date().toISOString(),
   };
 }
@@ -416,6 +421,10 @@ button.ghost{background:#262a33}button.danger{background:#b91c1c}
     <div id="linkout" class="muted" style="margin-top:8px"></div>
   </div>
 
+  <div class="panel"><h3>Источники (по меткам)</h3>
+    ${Object.entries(d.sources || {}).sort((a,b)=>b[1]-a[1]).map(([k,v]) => '<div class="row" style="justify-content:space-between;padding:3px 0"><span>' + k + '</span><b>' + v + '</b></div>').join("") || '<div class="muted">пока никто не пришёл по метке</div>'}
+  </div>
+
   <div class="panel"><h3>Языки аудитории</h3>
     ${Object.entries(d.langs).sort((a,b)=>b[1]-a[1]).map(([k,v]) => '<div class="row" style="justify-content:space-between;padding:3px 0"><span>' + k + '</span><b>' + v + '</b></div>').join("")}
   </div>
@@ -540,7 +549,8 @@ function openU(id){
     'XP '+cur.xp+' · уровень '+cur.level+' · серия '+cur.streak+'<br>'+
     'уроков пройдено: '+cur.lessons+' · слов в словаре: '+cur.words+'<br>'+
     'первый заход: '+(cur.first_seen?new Date(cur.first_seen).toLocaleDateString('ru'):'—')+
-    ' · последний: '+(cur.last_seen?new Date(cur.last_seen).toLocaleString('ru'):'—');
+    ' · последний: '+(cur.last_seen?new Date(cur.last_seen).toLocaleString('ru'):'—')+'<br>'+
+    'источник: '+(cur.source||'—');
   document.getElementById('um').classList.add('on');
 }
 function closeU(){ document.getElementById('um').classList.remove('on'); }

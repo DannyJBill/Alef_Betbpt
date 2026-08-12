@@ -271,6 +271,12 @@ export default function AdminScreen({ onBack }) {
             {busy ? "Отправляю…" : "📣 Отправить"}
           </button>
 
+          <p className={`text-xs font-bold mt-5 mb-2 ${soft}`}>ИСТОЧНИКИ (ПО МЕТКАМ)</p>
+          {Object.entries(data.sources || {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => (
+            <div key={k} className={`flex justify-between py-1 text-sm ${soft}`}><span>{k}</span><b>{v}</b></div>
+          ))}
+          {!Object.keys(data.sources || {}).length && <p className={`text-sm ${soft}`}>пока никто не пришёл по метке</p>}
+
           <p className={`text-xs font-bold mt-5 mb-2 ${soft}`}>ЯЗЫКИ</p>
           {Object.entries(data.langs).sort((a, b) => b[1] - a[1]).map(([k, v]) => (
             <div key={k} className={`flex justify-between py-1 text-sm ${soft}`}><span>{k}</span><b>{v}</b></div>
@@ -301,7 +307,8 @@ export default function AdminScreen({ onBack }) {
               {user.xp} XP · уровень {user.level} · серия {user.streak}<br />
               уроков {user.lessons} · слов {user.words}<br />
               первый заход: {user.first_seen ? new Date(user.first_seen).toLocaleDateString("ru") : "—"}<br />
-              последний: {user.last_seen ? new Date(user.last_seen).toLocaleString("ru") : "—"}
+              последний: {user.last_seen ? new Date(user.last_seen).toLocaleString("ru") : "—"}<br />
+              источник: {user.source || "—"}
             </p>
             <textarea value={msg} onChange={e => setMsg(e.target.value)} rows={3}
               placeholder="Личное сообщение…"

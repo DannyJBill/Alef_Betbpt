@@ -272,10 +272,13 @@ export default function AdminScreen({ onBack }) {
           </button>
 
           <p className={`text-xs font-bold mt-5 mb-2 ${soft}`}>ИСТОЧНИКИ (ПО МЕТКАМ)</p>
-          {Object.entries(data.sources || {}).sort((a, b) => b[1] - a[1]).map(([k, v]) => (
-            <div key={k} className={`flex justify-between py-1 text-sm ${soft}`}><span>{k}</span><b>{v}</b></div>
+          <p className={`text-[11px] mb-1 ${soft}`}>переходов всего / уникальных людей</p>
+          {Object.entries(data.sources || {}).sort((a, b) => b[1].total - a[1].total).map(([k, v]) => (
+            <div key={k} className={`flex justify-between py-1 text-sm ${soft}`}>
+              <span>{k}</span><b>{v.total} <span className="font-normal">/ {v.unique}</span></b>
+            </div>
           ))}
-          {!Object.keys(data.sources || {}).length && <p className={`text-sm ${soft}`}>пока никто не пришёл по метке</p>}
+          {!Object.keys(data.sources || {}).length && <p className={`text-sm ${soft}`}>пока не было переходов по меткам</p>}
 
           <p className={`text-xs font-bold mt-5 mb-2 ${soft}`}>ЯЗЫКИ</p>
           {Object.entries(data.langs).sort((a, b) => b[1] - a[1]).map(([k, v]) => (

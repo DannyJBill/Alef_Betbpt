@@ -102,12 +102,16 @@ async function getData(supabase) {
     { data: events },
     { data: refs },
     { data: deckProg },
+    { data: dlClicks },
   ] = await Promise.all([
     supabase.from("user_stats").select("telegram_id, first_name, username, last_seen_at, is_premium, language_code, updated_at, stats, utm_source"),
     supabase.from("daily_sessions").select("telegram_id, date").gte("date", dayAgo(60)),
     supabase.from("events").select("telegram_id, event_type, created_at").gte("created_at", new Date(now - 30 * 86400000).toISOString()),
     supabase.from("referrals").select("referrer_id, referee_id, created_at"),
     supabase.from("user_word_progress").select("telegram_id, introduced"),
+    // Клики по deep-link (api/bot.js: cmdStart) — всё время, не только 30д
+    // как остальные события выше: для маркетинговой метки важна лайфтайм-цифра.
+    supabase.from("events").select("telegram_id, payload").eq("event_type", "deep_link_click"),
   ]);
 
   const all = rows || [];
@@ -197,9 +201,21 @@ async function getData(supabase) {
   const langs = {};
   users.forEach(u => { langs[u.lang] = (langs[u.lang] || 0) + 1; });
 
-  // Источники (UTM-метка из Deep-link, api/bot.js: cmdStart)
-  const sources = {};
-  users.forEach(u => { if (u.source) sources[u.source] = (sources[u.source] || 0) + 1; });
+  // Источники (клики по Deep-link, api/bot.js: cmdStart) — для каждой метки:
+  // всего переходов (каждый /start с этим payload, включая повторные) и
+  // уников (кол-во разных telegram_id). Отдельно от u.source на юзерах —
+  // там только «первое касание» (кто в итоге зарегистрировался).
+  const sourceStats = {};
+  (dlClicks || []).forEach(e => {
+    const src = e.payload?.source;
+    if (!src) return;
+    (sourceStats[src] ||= { total: 0, ids: new Set() });
+    sourceStats[src].total++;
+    sourceStats[src].ids.add(e.telegram_id);
+  });
+  const sources = Object.fromEntries(
+    Object.entries(sourceStats).map(([k, v]) => [k, { total: v.total, unique: v.ids.size }])
+  );
 
   // Рефералы
   const refCount = {};
@@ -422,7 +438,8 @@ button.ghost{background:#262a33}button.danger{background:#b91c1c}
   </div>
 
   <div class="panel"><h3>Источники (по меткам)</h3>
-    ${Object.entries(d.sources || {}).sort((a,b)=>b[1]-a[1]).map(([k,v]) => '<div class="row" style="justify-content:space-between;padding:3px 0"><span>' + k + '</span><b>' + v + '</b></div>').join("") || '<div class="muted">пока никто не пришёл по метке</div>'}
+    <div class="muted" style="margin-bottom:6px">переходов всего / уникальных людей</div>
+    ${Object.entries(d.sources || {}).sort((a,b)=>b[1].total-a[1].total).map(([k,v]) => '<div class="row" style="justify-content:space-between;padding:3px 0"><span>' + k + '</span><b>' + v.total + ' <span class="muted">/ ' + v.unique + '</span></b></div>').join("") || '<div class="muted">пока не было переходов по меткам</div>'}
   </div>
 
   <div class="panel"><h3>Языки аудитории</h3>

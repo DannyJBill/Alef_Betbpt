@@ -78,14 +78,14 @@ async function cmdStart(chatId, user, startPayload) {
     .eq("telegram_id", user.id).maybeSingle();
   const now = new Date().toISOString();
 
-  // Метка источника (Deep-link из админки, ?start=fb-sp-1-t) — только «первое
-  // касание»: если utm_source уже проставлен, повторные /start (в т.ч. просто
-  // открытие приложения заново) его не перезаписывают. ref_<id> — отдельная
-  // ветка (реферальная программа, читается на фронте из startapp, см.
-  // StatsContext.jsx) — сюда не попадает, чтобы не путать источники.
-  const utmSource = !existing?.utm_source && startPayload && !startPayload.startsWith("ref_")
-    ? startPayload.slice(0, 64)
-    : undefined;
+  // Метка источника (Deep-link из админки, ?start=fb-sp-1-t). ref_<id> —
+  // отдельная ветка (реферальная программа, читается на фронте из startapp,
+  // см. StatsContext.jsx) — сюда не попадает, чтобы не путать источники.
+  const clickSource = startPayload && !startPayload.startsWith("ref_") ? startPayload.slice(0, 64) : null;
+
+  // "Первое касание" — если utm_source уже проставлен, повторные /start
+  // (в т.ч. просто открытие приложения заново) его не перезаписывают.
+  const utmSource = !existing?.utm_source && clickSource ? clickSource : undefined;
 
   await supabase.from("user_stats").upsert({
     telegram_id:   user.id,
@@ -97,6 +97,19 @@ async function cmdStart(chatId, user, startPayload) {
     stats:         existing?.stats || {},
     ...(utmSource ? { utm_source: utmSource } : {}),
   }, { onConflict: "telegram_id" });
+
+  // Лог КАЖДОГО перехода по deep-link'у (не только первого) — utm_source
+  // выше даёт атрибуцию "кто пришёл откуда" (первое касание, 1 юзер = 1
+  // значение), а events здесь даёт статистику по самой ссылке: сколько раз
+  // по ней вообще кликали и сколько это уникальных людей (см. api/admin.js:
+  // getData() считает total/unique по event_type="deep_link_click").
+  if (clickSource) {
+    await supabase.from("events").insert({
+      telegram_id: user.id,
+      event_type: "deep_link_click",
+      payload: { source: clickSource },
+    });
+  }
 
   await send(chatId,
     `👋 Шалом, <b>${name}</b>!\n\n` +

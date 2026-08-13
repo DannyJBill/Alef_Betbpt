@@ -11,6 +11,14 @@ const supabase = createClient(
 const API = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 const APP_URL = process.env.APP_URL || "https://alef-betbpt.vercel.app";
 
+const ADMIN_TELEGRAM_ID = "5675751402"; // владелец, см. также api/admin.js
+
+// Временный тестовый режим для всех push-напоминаний (daily/smart/periodic):
+// пока true — сообщения уходят ТОЛЬКО админу, остальные юзеры молчат. Это
+// защита от случайной боевой рассылки, пока проверяем тексты/расписание.
+// Выключить (false), когда всё проверено и рассылка готова идти на всех.
+const REMINDERS_TEST_MODE = true;
+
 // Инлайн — обработка успешного платежа Stars
 async function handleSuccessfulPayment(telegramId, payment) {
   const payload = payment.invoice_payload || "";
@@ -176,7 +184,9 @@ async function sendBatch(rows, textFn, filterFn) {
   const BATCH_DELAY = 1000; // 1s between batches
   let sent = 0;
 
-  const eligible = rows.filter(filterFn);
+  const eligible = rows.filter((r) =>
+    filterFn(r) && (!REMINDERS_TEST_MODE || String(r.telegram_id) === ADMIN_TELEGRAM_ID)
+  );
 
   for (let i = 0; i < eligible.length; i += BATCH_SIZE) {
     const batch = eligible.slice(i, i + BATCH_SIZE);
@@ -206,11 +216,17 @@ export async function sendDailyReminders() {
     rows,
     (s) => {
       const due = Object.values(s?.cardReviews || {}).filter(r => r.nextReview <= now).length;
+      // Уже позанимался сегодня — не молчим (раньше такие юзеры полностью
+      // выпадали из daily-рассылки), а хвалим и напоминаем про регулярность.
+      if (s?.lastStudiedDate === today) {
+        return `✅ Сегодня уже позанимался — красавчик!\n🔥 Серия: ${s?.streak || 0} ${s?.streak === 1 ? "день" : "дней"}. Регулярность — половина успеха, не останавливайся!`;
+      }
       return due > 0
         ? `⏰ <b>Время повторить!</b>\n\n${due} букв ждут повторения.\n🔥 Серия: ${s?.streak || 0} дней — не прерывай!`
         : `📖 <b>Учись каждый день!</b>\n\n🔥 Серия: ${s?.streak || 0} дней\nЗайди и пройди новую группу!`;
     },
-    ({ stats: s }) => s?.lastStudiedDate !== today
+    () => true // раньше отсекали lastStudiedDate === today — теперь шлём всем,
+               // но с другим текстом для тех, кто уже позанимался (см. выше)
   );
 }
 
@@ -308,6 +324,7 @@ export async function sendPeriodicReminders() {
   const segFn = REMINDER_SEGMENTS[settings.segment] || REMINDER_SEGMENTS.all;
 
   const eligible = rows.filter((r) => {
+    if (REMINDERS_TEST_MODE && String(r.telegram_id) !== ADMIN_TELEGRAM_ID) return false;
     const s = r.stats || {};
     const lastSent = s.lastReminderSentAt || 0;
     if (now - lastSent < periodMs) return false;

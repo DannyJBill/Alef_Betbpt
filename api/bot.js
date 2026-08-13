@@ -54,6 +54,134 @@ async function send(chatId, text, extra = {}) {
   });
 }
 
+// ── Репетитор иврита (Claude) — пока доступен только владельцу ─────────────────
+//
+// Отдельная фича от ИИ-помощника мини-аппа (helpers/ai.js, сейчас выключен) —
+// это разговорный чат прямо в Telegram, а не подсказки по алфавиту. Состояние
+// диалога (вкл/выкл + история) хранится в user_stats.stats.tutor, отдельно от
+// игрового прогресса — так не нужна новая таблица/миграция.
+
+const TUTOR_SYSTEM_PROMPT = `Ты — современный, ненавязчивый репетитор разговорного иврита. Общаешься как живой собеседник в чате, а не как учебник: коротко, по-дружески, без нудных лекций и длинных списков правил.
+
+Твоя цель — научить человека:
+1) поддерживать простой разговор на иврите ("чатиться"),
+2) читать и понимать простые бытовые диалоги — БЕЗ огласовок (никогда не используй никуд, пиши иврит обычным консонантным письмом, как пишут между собой взрослые).
+
+Как вести диалог:
+- Пиши короткие реплики на иврите (без огласовок), подходящие по уровню собеседника — начинай проще, усложняй постепенно, когда видишь, что человек справляется.
+- Рядом кратко объясняй по-русски, что фраза значит и почему так — фраза за фразой, а не грамматической лекцией. Разбирай только то, что реально ново или непонятно, не разжёвывай очевидное.
+- Не дави и не подгоняй. Если человек ошибся — мягко поправь и продолжай разговор, не превращай это в экзамен. Если хочет просто поболтать — болтай, а не тестируй.
+- Подстраивайся под уровень по ходу диалога: не понимает — упрощай; легко справляется — усложняй лексику и грамматику, добавляй более естественные разговорные обороты.
+- Иногда предлагай короткий диалог (реплика-ответ) для тренировки чтения, но не навязывай — только если уместно по контексту.
+- Отвечай компактно — это чат, а не статья. Обычно 2–5 предложений.
+- Никогда не используй HTML-теги и служебные/внутренние XML-теги в ответе — только обычный текст.`;
+
+const TUTOR_MAX_HISTORY = 24; // ~12 обменов репликами — держим токены под контролем
+
+async function getTutorState(telegramId) {
+  const { data } = await supabase
+    .from("user_stats").select("stats")
+    .eq("telegram_id", telegramId).maybeSingle();
+  return data?.stats?.tutor || null;
+}
+
+async function saveTutorState(telegramId, tutorState) {
+  const { data } = await supabase
+    .from("user_stats").select("stats")
+    .eq("telegram_id", telegramId).maybeSingle();
+  const stats = data?.stats || {};
+  await supabase.from("user_stats").upsert({
+    telegram_id: telegramId,
+    stats: { ...stats, tutor: tutorState },
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "telegram_id" });
+}
+
+async function callTutor(history) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
+
+  const upstream = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-opus-5",
+      max_tokens: 1024,
+      // Живой чат-обмен репликами, не глубокий reasoning — отключаем thinking
+      // и держим низкий effort ради скорости и предсказуемого max_tokens.
+      thinking: { type: "disabled" },
+      output_config: { effort: "low" },
+      system: TUTOR_SYSTEM_PROMPT,
+      messages: history.map(({ role, content }) => ({ role, content })),
+    }),
+  });
+
+  if (!upstream.ok) {
+    const body = await upstream.json().catch(() => ({}));
+    throw new Error(body.error?.message || `Upstream error ${upstream.status}`);
+  }
+
+  const data = await upstream.json();
+  if (data.stop_reason === "refusal") {
+    return "Не могу ответить на это. Попробуй сформулировать иначе 🙂";
+  }
+  const textBlock = (data.content || []).find((b) => b.type === "text");
+  return textBlock?.text?.trim() || "Пустой ответ 🤔";
+}
+
+async function cmdTutor(chatId, telegramId) {
+  if (String(telegramId) !== ADMIN_TELEGRAM_ID) return;
+  const state = (await getTutorState(telegramId)) || { active: false, history: [] };
+  state.active = true;
+  await saveTutorState(telegramId, state);
+  await send(chatId,
+    "🗣️ <b>Режим репетитора включён.</b>\n\n" +
+    "Пиши мне на иврите или по-русски — подстроюсь под твой уровень, буду объяснять фразы и учить читать простые диалоги без огласовок.\n\n" +
+    "/tutor_stop — выйти из режима\n" +
+    "/tutor_reset — начать диалог заново"
+  );
+}
+
+async function cmdTutorStop(chatId, telegramId) {
+  if (String(telegramId) !== ADMIN_TELEGRAM_ID) return;
+  const state = (await getTutorState(telegramId)) || { active: false, history: [] };
+  state.active = false;
+  await saveTutorState(telegramId, state);
+  await send(chatId, "Вышел из режима репетитора. /tutor — вернуться.");
+}
+
+async function cmdTutorReset(chatId, telegramId) {
+  if (String(telegramId) !== ADMIN_TELEGRAM_ID) return;
+  await saveTutorState(telegramId, { active: true, history: [] });
+  await send(chatId, "🔄 Начинаем заново. Пиши что-нибудь на иврите или по-русски.");
+}
+
+// Возвращает true, если сообщение обработано репетитором (и дальше switch
+// по командам трогать не нужно) — false, если режим не включён.
+async function handleTutorMessage(chatId, telegramId, text) {
+  const state = await getTutorState(telegramId);
+  if (!state?.active) return false;
+
+  const history = [...(state.history || []), { role: "user", content: text }]
+    .slice(-TUTOR_MAX_HISTORY);
+
+  try {
+    const reply = await callTutor(history);
+    history.push({ role: "assistant", content: reply });
+    await saveTutorState(telegramId, { active: true, history });
+    // Без parse_mode: HTML — ответ модели не экранирован под Telegram-разметку.
+    await send(chatId, reply, { parse_mode: undefined });
+  } catch (err) {
+    console.error("[tutor] error", err);
+    await send(chatId, "⚠️ Не получилось получить ответ от репетитора, попробуй ещё раз.");
+  }
+  return true;
+}
+
 async function getStats(telegramId) {
   const { data } = await supabase
     .from("user_stats")
@@ -421,11 +549,21 @@ export default async function handler(req, res) {
     ? msg.text.replace(/^\/start(@\S+)?\s*/, "")
     : "";
 
+  // Обычный текст (не команда) от владельца в режиме /tutor уходит в Claude,
+  // а не в switch ниже — проверяем раньше остальных команд.
+  if (!msg.text.startsWith("/") && String(userId) === ADMIN_TELEGRAM_ID) {
+    const handled = await handleTutorMessage(chatId, userId, msg.text);
+    if (handled) return res.status(200).end();
+  }
+
   switch (cmd) {
-    case "/start":  await cmdStart(chatId, msg.from, startPayload); break;
-    case "/stats":  await cmdStats(chatId, userId); break;
-    case "/streak": await cmdStreak(chatId, userId); break;
-    case "/reset":  await cmdReset(chatId); break;
+    case "/start":       await cmdStart(chatId, msg.from, startPayload); break;
+    case "/stats":       await cmdStats(chatId, userId); break;
+    case "/streak":      await cmdStreak(chatId, userId); break;
+    case "/reset":       await cmdReset(chatId); break;
+    case "/tutor":       await cmdTutor(chatId, userId); break;
+    case "/tutor_stop":  await cmdTutorStop(chatId, userId); break;
+    case "/tutor_reset": await cmdTutorReset(chatId, userId); break;
     case "/help":
       await send(chatId,
         "📋 <b>Команды</b>\n\n" +

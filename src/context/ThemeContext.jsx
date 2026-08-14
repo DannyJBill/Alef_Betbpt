@@ -37,6 +37,14 @@ export function ThemeProvider({ children }) {
     } catch { /* ignore */ }
   }, [dark]);
 
+  // Синхронизируем класс .dark на <html> — Tailwind (darkMode: 'class')
+  // читает dark:-классы отсюда, а не из системной темы устройства. Без
+  // этого dark:-классы в некоторых экранах следовали бы системной теме,
+  // расходясь с этим стейтом (см. tailwind.config.js).
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+  }, [dark]);
+
   useEffect(() => {
     try {
       localStorage.setItem(THEME_MANUAL_KEY, manual ? "1" : "0");
